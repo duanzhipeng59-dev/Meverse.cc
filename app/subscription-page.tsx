@@ -201,17 +201,6 @@ export default function SubscriptionPage() {
                   onClick={() => choosePlan(plan)}
                   aria-pressed={selectedId === plan.id}
                 >
-                  <span
-                    className="plan-icon"
-                    style={
-                      {
-                        "--plan-accent": plan.accent,
-                      } as React.CSSProperties
-                    }
-                    aria-hidden="true"
-                  >
-                    {plan.icon}
-                  </span>
                   <span className="plan-copy">
                     <span className="plan-title">{plan.title}</span>
                     <span className="plan-subtitle">{plan.subtitle}</span>
@@ -225,6 +214,17 @@ export default function SubscriptionPage() {
                     <span className="price-suffix">{plan.suffix}</span>
                   </span>
                   <span className="plan-detail">{plan.detail}</span>
+                  <span
+                    className="plan-icon plan-card-icon"
+                    style={
+                      {
+                        "--plan-accent": plan.accent,
+                      } as React.CSSProperties
+                    }
+                    aria-hidden="true"
+                  >
+                    {plan.icon}
+                  </span>
                   {selectedId === plan.id && (
                     <span className="selected-check" aria-hidden="true">
                       ✓

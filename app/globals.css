@@ -283,6 +283,18 @@ input:focus-visible {
   justify-content: center;
 }
 
+@media (min-width: 1101px) {
+  .plan-grid {
+    width: 50%;
+    margin-inline: auto;
+  }
+
+  .plans-section.single-plan .plan-grid {
+    width: 20%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .plan-card {
   position: relative;
   display: flex;
@@ -330,19 +342,27 @@ input:focus-visible {
   font-weight: 750;
 }
 
+.plan-card-icon {
+  position: absolute;
+  right: 18px;
+  bottom: 17px;
+}
+
 .plan-copy {
   display: flex;
-  min-height: 58px;
+  min-height: 70px;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 12px;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-top: 0;
+  padding-right: 26px;
 }
 
 .plan-title {
-  font-size: clamp(15px, 1.05vw, 18px);
-  font-weight: 680;
-  letter-spacing: -0.2px;
-  line-height: 1.28;
+  font-size: clamp(19px, 1.35vw, 23px);
+  font-weight: 720;
+  letter-spacing: -0.35px;
+  line-height: 1.25;
 }
 
 .plan-subtitle {
@@ -382,6 +402,7 @@ input:focus-visible {
 }
 
 .plan-detail {
+  max-width: calc(100% - 58px);
   margin-top: 7px;
   color: var(--muted);
   font-size: 12px;
@@ -1073,15 +1094,22 @@ input:focus-visible {
     font-size: 15px;
   }
 
+  .plan-card-icon {
+    right: 12px;
+    bottom: 12px;
+  }
+
   .plan-copy {
-    min-height: 48px;
-    gap: 2px;
-    margin-top: 9px;
+    min-height: 64px;
+    gap: 4px;
+    margin-top: 0;
+    padding-right: 18px;
   }
 
   .plan-title {
-    padding-right: 7px;
-    font-size: 12px;
+    padding-right: 0;
+    font-size: 15px;
+    line-height: 1.25;
   }
 
   .plan-subtitle {
@@ -1107,6 +1135,7 @@ input:focus-visible {
   }
 
   .plan-detail {
+    max-width: calc(100% - 40px);
     margin-top: 4px;
   }
 
