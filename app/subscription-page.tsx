@@ -57,16 +57,7 @@ export default function SubscriptionPage({
     mobileLabel?: string;
     badge?: string;
   }> = useMemo(
-    () => [
-      { id: "official", label: t("subscribe.tab.official") },
-      {
-        id: "coding",
-        label: t("subscribe.tab.coding"),
-        mobileLabel: t("subscribe.tab.coding.mobile"),
-        badge: t("subscribe.badge.save"),
-      },
-      { id: "developer-api", label: t("subscribe.tab.developer") },
-    ],
+    () => [{ id: "official", label: t("subscribe.tab.official") }],
     [t],
   );
 

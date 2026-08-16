@@ -43,6 +43,8 @@ test("server-renders the WildAI subscription page", async () => {
   assert.match(html, /WildAI/);
   assert.match(html, /新订阅/);
   assert.match(html, /ChatGPT\/CodeX/);
+  assert.doesNotMatch(html, /Claude Code\/Codex/);
+  assert.doesNotMatch(html, /开发者 API/);
   assert.doesNotMatch(html, /Claude Pro \/ Max\+/);
   assert.doesNotMatch(html, /Claude API/);
   assert.match(html, /立即订阅/);
