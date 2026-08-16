@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  KeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   demoSteps,
   plans,
@@ -40,6 +47,19 @@ const AUTH_API_ERRORS = new Set([
 
 type AuthIntent = "account" | "checkout";
 
+function PasswordVisibilityIcon({ visible }: { visible: boolean }) {
+  return visible ? (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c5.2 0 8.8 4.7 9.7 6.1a3.3 3.3 0 0 1 0 3.8 17 17 0 0 1-2.4 2.8M6.2 6.2a17 17 0 0 0-3.9 3.9 3.3 3.3 0 0 0 0 3.8C3.2 15.3 6.8 20 12 20a10.7 10.7 0 0 0 4.1-.8" />
+    </svg>
+  ) : (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M2.3 10.1C3.2 8.7 6.8 4 12 4s8.8 4.7 9.7 6.1a3.3 3.3 0 0 1 0 3.8C20.8 15.3 17.2 20 12 20S3.2 15.3 2.3 13.9a3.3 3.3 0 0 1 0-3.8Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 export default function SubscriptionPage({
   chatGPTUser,
   chatGPTSignInPath,
@@ -73,6 +93,8 @@ export default function SubscriptionPage({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [code, setCode] = useState("");
   const [authInviteCode, setAuthInviteCode] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -145,6 +167,8 @@ export default function SubscriptionPage({
     setMode("login");
     setLoginMethod("password");
     setDemoStep("login");
+    setPasswordVisible(false);
+    setConfirmPasswordVisible(false);
     setModalOpen(true);
   }
 
@@ -184,9 +208,24 @@ export default function SubscriptionPage({
     );
   }
 
-  async function sendEmailCode() {
-    if (!email.trim()) {
+  async function sendEmailCode(event: ReactMouseEvent<HTMLButtonElement>) {
+    const formData = event.currentTarget.form
+      ? new FormData(event.currentTarget.form)
+      : null;
+    const submittedEmail = String(formData?.get("email") ?? email).trim();
+    const submittedPassword = String(
+      formData?.get("password") ?? password,
+    );
+
+    if (!submittedEmail) {
       showToast(t("auth.toast.email_required"));
+      return;
+    }
+    if (
+      mode === "register" &&
+      (submittedPassword.length < 8 || submittedPassword.length > 128)
+    ) {
+      showToast(t("auth.toast.invalid_password"));
       return;
     }
     setSendingCode(true);
@@ -195,8 +234,8 @@ export default function SubscriptionPage({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          email,
-          password,
+          email: submittedEmail,
+          password: submittedPassword,
           purpose: mode === "register" ? "register" : "login",
         }),
       });
@@ -464,6 +503,7 @@ export default function SubscriptionPage({
                 <form onSubmit={submitLogin} className="auth-form">
                   <input
                     className="auth-input"
+                    name="email"
                     type="email"
                     autoComplete="email"
                     value={email}
@@ -475,8 +515,13 @@ export default function SubscriptionPage({
                   {(mode === "register" || loginMethod === "password") && (
                     <div className="password-field">
                       <input
-                        className="auth-input"
-                        type="password"
+                        className={
+                          mode === "register"
+                            ? "auth-input has-visibility-toggle"
+                            : "auth-input"
+                        }
+                        name="password"
+                        type={passwordVisible ? "text" : "password"}
                         autoComplete={
                           mode === "register" ? "new-password" : "current-password"
                         }
@@ -496,24 +541,58 @@ export default function SubscriptionPage({
                           {t("auth.forgot_password")}
                         </button>
                       )}
+                      {mode === "register" && (
+                        <button
+                          className="password-visibility"
+                          type="button"
+                          aria-label={t(
+                            passwordVisible
+                              ? "auth.hide_password"
+                              : "auth.show_password",
+                          )}
+                          aria-pressed={passwordVisible}
+                          onClick={() => setPasswordVisible((visible) => !visible)}
+                        >
+                          <PasswordVisibilityIcon visible={passwordVisible} />
+                        </button>
+                      )}
                     </div>
                   )}
 
                   {mode === "register" && (
-                    <input
-                      className="auth-input"
-                      type="password"
-                      autoComplete="new-password"
-                      value={confirmPassword}
-                      onChange={(event) => setConfirmPassword(event.target.value)}
-                      placeholder={t("auth.placeholder.confirm_password")}
-                      aria-label={t("auth.placeholder.confirm_password")}
-                    />
+                    <div className="password-field">
+                      <input
+                        className="auth-input has-visibility-toggle"
+                        name="confirmPassword"
+                        type={confirmPasswordVisible ? "text" : "password"}
+                        autoComplete="new-password"
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        placeholder={t("auth.placeholder.confirm_password")}
+                        aria-label={t("auth.placeholder.confirm_password")}
+                      />
+                      <button
+                        className="password-visibility"
+                        type="button"
+                        aria-label={t(
+                          confirmPasswordVisible
+                            ? "auth.hide_password"
+                            : "auth.show_password",
+                        )}
+                        aria-pressed={confirmPasswordVisible}
+                        onClick={() =>
+                          setConfirmPasswordVisible((visible) => !visible)
+                        }
+                      >
+                        <PasswordVisibilityIcon visible={confirmPasswordVisible} />
+                      </button>
+                    </div>
                   )}
 
                   {(mode === "register" || loginMethod === "code") && (
                     <div className="auth-code-field">
                       <input
+                        name="code"
                         inputMode="numeric"
                         value={code}
                         onChange={(event) => setCode(event.target.value)}
@@ -533,6 +612,7 @@ export default function SubscriptionPage({
                   {mode === "register" && (
                     <input
                       className="auth-input"
+                      name="inviteCode"
                       value={authInviteCode}
                       onChange={(event) => setAuthInviteCode(event.target.value)}
                       placeholder={t("auth.placeholder.invite_code")}
@@ -599,6 +679,8 @@ export default function SubscriptionPage({
                     onClick={() => {
                       setMode(mode === "login" ? "register" : "login");
                       setLoginMethod("password");
+                      setPasswordVisible(false);
+                      setConfirmPasswordVisible(false);
                     }}
                   >
                     {mode === "login"

@@ -79,3 +79,15 @@ test("sends Supabase-generated verification codes through Resend", async () => {
   assert.match(emailCodeRoute, /auth\.admin\.generateLink/);
   assert.doesNotMatch(emailCodeRoute, /signInWithOtp/);
 });
+
+test("registration reads autofilled passwords and provides visibility controls", async () => {
+  const page = await readFile(
+    new URL("../app/subscription-page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(page, /new FormData\(event\.currentTarget\.form\)/);
+  assert.match(page, /name="password"/);
+  assert.match(page, /className="password-visibility"/);
+  assert.match(page, /PasswordVisibilityIcon/);
+});

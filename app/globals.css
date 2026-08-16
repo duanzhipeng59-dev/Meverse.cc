@@ -1493,6 +1493,45 @@ select:focus-visible {
   box-shadow: none;
 }
 
+.password-field .auth-input.has-visibility-toggle {
+  padding-right: 52px;
+}
+
+.password-visibility {
+  position: absolute;
+  right: 14px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+}
+
+.password-visibility:hover {
+  background: #e8e8e8;
+  color: #242424;
+}
+
+.password-visibility:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.password-visibility svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .forgot-password {
   position: absolute;
   right: 15px;
