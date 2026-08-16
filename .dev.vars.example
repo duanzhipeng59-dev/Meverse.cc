@@ -1,3 +1,2 @@
-RESEND_API_KEY=re_your_api_key
-RESEND_FROM_EMAIL=WildAI <verify@your-domain.com>
-EMAIL_CODE_SECRET=replace-with-at-least-32-random-characters
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key

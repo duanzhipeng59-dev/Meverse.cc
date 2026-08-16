@@ -91,8 +91,11 @@ export default function SubscriptionPage({
   useEffect(() => {
     let active = true;
     fetch("/api/auth/session")
-      .then((response) => response.json())
-      .then((result: { user?: { id: string } | null }) => {
+      .then(
+        (response) =>
+          response.json() as Promise<{ user?: { id: string } | null }>,
+      )
+      .then((result) => {
         if (active) setIsAuthenticated(Boolean(result.user));
       })
       .catch(() => undefined);
@@ -191,7 +194,10 @@ export default function SubscriptionPage({
       const response = await fetch("/api/auth/email-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          purpose: mode === "register" ? "register" : "login",
+        }),
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) {
