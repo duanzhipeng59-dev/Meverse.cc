@@ -27,7 +27,7 @@ export interface DemoStep {
 
 export const navigationItems: NavigationItem[] = [
   { id: "subscribe", label: "订阅", active: true },
-  { id: "transactions", label: "交易记录" },
+  { id: "orders", label: "我的订单" },
   { id: "invitations", label: "我的邀请" },
 ];
 
@@ -36,7 +36,7 @@ export const plans: Plan[] = [
     id: "chatgpt",
     category: "official",
     brand: "OpenAI",
-    title: "ChatGPT Go / Plus / Pro",
+    title: "ChatGPT/CodeX",
     detail: "支持 Codex 的全能模型",
     price: "22.99",
     suffix: "/月起",
@@ -72,7 +72,7 @@ export const plans: Plan[] = [
     id: "gemini",
     category: "official",
     brand: "Google",
-    title: "Gemini Pro / Ultra",
+    title: "Gemini Pro/Ultra",
     detail: "原生多模态 AI，搭载 Veo",
     price: "9.99",
     suffix: "/月起",
@@ -131,7 +131,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: "complete",
-    title: "前端演示完成",
-    description: "后续接入真实订单与支付逻辑",
+    title: "套餐确认完成",
+    description: "支付服务当前暂未开放",
   },
 ];

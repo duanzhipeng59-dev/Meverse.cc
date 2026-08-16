@@ -1,57 +1,121 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
 import {
   demoSteps,
-  navigationItems,
   plans,
   type DemoStep,
   type Plan,
   type ProductCategory,
 } from "./data";
+import { useLanguage } from "./language-context";
+import type { ChatGPTUser } from "./chatgpt-auth";
+import ChatGPTSubscriptionWizard from "./chatgpt-subscription-wizard";
+import {
+  DesktopSidebar,
+  MobileNavigation,
+  SiteHeader,
+  Toast,
+} from "./site-chrome";
 
-const tabs: Array<{
-  id: ProductCategory;
-  label: string;
-  mobileLabel?: string;
-  badge?: string;
-}> = [
-  { id: "official", label: "新订阅" },
-  {
-    id: "coding",
-    label: "Claude Code/Codex",
-    mobileLabel: "CC/Codex",
-    badge: "最多省 50%",
-  },
-  { id: "developer-api", label: "开发者 API" },
-];
+const DEMOSTEP_LABEL_KEYS: Record<string, string> = {
+  login: "demostep.login",
+  confirm: "demostep.confirm",
+  complete: "demostep.complete",
+};
 
-function BrandMark() {
-  return (
-    <span className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
-      <span />
-    </span>
+const HIDDEN_PLAN_IDS = new Set(["claude", "claude-api"]);
+const AUTH_API_ERRORS = new Set([
+  "invalid_email",
+  "code_too_frequent",
+  "email_send_failed",
+  "email_service_unavailable",
+  "invalid_code",
+  "code_expired",
+  "invalid_password",
+  "email_exists",
+  "invalid_credentials",
+  "auth_unavailable",
+]);
+
+type AuthIntent = "account" | "checkout";
+
+export default function SubscriptionPage({
+  chatGPTUser,
+  chatGPTSignInPath,
+  resumeChatGPTFlow = false,
+}: {
+  chatGPTUser: ChatGPTUser | null;
+  chatGPTSignInPath: string;
+  resumeChatGPTFlow?: boolean;
+}) {
+  const { t } = useLanguage();
+
+  const tabs: Array<{
+    id: ProductCategory;
+    label: string;
+    mobileLabel?: string;
+    badge?: string;
+  }> = useMemo(
+    () => [
+      { id: "official", label: t("subscribe.tab.official") },
+      {
+        id: "coding",
+        label: t("subscribe.tab.coding"),
+        mobileLabel: t("subscribe.tab.coding.mobile"),
+        badge: t("subscribe.badge.save"),
+      },
+      { id: "developer-api", label: t("subscribe.tab.developer") },
+    ],
+    [t],
   );
-}
 
-export default function SubscriptionPage() {
   const [activeCategory, setActiveCategory] =
     useState<ProductCategory>("official");
   const [selectedId, setSelectedId] = useState("chatgpt");
-  const [inviteCode, setInviteCode] = useState("");
-  const [inviteApplied, setInviteApplied] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [loginMethod, setLoginMethod] = useState<"password" | "code">(
+    "password",
+  );
   const [demoStep, setDemoStep] = useState<DemoStep["id"]>("login");
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [code, setCode] = useState("");
+  const [authInviteCode, setAuthInviteCode] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authIntent, setAuthIntent] = useState<AuthIntent>("account");
   const [toast, setToast] = useState("");
+  const [chatGPTWizardOpen, setChatGPTWizardOpen] = useState(
+    resumeChatGPTFlow,
+  );
+  const [chatGPTWizardStartStep, setChatGPTWizardStartStep] = useState(
+    resumeChatGPTFlow ? (chatGPTUser ? 4 : 3) : 1,
+  );
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/session")
+      .then((response) => response.json())
+      .then((result: { user?: { id: string } | null }) => {
+        if (active) setIsAuthenticated(Boolean(result.user));
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const visiblePlans = useMemo(
-    () => plans.filter((plan) => plan.category === activeCategory),
+    () =>
+      plans.filter(
+        (plan) =>
+          plan.category === activeCategory && !HIDDEN_PLAN_IDS.has(plan.id),
+      ),
     [activeCategory],
   );
   const selectedPlan =
@@ -73,10 +137,44 @@ export default function SubscriptionPage() {
     setSelectedId(plan.id);
   }
 
-  function openDemo(nextMode: "login" | "register" = "login") {
-    setMode(nextMode);
+  function openChatGPTWizard() {
+    setChatGPTWizardStartStep(1);
+    setChatGPTWizardOpen(true);
+  }
+
+  function closeChatGPTWizard() {
+    setChatGPTWizardOpen(false);
+  }
+
+  function openAuth(nextIntent: AuthIntent) {
+    setAuthIntent(nextIntent);
+    setMode("login");
+    setLoginMethod("password");
     setDemoStep("login");
     setModalOpen(true);
+  }
+
+  function openAccountAuth() {
+    openAuth("account");
+  }
+
+  function continueCheckout() {
+    if (selectedPlan.id === "chatgpt") {
+      openChatGPTWizard();
+      return;
+    }
+
+    setDemoStep("confirm");
+    setModalOpen(true);
+  }
+
+  function beginCheckout() {
+    if (!isAuthenticated) {
+      openAuth("checkout");
+      return;
+    }
+
+    continueCheckout();
   }
 
   function closeModal() {
@@ -84,85 +182,128 @@ export default function SubscriptionPage() {
     setDemoStep("login");
   }
 
-  function submitLogin(event: FormEvent<HTMLFormElement>) {
+  function authErrorMessage(error: string) {
+    return t(
+      AUTH_API_ERRORS.has(error)
+        ? `auth.toast.${error}`
+        : "auth.toast.email_service_unavailable",
+    );
+  }
+
+  async function sendEmailCode() {
+    if (!email.trim()) {
+      showToast(t("auth.toast.email_required"));
+      return;
+    }
+    setSendingCode(true);
+    try {
+      const response = await fetch("/api/auth/email-code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        showToast(authErrorMessage(result.error ?? ""));
+        return;
+      }
+      showToast(t("auth.toast.code_sent"));
+    } catch {
+      showToast(t("auth.toast.email_service_unavailable"));
+    } finally {
+      setSendingCode(false);
+    }
+  }
+
+  async function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!phone.trim() || !code.trim()) {
-      showToast("请填写手机号和验证码");
+    if (!email.trim()) {
+      showToast(t("auth.toast.email_required"));
+      return;
+    }
+    if (mode === "login" && loginMethod === "password" && !password.trim()) {
+      showToast(t("auth.toast.password_required"));
+      return;
+    }
+    if (mode === "login" && loginMethod === "code" && !code.trim()) {
+      showToast(t("auth.toast.code_required"));
+      return;
+    }
+    if (
+      mode === "register" &&
+      (!password.trim() || !confirmPassword.trim() || !code.trim())
+    ) {
+      showToast(t("auth.toast.fill_all"));
+      return;
+    }
+    if (mode === "register" && password !== confirmPassword) {
+      showToast(t("auth.toast.password_mismatch"));
       return;
     }
     if (!agreed) {
-      showToast("请先阅读并同意服务条款");
+      showToast(t("auth.toast.agree_required"));
       return;
     }
-    setDemoStep("confirm");
-  }
 
-  function applyInvite() {
-    if (!inviteCode.trim()) {
-      showToast("请输入邀请码");
+    setVerifyingCode(true);
+    try {
+      const endpoint = mode === "register" ? "/api/auth/register" : "/api/auth/login";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          code,
+          method: loginMethod,
+        }),
+      });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        showToast(authErrorMessage(result.error ?? ""));
+        return;
+      }
+    } catch {
+      showToast(t("auth.toast.auth_unavailable"));
+      return;
+    } finally {
+      setVerifyingCode(false);
+    }
+
+    setIsAuthenticated(true);
+    if (authIntent === "checkout") {
+      if (selectedPlan.id === "chatgpt") {
+        setModalOpen(false);
+        setDemoStep("login");
+        openChatGPTWizard();
+      } else {
+        setDemoStep("confirm");
+      }
       return;
     }
-    setInviteApplied(true);
-    showToast("邀请码已应用（演示）");
+
+    closeModal();
+    showToast(
+      mode === "register"
+        ? t("auth.toast.register_success")
+        : t("auth.toast.login_success"),
+    );
   }
 
   function handleDialogKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === "Escape") closeModal();
   }
 
+  function getDemoStepTitle(id: string): string {
+    return t(DEMOSTEP_LABEL_KEYS[id] ?? id);
+  }
+
   return (
     <div className="site-shell">
-      <header className="site-header">
-        <a className="brand" href="/subscribe" aria-label="WildAI 订阅首页">
-          <BrandMark />
-          <span>WildAI</span>
-        </a>
-        <div className="header-actions">
-          <button
-            className="language-button"
-            type="button"
-            onClick={() => showToast("第一版暂仅提供中文")}
-          >
-            EN
-            <span aria-hidden="true">⌄</span>
-          </button>
-          <button
-            className="login-link"
-            type="button"
-            onClick={() => openDemo("login")}
-          >
-            登录
-          </button>
-          <button
-            className="register-button"
-            type="button"
-            onClick={() => openDemo("register")}
-          >
-            注册
-          </button>
-        </div>
-      </header>
+      <SiteHeader authAction={openAccountAuth} />
 
       <div className="page-layout">
-        <aside className="sidebar" aria-label="主导航">
-          <nav>
-            {navigationItems.map((item) => (
-              <button
-                className={item.active ? "nav-item active" : "nav-item"}
-                key={item.id}
-                type="button"
-                aria-current={item.active ? "page" : undefined}
-                onClick={() =>
-                  item.active
-                    ? undefined
-                    : showToast(`${item.label}将在后续版本开放`)
-                }
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-        </aside>
+        <DesktopSidebar active="subscribe" ariaLabel="主导航" />
 
         <main className="subscribe-main">
           <div className="primary-tabs" role="tablist" aria-label="订阅分类">
@@ -206,7 +347,9 @@ export default function SubscriptionPage() {
                     <span className="plan-subtitle">{plan.subtitle}</span>
                   </span>
                   <span className="price-block">
-                    <span className="price-label">原价</span>
+                    <span className="price-label">
+                      {t("subscribe.price.original")}
+                    </span>
                     <span className="price">
                       <small>$</small>
                       {plan.price}
@@ -237,84 +380,35 @@ export default function SubscriptionPage() {
             <p className="guarantee">
               <span aria-hidden="true">✓</span>
               {activeCategory === "developer-api"
-                ? "在 Cursor / Cline / OpenClaw 中直接配置，或写入你自己的代码。"
+                ? t("subscribe.guarantee.developer")
                 : activeCategory === "coding"
-                  ? "无需账户和外卡支付，远离封号和网络问题。"
-                  : "升级你自己的账户 · 订阅失败全额退款 · 7×12h 在线客服"}
+                  ? t("subscribe.guarantee.coding")
+                  : t("subscribe.guarantee.official")}
             </p>
           </section>
 
           <section className="checkout-panel" aria-label="订阅操作">
-            {activeCategory === "official" && (
-              <div className="invite-row">
-                <label htmlFor="inviteCode">邀请码</label>
-                <div className="invite-control">
-                  <input
-                    id="inviteCode"
-                    value={inviteCode}
-                    onChange={(event) => {
-                      setInviteCode(event.target.value);
-                      setInviteApplied(false);
-                    }}
-                    placeholder="输入邀请码"
-                  />
-                  <button type="button" onClick={applyInvite}>
-                    {inviteApplied ? "已应用" : "确认"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="selected-summary">
-              <span>
-                已选择
-                <strong>{selectedPlan.title}</strong>
-              </span>
-              <span className="summary-price">
-                ${selectedPlan.price}
-                <small>{selectedPlan.suffix}</small>
-              </span>
-            </div>
-
             <button
               className="next-button"
               type="button"
-              onClick={() => openDemo("login")}
+              onClick={beginCheckout}
             >
-              立即订阅
+              {t("subscribe.cta")}
               <span aria-hidden="true">→</span>
             </button>
           </section>
         </main>
       </div>
 
-      <nav className="mobile-nav" aria-label="移动端主导航">
-        {navigationItems.map((item, index) => (
-          <button
-            type="button"
-            key={item.id}
-            className={item.active ? "active" : ""}
-            onClick={() =>
-              item.active
-                ? undefined
-                : showToast(`${item.label}将在后续版本开放`)
-            }
-          >
-            <span aria-hidden="true">
-              {index === 0 ? "▦" : index === 1 ? "↻" : "♙"}
-            </span>
-            {item.label}
-          </button>
-        ))}
-      </nav>
+      <MobileNavigation active="subscribe" />
 
       <button
         className="support-button"
         type="button"
-        onClick={() => showToast("在线客服为前端演示入口")}
+        onClick={() => showToast(t("support.toast"))}
       >
         <span aria-hidden="true">◌</span>
-        客服
+        {t("support")}
       </button>
 
       {modalOpen && (
@@ -336,93 +430,146 @@ export default function SubscriptionPage() {
               className="close-button"
               type="button"
               onClick={closeModal}
-              aria-label="关闭"
+              aria-label={t("auth.close")}
               autoFocus
             >
               ×
             </button>
 
-            <div className="stepper" aria-label="演示进度">
-              {demoSteps.map((step, index) => (
-                <div
-                  key={step.id}
-                  className={
-                    index <= stepIndex ? "step-indicator active" : "step-indicator"
-                  }
-                >
-                  <span>{index < stepIndex ? "✓" : index + 1}</span>
-                  <small>{step.title}</small>
-                </div>
-              ))}
-            </div>
+            {demoStep !== "login" && (
+              <div className="stepper" aria-label="订阅进度">
+                {demoSteps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className={
+                      index <= stepIndex
+                        ? "step-indicator active"
+                        : "step-indicator"
+                    }
+                  >
+                    <span>{index < stepIndex ? "✓" : index + 1}</span>
+                    <small>{getDemoStepTitle(step.id)}</small>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {demoStep === "login" && (
-              <>
-                <div className="modal-brand">
-                  <BrandMark />
-                  <span>WildAI</span>
-                </div>
+              <div className="auth-panel">
                 <h1 id="demo-title">
-                  {mode === "login" ? "登录 WildAI" : "注册 WildAI"}
+                  {mode === "register"
+                    ? t("auth.title.register")
+                    : loginMethod === "password"
+                      ? t("auth.title.login")
+                      : t("auth.title.login_code")}
                 </h1>
-                <p className="modal-description">
-                  {mode === "login"
-                    ? "登录后继续完成你的 AI 服务订阅"
-                    : "创建账户，开始使用 WildAI"}
-                </p>
-                <div className="mode-switch" role="tablist" aria-label="账户操作">
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={mode === "login"}
-                    className={mode === "login" ? "active" : ""}
-                    onClick={() => setMode("login")}
-                  >
-                    登录
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={mode === "register"}
-                    className={mode === "register" ? "active" : ""}
-                    onClick={() => setMode("register")}
-                  >
-                    注册
-                  </button>
-                </div>
                 <form onSubmit={submitLogin} className="auth-form">
-                  <label>
-                    手机号
-                    <span className="phone-input">
-                      <span>+86</span>
+                  <input
+                    className="auth-input"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder={t("auth.placeholder.email")}
+                    aria-label={t("auth.placeholder.email")}
+                  />
+
+                  {(mode === "register" || loginMethod === "password") && (
+                    <div className="password-field">
                       <input
-                        inputMode="tel"
-                        autoComplete="tel"
-                        value={phone}
-                        onChange={(event) => setPhone(event.target.value)}
-                        placeholder="请输入手机号"
-                        aria-label="手机号"
+                        className="auth-input"
+                        type="password"
+                        autoComplete={
+                          mode === "register" ? "new-password" : "current-password"
+                        }
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        placeholder={t("auth.placeholder.password")}
+                        aria-label={t("auth.placeholder.password")}
                       />
-                    </span>
-                  </label>
-                  <label>
-                    验证码
-                    <span className="code-input">
+                      {mode === "login" && (
+                        <button
+                          className="forgot-password"
+                          type="button"
+                          onClick={() =>
+                            showToast(t("auth.toast.forgot_password_demo"))
+                          }
+                        >
+                          {t("auth.forgot_password")}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {mode === "register" && (
+                    <input
+                      className="auth-input"
+                      type="password"
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(event) => setConfirmPassword(event.target.value)}
+                      placeholder={t("auth.placeholder.confirm_password")}
+                      aria-label={t("auth.placeholder.confirm_password")}
+                    />
+                  )}
+
+                  {(mode === "register" || loginMethod === "code") && (
+                    <div className="auth-code-field">
                       <input
                         inputMode="numeric"
                         value={code}
                         onChange={(event) => setCode(event.target.value)}
-                        placeholder="请输入验证码"
-                        aria-label="验证码"
+                        placeholder={t("auth.placeholder.code")}
+                        aria-label={t("auth.placeholder.code")}
                       />
                       <button
                         type="button"
-                        onClick={() => showToast("验证码已发送（演示）")}
+                        disabled={sendingCode}
+                        onClick={sendEmailCode}
                       >
-                        获取验证码
+                        {t(sendingCode ? "auth.sending_code" : "auth.get_code")}
                       </button>
-                    </span>
-                  </label>
+                    </div>
+                  )}
+
+                  {mode === "register" && (
+                    <input
+                      className="auth-input"
+                      value={authInviteCode}
+                      onChange={(event) => setAuthInviteCode(event.target.value)}
+                      placeholder={t("auth.placeholder.invite_code")}
+                      aria-label={t("auth.placeholder.invite_code")}
+                    />
+                  )}
+
+                  <button
+                    className="modal-primary auth-submit"
+                    type="submit"
+                    disabled={verifyingCode}
+                  >
+                    {verifyingCode
+                      ? t("auth.verifying_code")
+                      : mode === "register"
+                        ? t("auth.submit.register")
+                      : t("auth.submit.login")}
+                  </button>
+
+                  {mode === "login" && (
+                    <button
+                      className="auth-method-button"
+                      type="button"
+                      onClick={() =>
+                        setLoginMethod((current) =>
+                          current === "password" ? "code" : "password",
+                        )
+                      }
+                    >
+                      {loginMethod === "password"
+                        ? t("auth.switch.to_code")
+                        : t("auth.switch.to_password")}
+                    </button>
+                  )}
+
                   <label className="agreement">
                     <input
                       type="checkbox"
@@ -430,14 +577,38 @@ export default function SubscriptionPage() {
                       onChange={(event) => setAgreed(event.target.checked)}
                     />
                     <span>
-                      我已阅读并同意《服务条款》和《隐私政策》
+                      {t("auth.agreement.prefix")}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          showToast(t("auth.toast.agreement_demo"))
+                        }
+                      >
+                        {t("auth.agreement.link")}
+                      </button>
                     </span>
                   </label>
-                  <button className="modal-primary" type="submit">
-                    {mode === "login" ? "登录并继续" : "注册并继续"}
-                  </button>
                 </form>
-              </>
+
+                <div className="auth-mode-footer">
+                  <span>
+                    {mode === "login"
+                      ? t("auth.no_account")
+                      : t("auth.has_account")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode(mode === "login" ? "register" : "login");
+                      setLoginMethod("password");
+                    }}
+                  >
+                    {mode === "login"
+                      ? t("auth.switch_mode.register")
+                      : t("auth.switch_mode.login")}
+                  </button>
+                </div>
+              </div>
             )}
 
             {demoStep === "confirm" && (
@@ -445,9 +616,9 @@ export default function SubscriptionPage() {
                 <span className="confirm-icon" aria-hidden="true">
                   ✓
                 </span>
-                <h1 id="demo-title">确认订阅套餐</h1>
+                <h1 id="demo-title">{t("confirm.title")}</h1>
                 <p className="modal-description">
-                  这是前端演示，不会创建订单或产生扣款。
+                  {t("confirm.description")}
                 </p>
                 <div className="confirm-card">
                   <span
@@ -471,14 +642,14 @@ export default function SubscriptionPage() {
                   type="button"
                   onClick={() => setDemoStep("complete")}
                 >
-                  确认并继续
+                  {t("confirm.continue")}
                 </button>
                 <button
                   className="modal-secondary"
                   type="button"
                   onClick={() => setDemoStep("login")}
                 >
-                  上一步
+                  {t("confirm.back")}
                 </button>
               </div>
             )}
@@ -488,16 +659,14 @@ export default function SubscriptionPage() {
                 <span className="success-ring" aria-hidden="true">
                   ✓
                 </span>
-                <h1 id="demo-title">前端演示完成</h1>
-                <p>
-                  套餐选择、登录与订单确认界面已走通。真实支付和账号逻辑将在后续版本接入。
-                </p>
+                <h1 id="demo-title">{t("complete.title")}</h1>
+                <p>{t("complete.description")}</p>
                 <button
                   className="modal-primary"
                   type="button"
                   onClick={closeModal}
                 >
-                  完成
+                  {t("complete.done")}
                 </button>
               </div>
             )}
@@ -505,11 +674,17 @@ export default function SubscriptionPage() {
         </div>
       )}
 
-      {toast && (
-        <div className="toast" role="status" aria-live="polite">
-          {toast}
-        </div>
+      {chatGPTWizardOpen && (
+        <ChatGPTSubscriptionWizard
+          chatGPTUser={chatGPTUser}
+          initialStep={chatGPTWizardStartStep}
+          signInPath={chatGPTSignInPath}
+          onClose={closeChatGPTWizard}
+          onNotice={showToast}
+        />
       )}
+
+      <Toast>{toast}</Toast>
     </div>
   );
 }

@@ -42,13 +42,14 @@ test("server-renders the WildAI subscription page", async () => {
   );
   assert.match(html, /WildAI/);
   assert.match(html, /新订阅/);
-  assert.match(html, /ChatGPT Go \/ Plus \/ Pro/);
-  assert.match(html, /Claude Pro \/ Max\+/);
+  assert.match(html, /ChatGPT\/CodeX/);
+  assert.doesNotMatch(html, /Claude Pro \/ Max\+/);
+  assert.doesNotMatch(html, /Claude API/);
   assert.match(html, /立即订阅/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/);
 });
 
-test("keeps the frontend demo self-contained", async () => {
+test("keeps the frontend assets self-contained", async () => {
   const [page, data, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/subscription-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/data.ts", import.meta.url), "utf8"),
@@ -60,7 +61,7 @@ test("keeps the frontend demo self-contained", async () => {
   assert.match(data, /export type ProductCategory/);
   assert.match(data, /export interface NavigationItem/);
   assert.match(data, /export interface DemoStep/);
-  assert.match(page, /onKeyDown|前端演示/u);
+  assert.match(page, /onKeyDown|订阅进度/u);
   assert.match(layout, /og\.png/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
