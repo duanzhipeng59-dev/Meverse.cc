@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         ? await supabase.auth.verifyOtp({
             email,
             token: payload.code?.trim() ?? "",
-            type: "email",
+            type: "magiclink",
           })
         : await supabase.auth.signInWithPassword({
             email,

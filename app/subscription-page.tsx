@@ -196,6 +196,7 @@ export default function SubscriptionPage({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           email,
+          password,
           purpose: mode === "register" ? "register" : "login",
         }),
       });

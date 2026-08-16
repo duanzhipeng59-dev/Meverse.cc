@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const verified = await supabase.auth.verifyOtp({
       email,
       token: code,
-      type: "email",
+      type: "signup",
     });
     if (verified.error || !verified.data.user || !verified.data.session) {
       return apiError(

@@ -68,3 +68,14 @@ test("keeps the frontend assets self-contained", async () => {
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
 });
+
+test("sends Supabase-generated verification codes through Resend", async () => {
+  const emailCodeRoute = await readFile(
+    new URL("../app/api/auth/email-code/route.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(emailCodeRoute, /new Resend\(/);
+  assert.match(emailCodeRoute, /auth\.admin\.generateLink/);
+  assert.doesNotMatch(emailCodeRoute, /signInWithOtp/);
+});

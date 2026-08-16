@@ -1,2 +1,5 @@
 SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
+SUPABASE_SECRET_KEY=sb_secret_your_key
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL=WildAI <verify@your-domain.com>
