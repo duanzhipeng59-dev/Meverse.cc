@@ -126,6 +126,17 @@ function safeHttpsUrl(value: unknown) {
   }
 }
 
+function parseProviderResult(value: unknown): Record<string, unknown> {
+  const parsed =
+    typeof value === "string"
+      ? (JSON.parse(value) as unknown)
+      : value;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("EPAY_CHECKOUT_INVALID_RESPONSE");
+  }
+  return parsed as Record<string, unknown>;
+}
+
 export async function createProviderCheckout({
   orderNo,
   product,
@@ -165,9 +176,24 @@ export async function createProviderCheckout({
   });
   if (!response.ok) throw new Error("EPAY_CHECKOUT_UNAVAILABLE");
 
-  const result = (await response.json()) as Record<string, unknown>;
+  // Some EPay deployments return a JSON-encoded string whose contents are the
+  // documented JSON object. Accept both forms so a successful checkout is not
+  // mistaken for an error.
+  const result = parseProviderResult(await response.json());
   if (Number(result.code) !== 1) {
-    throw new Error(`EPAY_CHECKOUT_FAILED: ${String(result.msg ?? "unknown")}`);
+    const providerMessage = String(
+      result.msg ?? result.message ?? result.error ?? "unknown",
+    );
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: "EPay rejected checkout request",
+        providerCode: result.code ?? null,
+        providerMessage,
+        responseKeys: Object.keys(result),
+      }),
+    );
+    throw new Error(`EPAY_CHECKOUT_FAILED: ${providerMessage}`);
   }
   const paymentUrl = safeHttpsUrl(result.payurl);
   const qrContent = safeHttpsUrl(result.qrcode) ?? paymentUrl;

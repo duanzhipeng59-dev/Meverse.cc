@@ -171,6 +171,8 @@ test("includes the Gemini family group checkout flow", async () => {
   assert.match(familyWizard, /createDataURL/);
   assert.match(familyWizard, /providerCheckout\.paymentUrl/);
   assert.match(paymentServer, /mapi\.php/);
+  assert.match(paymentServer, /typeof value === "string"/);
+  assert.match(paymentServer, /JSON\.parse\(value\)/);
   assert.doesNotMatch(paymentServer, /submit\.php/);
   assert.match(paymentServer, /result\.qrcode/);
   assert.match(translations, /Choose a Billing Option/);
