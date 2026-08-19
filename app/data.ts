@@ -6,6 +6,7 @@ export interface Plan {
   brand: string;
   title: string;
   detail: string;
+  currency?: string;
   price: string;
   suffix: string;
   accent: string;
@@ -72,10 +73,11 @@ export const plans: Plan[] = [
     id: "gemini",
     category: "official",
     brand: "Google",
-    title: "Gemini Pro/Ultra",
+    title: "Gemini Pro/家庭组",
     detail: "原生多模态 AI，搭载 Veo",
-    price: "9.99",
-    suffix: "/月起",
+    currency: "¥",
+    price: "19.9",
+    suffix: "起",
     accent: "#4285f4",
     icon: "✦",
     subtitle: "1 个月",

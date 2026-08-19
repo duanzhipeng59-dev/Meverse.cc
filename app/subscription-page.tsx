@@ -18,6 +18,10 @@ import {
 import { useLanguage } from "./language-context";
 import type { ChatGPTUser } from "./chatgpt-auth";
 import ChatGPTSubscriptionWizard from "./chatgpt-subscription-wizard";
+import GeminiFamilyWizard, {
+  type GeminiBillingMode,
+  type InitialGeminiPayment,
+} from "./gemini-family-wizard";
 import {
   DesktopSidebar,
   MobileNavigation,
@@ -31,7 +35,7 @@ const DEMOSTEP_LABEL_KEYS: Record<string, string> = {
   complete: "demostep.complete",
 };
 
-const HIDDEN_PLAN_IDS = new Set(["claude", "claude-api"]);
+const HOMEPAGE_PLAN_IDS = new Set(["gemini"]);
 const AUTH_API_ERRORS = new Set([
   "invalid_email",
   "code_too_frequent",
@@ -39,35 +43,21 @@ const AUTH_API_ERRORS = new Set([
   "email_service_unavailable",
   "invalid_code",
   "code_expired",
-  "invalid_password",
-  "email_exists",
-  "invalid_credentials",
   "auth_unavailable",
 ]);
 
 type AuthIntent = "account" | "checkout";
 
-function PasswordVisibilityIcon({ visible }: { visible: boolean }) {
-  return visible ? (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c5.2 0 8.8 4.7 9.7 6.1a3.3 3.3 0 0 1 0 3.8 17 17 0 0 1-2.4 2.8M6.2 6.2a17 17 0 0 0-3.9 3.9 3.3 3.3 0 0 0 0 3.8C3.2 15.3 6.8 20 12 20a10.7 10.7 0 0 0 4.1-.8" />
-    </svg>
-  ) : (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M2.3 10.1C3.2 8.7 6.8 4 12 4s8.8 4.7 9.7 6.1a3.3 3.3 0 0 1 0 3.8C20.8 15.3 17.2 20 12 20S3.2 15.3 2.3 13.9a3.3 3.3 0 0 1 0-3.8Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
 export default function SubscriptionPage({
   chatGPTUser,
   chatGPTSignInPath,
   resumeChatGPTFlow = false,
+  initialGeminiPayment = null,
 }: {
   chatGPTUser: ChatGPTUser | null;
   chatGPTSignInPath: string;
   resumeChatGPTFlow?: boolean;
+  initialGeminiPayment?: InitialGeminiPayment | null;
 }) {
   const { t } = useLanguage();
 
@@ -83,24 +73,17 @@ export default function SubscriptionPage({
 
   const [activeCategory, setActiveCategory] =
     useState<ProductCategory>("official");
-  const [selectedId, setSelectedId] = useState("chatgpt");
+  const [selectedId, setSelectedId] = useState("gemini");
   const [modalOpen, setModalOpen] = useState(false);
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [loginMethod, setLoginMethod] = useState<"password" | "code">(
-    "password",
-  );
   const [demoStep, setDemoStep] = useState<DemoStep["id"]>("login");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [code, setCode] = useState("");
-  const [authInviteCode, setAuthInviteCode] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
+  const [codeCooldown, setCodeCooldown] = useState(0);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authUserEmail, setAuthUserEmail] = useState<string | null>(null);
   const [authIntent, setAuthIntent] = useState<AuthIntent>("account");
   const [toast, setToast] = useState("");
   const [chatGPTWizardOpen, setChatGPTWizardOpen] = useState(
@@ -109,16 +92,26 @@ export default function SubscriptionPage({
   const [chatGPTWizardStartStep, setChatGPTWizardStartStep] = useState(
     resumeChatGPTFlow ? (chatGPTUser ? 4 : 3) : 1,
   );
+  const [geminiFamilyWizardOpen, setGeminiFamilyWizardOpen] = useState(
+    Boolean(initialGeminiPayment),
+  );
+  const [geminiInitialBillingMode, setGeminiInitialBillingMode] =
+    useState<GeminiBillingMode>("monthly");
 
   useEffect(() => {
     let active = true;
     fetch("/api/auth/session")
       .then(
         (response) =>
-          response.json() as Promise<{ user?: { id: string } | null }>,
+          response.json() as Promise<{
+            user?: { id: string; email?: string } | null;
+          }>,
       )
       .then((result) => {
-        if (active) setIsAuthenticated(Boolean(result.user));
+        if (active) {
+          setIsAuthenticated(Boolean(result.user));
+          setAuthUserEmail(result.user?.email ?? null);
+        }
       })
       .catch(() => undefined);
     return () => {
@@ -126,17 +119,45 @@ export default function SubscriptionPage({
     };
   }, []);
 
+  useEffect(() => {
+    if (codeCooldown <= 0) return;
+    const timer = window.setTimeout(
+      () => setCodeCooldown((seconds) => Math.max(0, seconds - 1)),
+      1000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [codeCooldown]);
+
   const visiblePlans = useMemo(
     () =>
       plans.filter(
         (plan) =>
-          plan.category === activeCategory && !HIDDEN_PLAN_IDS.has(plan.id),
+          plan.category === activeCategory && HOMEPAGE_PLAN_IDS.has(plan.id),
       ),
     [activeCategory],
   );
   const selectedPlan =
     plans.find((plan) => plan.id === selectedId) ?? plans[0];
+  const selectedPlanCopy = getPlanCopy(selectedPlan);
   const stepIndex = demoSteps.findIndex((step) => step.id === demoStep);
+
+  function getPlanCopy(plan: Plan) {
+    if (plan.id !== "gemini") {
+      return {
+        title: plan.title,
+        subtitle: plan.subtitle,
+        detail: plan.detail,
+        suffix: plan.suffix,
+      };
+    }
+
+    return {
+      title: t("plan.gemini.title"),
+      subtitle: t("plan.gemini.subtitle"),
+      detail: t("plan.gemini.detail"),
+      suffix: t("plan.gemini.suffix"),
+    };
+  }
 
   function showToast(message: string) {
     setToast(message);
@@ -151,6 +172,10 @@ export default function SubscriptionPage({
 
   function choosePlan(plan: Plan) {
     setSelectedId(plan.id);
+    if (plan.id === "gemini") {
+      setGeminiInitialBillingMode("monthly");
+      setGeminiFamilyWizardOpen(true);
+    }
   }
 
   function openChatGPTWizard() {
@@ -164,11 +189,7 @@ export default function SubscriptionPage({
 
   function openAuth(nextIntent: AuthIntent) {
     setAuthIntent(nextIntent);
-    setMode("login");
-    setLoginMethod("password");
     setDemoStep("login");
-    setPasswordVisible(false);
-    setConfirmPasswordVisible(false);
     setModalOpen(true);
   }
 
@@ -177,6 +198,10 @@ export default function SubscriptionPage({
   }
 
   function continueCheckout() {
+    if (selectedPlan.id === "gemini") {
+      setGeminiFamilyWizardOpen(true);
+      return;
+    }
     if (selectedPlan.id === "chatgpt") {
       openChatGPTWizard();
       return;
@@ -187,6 +212,11 @@ export default function SubscriptionPage({
   }
 
   function beginCheckout() {
+    if (selectedPlan.id === "gemini") {
+      setGeminiInitialBillingMode("monthly");
+      setGeminiFamilyWizardOpen(true);
+      return;
+    }
     if (!isAuthenticated) {
       openAuth("checkout");
       return;
@@ -213,19 +243,9 @@ export default function SubscriptionPage({
       ? new FormData(event.currentTarget.form)
       : null;
     const submittedEmail = String(formData?.get("email") ?? email).trim();
-    const submittedPassword = String(
-      formData?.get("password") ?? password,
-    );
 
     if (!submittedEmail) {
       showToast(t("auth.toast.email_required"));
-      return;
-    }
-    if (
-      mode === "register" &&
-      (submittedPassword.length < 8 || submittedPassword.length > 128)
-    ) {
-      showToast(t("auth.toast.invalid_password"));
       return;
     }
     setSendingCode(true);
@@ -233,17 +253,17 @@ export default function SubscriptionPage({
       const response = await fetch("/api/auth/email-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email: submittedEmail,
-          password: submittedPassword,
-          purpose: mode === "register" ? "register" : "login",
-        }),
+        body: JSON.stringify({ email: submittedEmail }),
       });
-      const result = (await response.json()) as { error?: string };
+      const result = (await response.json()) as {
+        error?: string;
+        user?: { id: string; email?: string };
+      };
       if (!response.ok) {
         showToast(authErrorMessage(result.error ?? ""));
         return;
       }
+      setCodeCooldown(60);
       showToast(t("auth.toast.code_sent"));
     } catch {
       showToast(t("auth.toast.email_service_unavailable"));
@@ -258,23 +278,8 @@ export default function SubscriptionPage({
       showToast(t("auth.toast.email_required"));
       return;
     }
-    if (mode === "login" && loginMethod === "password" && !password.trim()) {
-      showToast(t("auth.toast.password_required"));
-      return;
-    }
-    if (mode === "login" && loginMethod === "code" && !code.trim()) {
+    if (!code.trim()) {
       showToast(t("auth.toast.code_required"));
-      return;
-    }
-    if (
-      mode === "register" &&
-      (!password.trim() || !confirmPassword.trim() || !code.trim())
-    ) {
-      showToast(t("auth.toast.fill_all"));
-      return;
-    }
-    if (mode === "register" && password !== confirmPassword) {
-      showToast(t("auth.toast.password_mismatch"));
       return;
     }
     if (!agreed) {
@@ -282,24 +287,26 @@ export default function SubscriptionPage({
       return;
     }
 
+    let authenticatedEmail = email.trim();
     setVerifyingCode(true);
     try {
-      const endpoint = mode === "register" ? "/api/auth/register" : "/api/auth/login";
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           email,
-          password,
           code,
-          method: loginMethod,
         }),
       });
-      const result = (await response.json()) as { error?: string };
+      const result = (await response.json()) as {
+        error?: string;
+        user?: { id: string; email?: string };
+      };
       if (!response.ok) {
         showToast(authErrorMessage(result.error ?? ""));
         return;
       }
+      authenticatedEmail = result.user?.email ?? authenticatedEmail;
     } catch {
       showToast(t("auth.toast.auth_unavailable"));
       return;
@@ -308,23 +315,16 @@ export default function SubscriptionPage({
     }
 
     setIsAuthenticated(true);
+    setAuthUserEmail(authenticatedEmail);
     if (authIntent === "checkout") {
-      if (selectedPlan.id === "chatgpt") {
-        setModalOpen(false);
-        setDemoStep("login");
-        openChatGPTWizard();
-      } else {
-        setDemoStep("confirm");
-      }
+      setModalOpen(false);
+      setDemoStep("login");
+      continueCheckout();
       return;
     }
 
     closeModal();
-    showToast(
-      mode === "register"
-        ? t("auth.toast.register_success")
-        : t("auth.toast.login_success"),
-    );
+    showToast(t("auth.toast.login_success"));
   }
 
   function handleDialogKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -337,7 +337,14 @@ export default function SubscriptionPage({
 
   return (
     <div className="site-shell">
-      <SiteHeader authAction={openAccountAuth} />
+      <SiteHeader
+        authAction={openAccountAuth}
+        authEmail={authUserEmail}
+        onSignedOut={() => {
+          setIsAuthenticated(false);
+          setAuthUserEmail(null);
+        }}
+      />
 
       <div className="page-layout">
         <DesktopSidebar active="subscribe" ariaLabel="主导航" />
@@ -369,8 +376,10 @@ export default function SubscriptionPage({
             aria-label="可选套餐"
           >
             <div className="plan-grid">
-              {visiblePlans.map((plan) => (
-                <button
+              {visiblePlans.map((plan) => {
+                const planCopy = getPlanCopy(plan);
+                return (
+                  <button
                   type="button"
                   className={
                     selectedId === plan.id ? "plan-card selected" : "plan-card"
@@ -380,20 +389,20 @@ export default function SubscriptionPage({
                   aria-pressed={selectedId === plan.id}
                 >
                   <span className="plan-copy">
-                    <span className="plan-title">{plan.title}</span>
-                    <span className="plan-subtitle">{plan.subtitle}</span>
+                    <span className="plan-title">{planCopy.title}</span>
+                    <span className="plan-subtitle">{planCopy.subtitle}</span>
                   </span>
                   <span className="price-block">
                     <span className="price-label">
                       {t("subscribe.price.original")}
                     </span>
                     <span className="price">
-                      <small>$</small>
+                      <small>{plan.currency ?? "$"}</small>
                       {plan.price}
                     </span>
-                    <span className="price-suffix">{plan.suffix}</span>
+                    <span className="price-suffix">{planCopy.suffix}</span>
                   </span>
-                  <span className="plan-detail">{plan.detail}</span>
+                  <span className="plan-detail">{planCopy.detail}</span>
                   <span
                     className="plan-icon plan-card-icon"
                     style={
@@ -410,8 +419,9 @@ export default function SubscriptionPage({
                       ✓
                     </span>
                   )}
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
 
             <p className="guarantee">
@@ -493,13 +503,7 @@ export default function SubscriptionPage({
 
             {demoStep === "login" && (
               <div className="auth-panel">
-                <h1 id="demo-title">
-                  {mode === "register"
-                    ? t("auth.title.register")
-                    : loginMethod === "password"
-                      ? t("auth.title.login")
-                      : t("auth.title.login_code")}
-                </h1>
+                <h1 id="demo-title">{t("auth.title.login_code")}</h1>
                 <form onSubmit={submitLogin} className="auth-form">
                   <input
                     className="auth-input"
@@ -512,85 +516,7 @@ export default function SubscriptionPage({
                     aria-label={t("auth.placeholder.email")}
                   />
 
-                  {(mode === "register" || loginMethod === "password") && (
-                    <div className="password-field">
-                      <input
-                        className={
-                          mode === "register"
-                            ? "auth-input has-visibility-toggle"
-                            : "auth-input"
-                        }
-                        name="password"
-                        type={passwordVisible ? "text" : "password"}
-                        autoComplete={
-                          mode === "register" ? "new-password" : "current-password"
-                        }
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        placeholder={t("auth.placeholder.password")}
-                        aria-label={t("auth.placeholder.password")}
-                      />
-                      {mode === "login" && (
-                        <button
-                          className="forgot-password"
-                          type="button"
-                          onClick={() =>
-                            showToast(t("auth.toast.forgot_password_demo"))
-                          }
-                        >
-                          {t("auth.forgot_password")}
-                        </button>
-                      )}
-                      {mode === "register" && (
-                        <button
-                          className="password-visibility"
-                          type="button"
-                          aria-label={t(
-                            passwordVisible
-                              ? "auth.hide_password"
-                              : "auth.show_password",
-                          )}
-                          aria-pressed={passwordVisible}
-                          onClick={() => setPasswordVisible((visible) => !visible)}
-                        >
-                          <PasswordVisibilityIcon visible={passwordVisible} />
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {mode === "register" && (
-                    <div className="password-field">
-                      <input
-                        className="auth-input has-visibility-toggle"
-                        name="confirmPassword"
-                        type={confirmPasswordVisible ? "text" : "password"}
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onChange={(event) => setConfirmPassword(event.target.value)}
-                        placeholder={t("auth.placeholder.confirm_password")}
-                        aria-label={t("auth.placeholder.confirm_password")}
-                      />
-                      <button
-                        className="password-visibility"
-                        type="button"
-                        aria-label={t(
-                          confirmPasswordVisible
-                            ? "auth.hide_password"
-                            : "auth.show_password",
-                        )}
-                        aria-pressed={confirmPasswordVisible}
-                        onClick={() =>
-                          setConfirmPasswordVisible((visible) => !visible)
-                        }
-                      >
-                        <PasswordVisibilityIcon visible={confirmPasswordVisible} />
-                      </button>
-                    </div>
-                  )}
-
-                  {(mode === "register" || loginMethod === "code") && (
-                    <div className="auth-code-field">
+                  <div className="auth-code-field">
                       <input
                         name="code"
                         inputMode="numeric"
@@ -601,24 +527,18 @@ export default function SubscriptionPage({
                       />
                       <button
                         type="button"
-                        disabled={sendingCode}
+                        disabled={sendingCode || codeCooldown > 0}
                         onClick={sendEmailCode}
                       >
-                        {t(sendingCode ? "auth.sending_code" : "auth.get_code")}
+                        {sendingCode
+                          ? t("auth.sending_code")
+                          : codeCooldown > 0
+                            ? t("auth.resend_code_in", {
+                                seconds: codeCooldown,
+                              })
+                            : t("auth.get_code")}
                       </button>
-                    </div>
-                  )}
-
-                  {mode === "register" && (
-                    <input
-                      className="auth-input"
-                      name="inviteCode"
-                      value={authInviteCode}
-                      onChange={(event) => setAuthInviteCode(event.target.value)}
-                      placeholder={t("auth.placeholder.invite_code")}
-                      aria-label={t("auth.placeholder.invite_code")}
-                    />
-                  )}
+                  </div>
 
                   <button
                     className="modal-primary auth-submit"
@@ -627,26 +547,8 @@ export default function SubscriptionPage({
                   >
                     {verifyingCode
                       ? t("auth.verifying_code")
-                      : mode === "register"
-                        ? t("auth.submit.register")
                       : t("auth.submit.login")}
                   </button>
-
-                  {mode === "login" && (
-                    <button
-                      className="auth-method-button"
-                      type="button"
-                      onClick={() =>
-                        setLoginMethod((current) =>
-                          current === "password" ? "code" : "password",
-                        )
-                      }
-                    >
-                      {loginMethod === "password"
-                        ? t("auth.switch.to_code")
-                        : t("auth.switch.to_password")}
-                    </button>
-                  )}
 
                   <label className="agreement">
                     <input
@@ -668,26 +570,6 @@ export default function SubscriptionPage({
                   </label>
                 </form>
 
-                <div className="auth-mode-footer">
-                  <span>
-                    {mode === "login"
-                      ? t("auth.no_account")
-                      : t("auth.has_account")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode(mode === "login" ? "register" : "login");
-                      setLoginMethod("password");
-                      setPasswordVisible(false);
-                      setConfirmPasswordVisible(false);
-                    }}
-                  >
-                    {mode === "login"
-                      ? t("auth.switch_mode.register")
-                      : t("auth.switch_mode.login")}
-                  </button>
-                </div>
               </div>
             )}
 
@@ -712,10 +594,13 @@ export default function SubscriptionPage({
                     {selectedPlan.icon}
                   </span>
                   <span>
-                    <strong>{selectedPlan.title}</strong>
-                    <small>{selectedPlan.detail}</small>
+                    <strong>{selectedPlanCopy.title}</strong>
+                    <small>{selectedPlanCopy.detail}</small>
                   </span>
-                  <b>${selectedPlan.price}</b>
+                  <b>
+                    {selectedPlan.currency ?? "$"}
+                    {selectedPlan.price}
+                  </b>
                 </div>
                 <button
                   className="modal-primary"
@@ -761,6 +646,20 @@ export default function SubscriptionPage({
           signInPath={chatGPTSignInPath}
           onClose={closeChatGPTWizard}
           onNotice={showToast}
+        />
+      )}
+
+      {geminiFamilyWizardOpen && (
+        <GeminiFamilyWizard
+          accountEmail={authUserEmail}
+          initialBillingMode={geminiInitialBillingMode}
+          initialPayment={initialGeminiPayment}
+          onClose={() => setGeminiFamilyWizardOpen(false)}
+          onRequireAccount={(billingMode) => {
+            setGeminiInitialBillingMode(billingMode);
+            setGeminiFamilyWizardOpen(false);
+            openAuth("checkout");
+          }}
         />
       )}
 

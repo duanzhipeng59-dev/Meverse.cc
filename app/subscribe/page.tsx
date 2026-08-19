@@ -18,6 +18,15 @@ export default async function SubscribePage({
       chatGPTUser={chatGPTUser}
       chatGPTSignInPath={chatGPTSignInPath("/subscribe?chatgpt_flow=1")}
       resumeChatGPTFlow={params.chatgpt_flow === "1"}
+      initialGeminiPayment={
+        typeof params.payment_order === "string" &&
+        typeof params.payment_token === "string"
+          ? {
+              orderNo: params.payment_order,
+              accessToken: params.payment_token,
+            }
+          : null
+      }
     />
   );
 }

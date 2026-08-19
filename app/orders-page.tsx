@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLanguage } from "./language-context";
 import {
   DesktopSidebar,
@@ -25,14 +25,117 @@ const emptyMessages: Record<OrderCategory, string> = {
   sms: "orders.empty.sms",
 };
 
+type PaymentOrder = {
+  out_trade_no: string;
+  billing_mode: "monthly" | "annual";
+  duration_months: number;
+  product_name: string;
+  amount: string | number;
+  payment_type: "alipay" | "wxpay";
+  delivery_email: string;
+  account_region: string | null;
+  status: "pending" | "paid" | "fulfilled" | "failed";
+  created_at: string;
+  paid_at: string | null;
+  fulfilled_at: string | null;
+};
+
+const statusKeys: Record<PaymentOrder["status"], string> = {
+  pending: "orders.status.pending",
+  paid: "orders.status.paid",
+  fulfilled: "orders.status.fulfilled",
+  failed: "orders.status.failed",
+};
+
+async function requestOrders() {
+  const response = await fetch("/api/orders", { cache: "no-store" });
+  const result = (await response.json()) as {
+    orders?: PaymentOrder[];
+    error?: string;
+  };
+  return { response, result };
+}
+
 export default function OrdersPage() {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<OrderCategory>("ai");
   const [toast, setToast] = useState("");
+  const [orders, setOrders] = useState<PaymentOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<"" | "login" | "unavailable">("");
 
   function showToast(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(""), 2200);
+  }
+
+  const loadOrders = useCallback(async () => {
+    setLoading(true);
+    setLoadError("");
+    try {
+      const { response, result } = await requestOrders();
+      if (!response.ok) {
+        setOrders([]);
+        setLoadError(result.error === "login_required" ? "login" : "unavailable");
+        return;
+      }
+      setOrders(result.orders ?? []);
+    } catch {
+      setOrders([]);
+      setLoadError("unavailable");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    requestOrders()
+      .then(({ response, result }) => {
+        if (!active) return;
+        if (!response.ok) {
+          setOrders([]);
+          setLoadError(
+            result.error === "login_required" ? "login" : "unavailable",
+          );
+          return;
+        }
+        setOrders(result.orders ?? []);
+      })
+      .catch(() => {
+        if (active) {
+          setOrders([]);
+          setLoadError("unavailable");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const visibleOrders = orders.filter((order) =>
+    activeCategory === "accounts"
+      ? order.billing_mode === "annual"
+      : order.billing_mode === "monthly",
+  );
+
+  function formatOrderDate(value: string) {
+    return new Intl.DateTimeFormat(lang === "zh" ? "zh-CN" : "en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(value));
+  }
+
+  async function copyOrderNumber(orderNo: string) {
+    await navigator.clipboard.writeText(orderNo);
+    showToast(t("orders.order_no_copied"));
   }
 
   return (
@@ -65,7 +168,11 @@ export default function OrdersPage() {
             <button
               className="refresh-orders"
               type="button"
-              onClick={() => showToast(t("toast.orders_refreshed"))}
+              disabled={loading}
+              onClick={async () => {
+                await loadOrders();
+                showToast(t("toast.orders_refreshed"));
+              }}
             >
               <span aria-hidden="true">↻</span>
               {t("orders.refresh")}
@@ -73,41 +180,73 @@ export default function OrdersPage() {
           </div>
 
           <section
-            className={`orders-table empty-category-table ${activeCategory}`}
+            className={`orders-table ${activeCategory}`}
             aria-label={`${t(orderCategoryKeys[activeCategory])}${t("nav.orders")}`}
           >
-            <div className="empty-category-head">
-              {activeCategory === "sms" ? (
-                <>
-                  <span>{t("orders.col.country")}</span>
-                  <span>{t("orders.col.order_time")}</span>
-                  <span>{t("orders.col.status")}</span>
-                  <span>{t("orders.col.action")}</span>
-                </>
-              ) : (
-                <>
-                  <span>
-                    {activeCategory === "ai"
-                      ? t("orders.col.order_type")
-                      : t("orders.col.product")}
-                  </span>
-                  <span>
-                    {activeCategory === "ai"
-                      ? t("orders.col.order_created")
-                      : t("orders.col.order_no")}
-                  </span>
-                  <span>{t("orders.col.amount")}</span>
-                  <span>{t("orders.col.status")}</span>
-                  <span>{t("orders.col.action")}</span>
-                </>
-              )}
+            <div className="orders-table-head">
+              <span>
+                {activeCategory === "ai"
+                  ? t("orders.col.order_type")
+                  : t("orders.col.product")}
+              </span>
+              <span>
+                {activeCategory === "ai"
+                  ? t("orders.col.order_created")
+                  : t("orders.col.order_no")}
+              </span>
+              <span>{t("orders.col.amount")}</span>
+              <span>{t("orders.col.status")}</span>
+              <span>{t("orders.col.action")}</span>
             </div>
-            <div className="empty-category-body">
-              {t(emptyMessages[activeCategory])}
-            </div>
+            {loading || loadError || visibleOrders.length === 0 ? (
+              <div className="empty-category-body orders-state-message">
+                {loading
+                  ? t("orders.loading")
+                  : loadError === "login"
+                    ? t("orders.login_required")
+                    : loadError === "unavailable"
+                      ? t("orders.unavailable")
+                      : t(emptyMessages[activeCategory])}
+              </div>
+            ) : (
+              visibleOrders.map((order) => (
+                <article className="order-row" key={order.out_trade_no}>
+                  <div className="order-product">
+                    <div className="order-title-line">
+                      <strong>{order.product_name}</strong>
+                      <span className="duration-badge">
+                        {order.duration_months} {t("orders.months")}
+                      </span>
+                    </div>
+                    <span className="order-delivery">
+                      {order.billing_mode === "annual"
+                        ? t("orders.delivery.ready_account")
+                        : `${t("orders.delivery.email")} ${order.delivery_email}`}
+                    </span>
+                  </div>
+                  <div className="order-number">
+                    <span>{order.out_trade_no}</span>
+                    <small>{formatOrderDate(order.created_at)}</small>
+                  </div>
+                  <strong className="order-price">
+                    ¥{Number(order.amount).toFixed(2)}
+                  </strong>
+                  <span className={`order-status ${order.status}`}>
+                    {t(statusKeys[order.status])}
+                  </span>
+                  <button
+                    className="invoice-button"
+                    type="button"
+                    onClick={() => void copyOrderNumber(order.out_trade_no)}
+                  >
+                    {t("orders.copy_order_no")}
+                  </button>
+                </article>
+              ))
+            )}
           </section>
           <p className="order-count">
-            {t("total.records", { n: 0 })}
+            {t("total.records", { n: visibleOrders.length })}
           </p>
         </main>
       </div>

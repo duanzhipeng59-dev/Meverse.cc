@@ -13,12 +13,14 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern worker-configuration.d.ts",
     "typecheck": "tsc --noEmit",
     "cf-typegen": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler types worker-configuration.d.ts --config wrangler.typegen.jsonc",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "inventory:add": "node scripts/add-gemini-account.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.3",
     "drizzle-orm": "0.45.2",
     "next": "16.2.6",
+    "qrcode-generator": "2.0.4",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "resend": "6.20.0"

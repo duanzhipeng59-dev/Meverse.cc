@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(origin),
     title: "ChatGPT Plus / Claude Pro 订阅价格与套餐 - WildAI",
     description:
-      "ChatGPT Plus、Claude Pro、Gemini 与 X 套餐。独立账号非合租，支持微信支付宝。",
+      "Gemini Pro 与家庭组套餐。独立账号非合租，支持支付宝。",
     openGraph: {
       title: "WildAI - AI 服务订阅",
       description: "ChatGPT、Claude、Gemini 与 X 套餐，一站式轻松订阅。",

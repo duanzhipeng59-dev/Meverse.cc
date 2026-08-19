@@ -9,31 +9,22 @@ export async function POST(request: Request) {
   try {
     const payload = (await request.json()) as {
       email?: string;
-      password?: string;
       code?: string;
-      method?: "password" | "code";
     };
     const email = normalizeEmail(payload.email ?? "");
-    if (!isValidEmail(email)) return apiError("invalid_credentials", 401);
+    if (!isValidEmail(email)) return apiError("invalid_email", 400);
 
     const supabase = createSupabaseClient();
-    const result =
-      payload.method === "code"
-        ? await supabase.auth.verifyOtp({
-            email,
-            token: payload.code?.trim() ?? "",
-            type: "magiclink",
-          })
-        : await supabase.auth.signInWithPassword({
-            email,
-            password: payload.password ?? "",
-          });
+    const result = await supabase.auth.verifyOtp({
+      email,
+      token: payload.code?.trim() ?? "",
+      type: "magiclink",
+    });
 
     if (result.error || !result.data.user || !result.data.session) {
-      const errorCode =
-        payload.method === "code" && result.error
-          ? mapOtpError(result.error.message)
-          : "invalid_credentials";
+      const errorCode = result.error
+        ? mapOtpError(result.error.message)
+        : "invalid_code";
       return apiError(errorCode, 401);
     }
 

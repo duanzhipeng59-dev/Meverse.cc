@@ -47,6 +47,13 @@ function readCookie(request: Request, name: string) {
   );
 }
 
+export function getSessionTokens(request: Request) {
+  return {
+    accessToken: readCookie(request, ACCESS_COOKIE),
+    refreshToken: readCookie(request, REFRESH_COOKIE),
+  };
+}
+
 function cookieSecurity(request: Request) {
   const forwardedProtocol = request.headers.get("x-forwarded-proto");
   const secure = forwardedProtocol
@@ -68,6 +75,18 @@ export function appendSessionCookies(
   headers.append(
     "set-cookie",
     `${REFRESH_COOKIE}=${session.refresh_token}; ${common}; Max-Age=${REFRESH_TTL_SECONDS}`,
+  );
+}
+
+export function clearSessionCookies(headers: Headers, request: Request) {
+  const common = `Path=/; HttpOnly; SameSite=Lax${cookieSecurity(request)}`;
+  headers.append(
+    "set-cookie",
+    `${ACCESS_COOKIE}=; ${common}; Max-Age=0`,
+  );
+  headers.append(
+    "set-cookie",
+    `${REFRESH_COOKIE}=; ${common}; Max-Age=0`,
   );
 }
 
