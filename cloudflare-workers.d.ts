@@ -4,3 +4,13 @@ declare module "cloudflare:workers" {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export const env: { DB?: any };
 }
+
+interface Fetcher {
+  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+}
+
+// The live application uses Supabase. This placeholder only keeps the legacy
+// Cloudflare worker entry point type-safe when Vercel checks the whole repo.
+interface D1Database {
+  readonly __d1DatabaseBrand?: never;
+}
