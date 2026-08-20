@@ -45,26 +45,7 @@ const AUTH_API_ERRORS = new Set([
   "invalid_code",
   "code_expired",
   "auth_unavailable",
-  "request_timeout",
 ]);
-
-const AUTH_REQUEST_TIMEOUT_MS = 15_000;
-
-async function fetchAuth(
-  input: RequestInfo | URL,
-  init: RequestInit,
-) {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(
-    () => controller.abort(),
-    AUTH_REQUEST_TIMEOUT_MS,
-  );
-  try {
-    return await fetch(input, { ...init, signal: controller.signal });
-  } finally {
-    window.clearTimeout(timeout);
-  }
-}
 
 type AuthIntent = "account" | "checkout";
 
@@ -248,7 +229,7 @@ export default function SubscriptionPage({
     }
     setSendingCode(true);
     try {
-      const response = await fetchAuth("/api/auth/email-code", {
+      const response = await fetch("/api/auth/email-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: submittedEmail }),
@@ -263,14 +244,8 @@ export default function SubscriptionPage({
       }
       setCodeCooldown(60);
       showToast(t("auth.toast.code_sent"));
-    } catch (error) {
-      showToast(
-        t(
-          error instanceof DOMException && error.name === "AbortError"
-            ? "auth.toast.request_timeout"
-            : "auth.toast.email_service_unavailable",
-        ),
-      );
+    } catch {
+      showToast(t("auth.toast.email_service_unavailable"));
     } finally {
       setSendingCode(false);
     }
@@ -294,7 +269,7 @@ export default function SubscriptionPage({
     let authenticatedEmail = email.trim();
     setVerifyingCode(true);
     try {
-      const response = await fetchAuth("/api/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -311,14 +286,8 @@ export default function SubscriptionPage({
         return;
       }
       authenticatedEmail = result.user?.email ?? authenticatedEmail;
-    } catch (error) {
-      showToast(
-        t(
-          error instanceof DOMException && error.name === "AbortError"
-            ? "auth.toast.request_timeout"
-            : "auth.toast.auth_unavailable",
-        ),
-      );
+    } catch {
+      showToast(t("auth.toast.auth_unavailable"));
       return;
     } finally {
       setVerifyingCode(false);

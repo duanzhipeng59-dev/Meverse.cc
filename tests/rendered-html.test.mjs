@@ -96,7 +96,6 @@ test("sends Supabase-generated verification codes through Resend", async () => {
   assert.match(emailCodeRoute, /new Resend\(/);
   assert.match(emailCodeRoute, /auth\.admin\.generateLink/);
   assert.match(emailCodeRoute, /idempotencyKey/);
-  assert.match(emailCodeRoute, /withUpstreamTimeout/);
   assert.match(emailCodeRoute, /type: "magiclink"/);
   assert.doesNotMatch(emailCodeRoute, /signInWithOtp/);
 });
@@ -109,8 +108,6 @@ test("uses email verification as the only account sign-in method", async () => {
   ]);
 
   assert.match(page, /new FormData\(event\.currentTarget\.form\)/);
-  assert.match(page, /fetchAuth/);
-  assert.match(page, /AbortController/);
   assert.match(page, /name="code"/);
   assert.doesNotMatch(page, /name="password"/);
   assert.doesNotMatch(page, /PasswordVisibilityIcon/);
