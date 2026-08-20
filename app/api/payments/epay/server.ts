@@ -116,89 +116,33 @@ function signPayload(payload: Record<string, string>, key: string) {
   return createHash("md5").update(`${canonical}${key}`).digest("hex");
 }
 
-function safeHttpsUrl(value: unknown) {
-  if (typeof value !== "string" || !value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" ? url.toString() : null;
-  } catch {
-    return null;
-  }
-}
-
-function parseProviderResult(value: unknown): Record<string, unknown> {
-  const parsed =
-    typeof value === "string"
-      ? (JSON.parse(value) as unknown)
-      : value;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error("EPAY_CHECKOUT_INVALID_RESPONSE");
-  }
-  return parsed as Record<string, unknown>;
-}
-
-export async function createProviderCheckout({
+export function createProviderCheckout({
   orderNo,
   product,
   notifyUrl,
-  clientIp,
-  device,
+  returnUrl,
 }: {
   orderNo: string;
   product: Product;
   notifyUrl: string;
-  clientIp: string;
-  device: "mobile" | "pc";
+  returnUrl: string;
 }) {
   const { pid, key, apiUrl } = gatewayConfig();
   const payload: Record<string, string> = {
     pid,
     type: "alipay",
     notify_url: notifyUrl,
+    return_url: returnUrl,
     out_trade_no: orderNo,
     name: product.name,
-    money: product.amount,
-    clientip: clientIp,
-    device,
+    money: Number(product.amount).toFixed(2),
     param: orderNo,
     sign_type: "MD5",
   };
   payload.sign = signPayload(payload, key);
-
-  const response = await fetch(new URL("mapi.php", apiUrl), {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "content-type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams(payload),
-    cache: "no-store",
-  });
-  if (!response.ok) throw new Error("EPAY_CHECKOUT_UNAVAILABLE");
-
-  // Some EPay deployments return a JSON-encoded string whose contents are the
-  // documented JSON object. Accept both forms so a successful checkout is not
-  // mistaken for an error.
-  const result = parseProviderResult(await response.json());
-  if (Number(result.code) !== 1) {
-    const providerMessage = String(
-      result.msg ?? result.message ?? result.error ?? "unknown",
-    );
-    console.error(
-      JSON.stringify({
-        level: "error",
-        message: "EPay rejected checkout request",
-        providerCode: result.code ?? null,
-        providerMessage,
-        responseKeys: Object.keys(result),
-      }),
-    );
-    throw new Error(`EPAY_CHECKOUT_FAILED: ${providerMessage}`);
-  }
-  const paymentUrl = safeHttpsUrl(result.payurl);
-  const qrContent = safeHttpsUrl(result.qrcode) ?? paymentUrl;
-  if (!paymentUrl || !qrContent) throw new Error("EPAY_CHECKOUT_INVALID");
-  return { paymentUrl, qrContent };
+  const checkoutUrl = new URL("submit.php", apiUrl);
+  checkoutUrl.search = new URLSearchParams(payload).toString();
+  return { checkoutUrl: checkoutUrl.toString() };
 }
 
 export function callbackPayload(params: URLSearchParams) {

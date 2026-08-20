@@ -96,13 +96,6 @@ const zh: TranslationDict = {
   "gemini.checkout.payment_note":
     "下一步将跳转至支付宝安全页面，支付结果会自动同步。",
   "gemini.checkout.pay_with_alipay": "支付宝支付",
-  "gemini.qr.title": "使用支付宝扫码付款",
-  "gemini.qr.description": "二维码由 WildGPT 本地生成，不依赖第三方图片服务。",
-  "gemini.qr.alt": "支付宝付款二维码",
-  "gemini.qr.scan": "请打开支付宝扫描二维码",
-  "gemini.qr.open_alipay": "打开支付宝付款",
-  "gemini.qr.auto_confirm": "付款成功后，此页面会自动确认并显示结果。",
-  "gemini.qr.back": "返回订单确认",
   "gemini.processing.title": "正在确认付款结果",
   "gemini.processing.waiting": "等待支付平台确认",
   "gemini.processing.keep_open": "请勿关闭页面…",
@@ -389,15 +382,6 @@ const en: TranslationDict = {
   "gemini.checkout.payment_note":
     "You will be redirected to Alipay's secure payment page. Your payment status will update automatically.",
   "gemini.checkout.pay_with_alipay": "Pay with Alipay",
-  "gemini.qr.title": "Scan to Pay with Alipay",
-  "gemini.qr.description":
-    "The QR code is generated locally by WildGPT and does not rely on third-party image hosting.",
-  "gemini.qr.alt": "Alipay payment QR code",
-  "gemini.qr.scan": "Open Alipay and scan this QR code",
-  "gemini.qr.open_alipay": "Open Alipay",
-  "gemini.qr.auto_confirm":
-    "This page will confirm the payment automatically and show the result.",
-  "gemini.qr.back": "Back to Order Review",
   "gemini.processing.title": "Confirming Your Payment",
   "gemini.processing.waiting": "Waiting for payment confirmation",
   "gemini.processing.keep_open": "Please keep this page open…",

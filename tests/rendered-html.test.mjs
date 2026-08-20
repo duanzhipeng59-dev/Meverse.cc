@@ -167,14 +167,10 @@ test("includes the Gemini family group checkout flow", async () => {
   assert.match(familyWizard, /deliveredAccount\.password/);
   assert.match(familyWizard, /\/api\/payments\/epay\/create/);
   assert.match(familyWizard, /gemini\.checkout\.pay_with_alipay/);
-  assert.match(familyWizard, /qrcode-generator/);
-  assert.match(familyWizard, /createDataURL/);
-  assert.match(familyWizard, /providerCheckout\.paymentUrl/);
-  assert.match(paymentServer, /mapi\.php/);
-  assert.match(paymentServer, /typeof value === "string"/);
-  assert.match(paymentServer, /JSON\.parse\(value\)/);
-  assert.doesNotMatch(paymentServer, /submit\.php/);
-  assert.match(paymentServer, /result\.qrcode/);
+  assert.match(familyWizard, /window\.location\.assign\(result\.checkoutUrl\)/);
+  assert.doesNotMatch(familyWizard, /qrcode-generator|createDataURL|qrContent/);
+  assert.match(paymentServer, /submit\.php/);
+  assert.doesNotMatch(paymentServer, /mapi\.php|result\.qrcode/);
   assert.match(translations, /Choose a Billing Option/);
   assert.match(translations, /Enter Your Email and Country\/Region/);
   assert.match(translations, /Select a Payment Method/);

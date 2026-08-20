@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import qrcode from "qrcode-generator";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useLanguage } from "./language-context";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -81,12 +79,6 @@ export default function GeminiFamilyWizard({
     email: string;
     password: string;
   } | null>(null);
-  const [providerCheckout, setProviderCheckout] = useState<{
-    paymentUrl: string;
-    qrContent: string;
-    orderNo: string;
-    accessToken: string;
-  } | null>(null);
   const accountFormRef = useRef<HTMLFormElement>(null);
   const selectedMonthlyOption =
     MONTHLY_OPTIONS.find((option) => option.months === monthlyDuration) ??
@@ -98,14 +90,7 @@ export default function GeminiFamilyWizard({
       ? t("gemini.product.annual")
       : t("gemini.product.monthly", { months: monthlyDuration });
   const deliveryEmail = billingMode === "annual" ? accountEmail : email;
-  const paymentToCheck = initialPayment ?? providerCheckout;
-  const qrDataUrl = useMemo(() => {
-    if (!providerCheckout?.qrContent) return null;
-    const code = qrcode(0, "M");
-    code.addData(providerCheckout.qrContent);
-    code.make();
-    return code.createDataURL(7, 4);
-  }, [providerCheckout]);
+  const paymentToCheck = initialPayment;
 
   useEffect(() => {
     let active = true;
@@ -252,16 +237,14 @@ export default function GeminiFamilyWizard({
         }),
       });
       const result = (await response.json()) as {
-        paymentUrl?: string;
-        qrContent?: string;
+        checkoutUrl?: string;
         orderNo?: string;
         accessToken?: string;
         error?: string;
       };
       if (
         !response.ok ||
-        !result.paymentUrl ||
-        !result.qrContent ||
+        !result.checkoutUrl ||
         !result.orderNo ||
         !result.accessToken
       ) {
@@ -275,14 +258,7 @@ export default function GeminiFamilyWizard({
         setProcessingPayment(false);
         return;
       }
-      setProviderCheckout({
-        paymentUrl: result.paymentUrl,
-        qrContent: result.qrContent,
-        orderNo: result.orderNo,
-        accessToken: result.accessToken,
-      });
-      setProcessingPayment(false);
-      setStep(5);
+      window.location.assign(result.checkoutUrl);
     } catch {
       setProcessingPayment(false);
       setPaymentError("gemini.error.payment_network");
@@ -655,55 +631,6 @@ export default function GeminiFamilyWizard({
                 )}
                 <button className="family-done" type="button" onClick={close}>
                   {t("gemini.done")}
-                </button>
-              </div>
-            )}
-
-            {step === 5 && providerCheckout && qrDataUrl && (
-              <div className="wizard-page family-qr-page">
-                <div className="wizard-heading">
-                  <span>{t("gemini.checkout.cashier")}</span>
-                  <h2 id="gemini-family-wizard-title">
-                    {t("gemini.qr.title")}
-                  </h2>
-                  <p>{t("gemini.qr.description")}</p>
-                </div>
-                <div className="family-qr-card">
-                  <div className="family-qr-image">
-                    <Image
-                      unoptimized
-                      src={qrDataUrl}
-                      alt={t("gemini.qr.alt")}
-                      width={278}
-                      height={278}
-                    />
-                  </div>
-                  <strong>¥{selectedPrice}</strong>
-                  <span>{t("gemini.qr.scan")}</span>
-                  <a
-                    href={providerCheckout.paymentUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {t("gemini.qr.open_alipay")}
-                  </a>
-                  <small>{t("gemini.qr.auto_confirm")}</small>
-                </div>
-                {paymentError ? (
-                  <p className="family-payment-error" role="alert">
-                    {t(paymentError)}
-                  </p>
-                ) : null}
-                <button
-                  className="family-qr-back"
-                  type="button"
-                  onClick={() => {
-                    setProviderCheckout(null);
-                    setPaymentError("");
-                    setStep(3);
-                  }}
-                >
-                  {t("gemini.qr.back")}
                 </button>
               </div>
             )}
