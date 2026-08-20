@@ -204,7 +204,7 @@ export function MobileNavigation({
 
   return (
     <nav className={className} aria-label="移动端主导航">
-      {NAV_ITEMS.map((item) => (
+      {DESKTOP_NAV_ITEMS.map((item) => (
         <Link
           className={item.id === activeId ? "active" : undefined}
           href={item.href}

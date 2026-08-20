@@ -96,6 +96,7 @@ test("sends Supabase-generated verification codes through Resend", async () => {
   assert.match(emailCodeRoute, /new Resend\(/);
   assert.match(emailCodeRoute, /auth\.admin\.generateLink/);
   assert.match(emailCodeRoute, /idempotencyKey/);
+  assert.match(emailCodeRoute, /withUpstreamTimeout/);
   assert.match(emailCodeRoute, /type: "magiclink"/);
   assert.doesNotMatch(emailCodeRoute, /signInWithOtp/);
 });
@@ -108,6 +109,8 @@ test("uses email verification as the only account sign-in method", async () => {
   ]);
 
   assert.match(page, /new FormData\(event\.currentTarget\.form\)/);
+  assert.match(page, /fetchAuth/);
+  assert.match(page, /AbortController/);
   assert.match(page, /name="code"/);
   assert.doesNotMatch(page, /name="password"/);
   assert.doesNotMatch(page, /PasswordVisibilityIcon/);
@@ -130,6 +133,7 @@ test("switches signed-in users to a round avatar with logout menu", async () => 
   assert.match(header, /className="account-avatar"/);
   assert.match(header, /account\.sign_out/);
   assert.match(header, /onNavigate=\{\(\) => setPendingHref\(item\.href\)\}/);
+  assert.match(header, /DESKTOP_NAV_ITEMS\.map/);
   assert.doesNotMatch(header, /onClick=\{\(\) => setPendingHref\(item\.href\)\}/);
   assert.doesNotMatch(header, /href="\/profile"/);
   assert.doesNotMatch(header, /account-dropdown-summary/);
@@ -172,11 +176,12 @@ test("includes the Gemini family group checkout flow", async () => {
   assert.match(familyWizard, /deliveredAccount\.password/);
   assert.match(familyWizard, /\/api\/payments\/epay\/create/);
   assert.match(familyWizard, /gemini\.checkout\.pay_with_alipay/);
-  assert.match(familyWizard, /window\.location\.assign\(result\.checkoutUrl\)/);
-  assert.doesNotMatch(familyWizard, /qrcode-generator|createDataURL|qrContent/);
+  assert.match(familyWizard, /qrcode-generator|createDataURL|qrContent/);
+  assert.match(familyWizard, /gemini\.qr\.title/);
   assert.match(paymentServer, /mapi\.php/);
   assert.match(paymentServer, /result\.payurl/);
-  assert.doesNotMatch(paymentServer, /submit\.php|result\.qrcode/);
+  assert.match(paymentServer, /result\.qrcode/);
+  assert.doesNotMatch(paymentServer, /submit\.php/);
   assert.match(translations, /Choose a Billing Option/);
   assert.match(translations, /Enter Your Email and Country\/Region/);
   assert.match(translations, /Select a Payment Method/);

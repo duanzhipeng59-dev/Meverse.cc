@@ -191,8 +191,9 @@ export async function createProviderCheckout({
   }
 
   const checkoutUrl = safeHttpsUrl(result.payurl);
-  if (!checkoutUrl) throw new Error("EPAY_CHECKOUT_INVALID");
-  return { checkoutUrl };
+  const qrContent = safeHttpsUrl(result.qrcode) ?? checkoutUrl;
+  if (!checkoutUrl || !qrContent) throw new Error("EPAY_CHECKOUT_INVALID");
+  return { checkoutUrl, qrContent };
 }
 
 export function callbackPayload(params: URLSearchParams) {
