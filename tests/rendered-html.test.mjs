@@ -210,3 +210,34 @@ test("lists only the signed-in user's payment orders", async () => {
   assert.match(ordersPage, /order-status/);
   assert.match(ordersPage, /copyOrderNumber/);
 });
+
+test("protects the first admin console with server-side authorization", async () => {
+  const [adminServer, inventoryRoute, revealRoute, migration, loginPage] =
+    await Promise.all([
+      readFile(new URL("../app/api/admin/server.ts", import.meta.url), "utf8"),
+      readFile(new URL("../app/api/admin/inventory/route.ts", import.meta.url), "utf8"),
+      readFile(
+        new URL("../app/api/admin/inventory/[id]/reveal/route.ts", import.meta.url),
+        "utf8",
+      ),
+      readFile(
+        new URL(
+          "../supabase/migrations/20260820090000_create_admin_console.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(new URL("../app/admin/login-page.tsx", import.meta.url), "utf8"),
+    ]);
+
+  assert.match(adminServer, /requireAdmin/);
+  assert.match(adminServer, /ADMIN_EMAILS/);
+  assert.match(adminServer, /admin_users/);
+  assert.match(inventoryRoute, /encryptCredential/);
+  assert.doesNotMatch(inventoryRoute, /account_password_encrypted.*return/);
+  assert.match(revealRoute, /writeAuditLog/);
+  assert.match(migration, /enable row level security/);
+  assert.match(migration, /revoke all .* from anon, authenticated/s);
+  assert.match(loginPage, /\/api\/admin\/session/);
+  assert.doesNotMatch(loginPage, /name="password"/);
+});
