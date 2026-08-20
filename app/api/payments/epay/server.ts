@@ -116,33 +116,83 @@ function signPayload(payload: Record<string, string>, key: string) {
   return createHash("md5").update(`${canonical}${key}`).digest("hex");
 }
 
-export function createProviderCheckout({
+function safeHttpsUrl(value: unknown) {
+  if (typeof value !== "string" || !value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseProviderResult(value: unknown): Record<string, unknown> {
+  let parsed = value;
+  for (let depth = 0; depth < 2 && typeof parsed === "string"; depth += 1) {
+    parsed = JSON.parse(parsed) as unknown;
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("EPAY_CHECKOUT_INVALID_RESPONSE");
+  }
+  return parsed as Record<string, unknown>;
+}
+
+export async function createProviderCheckout({
   orderNo,
   product,
   notifyUrl,
-  returnUrl,
+  clientIp,
+  device,
 }: {
   orderNo: string;
   product: Product;
   notifyUrl: string;
-  returnUrl: string;
+  clientIp: string;
+  device: "mobile" | "pc";
 }) {
   const { pid, key, apiUrl } = gatewayConfig();
   const payload: Record<string, string> = {
     pid,
     type: "alipay",
     notify_url: notifyUrl,
-    return_url: returnUrl,
     out_trade_no: orderNo,
     name: product.name,
     money: Number(product.amount).toFixed(2),
+    clientip: clientIp,
+    device,
     param: orderNo,
     sign_type: "MD5",
   };
   payload.sign = signPayload(payload, key);
-  const checkoutUrl = new URL("submit.php", apiUrl);
-  checkoutUrl.search = new URLSearchParams(payload).toString();
-  return { checkoutUrl: checkoutUrl.toString() };
+
+  const response = await fetch(new URL("mapi.php", apiUrl), {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams(payload),
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error("EPAY_CHECKOUT_UNAVAILABLE");
+
+  const result = parseProviderResult(await response.text());
+  if (Number(result.code) !== 1) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        message: "EPay rejected checkout request",
+        providerCode: result.code ?? null,
+        providerMessage:
+          result.msg ?? result.message ?? result.error ?? "unknown",
+      }),
+    );
+    throw new Error("EPAY_CHECKOUT_FAILED");
+  }
+
+  const checkoutUrl = safeHttpsUrl(result.payurl);
+  if (!checkoutUrl) throw new Error("EPAY_CHECKOUT_INVALID");
+  return { checkoutUrl };
 }
 
 export function callbackPayload(params: URLSearchParams) {

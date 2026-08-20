@@ -64,14 +64,22 @@ export async function POST(request: Request) {
     }
 
     const origin = getPublicOrigin(request);
-    const returnUrl = new URL("/api/payments/epay/return", origin);
-    returnUrl.searchParams.set("order", orderNo);
-    returnUrl.searchParams.set("token", accessToken);
-    const checkout = createProviderCheckout({
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const clientIp =
+      request.headers.get("cf-connecting-ip") ??
+      forwardedFor?.split(",")[0].trim() ??
+      "127.0.0.1";
+    const device = /android|iphone|ipad|mobile/i.test(
+      request.headers.get("user-agent") ?? "",
+    )
+      ? "mobile"
+      : "pc";
+    const checkout = await createProviderCheckout({
       orderNo,
       product,
       notifyUrl: new URL("/api/payments/epay/notify", origin).toString(),
-      returnUrl: returnUrl.toString(),
+      clientIp,
+      device,
     });
     return jsonResponse({
       ...checkout,
