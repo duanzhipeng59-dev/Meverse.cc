@@ -130,7 +130,7 @@ test("switches signed-in users to a round avatar with logout menu", async () => 
   assert.match(header, /className="account-avatar"/);
   assert.match(header, /account\.sign_out/);
   assert.match(header, /onNavigate=\{\(\) => setPendingHref\(item\.href\)\}/);
-  assert.match(header, /DESKTOP_NAV_ITEMS\.map/);
+  assert.match(header, /PRIMARY_NAV_ITEMS\.map/);
   assert.doesNotMatch(header, /onClick=\{\(\) => setPendingHref\(item\.href\)\}/);
   assert.doesNotMatch(header, /href="\/profile"/);
   assert.doesNotMatch(header, /account-dropdown-summary/);

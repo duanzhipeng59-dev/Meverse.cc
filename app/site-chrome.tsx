@@ -25,7 +25,7 @@ const NAV_ITEMS: Array<{
   },
 ];
 
-const DESKTOP_NAV_ITEMS = NAV_ITEMS.filter(
+const PRIMARY_NAV_ITEMS = NAV_ITEMS.filter(
   (item) => item.id !== "invitations",
 );
 
@@ -176,7 +176,7 @@ export function DesktopSidebar({
   return (
     <aside className={className} aria-label={ariaLabel}>
       <nav>
-        {DESKTOP_NAV_ITEMS.map((item) => (
+        {PRIMARY_NAV_ITEMS.map((item) => (
           <Link
             className={item.id === activeId ? "nav-item active" : "nav-item"}
             href={item.href}
@@ -204,7 +204,7 @@ export function MobileNavigation({
 
   return (
     <nav className={className} aria-label="移动端主导航">
-      {DESKTOP_NAV_ITEMS.map((item) => (
+      {PRIMARY_NAV_ITEMS.map((item) => (
         <Link
           className={item.id === activeId ? "active" : undefined}
           href={item.href}
