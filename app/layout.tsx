@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import { AuthProvider } from "./auth-context";
 import { LanguageProvider } from "./language-context";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -40,7 +41,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

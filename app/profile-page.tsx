@@ -1,43 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useAuth } from "./auth-context";
 import { useLanguage } from "./language-context";
 import { DesktopSidebar, MobileNavigation, SiteHeader } from "./site-chrome";
 
 export default function ProfilePage() {
   const { t } = useLanguage();
-  const [email, setEmail] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/auth/session", { cache: "no-store" })
-      .then(
-        (response) =>
-          response.json() as Promise<{
-            user?: { email?: string } | null;
-          }>,
-      )
-      .then((result) => {
-        if (!active) return;
-        setEmail(result.user?.email ?? null);
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+  const { status, email } = useAuth();
 
   const username = email?.split("@")[0] ?? "";
   const avatarLabel = (username.charAt(0) || "W").toUpperCase();
 
   return (
     <div className="site-shell profile-shell">
-      <SiteHeader authEmail={email} />
+      <SiteHeader />
       <div className="page-layout profile-layout">
         <DesktopSidebar active="subscribe" ariaLabel="主导航" />
         <main className="profile-main">
@@ -47,7 +24,7 @@ export default function ProfilePage() {
             <p>{t("account.profile_description")}</p>
           </div>
 
-          {loading ? (
+          {status === "loading" ? (
             <section className="profile-card profile-state">
               {t("account.loading")}
             </section>

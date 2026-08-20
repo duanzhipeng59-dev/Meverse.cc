@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLanguage } from "./language-context";
+import { OrdersSkeletonRows } from "./orders-skeleton";
 import {
   DesktopSidebar,
   MobileNavigation,
@@ -62,6 +63,7 @@ export default function OrdersPage() {
   const [toast, setToast] = useState("");
   const [orders, setOrders] = useState<PaymentOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [loadError, setLoadError] = useState<"" | "login" | "unavailable">("");
 
   function showToast(message: string) {
@@ -85,6 +87,7 @@ export default function OrdersPage() {
       setLoadError("unavailable");
     } finally {
       setLoading(false);
+      setHasLoaded(true);
     }
   }, []);
 
@@ -109,7 +112,10 @@ export default function OrdersPage() {
         }
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+          setHasLoaded(true);
+        }
       });
     return () => {
       active = false;
@@ -121,6 +127,13 @@ export default function OrdersPage() {
       ? order.billing_mode === "annual"
       : order.billing_mode === "monthly",
   );
+
+  // First entry shows the skeleton while orders load; manual refresh keeps
+  // the current rows visible and only spins the refresh button.
+  const showSkeleton = loading && (visibleOrders.length === 0 || !hasLoaded);
+  const showError =
+    !showSkeleton && Boolean(loadError) && visibleOrders.length === 0;
+  const showEmpty = !showSkeleton && !showError && visibleOrders.length === 0;
 
   function formatOrderDate(value: string) {
     return new Intl.DateTimeFormat(lang === "zh" ? "zh-CN" : "en-US", {
@@ -150,6 +163,10 @@ export default function OrdersPage() {
         />
 
         <main className="orders-main">
+          <div className="orders-heading">
+            <h1>{t("nav.orders")}</h1>
+          </div>
+
           <div className="orders-toolbar">
             <div className="order-tabs" role="tablist" aria-label="订单分类">
               {visibleOrderCategories.map((category) => (
@@ -174,7 +191,12 @@ export default function OrdersPage() {
                 showToast(t("toast.orders_refreshed"));
               }}
             >
-              <span aria-hidden="true">↻</span>
+              <span
+                className={loading && hasLoaded ? "refresh-icon-spin" : undefined}
+                aria-hidden="true"
+              >
+                ↻
+              </span>
               {t("orders.refresh")}
             </button>
           </div>
@@ -198,15 +220,17 @@ export default function OrdersPage() {
               <span>{t("orders.col.status")}</span>
               <span>{t("orders.col.action")}</span>
             </div>
-            {loading || loadError || visibleOrders.length === 0 ? (
+            {showSkeleton ? (
+              <OrdersSkeletonRows />
+            ) : showError ? (
               <div className="empty-category-body orders-state-message">
-                {loading
-                  ? t("orders.loading")
-                  : loadError === "login"
-                    ? t("orders.login_required")
-                    : loadError === "unavailable"
-                      ? t("orders.unavailable")
-                      : t(emptyMessages[activeCategory])}
+                {loadError === "login"
+                  ? t("orders.login_required")
+                  : t("orders.unavailable")}
+              </div>
+            ) : showEmpty ? (
+              <div className="empty-category-body orders-state-message">
+                {t(emptyMessages[activeCategory])}
               </div>
             ) : (
               visibleOrders.map((order) => (

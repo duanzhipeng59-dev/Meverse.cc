@@ -15,6 +15,7 @@ import {
   type Plan,
   type ProductCategory,
 } from "./data";
+import { useAuth } from "./auth-context";
 import { useLanguage } from "./language-context";
 import type { ChatGPTUser } from "./chatgpt-auth";
 import ChatGPTSubscriptionWizard from "./chatgpt-subscription-wizard";
@@ -60,6 +61,7 @@ export default function SubscriptionPage({
   initialGeminiPayment?: InitialGeminiPayment | null;
 }) {
   const { t } = useLanguage();
+  const { status, email: authEmail, markAuthenticated } = useAuth();
 
   const tabs: Array<{
     id: ProductCategory;
@@ -82,8 +84,6 @@ export default function SubscriptionPage({
   const [sendingCode, setSendingCode] = useState(false);
   const [codeCooldown, setCodeCooldown] = useState(0);
   const [verifyingCode, setVerifyingCode] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authUserEmail, setAuthUserEmail] = useState<string | null>(null);
   const [authIntent, setAuthIntent] = useState<AuthIntent>("account");
   const [toast, setToast] = useState("");
   const [chatGPTWizardOpen, setChatGPTWizardOpen] = useState(
@@ -97,27 +97,6 @@ export default function SubscriptionPage({
   );
   const [geminiInitialBillingMode, setGeminiInitialBillingMode] =
     useState<GeminiBillingMode>("monthly");
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/auth/session")
-      .then(
-        (response) =>
-          response.json() as Promise<{
-            user?: { id: string; email?: string } | null;
-          }>,
-      )
-      .then((result) => {
-        if (active) {
-          setIsAuthenticated(Boolean(result.user));
-          setAuthUserEmail(result.user?.email ?? null);
-        }
-      })
-      .catch(() => undefined);
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (codeCooldown <= 0) return;
@@ -217,7 +196,7 @@ export default function SubscriptionPage({
       setGeminiFamilyWizardOpen(true);
       return;
     }
-    if (!isAuthenticated) {
+    if (status !== "authenticated") {
       openAuth("checkout");
       return;
     }
@@ -314,8 +293,7 @@ export default function SubscriptionPage({
       setVerifyingCode(false);
     }
 
-    setIsAuthenticated(true);
-    setAuthUserEmail(authenticatedEmail);
+    markAuthenticated(authenticatedEmail);
     if (authIntent === "checkout") {
       setModalOpen(false);
       setDemoStep("login");
@@ -337,14 +315,7 @@ export default function SubscriptionPage({
 
   return (
     <div className="site-shell">
-      <SiteHeader
-        authAction={openAccountAuth}
-        authEmail={authUserEmail}
-        onSignedOut={() => {
-          setIsAuthenticated(false);
-          setAuthUserEmail(null);
-        }}
-      />
+      <SiteHeader onLogin={openAccountAuth} />
 
       <div className="page-layout">
         <DesktopSidebar active="subscribe" ariaLabel="主导航" />
@@ -520,6 +491,7 @@ export default function SubscriptionPage({
                       <input
                         name="code"
                         inputMode="numeric"
+                        autoComplete="one-time-code"
                         value={code}
                         onChange={(event) => setCode(event.target.value)}
                         placeholder={t("auth.placeholder.code")}
@@ -651,7 +623,7 @@ export default function SubscriptionPage({
 
       {geminiFamilyWizardOpen && (
         <GeminiFamilyWizard
-          accountEmail={authUserEmail}
+          accountEmail={authEmail}
           initialBillingMode={geminiInitialBillingMode}
           initialPayment={initialGeminiPayment}
           onClose={() => setGeminiFamilyWizardOpen(false)}

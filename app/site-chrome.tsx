@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useAuth } from "./auth-context";
 import { useLanguage } from "./language-context";
 import LanguageSwitcher from "./language-switcher";
 
@@ -37,43 +39,13 @@ function BrandMark() {
   );
 }
 
-export function SiteHeader({
-  authAction,
-  authEmail,
-  onSignedOut,
-}: {
-  authAction?: () => void;
-  authEmail?: string | null;
-  onSignedOut?: () => void;
-}) {
+export function SiteHeader({ onLogin }: { onLogin?: () => void }) {
   const { t } = useLanguage();
+  const { status, email, markSignedOut } = useAuth();
   const label = t("auth.login_register");
-  const [sessionEmail, setSessionEmail] = useState<string | null>(
-    authEmail ?? null,
-  );
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const displayedEmail = authEmail === undefined ? sessionEmail : authEmail;
-
-  useEffect(() => {
-    if (authEmail !== undefined) return;
-    let active = true;
-    fetch("/api/auth/session", { cache: "no-store" })
-      .then(
-        (response) =>
-          response.json() as Promise<{
-            user?: { email?: string } | null;
-          }>,
-      )
-      .then((result) => {
-        if (active) setSessionEmail(result.user?.email ?? null);
-      })
-      .catch(() => undefined);
-    return () => {
-      active = false;
-    };
-  }, [authEmail]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -96,10 +68,9 @@ export function SiteHeader({
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } finally {
-      setSessionEmail(null);
+      markSignedOut();
       setMenuOpen(false);
       setSigningOut(false);
-      onSignedOut?.();
       window.location.assign("/subscribe");
     }
   }
@@ -112,7 +83,9 @@ export function SiteHeader({
       </Link>
       <div className="header-actions">
         <LanguageSwitcher />
-        {displayedEmail ? (
+        {status === "loading" ? (
+          <div className="account-avatar-placeholder" aria-hidden="true" />
+        ) : email ? (
           <div className="account-menu" ref={menuRef}>
             <button
               className="account-avatar"
@@ -147,11 +120,11 @@ export function SiteHeader({
               </div>
             ) : null}
           </div>
-        ) : authAction ? (
+        ) : onLogin ? (
           <button
             className="auth-entry-button"
             type="button"
-            onClick={authAction}
+            onClick={onLogin}
           >
             {label}
           </button>
@@ -165,6 +138,29 @@ export function SiteHeader({
   );
 }
 
+// vinext only exposes the committed pathname through usePathname, so the
+// highlight would otherwise wait for navigation to finish. pendingHref is
+// set synchronously in the Link onNavigate (before navigation starts) and
+// cleared once the committed pathname catches up — the active menu item
+// switches in the same frame as the click.
+function useNavActive(fallback: MainSection) {
+  const pathname = usePathname();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  // Clear the optimistic highlight once the committed pathname catches up.
+  // Render-time adjustment (React's "derive state from props" pattern)
+  // avoids an effect that would re-render after every navigation commit.
+  if (pendingHref !== null && pendingHref === pathname) {
+    setPendingHref(null);
+  }
+
+  const activeId =
+    NAV_ITEMS.find((item) => item.href === (pendingHref ?? pathname))?.id ??
+    fallback;
+
+  return { activeId, setPendingHref };
+}
+
 export function DesktopSidebar({
   active,
   ariaLabel,
@@ -175,16 +171,18 @@ export function DesktopSidebar({
   className?: string;
 }) {
   const { t } = useLanguage();
+  const { activeId, setPendingHref } = useNavActive(active);
 
   return (
     <aside className={className} aria-label={ariaLabel}>
       <nav>
         {DESKTOP_NAV_ITEMS.map((item) => (
           <Link
-            className={item.id === active ? "nav-item active" : "nav-item"}
+            className={item.id === activeId ? "nav-item active" : "nav-item"}
             href={item.href}
-            aria-current={item.id === active ? "page" : undefined}
+            aria-current={item.id === activeId ? "page" : undefined}
             key={item.id}
+            onNavigate={() => setPendingHref(item.href)}
           >
             {t(item.labelKey)}
           </Link>
@@ -202,15 +200,17 @@ export function MobileNavigation({
   className?: string;
 }) {
   const { t } = useLanguage();
+  const { activeId, setPendingHref } = useNavActive(active);
 
   return (
     <nav className={className} aria-label="移动端主导航">
       {NAV_ITEMS.map((item) => (
         <Link
-          className={item.id === active ? "active" : undefined}
+          className={item.id === activeId ? "active" : undefined}
           href={item.href}
-          aria-current={item.id === active ? "page" : undefined}
+          aria-current={item.id === activeId ? "page" : undefined}
           key={item.id}
+          onNavigate={() => setPendingHref(item.href)}
         >
           <span aria-hidden="true">{item.icon}</span>
           {t(item.labelKey)}

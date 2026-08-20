@@ -118,14 +118,19 @@ test("uses email verification as the only account sign-in method", async () => {
 });
 
 test("switches signed-in users to a round avatar with logout menu", async () => {
-  const [header, profilePage, logoutRoute] = await Promise.all([
+  const [authContext, header, profilePage, logoutRoute] = await Promise.all([
+    readFile(new URL("../app/auth-context.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/site-chrome.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/profile-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/auth/logout/route.ts", import.meta.url), "utf8"),
   ]);
 
+  assert.match(authContext, /current\.status === "loading" \? resolved : current/);
+  assert.match(authContext, /cachedSession === null/);
   assert.match(header, /className="account-avatar"/);
   assert.match(header, /account\.sign_out/);
+  assert.match(header, /onNavigate=\{\(\) => setPendingHref\(item\.href\)\}/);
+  assert.doesNotMatch(header, /onClick=\{\(\) => setPendingHref\(item\.href\)\}/);
   assert.doesNotMatch(header, /href="\/profile"/);
   assert.doesNotMatch(header, /account-dropdown-summary/);
   assert.match(header, /window\.location\.assign\("\/subscribe"\)/);
