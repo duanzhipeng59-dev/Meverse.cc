@@ -446,15 +446,6 @@ export default function SubscriptionPage({
 
       <MobileNavigation active="subscribe" />
 
-      <button
-        className="support-button"
-        type="button"
-        onClick={() => showToast(t("support.toast"))}
-      >
-        <span aria-hidden="true">◌</span>
-        {t("support")}
-      </button>
-
       {modalOpen && (
         <div
           className="modal-backdrop"
