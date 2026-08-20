@@ -3,7 +3,9 @@
 import {
   FormEvent,
   KeyboardEvent,
+  lazy,
   MouseEvent as ReactMouseEvent,
+  Suspense,
   useEffect,
   useMemo,
   useState,
@@ -18,10 +20,9 @@ import {
 import { useAuth } from "./auth-context";
 import { useLanguage } from "./language-context";
 import type { ChatGPTUser } from "./chatgpt-auth";
-import ChatGPTSubscriptionWizard from "./chatgpt-subscription-wizard";
-import GeminiFamilyWizard, {
-  type GeminiBillingMode,
-  type InitialGeminiPayment,
+import type {
+  GeminiBillingMode,
+  InitialGeminiPayment,
 } from "./gemini-family-wizard";
 import {
   DesktopSidebar,
@@ -29,6 +30,27 @@ import {
   SiteHeader,
   Toast,
 } from "./site-chrome";
+
+const loadChatGPTSubscriptionWizard = () =>
+  import("./chatgpt-subscription-wizard");
+const loadGeminiFamilyWizard = () => import("./gemini-family-wizard");
+const ChatGPTSubscriptionWizard = lazy(loadChatGPTSubscriptionWizard);
+const GeminiFamilyWizard = lazy(loadGeminiFamilyWizard);
+
+function WizardLoadingFallback() {
+  const { t } = useLanguage();
+
+  return (
+    <div
+      className="chatgpt-wizard-backdrop wizard-loading-fallback"
+      role="status"
+      aria-label={t("common.loading")}
+      aria-live="polite"
+    >
+      <span className="spinner" aria-hidden="true" />
+    </div>
+  );
+}
 
 const DEMOSTEP_LABEL_KEYS: Record<string, string> = {
   login: "demostep.login",
@@ -357,6 +379,8 @@ export default function SubscriptionPage({
                   }
                   key={plan.id}
                   onClick={() => choosePlan(plan)}
+                  onFocus={() => void loadGeminiFamilyWizard()}
+                  onPointerEnter={() => void loadGeminiFamilyWizard()}
                   aria-pressed={selectedId === plan.id}
                 >
                   <span className="plan-copy">
@@ -410,6 +434,8 @@ export default function SubscriptionPage({
               className="next-button"
               type="button"
               onClick={beginCheckout}
+              onFocus={() => void loadGeminiFamilyWizard()}
+              onPointerEnter={() => void loadGeminiFamilyWizard()}
             >
               {t("subscribe.cta")}
               <span aria-hidden="true">→</span>
@@ -612,27 +638,31 @@ export default function SubscriptionPage({
       )}
 
       {chatGPTWizardOpen && (
-        <ChatGPTSubscriptionWizard
-          chatGPTUser={chatGPTUser}
-          initialStep={chatGPTWizardStartStep}
-          signInPath={chatGPTSignInPath}
-          onClose={closeChatGPTWizard}
-          onNotice={showToast}
-        />
+        <Suspense fallback={<WizardLoadingFallback />}>
+          <ChatGPTSubscriptionWizard
+            chatGPTUser={chatGPTUser}
+            initialStep={chatGPTWizardStartStep}
+            signInPath={chatGPTSignInPath}
+            onClose={closeChatGPTWizard}
+            onNotice={showToast}
+          />
+        </Suspense>
       )}
 
       {geminiFamilyWizardOpen && (
-        <GeminiFamilyWizard
-          accountEmail={authEmail}
-          initialBillingMode={geminiInitialBillingMode}
-          initialPayment={initialGeminiPayment}
-          onClose={() => setGeminiFamilyWizardOpen(false)}
-          onRequireAccount={(billingMode) => {
-            setGeminiInitialBillingMode(billingMode);
-            setGeminiFamilyWizardOpen(false);
-            openAuth("checkout");
-          }}
-        />
+        <Suspense fallback={<WizardLoadingFallback />}>
+          <GeminiFamilyWizard
+            accountEmail={authEmail}
+            initialBillingMode={geminiInitialBillingMode}
+            initialPayment={initialGeminiPayment}
+            onClose={() => setGeminiFamilyWizardOpen(false)}
+            onRequireAccount={(billingMode) => {
+              setGeminiInitialBillingMode(billingMode);
+              setGeminiFamilyWizardOpen(false);
+              openAuth("checkout");
+            }}
+          />
+        </Suspense>
       )}
 
       <Toast>{toast}</Toast>

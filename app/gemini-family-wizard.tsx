@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import qrcode from "qrcode-generator";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useLanguage } from "./language-context";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -99,13 +98,24 @@ export default function GeminiFamilyWizard({
       : t("gemini.product.monthly", { months: monthlyDuration });
   const deliveryEmail = billingMode === "annual" ? accountEmail : email;
   const paymentToCheck = initialPayment ?? providerCheckout;
-  const qrDataUrl = useMemo(() => {
-    if (!providerCheckout?.qrContent) return null;
-    const code = qrcode(0, "M");
-    code.addData(providerCheckout.qrContent);
-    code.make();
-    return code.createDataURL(7, 4);
-  }, [providerCheckout]);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const qrContent = providerCheckout?.qrContent;
+    if (!qrContent) return;
+
+    let active = true;
+    import("qrcode-generator").then(({ default: qrcode }) => {
+      if (!active) return;
+      const code = qrcode(0, "M");
+      code.addData(qrContent);
+      code.make();
+      setQrDataUrl(code.createDataURL(7, 4));
+    });
+    return () => {
+      active = false;
+    };
+  }, [providerCheckout?.qrContent]);
 
   useEffect(() => {
     let active = true;

@@ -14,6 +14,7 @@ const zh: TranslationDict = {
   "support.toast": "在线客服暂未开放",
   "coming.soon": "第一版暂仅提供中文",
   "total.records": "共 {n} 条记录",
+  "common.loading": "正在加载…",
 
   /* ── Toast ── */
   "toast.demo_only": "第一版暂仅提供中文",
@@ -305,6 +306,7 @@ const en: TranslationDict = {
   "support.toast": "Live chat is not available yet",
   "coming.soon": "Currently Chinese only",
   "total.records": "Total {n} records",
+  "common.loading": "Loading…",
 
   /* ── Toast ── */
   "toast.demo_only": "Currently Chinese only",
