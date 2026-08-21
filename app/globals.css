@@ -247,13 +247,36 @@ select:focus-visible {
   z-index: 80;
   top: calc(100% + 12px);
   right: 0;
-  width: 154px;
+  width: 238px;
   overflow: hidden;
   padding: 8px;
   border: 1px solid #e7e8eb;
   border-radius: 13px;
   background: #fff;
   box-shadow: 0 18px 50px rgb(17 24 39 / 14%);
+}
+
+.account-dropdown-email {
+  display: grid;
+  gap: 5px;
+  margin: 0 3px 7px;
+  padding: 7px 8px 12px;
+  border-bottom: 1px solid #eceef1;
+}
+
+.account-dropdown-email span {
+  color: #8a9099;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.account-dropdown-email strong {
+  overflow: hidden;
+  color: #252525;
+  font-size: 13px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .account-dropdown > button {
@@ -2029,33 +2052,6 @@ select:focus-visible {
   font-weight: 650;
 }
 
-.agreement {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: 7px 0 12px;
-  color: #282828;
-  cursor: pointer;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.agreement input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--blue);
-}
-
-.agreement button {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--blue);
-  cursor: pointer;
-}
-
 .auth-mode-footer {
   display: flex;
   align-items: center;
@@ -3446,7 +3442,7 @@ select:focus-visible {
     position: fixed;
     top: 58px;
     right: 12px;
-    width: 154px;
+    width: min(238px, calc(100vw - 24px));
   }
 
   .language-button {

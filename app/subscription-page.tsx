@@ -103,7 +103,6 @@ export default function SubscriptionPage({
   const [demoStep, setDemoStep] = useState<DemoStep["id"]>("login");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [agreed, setAgreed] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [codeCooldown, setCodeCooldown] = useState(0);
   const [verifyingCode, setVerifyingCode] = useState(false);
@@ -215,6 +214,10 @@ export default function SubscriptionPage({
 
   function choosePlan(plan: Plan) {
     setSelectedId(plan.id);
+    if (status !== "authenticated") {
+      openAuth("checkout");
+      return;
+    }
     if (plan.id === "gemini") {
       setGeminiInitialBillingMode("monthly");
       setGeminiFamilyWizardOpen(true);
@@ -255,16 +258,15 @@ export default function SubscriptionPage({
   }
 
   function beginCheckout() {
+    if (status !== "authenticated") {
+      openAuth("checkout");
+      return;
+    }
     if (selectedPlan.id === "gemini") {
       setGeminiInitialBillingMode("monthly");
       setGeminiFamilyWizardOpen(true);
       return;
     }
-    if (status !== "authenticated") {
-      openAuth("checkout");
-      return;
-    }
-
     continueCheckout();
   }
 
@@ -325,11 +327,6 @@ export default function SubscriptionPage({
       showToast(t("auth.toast.code_required"));
       return;
     }
-    if (!agreed) {
-      showToast(t("auth.toast.agree_required"));
-      return;
-    }
-
     let authenticatedEmail = email.trim();
     setVerifyingCode(true);
     try {
@@ -421,8 +418,12 @@ export default function SubscriptionPage({
                   }
                   key={plan.id}
                   onClick={() => choosePlan(plan)}
-                  onFocus={() => void loadGeminiFamilyWizard()}
-                  onPointerEnter={() => void loadGeminiFamilyWizard()}
+                  onFocus={() => {
+                    if (status === "authenticated") void loadGeminiFamilyWizard();
+                  }}
+                  onPointerEnter={() => {
+                    if (status === "authenticated") void loadGeminiFamilyWizard();
+                  }}
                   aria-pressed={selectedId === plan.id}
                 >
                   <span className="plan-copy">
@@ -476,8 +477,12 @@ export default function SubscriptionPage({
               className="next-button"
               type="button"
               onClick={beginCheckout}
-              onFocus={() => void loadGeminiFamilyWizard()}
-              onPointerEnter={() => void loadGeminiFamilyWizard()}
+              onFocus={() => {
+                if (status === "authenticated") void loadGeminiFamilyWizard();
+              }}
+              onPointerEnter={() => {
+                if (status === "authenticated") void loadGeminiFamilyWizard();
+              }}
             >
               {t("subscribe.cta")}
               <span aria-hidden="true">→</span>
@@ -622,24 +627,6 @@ export default function SubscriptionPage({
                       : t("auth.submit.login")}
                   </button>
 
-                  <label className="agreement">
-                    <input
-                      type="checkbox"
-                      checked={agreed}
-                      onChange={(event) => setAgreed(event.target.checked)}
-                    />
-                    <span>
-                      {t("auth.agreement.prefix")}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          showToast(t("auth.toast.agreement_demo"))
-                        }
-                      >
-                        {t("auth.agreement.link")}
-                      </button>
-                    </span>
-                  </label>
                 </form>
 
               </div>

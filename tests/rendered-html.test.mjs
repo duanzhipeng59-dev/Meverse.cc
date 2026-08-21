@@ -128,6 +128,8 @@ test("switches signed-in users to a round avatar with logout menu", async () => 
   assert.match(authContext, /current\.status === "loading" \? resolved : current/);
   assert.match(authContext, /cachedSession === null/);
   assert.match(header, /className="account-avatar"/);
+  assert.match(header, /className="account-dropdown-email"/);
+  assert.match(header, /<strong title=\{email\}>\{email\}<\/strong>/);
   assert.match(header, /account\.sign_out/);
   assert.match(header, /onNavigate=\{\(\) => setPendingHref\(item\.href\)\}/);
   assert.match(header, /PRIMARY_NAV_ITEMS\.map/);
@@ -157,6 +159,7 @@ test("includes the Gemini family group checkout flow", async () => {
   ]);
 
   assert.match(page, /GeminiFamilyWizard/);
+  assert.match(page, /function choosePlan[\s\S]*?openAuth\("checkout"\)/);
   assert.match(familyWizard, /useLanguage/);
   assert.doesNotMatch(familyWizard, /[\u4e00-\u9fff]/u);
   assert.match(familyWizard, /19\.9/);
@@ -207,6 +210,8 @@ test("lists only the signed-in user's payment orders", async () => {
   assert.doesNotMatch(ordersRoute, /provider_payload|access_token_hash/);
   assert.match(paymentCreate, /p_user_id: user\.id/);
   assert.match(ordersPage, /fetch\("\/api\/orders"/);
+  assert.match(ordersPage, /status !== "authenticated"/);
+  assert.match(ordersPage, /orders\.auth_checking/);
   assert.match(ordersPage, /order-status/);
   assert.match(ordersPage, /copyOrderNumber/);
 });

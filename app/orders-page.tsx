@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "./auth-context";
 import { useLanguage } from "./language-context";
 import { OrdersSkeletonRows } from "./orders-skeleton";
 import {
@@ -64,6 +65,7 @@ async function requestOrders() {
 
 export default function OrdersPage() {
   const { lang, t } = useLanguage();
+  const { status, markSignedOut } = useAuth();
   const [activeCategory, setActiveCategory] = useState<OrderCategory>("ai");
   const [toast, setToast] = useState("");
   const [orders, setOrders] = useState<PaymentOrder[]>([]);
@@ -84,7 +86,12 @@ export default function OrdersPage() {
       const { response, result } = await requestOrders();
       if (!response.ok) {
         setOrders([]);
-        setLoadError(result.error === "login_required" ? "login" : "unavailable");
+        if (result.error === "login_required") {
+          markSignedOut();
+          setLoadError("login");
+        } else {
+          setLoadError("unavailable");
+        }
         return;
       }
       setOrders(result.orders ?? []);
@@ -95,18 +102,22 @@ export default function OrdersPage() {
       setLoading(false);
       setHasLoaded(true);
     }
-  }, []);
+  }, [markSignedOut]);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
     let active = true;
     requestOrders()
       .then(({ response, result }) => {
         if (!active) return;
         if (!response.ok) {
           setOrders([]);
-          setLoadError(
-            result.error === "login_required" ? "login" : "unavailable",
-          );
+          if (result.error === "login_required") {
+            markSignedOut();
+            setLoadError("login");
+          } else {
+            setLoadError("unavailable");
+          }
           return;
         }
         setOrders(result.orders ?? []);
@@ -126,7 +137,7 @@ export default function OrdersPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [markSignedOut, status]);
 
   const visibleOrders = orders;
 
@@ -169,7 +180,7 @@ export default function OrdersPage() {
             <h1>{t("nav.orders")}</h1>
           </div>
 
-          <div className="orders-toolbar">
+          {status === "authenticated" ? <div className="orders-toolbar">
             <div className="order-tabs" role="tablist" aria-label="订单分类">
               {visibleOrderCategories.map((category) => (
                   <button
@@ -204,13 +215,13 @@ export default function OrdersPage() {
               </span>
               {t("orders.refresh")}
             </button>
-          </div>
+          </div> : null}
 
           <section
             className={`orders-table ${activeCategory}`}
             aria-label={`${t(orderCategoryKeys[activeCategory])}${t("nav.orders")}`}
           >
-            <div className="orders-table-head">
+            {status === "authenticated" ? <div className="orders-table-head">
               <span>
                 {activeCategory === "ai"
                   ? t("orders.col.order_type")
@@ -224,8 +235,16 @@ export default function OrdersPage() {
               <span>{t("orders.col.amount")}</span>
               <span>{t("orders.col.status")}</span>
               <span>{t("orders.col.action")}</span>
-            </div>
-            {showSkeleton ? (
+            </div> : null}
+            {status === "loading" ? (
+              <div className="empty-category-body orders-state-message">
+                {t("orders.auth_checking")}
+              </div>
+            ) : status === "anonymous" ? (
+              <div className="empty-category-body orders-state-message">
+                {t("orders.login_required")}
+              </div>
+            ) : showSkeleton ? (
               <OrdersSkeletonRows />
             ) : showError ? (
               <div className="empty-category-body orders-state-message">
@@ -272,9 +291,9 @@ export default function OrdersPage() {
               ))
             )}
           </section>
-          <p className="order-count">
+          {status === "authenticated" ? <p className="order-count">
             {t("total.records", { n: visibleOrders.length })}
-          </p>
+          </p> : null}
         </main>
       </div>
 

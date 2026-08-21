@@ -140,6 +140,10 @@ export function SiteHeader({ onLogin }: { onLogin?: () => void }) {
             </button>
             {menuOpen ? (
               <div className="account-dropdown" role="menu">
+                <div className="account-dropdown-email" role="presentation">
+                  <span>{t("account.email")}</span>
+                  <strong title={email}>{email}</strong>
+                </div>
                 <button
                   type="button"
                   role="menuitem"
