@@ -3,10 +3,20 @@
 :root {
   --blue: #3189ef;
   --blue-dark: #1f75da;
-  --text: #1a1a1a;
-  --muted: #979797;
-  --line: #dedede;
-  --soft: #f4f3f0;
+  --blue-soft: #eef6ff;
+  --text: #17191c;
+  --muted: #7d8592;
+  --line: #e2e5e9;
+  --soft: #f5f6f7;
+  --surface: #fff;
+  --surface-subtle: #f8f9fb;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 4%), 0 6px 18px rgb(16 24 40 / 5%);
+  --shadow-md: 0 18px 48px rgb(16 24 40 / 11%);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 * {
@@ -57,7 +67,7 @@ select:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 0 clamp(24px, 3.1vw, 60px);
-  border-bottom: 1px solid #f1f1f1;
+  border-bottom: 1px solid rgb(226 229 233 / 82%);
   background: rgb(255 255 255 / 96%);
   backdrop-filter: blur(14px);
 }
@@ -117,8 +127,8 @@ select:focus-visible {
   color: #222;
   cursor: pointer;
   transition:
-    background 160ms ease,
-    transform 160ms ease;
+    background 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
 }
 
 .header-actions button:active {
@@ -130,10 +140,6 @@ select:focus-visible {
   align-items: center;
   gap: 5px;
   padding: 0 10px;
-}
-
-.language-button:hover {
-  background: #f5f5f5;
 }
 
 .language-switcher {
@@ -420,10 +426,11 @@ select:focus-visible {
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: background 160ms ease;
+  transition:
+    background 160ms var(--ease-out),
+    color 160ms var(--ease-out);
 }
 
-.nav-item:hover,
 .nav-item.active {
   background: var(--soft);
 }
@@ -443,7 +450,16 @@ select:focus-visible {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: 100%;
   min-height: 58px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--line);
+}
+
+.primary-tabs:has(.primary-tab:only-child) {
+  grid-template-columns: 1fr;
+}
+
+.primary-tab:only-child {
+  width: min(220px, 100%);
+  justify-self: center;
 }
 
 .primary-tab {
@@ -468,13 +484,9 @@ select:focus-visible {
   background: transparent;
   content: "";
   transition:
-    left 180ms ease,
-    right 180ms ease,
-    background 180ms ease;
-}
-
-.primary-tab:hover {
-  color: #444;
+    left 180ms var(--ease-out),
+    right 180ms var(--ease-out),
+    background 180ms var(--ease-out);
 }
 
 .primary-tab.active {
@@ -517,7 +529,7 @@ select:focus-visible {
 }
 
 .plans-section.single-plan .plan-grid {
-  grid-template-columns: minmax(300px, 430px);
+  grid-template-columns: minmax(300px, 470px);
   justify-content: center;
 }
 
@@ -529,29 +541,26 @@ select:focus-visible {
   align-items: flex-start;
   overflow: hidden;
   padding: 22px 21px 18px;
-  border: 2px solid #dedede;
-  border-radius: 25px;
+  border: 2px solid var(--line);
+  border-radius: 22px;
   background: #fff;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 3%);
+  box-shadow: var(--shadow-sm);
   color: var(--text);
   cursor: pointer;
   text-align: left;
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
-}
-
-.plan-card:hover {
-  border-color: #aaa;
-  box-shadow: 0 9px 28px rgb(0 0 0 / 7%);
-  transform: translateY(-2px);
+    border-color 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 }
 
 .plan-card.selected {
-  border: 3px solid var(--blue);
-  padding: 21px 20px 17px;
-  box-shadow: 0 7px 24px rgb(49 137 239 / 12%);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue), 0 12px 32px rgb(49 137 239 / 12%);
+}
+
+.plan-card:active {
+  transform: scale(0.985);
 }
 
 .plan-icon {
@@ -657,7 +666,7 @@ select:focus-visible {
   justify-content: center;
   gap: 8px;
   margin: 19px auto 0;
-  color: var(--muted);
+  color: #697386;
   font-size: 13px;
   text-align: center;
 }
@@ -770,23 +779,20 @@ select:focus-visible {
   gap: 14px;
   margin-top: 13px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--blue);
   box-shadow: 0 8px 21px rgb(49 137 239 / 20%);
   color: #fff;
   cursor: pointer;
   font-weight: 680;
   transition:
-    background 160ms ease,
-    transform 160ms ease;
-}
-
-.next-button:hover {
-  background: var(--blue-dark);
+    background 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 }
 
 .next-button:active {
-  transform: translateY(1px);
+  transform: scale(0.985);
 }
 
 .next-button span {
@@ -2090,7 +2096,7 @@ select:focus-visible {
   padding: 24px;
   background: rgb(18 18 18 / 52%);
   backdrop-filter: blur(6px);
-  animation: fade-in 160ms ease;
+  animation: fade-in 160ms var(--ease-out);
 }
 
 .chatgpt-wizard {
@@ -2102,7 +2108,7 @@ select:focus-visible {
   border-radius: 28px;
   background: #fff;
   box-shadow: 0 34px 100px rgb(0 0 0 / 24%);
-  animation: modal-in 190ms ease;
+  animation: modal-in 200ms var(--ease-out);
 }
 
 .gemini-family-wizard {
@@ -2150,6 +2156,13 @@ select:focus-visible {
   color: #555;
   cursor: pointer;
   font-size: 25px;
+  transition:
+    background 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+
+.wizard-close:active {
+  transform: scale(0.97);
 }
 
 .wizard-page {
@@ -2205,12 +2218,10 @@ select:focus-visible {
   color: #111;
   text-align: left;
   cursor: pointer;
-  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
-}
-
-.duration-card:hover,
-.tier-card:hover {
-  transform: translateY(-2px);
+  transition:
+    border-color 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 }
 
 .duration-card.selected,
@@ -2407,12 +2418,16 @@ select:focus-visible {
   font-weight: 680;
   pointer-events: auto;
   text-decoration: none;
+  transition:
+    background 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
 }
 
 .wizard-back { background: #f3f3f3; color: #222; }
 .wizard-back:disabled { color: #bbb; cursor: not-allowed; }
 .wizard-next { background: #151515; color: #fff; }
-.wizard-next:hover { background: #303030; }
+.wizard-back:active,
+.wizard-next:active { transform: scale(0.97); }
 
 .payment-processing {
   width: min(720px, calc(100% - 44px));
@@ -2516,7 +2531,7 @@ select:focus-visible {
 
 .family-tier-card {
   display: flex;
-  min-height: 310px;
+  min-height: 272px;
   flex-direction: column;
   align-items: flex-start;
   padding: 27px;
@@ -2526,11 +2541,19 @@ select:focus-visible {
   color: #111;
   cursor: pointer;
   text-align: left;
+  transition:
+    border-color 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 }
 
 .family-tier-card.selected {
   border-color: #3189ef;
-  box-shadow: 0 0 0 1px #3189ef, 0 20px 55px rgb(49 137 239 / 14%);
+  box-shadow: 0 0 0 1px #3189ef, 0 14px 36px rgb(49 137 239 / 12%);
+}
+
+.family-tier-card:active {
+  transform: scale(0.985);
 }
 
 .family-tier-card.annual {
@@ -2544,7 +2567,7 @@ select:focus-visible {
 }
 
 .family-tier-card small {
-  margin: 22px 0 10px;
+  margin: 18px 0 8px;
   color: #888;
   font-size: 16px;
 }
@@ -2554,7 +2577,7 @@ select:focus-visible {
 }
 
 .family-tier-card b {
-  margin-top: 22px;
+  margin-top: 18px;
   font-size: 38px;
   font-weight: 600;
 }
@@ -3124,6 +3147,13 @@ select:focus-visible {
   }
 }
 
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -3622,7 +3652,8 @@ select:focus-visible {
   }
 
   .plans-section.single-plan .plan-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 320px);
+    justify-content: center;
   }
 
   .plan-card {
@@ -3633,8 +3664,9 @@ select:focus-visible {
   }
 
   .plan-card.selected {
-    border-width: 3px;
-    padding: 13px 11px 11px;
+    border-width: 1px;
+    padding: 15px 13px 13px;
+    box-shadow: 0 0 0 1px var(--blue), 0 10px 28px rgb(49 137 239 / 12%);
   }
 
   .plan-icon {
@@ -3702,7 +3734,7 @@ select:focus-visible {
     align-items: flex-start;
     margin-top: 16px;
     padding: 0 5px;
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.5;
   }
 
@@ -3752,11 +3784,12 @@ select:focus-visible {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     height: calc(70px + env(safe-area-inset-bottom));
-    gap: 8px;
+    gap: 10px;
     padding: 7px 12px env(safe-area-inset-bottom);
-    border-top: 1px solid #eaeaea;
-    background: rgb(255 255 255 / 97%);
-    backdrop-filter: blur(14px);
+    border-top: 1px solid rgb(218 223 230 / 88%);
+    background: rgb(255 255 255 / 92%);
+    box-shadow: 0 -8px 24px rgb(16 24 40 / 5%);
+    backdrop-filter: blur(18px) saturate(160%);
   }
 
   .mobile-nav button,
@@ -3767,26 +3800,46 @@ select:focus-visible {
     justify-content: center;
     gap: 4px;
     margin: 1px 0 4px;
-    border-radius: 14px;
+    border-radius: 16px;
     border: 0;
     background: transparent;
-    color: #aaa;
+    color: #8a93a2;
     cursor: pointer;
     font-size: 11px;
     font-weight: 700;
     text-decoration: none;
+    transition:
+      background 160ms var(--ease-out),
+      color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
   }
 
-  .mobile-nav button span,
-  .mobile-nav > a > span {
-    font-size: 20px;
-    line-height: 1;
+  .mobile-nav .mobile-nav-icon {
+    display: grid;
+    width: 23px;
+    height: 23px;
+    place-items: center;
+  }
+
+  .mobile-nav .mobile-nav-icon svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
   }
 
   .mobile-nav button.active,
   .mobile-nav > a.active {
-    background: #edf5ff;
+    background: var(--blue-soft);
     color: var(--blue);
+  }
+
+  .mobile-nav button:active,
+  .mobile-nav > a:active {
+    transform: scale(0.97);
   }
 
   .modal-backdrop {
@@ -3881,6 +3934,7 @@ select:focus-visible {
     min-height: min(760px, calc(100dvh - 12px));
     max-height: calc(100dvh - 12px);
     border-radius: 24px 24px 0 0;
+    animation: sheet-in 220ms var(--ease-drawer);
   }
 
   .wizard-page {
@@ -4140,6 +4194,42 @@ select:focus-visible {
 
   .family-demo-pay {
     grid-row: 1;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .language-button:hover,
+  .wizard-close:hover {
+    background: var(--soft);
+  }
+
+  .nav-item:hover {
+    background: var(--soft);
+  }
+
+  .primary-tab:hover {
+    color: #444;
+  }
+
+  .plan-card:hover,
+  .duration-card:hover,
+  .tier-card:hover,
+  .family-tier-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .plan-card:hover {
+    border-color: #b8bec7;
+    box-shadow: 0 12px 32px rgb(16 24 40 / 9%);
+  }
+
+  .next-button:hover {
+    background: var(--blue-dark);
+    box-shadow: 0 10px 25px rgb(49 137 239 / 26%);
+  }
+
+  .wizard-next:hover {
+    background: #303030;
   }
 }
 

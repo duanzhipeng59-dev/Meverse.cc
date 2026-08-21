@@ -13,15 +13,13 @@ const NAV_ITEMS: Array<{
   id: MainSection;
   href: string;
   labelKey: string;
-  icon: string;
 }> = [
-  { id: "subscribe", href: "/subscribe", labelKey: "nav.subscribe", icon: "▦" },
-  { id: "orders", href: "/orders", labelKey: "nav.orders", icon: "↻" },
+  { id: "subscribe", href: "/subscribe", labelKey: "nav.subscribe" },
+  { id: "orders", href: "/orders", labelKey: "nav.orders" },
   {
     id: "invitations",
     href: "/invitations",
     labelKey: "nav.invitations",
-    icon: "♙",
   },
 ];
 
@@ -36,6 +34,35 @@ function BrandMark() {
       <span />
       <span />
     </span>
+  );
+}
+
+function NavigationIcon({ id }: { id: MainSection }) {
+  if (id === "orders") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M7 4.75h10A2.25 2.25 0 0 1 19.25 7v12l-3-1.75L12 19.5l-4.25-2.25L4.75 19V7A2.25 2.25 0 0 1 7 4.75Z" />
+        <path d="M8.5 9h7M8.5 12.5h5" />
+      </svg>
+    );
+  }
+
+  if (id === "invitations") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 13.25a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z" />
+        <path d="M5.5 20c.75-3.25 3-5 6.5-5s5.75 1.75 6.5 5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4.25" y="4.25" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.25" y="4.25" width="6.5" height="6.5" rx="1.5" />
+      <rect x="4.25" y="13.25" width="6.5" height="6.5" rx="1.5" />
+      <rect x="13.25" y="13.25" width="6.5" height="6.5" rx="1.5" />
+    </svg>
   );
 }
 
@@ -212,7 +239,9 @@ export function MobileNavigation({
           key={item.id}
           onNavigate={() => setPendingHref(item.href)}
         >
-          <span aria-hidden="true">{item.icon}</span>
+          <span className="mobile-nav-icon">
+            <NavigationIcon id={item.id} />
+          </span>
           {t(item.labelKey)}
         </Link>
       ))}

@@ -365,7 +365,7 @@ export default function SubscriptionPage({
           </div>
 
           <section
-            className={`plans-section ${activeCategory !== "official" ? "single-plan" : ""}`}
+            className={`plans-section ${visiblePlans.length === 1 ? "single-plan" : ""}`}
             aria-label="可选套餐"
           >
             <div className="plan-grid">
