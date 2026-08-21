@@ -194,10 +194,13 @@ export default function OrdersPage() {
               }}
             >
               <span
-                className={loading && hasLoaded ? "refresh-icon-spin" : undefined}
+                className={`refresh-orders-icon${loading && hasLoaded ? " refresh-icon-spin" : ""}`}
                 aria-hidden="true"
               >
-                ↻
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M20 11a8 8 0 1 0-2.34 5.66" />
+                  <path d="M20 4v7h-7" />
+                </svg>
               </span>
               {t("orders.refresh")}
             </button>
