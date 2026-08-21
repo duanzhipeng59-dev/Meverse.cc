@@ -16,15 +16,13 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
-      billingMode?: "monthly" | "annual";
+      billingMode?: "monthly";
       monthlyDuration?: MonthlyDuration;
       email?: string;
       region?: string;
     };
     const product =
-      body.billingMode === "annual"
-        ? PRODUCTS.annual
-        : PRODUCTS[`monthly_${body.monthlyDuration}` as keyof typeof PRODUCTS];
+      PRODUCTS[`monthly_${body.monthlyDuration}` as keyof typeof PRODUCTS];
     if (!product || product.billingMode !== body.billingMode) {
       return jsonResponse({ error: "invalid_product" }, { status: 400 });
     }
@@ -33,12 +31,9 @@ export async function POST(request: Request) {
     if (!user?.id || !user.email) {
       return jsonResponse({ error: "login_required" }, { status: 401 });
     }
-    let deliveryEmail = body.email?.trim() ?? "";
-    let accountRegion = body.region?.trim() ?? "";
-    if (product.billingMode === "annual") {
-      deliveryEmail = user.email;
-      accountRegion = "";
-    } else if (!EMAIL_PATTERN.test(deliveryEmail) || !accountRegion) {
+    const deliveryEmail = body.email?.trim() ?? "";
+    const accountRegion = body.region?.trim() ?? "";
+    if (!EMAIL_PATTERN.test(deliveryEmail) || !accountRegion) {
       return jsonResponse({ error: "invalid_account_details" }, { status: 400 });
     }
 

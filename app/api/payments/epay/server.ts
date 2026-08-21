@@ -8,7 +8,7 @@ import {
 import { createSupabaseAdminClient } from "../../auth/server";
 
 export type BillingMode = "monthly" | "annual";
-export type MonthlyDuration = 1 | 3 | 6;
+export type MonthlyDuration = 1 | 3 | 6 | 12;
 
 export const PRODUCTS = {
   monthly_1: {
@@ -29,10 +29,10 @@ export const PRODUCTS = {
     name: "Gemini 家庭组 6 个月",
     amount: "89.9",
   },
-  annual: {
-    billingMode: "annual" as const,
+  monthly_12: {
+    billingMode: "monthly" as const,
     durationMonths: 12 as const,
-    name: "Gemini 1 年成品账号",
+    name: "Gemini 家庭组 12 个月",
     amount: "145.00",
   },
 };
@@ -49,7 +49,7 @@ export type PaymentOrder = {
   amount: string | number;
   delivery_email: string;
   account_region: string | null;
-  status: "pending" | "paid" | "fulfilled" | "failed";
+  status: "pending" | "paid" | "fulfilled" | "failed" | "cancelled" | "returned";
   provider_trade_no: string | null;
   inventory_id: string | null;
   created_at: string;

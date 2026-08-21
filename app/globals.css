@@ -1081,6 +1081,16 @@ select:focus-visible {
   color: #b42318;
 }
 
+.order-status.cancelled {
+  background: #f2f4f7;
+  color: #667085;
+}
+
+.order-status.returned {
+  background: #fff0ef;
+  color: #b42318;
+}
+
 .invoice-button {
   justify-self: end;
   padding: 7px 0 7px 8px;
@@ -1096,6 +1106,21 @@ select:focus-visible {
   color: #667085;
   font-size: 14px;
 }
+
+.order-detail-backdrop { position: fixed; z-index: 80; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(15 23 42 / 48%); backdrop-filter: blur(5px); }
+.order-detail-modal { position: relative; width: min(520px, 100%); max-height: calc(100dvh - 40px); overflow-y: auto; padding: 34px; border-radius: 22px; background: #fff; box-shadow: 0 28px 90px rgb(15 23 42 / 24%); }
+.order-detail-modal > span { color: #3189ef; font-size: 12px; font-weight: 800; }
+.order-detail-modal h2 { margin: 8px 42px 24px 0; font-size: 24px; }
+.order-detail-close { position: absolute; top: 20px; right: 20px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: #f2f4f7; color: #667085; cursor: pointer; font-size: 20px; }
+.order-detail-modal dl { margin: 0; }
+.order-detail-modal dl div { display: grid; grid-template-columns: 118px minmax(0,1fr); gap: 16px; padding: 12px 0; border-bottom: 1px solid #eef0f3; }
+.order-detail-modal dt { color: #8a93a1; font-size: 13px; }
+.order-detail-modal dd { overflow-wrap: anywhere; margin: 0; font-size: 13px; font-weight: 650; }
+.order-detail-notice,.order-return-reason { margin: 20px 0 0; padding: 14px 16px; border-radius: 12px; background: #eef5ff; color: #175cd3; font-size: 13px; line-height: 1.65; }
+.order-detail-notice.success { background: #eaf8f1; color: #067647; }
+.order-return-reason { background: #fff3f1; color: #b42318; }
+.order-return-reason p { margin: 5px 0 0; }
+.order-detail-copy { width: 100%; min-height: 46px; margin-top: 22px; border: 0; border-radius: 11px; background: #111827; color: #fff; cursor: pointer; font-weight: 750; }
 
 .empty-orders {
   display: flex;
@@ -2436,8 +2461,8 @@ select:focus-visible {
 
 .family-duration-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
   width: min(960px, 100%);
   margin: 0 auto;
 }
@@ -2447,7 +2472,7 @@ select:focus-visible {
   min-height: 310px;
   flex-direction: column;
   align-items: flex-start;
-  padding: 32px;
+  padding: 27px;
   border: 2px solid #d7dce5;
   border-radius: 22px;
   background: linear-gradient(145deg, #fff 45%, #edf5ff);
@@ -3680,7 +3705,8 @@ select:focus-visible {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     height: calc(70px + env(safe-area-inset-bottom));
-    padding: 7px 10px env(safe-area-inset-bottom);
+    gap: 8px;
+    padding: 7px 12px env(safe-area-inset-bottom);
     border-top: 1px solid #eaeaea;
     background: rgb(255 255 255 / 97%);
     backdrop-filter: blur(14px);
@@ -3692,12 +3718,15 @@ select:focus-visible {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
+    margin: 1px 0 4px;
+    border-radius: 14px;
     border: 0;
     background: transparent;
     color: #aaa;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 700;
     text-decoration: none;
   }
 
@@ -3709,6 +3738,7 @@ select:focus-visible {
 
   .mobile-nav button.active,
   .mobile-nav > a.active {
+    background: #edf5ff;
     color: var(--blue);
   }
 
@@ -3972,15 +4002,37 @@ select:focus-visible {
   }
 
   .family-duration-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    width: calc(100% + 36px);
+    margin-right: -18px;
+    margin-left: -18px;
+    padding: 4px 18px 18px;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
   }
 
   .family-tier-card,
   .family-tier-card.annual {
     grid-column: auto;
-    min-height: 210px;
-    padding: 22px;
+    min-width: 146px;
+    min-height: 174px;
+    flex: 0 0 146px;
+    padding: 18px;
+    border-radius: 18px;
+    scroll-snap-align: start;
   }
+
+  .family-duration-grid::-webkit-scrollbar { display: none; }
+  .family-tier-card .gemini-mark { font-size: 31px; }
+  .family-tier-card small { margin: 13px 0 7px; font-size: 12px; }
+  .family-tier-card strong { font-size: 21px; }
+  .family-tier-card b { margin-top: 12px; font-size: 25px; }
+  .family-tier-card em { margin-top: 7px; font-size: 11px; }
+
+  .order-detail-backdrop { align-items: end; padding: 0; }
+  .order-detail-modal { width: 100%; max-height: calc(100dvh - 24px); padding: 28px 20px calc(24px + env(safe-area-inset-bottom)); border-radius: 24px 24px 0 0; }
 
   .family-email-card,
   .region-guide {

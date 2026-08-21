@@ -162,15 +162,15 @@ test("includes the Gemini family group checkout flow", async () => {
   assert.match(familyWizard, /19\.9/);
   assert.match(familyWizard, /49\.9/);
   assert.match(familyWizard, /89\.9/);
-  assert.match(familyWizard, /ANNUAL_PRICE = "145"/);
+  assert.match(familyWizard, /months: 12, price: "145"/);
   assert.match(familyWizard, /https:\/\/play\.google\.com\//);
   assert.match(familyWizard, /gemini\.region_guide\.scroll/);
   assert.match(familyWizard, /name="region"/);
   assert.match(familyWizard, /gemini\.success\.monthly_title/);
-  assert.match(familyWizard, /gemini\.annual\.delivery/);
-  assert.match(familyWizard, /\/api\/payments\/epay\/stock/);
-  assert.match(familyWizard, /gemini\.stock/);
-  assert.match(familyWizard, /deliveredAccount\.password/);
+  assert.doesNotMatch(familyWizard, /gemini\.annual\.delivery/);
+  assert.doesNotMatch(familyWizard, /\/api\/payments\/epay\/stock/);
+  assert.doesNotMatch(familyWizard, /deliveredAccount\.password/);
+  assert.match(familyWizard, /\/api\/payments\/epay\/cancel/);
   assert.match(familyWizard, /\/api\/payments\/epay\/create/);
   assert.match(familyWizard, /gemini\.checkout\.pay_with_alipay/);
   assert.match(familyWizard, /qrcode-generator|createDataURL|qrContent/);
@@ -179,7 +179,7 @@ test("includes the Gemini family group checkout flow", async () => {
   assert.match(paymentServer, /result\.payurl/);
   assert.match(paymentServer, /result\.qrcode/);
   assert.doesNotMatch(paymentServer, /submit\.php/);
-  assert.match(translations, /Choose a Billing Option/);
+  assert.match(translations, /Choose a Family Group Duration/);
   assert.match(translations, /Enter Your Email and Country\/Region/);
   assert.match(translations, /Select a Payment Method/);
   assert.match(translations, /Your Invitation Will Arrive Within 20 Minutes/);
@@ -240,4 +240,30 @@ test("protects the first admin console with server-side authorization", async ()
   assert.match(migration, /revoke all .* from anon, authenticated/s);
   assert.match(loginPage, /\/api\/admin\/session/);
   assert.doesNotMatch(loginPage, /name="password"/);
+});
+
+test("uses one family-group fulfillment flow for every duration", async () => {
+  const [paymentServer, paymentCreate, adminOrder, migration, ordersPage] =
+    await Promise.all([
+      readFile(new URL("../app/api/payments/epay/server.ts", import.meta.url), "utf8"),
+      readFile(new URL("../app/api/payments/epay/create/route.ts", import.meta.url), "utf8"),
+      readFile(new URL("../app/api/admin/orders/[orderNo]/route.ts", import.meta.url), "utf8"),
+      readFile(
+        new URL(
+          "../supabase/migrations/20260821043528_unify_family_group_fulfillment.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(new URL("../app/orders-page.tsx", import.meta.url), "utf8"),
+    ]);
+
+  assert.match(paymentServer, /monthly_12/);
+  assert.match(paymentServer, /Gemini 家庭组 12 个月/u);
+  assert.doesNotMatch(paymentCreate, /PRODUCTS\.annual/);
+  assert.match(adminOrder, /return_reason_required/);
+  assert.match(adminOrder, /status: "returned"/);
+  assert.match(migration, /'cancelled', 'returned'/);
+  assert.match(migration, /p_billing_mode <> 'monthly'/);
+  assert.match(ordersPage, /orders\.detail\.return_reason/);
 });

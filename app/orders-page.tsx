@@ -18,7 +18,7 @@ const orderCategoryKeys: Record<OrderCategory, string> = {
   sms: "orders.tab.sms",
 };
 
-const visibleOrderCategories: OrderCategory[] = ["ai", "accounts"];
+const visibleOrderCategories: OrderCategory[] = ["ai"];
 
 const emptyMessages: Record<OrderCategory, string> = {
   ai: "orders.empty.ai",
@@ -35,10 +35,13 @@ type PaymentOrder = {
   payment_type: "alipay" | "wxpay";
   delivery_email: string;
   account_region: string | null;
-  status: "pending" | "paid" | "fulfilled" | "failed";
+  status: "pending" | "paid" | "fulfilled" | "failed" | "cancelled" | "returned";
   created_at: string;
   paid_at: string | null;
   fulfilled_at: string | null;
+  cancelled_at: string | null;
+  returned_at: string | null;
+  return_reason: string | null;
 };
 
 const statusKeys: Record<PaymentOrder["status"], string> = {
@@ -46,6 +49,8 @@ const statusKeys: Record<PaymentOrder["status"], string> = {
   paid: "orders.status.paid",
   fulfilled: "orders.status.fulfilled",
   failed: "orders.status.failed",
+  cancelled: "orders.status.cancelled",
+  returned: "orders.status.returned",
 };
 
 async function requestOrders() {
@@ -65,6 +70,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [loadError, setLoadError] = useState<"" | "login" | "unavailable">("");
+  const [selectedOrder, setSelectedOrder] = useState<PaymentOrder | null>(null);
 
   function showToast(message: string) {
     setToast(message);
@@ -122,11 +128,7 @@ export default function OrdersPage() {
     };
   }, []);
 
-  const visibleOrders = orders.filter((order) =>
-    activeCategory === "accounts"
-      ? order.billing_mode === "annual"
-      : order.billing_mode === "monthly",
-  );
+  const visibleOrders = orders;
 
   // First entry shows the skeleton while orders load; manual refresh keeps
   // the current rows visible and only spins the refresh button.
@@ -243,9 +245,7 @@ export default function OrdersPage() {
                       </span>
                     </div>
                     <span className="order-delivery">
-                      {order.billing_mode === "annual"
-                        ? t("orders.delivery.ready_account")
-                        : `${t("orders.delivery.email")} ${order.delivery_email}`}
+                      {`${t("orders.delivery.email")} ${order.delivery_email}`}
                     </span>
                   </div>
                   <div className="order-number">
@@ -261,9 +261,9 @@ export default function OrdersPage() {
                   <button
                     className="invoice-button"
                     type="button"
-                    onClick={() => void copyOrderNumber(order.out_trade_no)}
+                    onClick={() => setSelectedOrder(order)}
                   >
-                    {t("orders.copy_order_no")}
+                    {t("orders.view_details")}
                   </button>
                 </article>
               ))
@@ -279,6 +279,58 @@ export default function OrdersPage() {
         active="orders"
         className="mobile-nav orders-mobile-nav"
       />
+
+      {selectedOrder ? (
+        <div
+          className="order-detail-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setSelectedOrder(null);
+          }}
+        >
+          <section
+            className="order-detail-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="order-detail-title"
+          >
+            <button
+              className="order-detail-close"
+              type="button"
+              aria-label={t("orders.detail.close")}
+              onClick={() => setSelectedOrder(null)}
+            >
+              ×
+            </button>
+            <span>{t("orders.detail.eyebrow")}</span>
+            <h2 id="order-detail-title">{selectedOrder.product_name}</h2>
+            <dl>
+              <div><dt>{t("orders.col.order_no")}</dt><dd>{selectedOrder.out_trade_no}</dd></div>
+              <div><dt>{t("orders.detail.period")}</dt><dd>{selectedOrder.duration_months} {t("orders.months")}</dd></div>
+              <div><dt>{t("orders.delivery.email")}</dt><dd>{selectedOrder.delivery_email}</dd></div>
+              <div><dt>{t("orders.detail.region")}</dt><dd>{selectedOrder.account_region || "—"}</dd></div>
+              <div><dt>{t("orders.col.amount")}</dt><dd>¥{Number(selectedOrder.amount).toFixed(2)}</dd></div>
+              <div><dt>{t("orders.col.status")}</dt><dd><span className={`order-status ${selectedOrder.status}`}>{t(statusKeys[selectedOrder.status])}</span></dd></div>
+            </dl>
+            {selectedOrder.status === "paid" ? (
+              <p className="order-detail-notice">{t("orders.detail.awaiting_fulfillment")}</p>
+            ) : null}
+            {selectedOrder.status === "fulfilled" ? (
+              <p className="order-detail-notice success">{t("orders.detail.check_inbox")}</p>
+            ) : null}
+            {selectedOrder.status === "returned" && selectedOrder.return_reason ? (
+              <div className="order-return-reason"><strong>{t("orders.detail.return_reason")}</strong><p>{selectedOrder.return_reason}</p></div>
+            ) : null}
+            <button
+              className="order-detail-copy"
+              type="button"
+              onClick={() => void copyOrderNumber(selectedOrder.out_trade_no)}
+            >
+              {t("orders.copy_order_no")}
+            </button>
+          </section>
+        </div>
+      ) : null}
 
       <Toast>{toast}</Toast>
     </div>

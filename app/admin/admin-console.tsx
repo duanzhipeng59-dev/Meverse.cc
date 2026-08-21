@@ -12,7 +12,8 @@ type Order = {
   amount: string | number;
   delivery_email: string;
   account_region?: string | null;
-  status: "pending" | "paid" | "fulfilled" | "failed";
+  status: "pending" | "paid" | "fulfilled" | "failed" | "cancelled" | "returned";
+  return_reason?: string | null;
   created_at: string;
 };
 
@@ -27,19 +28,21 @@ type InventoryItem = {
 const NAV = [
   ["/admin", "概览", "⌂"],
   ["/admin/orders", "订单管理", "▤"],
-  ["/admin/inventory", "年付库存", "□"],
   ["/admin/logs", "操作日志", "◷"],
 ] as const;
 
 const STATUS_TEXT = {
   pending: "待支付",
-  paid: "待处理",
-  fulfilled: "已完成",
+  paid: "待发货",
+  fulfilled: "已发货",
   failed: "失败",
+  cancelled: "取消支付",
+  returned: "已退回",
 };
 
 const ACTION_TEXT: Record<string, string> = {
-  fulfill: "完成月付订单",
+  fulfill: "完成家庭组订单",
+  return: "退回家庭组订单",
   add_note: "添加订单备注",
   inventory_add: "添加库存账号",
   inventory_reveal: "查看库存凭据",
@@ -121,7 +124,7 @@ function PageHeading({ eyebrow, title, copy }: { eyebrow: string; title: string;
 
 function Dashboard() {
   const [data, setData] = useState<{
-    metrics: { totalOrders: number; pendingOrders: number; awaitingFulfillment: number; revenue: number; availableStock: number };
+    metrics: { totalOrders: number; pendingOrders: number; awaitingFulfillment: number; revenue: number; cancelledOrders: number };
     recentOrders: Order[];
   } | null>(null);
   const [error, setError] = useState(false);
@@ -130,13 +133,13 @@ function Dashboard() {
     void readJson<typeof data>("/api/admin/dashboard").then(setData).catch(() => setError(true));
   }, []);
   return <>
-    <PageHeading eyebrow="工作台" title="经营概览" copy="订单、履约和年付库存的实时情况。" />
+    <PageHeading eyebrow="工作台" title="经营概览" copy="订单、支付和家庭组履约的实时情况。" />
     {error ? <Empty>数据暂时无法加载，请刷新重试。</Empty> : !data ? <div className="admin-loading">正在加载经营数据…</div> : <>
       <section className="admin-metrics">
         <article><span>累计收入</span><strong>¥{data.metrics.revenue.toFixed(2)}</strong><small>已支付及已完成订单</small></article>
         <article><span>全部订单</span><strong>{data.metrics.totalOrders}</strong><small>累计创建订单</small></article>
-        <article><span>待处理月付</span><strong>{data.metrics.awaitingFulfillment}</strong><small>需要人工确认履约</small></article>
-        <article><span>年付可用库存</span><strong>{data.metrics.availableStock}</strong><small>可直接发货账号</small></article>
+        <article><span>待发货</span><strong>{data.metrics.awaitingFulfillment}</strong><small>需要人工发送家庭组邀请</small></article>
+        <article><span>取消支付</span><strong>{data.metrics.cancelledOrders}</strong><small>主动取消或超时订单</small></article>
       </section>
       <section className="admin-panel">
         <div className="admin-panel-title"><div><h2>最近订单</h2><p>最新创建的 8 笔订单</p></div><Link href="/admin/orders">查看全部</Link></div>
@@ -150,9 +153,9 @@ function OrderTable({ orders, compact = false, onFulfill }: { orders: Order[]; c
   if (!orders.length) return <Empty>暂无订单记录。</Empty>;
   return <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>订单</th><th>商品</th><th>客户</th><th>金额</th><th>状态</th><th>创建时间</th>{compact ? null : <th>操作</th>}</tr></thead><tbody>
     {orders.map((order) => <tr key={order.out_trade_no}>
-      <td><strong>{order.out_trade_no}</strong><small>{order.billing_mode === "annual" ? "年付成品账号" : `${order.duration_months ?? "-"} 个月家庭组`}</small></td>
+      <td><strong>{order.out_trade_no}</strong><small>{`${order.duration_months ?? "-"} 个月家庭组`}</small></td>
       <td>{order.product_name}</td><td>{order.delivery_email}</td><td>¥{Number(order.amount).toFixed(2)}</td><td><StatusBadge status={order.status} /></td><td>{formatDate(order.created_at)}</td>
-      {compact ? null : <td>{order.billing_mode === "monthly" && order.status === "paid" ? <button className="admin-row-action" type="button" onClick={() => onFulfill?.(order)}>处理订单</button> : <span className="admin-muted">—</span>}</td>}
+      {compact ? null : <td>{order.status === "paid" ? <button className="admin-row-action" type="button" onClick={() => onFulfill?.(order)}>处理订单</button> : order.status === "returned" && order.return_reason ? <span className="admin-return-reason" title={order.return_reason}>{order.return_reason}</span> : <span className="admin-muted">—</span>}</td>}
     </tr>)}
   </tbody></table></div>;
 }
@@ -182,22 +185,33 @@ function Orders() {
     event.preventDefault();
     if (!selected) return;
     const form = new FormData(event.currentTarget);
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const action = submitter?.value === "return" ? "return" : "fulfill";
+    const returnReason = String(form.get("returnReason") ?? "").trim();
+    if (action === "return" && !returnReason) {
+      window.alert("请填写退回原因。");
+      return;
+    }
     await readJson(`/api/admin/orders/${encodeURIComponent(selected.out_trade_no)}`, {
       method: "PATCH", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "fulfill", note: String(form.get("note") ?? "") }),
+      body: JSON.stringify({
+        action,
+        note: String(form.get("note") ?? ""),
+        returnReason,
+      }),
     });
     setSelected(null); await load();
   }
   return <>
-    <PageHeading eyebrow="订单" title="订单管理" copy="检索订单并处理已付款的月付家庭组订单。" />
+    <PageHeading eyebrow="订单" title="订单管理" copy="检索订单，发送家庭组邀请，或填写原因后退回订单。" />
     <section className="admin-panel">
       <div className="admin-toolbar">
         <form onSubmit={(event) => { event.preventDefault(); void load(); }}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索订单号、邮箱或支付流水号" /><button type="submit">搜索</button></form>
-        <select value={status} onChange={(event) => { setStatus(event.target.value); void load(event.target.value, query); }} aria-label="订单状态"><option value="all">全部状态</option><option value="pending">待支付</option><option value="paid">待处理</option><option value="fulfilled">已完成</option><option value="failed">失败</option></select>
+        <select value={status} onChange={(event) => { setStatus(event.target.value); void load(event.target.value, query); }} aria-label="订单状态"><option value="all">全部状态</option><option value="pending">待支付</option><option value="paid">待发货</option><option value="fulfilled">已发货</option><option value="cancelled">取消支付</option><option value="returned">已退回</option><option value="failed">支付失败</option></select>
       </div>
       {loading ? <div className="admin-loading">正在加载订单…</div> : <OrderTable orders={orders} onFulfill={setSelected} />}
     </section>
-    {selected ? <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}><section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="fulfill-title"><button className="admin-modal-close" type="button" onClick={() => setSelected(null)} aria-label="关闭">×</button><p>月付订单履约</p><h2 id="fulfill-title">确认已发送家庭组邀请</h2><dl><div><dt>订单号</dt><dd>{selected.out_trade_no}</dd></div><div><dt>客户邮箱</dt><dd>{selected.delivery_email}</dd></div><div><dt>账号地区</dt><dd>{selected.account_region || "未填写"}</dd></div></dl><form onSubmit={fulfill}><label>处理备注（选填）<textarea name="note" maxLength={1000} placeholder="例如：已发送邀请，等待用户加入" /></label><button className="admin-primary-button" type="submit">确认完成订单</button></form></section></div> : null}
+    {selected ? <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}><section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="fulfill-title"><button className="admin-modal-close" type="button" onClick={() => setSelected(null)} aria-label="关闭">×</button><p>家庭组订单履约</p><h2 id="fulfill-title">处理已付款订单</h2><dl><div><dt>订单号</dt><dd>{selected.out_trade_no}</dd></div><div><dt>购买周期</dt><dd>{selected.duration_months} 个月</dd></div><div><dt>邀请邮箱</dt><dd>{selected.delivery_email}</dd></div><div><dt>账号地区</dt><dd>{selected.account_region || "未填写"}</dd></div></dl><form onSubmit={fulfill}><label>处理备注（选填）<textarea name="note" maxLength={1000} placeholder="例如：已发送邀请，等待用户加入" /></label><label>退回原因（选择退回时必填）<textarea name="returnReason" maxLength={1000} placeholder="例如：账号地区不匹配，暂时无法发送邀请" /></label><div className="admin-fulfillment-actions"><button className="admin-return-button" type="submit" value="return">退回订单</button><button className="admin-primary-button" type="submit" value="fulfill">确认已发货</button></div></form></section></div> : null}
   </>;
 }
 

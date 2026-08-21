@@ -1,6 +1,4 @@
-import { createSupabaseAdminClient } from "../../../auth/server";
 import {
-  decryptCredential,
   getOrder,
   jsonResponse,
   refreshOrderFromProvider,
@@ -36,19 +34,6 @@ export async function GET(request: Request) {
       deliveryEmail: order.delivery_email,
       region: order.account_region,
     };
-    if (order.status === "fulfilled" && order.inventory_id) {
-      const supabase = createSupabaseAdminClient();
-      const { data, error } = await supabase
-        .from("gemini_account_inventory")
-        .select("account_email_encrypted, account_password_encrypted")
-        .eq("id", order.inventory_id)
-        .single();
-      if (error) throw error;
-      response.accountEmail = decryptCredential(data.account_email_encrypted);
-      response.accountPassword = decryptCredential(
-        data.account_password_encrypted,
-      );
-    }
     return jsonResponse(response);
   } catch (error) {
     console.error("Failed to read payment status", error);

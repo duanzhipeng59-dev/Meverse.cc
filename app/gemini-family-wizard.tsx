@@ -6,8 +6,8 @@ import { useLanguage } from "./language-context";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export type GeminiBillingMode = "monthly" | "annual";
-type MonthlyDuration = 1 | 3 | 6;
+export type GeminiBillingMode = "monthly";
+type MonthlyDuration = 1 | 3 | 6 | 12;
 
 export type InitialGeminiPayment = {
   orderNo: string;
@@ -15,15 +15,13 @@ export type InitialGeminiPayment = {
 };
 
 type PaymentResult = {
-  status: "pending" | "paid" | "fulfilled" | "failed";
-  billingMode: GeminiBillingMode;
+  status: "pending" | "paid" | "fulfilled" | "failed" | "cancelled" | "returned";
+  billingMode: "monthly" | "annual";
   durationMonths: number;
   productName: string;
   amount: string;
   deliveryEmail: string;
   region: string | null;
-  accountEmail?: string;
-  accountPassword?: string;
 };
 
 const MONTHLY_OPTIONS: Array<{
@@ -33,9 +31,8 @@ const MONTHLY_OPTIONS: Array<{
   { months: 1, price: "19.9" },
   { months: 3, price: "49.9" },
   { months: 6, price: "89.9" },
+  { months: 12, price: "145" },
 ];
-
-const ANNUAL_PRICE = "145";
 const REGION_KEYS = [
   "us",
   "uk",
@@ -63,8 +60,7 @@ export default function GeminiFamilyWizard({
 }) {
   const { t } = useLanguage();
   const [step, setStep] = useState(initialPayment ? 3 : 1);
-  const [billingMode, setBillingMode] =
-    useState<GeminiBillingMode>(initialBillingMode);
+  const billingMode = initialBillingMode;
   const [monthlyDuration, setMonthlyDuration] =
     useState<MonthlyDuration>(1);
   const [email, setEmail] = useState("");
@@ -75,11 +71,7 @@ export default function GeminiFamilyWizard({
     Boolean(initialPayment),
   );
   const [paymentError, setPaymentError] = useState("");
-  const [annualStock, setAnnualStock] = useState<number | null>(null);
-  const [deliveredAccount, setDeliveredAccount] = useState<{
-    email: string;
-    password: string;
-  } | null>(null);
+  const [cancellingPayment, setCancellingPayment] = useState(false);
   const [providerCheckout, setProviderCheckout] = useState<{
     checkoutUrl: string;
     qrContent: string;
@@ -90,13 +82,11 @@ export default function GeminiFamilyWizard({
   const selectedMonthlyOption =
     MONTHLY_OPTIONS.find((option) => option.months === monthlyDuration) ??
     MONTHLY_OPTIONS[0];
-  const selectedPrice =
-    billingMode === "annual" ? ANNUAL_PRICE : selectedMonthlyOption.price;
-  const selectedProduct =
-    billingMode === "annual"
-      ? t("gemini.product.annual")
-      : t("gemini.product.monthly", { months: monthlyDuration });
-  const deliveryEmail = billingMode === "annual" ? accountEmail : email;
+  const selectedPrice = selectedMonthlyOption.price;
+  const selectedProduct = t("gemini.product.monthly", {
+    months: monthlyDuration,
+  });
+  const deliveryEmail = email;
   const paymentToCheck = initialPayment ?? providerCheckout;
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
@@ -116,23 +106,6 @@ export default function GeminiFamilyWizard({
       active = false;
     };
   }, [providerCheckout?.qrContent]);
-
-  useEffect(() => {
-    let active = true;
-    fetch("/api/payments/epay/stock", { cache: "no-store" })
-      .then((response) => response.json() as Promise<{ stock?: number }>)
-      .then((result) => {
-        if (active && Number.isInteger(result.stock)) {
-          setAnnualStock(Math.max(0, result.stock ?? 0));
-        }
-      })
-      .catch(() => {
-        if (active) setAnnualStock(0);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (!paymentToCheck) return;
@@ -160,25 +133,18 @@ export default function GeminiFamilyWizard({
           return;
         }
 
-        setBillingMode(result.billingMode);
-        if ([1, 3, 6].includes(result.durationMonths)) {
+        if ([1, 3, 6, 12].includes(result.durationMonths)) {
           setMonthlyDuration(result.durationMonths as MonthlyDuration);
         }
         setEmail(result.deliveryEmail ?? "");
         setRegion(result.region ?? "");
         if (result.status === "paid" || result.status === "fulfilled") {
-          if (result.accountEmail && result.accountPassword) {
-            setDeliveredAccount({
-              email: result.accountEmail,
-              password: result.accountPassword,
-            });
-          }
           setProcessingPayment(false);
           setStep(4);
           window.history.replaceState({}, "", "/subscribe");
           return;
         }
-        if (result.status === "failed") {
+        if (result.status === "failed" || result.status === "cancelled") {
           setProcessingPayment(false);
           setPaymentError("gemini.error.payment_failed");
           return;
@@ -240,11 +206,34 @@ export default function GeminiFamilyWizard({
       onRequireAccount(billingMode);
       return;
     }
-    if (billingMode === "annual") {
-      setStep(3);
-      return;
-    }
     setStep(2);
+  }
+
+  async function cancelPayment() {
+    if (!providerCheckout || cancellingPayment) return;
+    setCancellingPayment(true);
+    setPaymentError("");
+    try {
+      const response = await fetch("/api/payments/epay/cancel", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          orderNo: providerCheckout.orderNo,
+          accessToken: providerCheckout.accessToken,
+        }),
+      });
+      if (!response.ok) {
+        setPaymentError("gemini.error.cancel_failed");
+        return;
+      }
+      setProviderCheckout(null);
+      setQrDataUrl(null);
+      setStep(3);
+    } catch {
+      setPaymentError("gemini.error.cancel_failed");
+    } finally {
+      setCancellingPayment(false);
+    }
   }
 
   async function startPayment() {
@@ -340,9 +329,7 @@ export default function GeminiFamilyWizard({
               <div className="processing-row">
                 <span className="empty-status" aria-hidden="true" />
                 <strong>
-                  {billingMode === "annual"
-                    ? t("gemini.processing.deliver_account")
-                    : t("gemini.processing.confirm_family")}
+                  {t("gemini.processing.confirm_family")}
                 </strong>
               </div>
             </div>
@@ -359,34 +346,8 @@ export default function GeminiFamilyWizard({
                   <p>{t("gemini.selection.description")}</p>
                 </div>
 
-                <div
-                  className="family-billing-toggle"
-                  role="tablist"
-                  aria-label={t("gemini.selection.billing_label")}
-                >
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={billingMode === "monthly"}
-                    className={billingMode === "monthly" ? "selected" : ""}
-                    onClick={() => setBillingMode("monthly")}
-                  >
-                    {t("gemini.selection.monthly")}
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={billingMode === "annual"}
-                    className={billingMode === "annual" ? "selected" : ""}
-                    onClick={() => setBillingMode("annual")}
-                  >
-                    {t("gemini.selection.annual")}
-                  </button>
-                </div>
-
                 <div className="family-duration-grid">
-                  {billingMode === "monthly" ? (
-                    MONTHLY_OPTIONS.map((option) => (
+                  {MONTHLY_OPTIONS.map((option) => (
                       <button
                         type="button"
                         key={option.months}
@@ -406,27 +367,11 @@ export default function GeminiFamilyWizard({
                           })}
                         </strong>
                         <b>¥{option.price}</b>
+                        {option.months === 12 ? (
+                          <em>{t("gemini.best_value")}</em>
+                        ) : null}
                       </button>
-                    ))
-                  ) : (
-                    <button
-                      type="button"
-                      className="family-tier-card annual selected"
-                      aria-pressed="true"
-                    >
-                      <span className="gemini-mark" aria-hidden="true">✦</span>
-                      <small>{t("gemini.ready_account")}</small>
-                      <strong>{t("gemini.duration.year")}</strong>
-                      <b>¥{ANNUAL_PRICE}</b>
-                      <span className="family-stock">
-                        {t("gemini.stock", {
-                          stock:
-                            annualStock ?? t("gemini.stock_loading"),
-                        })}
-                      </span>
-                      <em>{t("gemini.annual.delivery")}</em>
-                    </button>
-                  )}
+                    ))}
                 </div>
               </div>
             )}
@@ -552,19 +497,13 @@ export default function GeminiFamilyWizard({
                       <dd>{selectedProduct}</dd>
                     </div>
                     <div>
-                      <dt>
-                        {billingMode === "annual"
-                          ? t("gemini.checkout.delivery_email")
-                          : t("gemini.checkout.invitation_email")}
-                      </dt>
+                      <dt>{t("gemini.checkout.invitation_email")}</dt>
                       <dd>{deliveryEmail}</dd>
                     </div>
-                    {billingMode === "monthly" ? (
-                      <div>
-                        <dt>{t("gemini.checkout.account_region")}</dt>
-                        <dd>{region}</dd>
-                      </div>
-                    ) : null}
+                    <div>
+                      <dt>{t("gemini.checkout.account_region")}</dt>
+                      <dd>{region}</dd>
+                    </div>
                   </dl>
                 </div>
                 <div className="payment-methods">
@@ -606,7 +545,7 @@ export default function GeminiFamilyWizard({
                     <button
                       className="family-payment-back"
                       type="button"
-                      onClick={() => setStep(billingMode === "annual" ? 1 : 2)}
+                      onClick={() => setStep(2)}
                     >
                       {t("gemini.back")}
                     </button>
@@ -629,40 +568,15 @@ export default function GeminiFamilyWizard({
                 <span className="family-success-kicker">
                   {t("gemini.success.paid")}
                 </span>
-                {billingMode === "annual" ? (
-                  <>
-                    <h2 id="gemini-family-wizard-title">
-                      {t("gemini.success.annual_title")}
-                    </h2>
-                    {deliveredAccount ? (
-                      <dl className="delivered-account-card">
-                        <div>
-                          <dt>{t("gemini.success.account")}</dt>
-                          <dd>{deliveredAccount.email}</dd>
-                        </div>
-                        <div>
-                          <dt>{t("gemini.success.password")}</dt>
-                          <dd>{deliveredAccount.password}</dd>
-                        </div>
-                      </dl>
-                    ) : (
-                      <p>{t("gemini.success.account_pending")}</p>
-                    )}
-                    <small>{t("gemini.success.account_security")}</small>
-                  </>
-                ) : (
-                  <>
-                    <h2 id="gemini-family-wizard-title">
-                      {t("gemini.success.monthly_title")}
-                    </h2>
-                    <p>
-                      {t("gemini.success.invite_prefix")}
-                      <strong>{email}</strong>
-                      {t("gemini.success.invite_suffix")}
-                    </p>
-                    <small>{t("gemini.success.invite_help")}</small>
-                  </>
-                )}
+                <h2 id="gemini-family-wizard-title">
+                  {t("gemini.success.monthly_title")}
+                </h2>
+                <p>
+                  {t("gemini.success.invite_prefix")}
+                  <strong>{email}</strong>
+                  {t("gemini.success.invite_suffix")}
+                </p>
+                <small>{t("gemini.success.invite_help")}</small>
                 <button className="family-done" type="button" onClick={close}>
                   {t("gemini.done")}
                 </button>
@@ -707,13 +621,12 @@ export default function GeminiFamilyWizard({
                 <button
                   className="family-qr-back"
                   type="button"
-                  onClick={() => {
-                    setProviderCheckout(null);
-                    setPaymentError("");
-                    setStep(3);
-                  }}
+                  disabled={cancellingPayment}
+                  onClick={() => void cancelPayment()}
                 >
-                  {t("gemini.qr.back")}
+                  {cancellingPayment
+                    ? t("gemini.qr.cancelling")
+                    : t("gemini.qr.cancel")}
                 </button>
               </div>
             )}

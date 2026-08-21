@@ -1,7 +1,14 @@
 import { createSupabaseAdminClient } from "../../auth/server";
 import { adminError, adminJson, requireAdmin } from "../server";
 
-const VALID_STATUSES = new Set(["pending", "paid", "fulfilled", "failed"]);
+const VALID_STATUSES = new Set([
+  "pending",
+  "paid",
+  "fulfilled",
+  "failed",
+  "cancelled",
+  "returned",
+]);
 
 export async function GET(request: Request) {
   try {
@@ -16,7 +23,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("payment_orders")
       .select(
-        "out_trade_no,billing_mode,duration_months,product_name,amount,payment_type,delivery_email,account_region,status,provider_trade_no,created_at,paid_at,fulfilled_at,updated_at",
+        "out_trade_no,billing_mode,duration_months,product_name,amount,payment_type,delivery_email,account_region,status,provider_trade_no,created_at,paid_at,fulfilled_at,cancelled_at,returned_at,return_reason,updated_at",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })

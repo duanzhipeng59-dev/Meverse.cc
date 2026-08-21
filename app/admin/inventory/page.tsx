@@ -1,2 +1,5 @@
-import { AdminConsole } from "../admin-console";
-export default function AdminInventoryPage() { return <AdminConsole view="inventory" />; }
+import { redirect } from "next/navigation";
+
+export default function AdminInventoryPage() {
+  redirect("/admin/orders");
+}

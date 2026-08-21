@@ -12,10 +12,24 @@ export async function GET(request: Request) {
     }
 
     const supabase = createSupabaseAdminClient();
+    const expiry = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const cancelledAt = new Date().toISOString();
+    const { error: expiryError } = await supabase
+      .from("payment_orders")
+      .update({
+        status: "cancelled",
+        cancelled_at: cancelledAt,
+        updated_at: cancelledAt,
+      })
+      .eq("user_id", user.id)
+      .eq("status", "pending")
+      .lt("created_at", expiry);
+    if (expiryError) throw expiryError;
+
     const { data, error } = await supabase
       .from("payment_orders")
       .select(
-        "out_trade_no, billing_mode, duration_months, product_name, amount, payment_type, delivery_email, account_region, status, created_at, paid_at, fulfilled_at",
+        "out_trade_no, billing_mode, duration_months, product_name, amount, payment_type, delivery_email, account_region, status, created_at, paid_at, fulfilled_at, cancelled_at, returned_at, return_reason",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
