@@ -30,7 +30,7 @@ test("redirects the root route to the subscription page", async () => {
   assert.equal(response.headers.get("location"), "http://localhost/subscribe");
 });
 
-test("server-renders the WildAI subscription page", async () => {
+test("server-renders the WildGPT subscription page", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
@@ -38,9 +38,9 @@ test("server-renders the WildAI subscription page", async () => {
   const html = await response.text();
   assert.match(
     html,
-    /<title>ChatGPT Plus \/ Claude Pro 订阅价格与套餐 - WildAI<\/title>/i,
+    /<title>Gemini Pro \/ 家庭组订阅价格与套餐 - WildGPT<\/title>/i,
   );
-  assert.match(html, /WildAI/);
+  assert.match(html, /WildGPT/);
   assert.match(html, /新订阅/);
   assert.match(html, /Gemini Pro\/家庭组/);
   assert.match(html, /<small>¥<\/small>19\.9/);

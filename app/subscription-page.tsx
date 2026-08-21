@@ -119,8 +119,32 @@ export default function SubscriptionPage({
   const [geminiFamilyWizardOpen, setGeminiFamilyWizardOpen] = useState(
     Boolean(initialGeminiPayment),
   );
+  const [geminiPayment, setGeminiPayment] = useState(initialGeminiPayment);
   const [geminiInitialBillingMode, setGeminiInitialBillingMode] =
     useState<GeminiBillingMode>("monthly");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const orderNo = params.get("payment_order");
+    const accessToken = params.get("payment_token");
+    if (!orderNo || !accessToken) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      setGeminiPayment({ orderNo, accessToken });
+      setGeminiFamilyWizardOpen(true);
+
+      params.delete("payment_order");
+      params.delete("payment_token");
+      const query = params.toString();
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+      );
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     if (codeCooldown <= 0) return;
@@ -704,7 +728,7 @@ export default function SubscriptionPage({
           <GeminiFamilyWizard
             accountEmail={authEmail}
             initialBillingMode={geminiInitialBillingMode}
-            initialPayment={initialGeminiPayment}
+            initialPayment={geminiPayment}
             onClose={() => setGeminiFamilyWizardOpen(false)}
             onRequireAccount={(billingMode) => {
               setGeminiInitialBillingMode(billingMode);

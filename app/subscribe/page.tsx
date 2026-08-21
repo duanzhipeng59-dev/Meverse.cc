@@ -1,32 +1,13 @@
 import SubscriptionPage from "../subscription-page";
-import { chatGPTSignInPath, getChatGPTUser } from "../chatgpt-auth";
+import { chatGPTSignInPath } from "../chatgpt-auth";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
-export default async function SubscribePage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const [chatGPTUser, params] = await Promise.all([
-    getChatGPTUser(),
-    searchParams,
-  ]);
-
+export default function SubscribePage() {
   return (
     <SubscriptionPage
-      chatGPTUser={chatGPTUser}
+      chatGPTUser={null}
       chatGPTSignInPath={chatGPTSignInPath("/subscribe?chatgpt_flow=1")}
-      resumeChatGPTFlow={params.chatgpt_flow === "1"}
-      initialGeminiPayment={
-        typeof params.payment_order === "string" &&
-        typeof params.payment_token === "string"
-          ? {
-              orderNo: params.payment_order,
-              accessToken: params.payment_token,
-            }
-          : null
-      }
     />
   );
 }

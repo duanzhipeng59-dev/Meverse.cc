@@ -104,7 +104,12 @@ export function SiteHeader({ onLogin }: { onLogin?: () => void }) {
 
   return (
     <header className="site-header">
-      <Link className="brand" href="/subscribe" aria-label="WildGPT 订阅首页">
+      <Link
+        className="brand"
+        href="/subscribe"
+        prefetch={false}
+        aria-label="WildGPT 订阅首页"
+      >
         <BrandMark />
         <span>WildGPT</span>
       </Link>
@@ -207,6 +212,7 @@ export function DesktopSidebar({
           <Link
             className={item.id === activeId ? "nav-item active" : "nav-item"}
             href={item.href}
+            prefetch={false}
             aria-current={item.id === activeId ? "page" : undefined}
             key={item.id}
             onNavigate={() => setPendingHref(item.href)}
@@ -235,6 +241,7 @@ export function MobileNavigation({
         <Link
           className={item.id === activeId ? "active" : undefined}
           href={item.href}
+          prefetch={false}
           aria-current={item.id === activeId ? "page" : undefined}
           key={item.id}
           onNavigate={() => setPendingHref(item.href)}
