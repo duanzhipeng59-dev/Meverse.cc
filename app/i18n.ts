@@ -10,9 +10,15 @@ const zh: TranslationDict = {
   "nav.subscribe": "订阅",
   "nav.orders": "我的订单",
   "nav.invitations": "我的邀请",
+  "support": "客服",
+  "support.title": "联系官方客服",
+  "support.description": "如需帮助，请联系官方邮箱",
+  "support.copy": "复制",
+  "support.copied": "官方邮箱已复制",
   "coming.soon": "第一版暂仅提供中文",
   "total.records": "共 {n} 条记录",
   "common.loading": "正在加载…",
+  "common.close": "关闭",
 
   /* ── Toast ── */
   "toast.demo_only": "第一版暂仅提供中文",
@@ -139,7 +145,7 @@ const zh: TranslationDict = {
   "gemini.error.payment_network":
     "支付服务暂时不可用，请检查网络后重试。",
   "subscribe.guarantee.official":
-    "升级你自己的账户 · 订阅失败全额退款 · 7×12h 在线客服",
+    "升级你自己的账户 · 订阅失败全额退款",
   "subscribe.guarantee.coding": "无需账户和外卡支付，远离封号和网络问题。",
   "subscribe.guarantee.developer":
     "在 Cursor / Cline / OpenClaw 中直接配置，或写入你自己的代码。",
@@ -314,9 +320,15 @@ const en: TranslationDict = {
   "nav.subscribe": "Subscribe",
   "nav.orders": "My Orders",
   "nav.invitations": "My Invitations",
+  "support": "Support",
+  "support.title": "Contact support",
+  "support.description": "For assistance, contact our official email",
+  "support.copy": "Copy",
+  "support.copied": "Support email copied",
   "coming.soon": "Currently Chinese only",
   "total.records": "Total {n} records",
   "common.loading": "Loading…",
+  "common.close": "Close",
 
   /* ── Toast ── */
   "toast.demo_only": "Currently Chinese only",
@@ -455,7 +467,7 @@ const en: TranslationDict = {
   "gemini.error.payment_network":
     "The payment service is unavailable. Check your connection and try again.",
   "subscribe.guarantee.official":
-    "Upgrade your own account · Full refund on failure · 7×12h live support",
+    "Upgrade your own account · Full refund on failure",
   "subscribe.guarantee.coding":
     "No account or international card needed. Avoid bans and network issues.",
   "subscribe.guarantee.developer":

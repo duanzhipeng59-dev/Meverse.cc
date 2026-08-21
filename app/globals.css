@@ -453,15 +453,6 @@ select:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
-.primary-tabs:has(.primary-tab:only-child) {
-  grid-template-columns: 1fr;
-}
-
-.primary-tab:only-child {
-  width: min(220px, 100%);
-  justify-self: center;
-}
-
 .primary-tab {
   position: relative;
   min-height: 58px;
@@ -797,6 +788,122 @@ select:focus-visible {
 
 .next-button span {
   font-size: 21px;
+}
+
+.support-button {
+  position: fixed;
+  z-index: 38;
+  right: 30px;
+  bottom: 28px;
+  display: flex;
+  width: 56px;
+  height: 68px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid rgb(226 229 233 / 85%);
+  border-radius: 22px;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 10px 32px rgb(16 24 40 / 14%);
+  color: var(--blue-dark);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  backdrop-filter: blur(14px);
+  transition:
+    box-shadow 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
+}
+
+.support-button svg {
+  width: 25px;
+  height: 25px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.support-button:active {
+  transform: scale(0.97);
+}
+
+.support-popover {
+  position: fixed;
+  z-index: 39;
+  right: 30px;
+  bottom: 108px;
+  width: min(330px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 98%);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
+  animation: support-popover-in 180ms var(--ease-out);
+}
+
+.support-popover > strong {
+  display: block;
+  padding-right: 28px;
+  font-size: 16px;
+}
+
+.support-popover > p {
+  margin: 8px 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.support-popover-close {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #7d8592;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.support-email-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 7px 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-subtle);
+}
+
+.support-email-row a {
+  min-width: 0;
+  overflow: hidden;
+  color: #303846;
+  font-size: 13px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.support-email-row button {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--blue);
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .mobile-nav {
@@ -3154,6 +3261,13 @@ select:focus-visible {
   }
 }
 
+@keyframes support-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -3841,6 +3955,26 @@ select:focus-visible {
     transform: scale(0.97);
   }
 
+  .support-button {
+    right: 14px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    width: 50px;
+    height: 58px;
+    border-radius: 18px;
+    font-size: 10px;
+  }
+
+  .support-button svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .support-popover {
+    right: 14px;
+    bottom: calc(150px + env(safe-area-inset-bottom));
+    width: min(330px, calc(100vw - 28px));
+  }
+
   .modal-backdrop {
     align-items: flex-end;
     padding: 0;
@@ -4229,6 +4363,19 @@ select:focus-visible {
 
   .wizard-next:hover {
     background: #303030;
+  }
+
+  .support-button:hover {
+    box-shadow: 0 14px 38px rgb(16 24 40 / 18%);
+    transform: translateY(-2px);
+  }
+
+  .support-popover-close:hover {
+    background: var(--soft);
+  }
+
+  .support-email-row button:hover {
+    background: var(--blue-dark);
   }
 }
 

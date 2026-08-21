@@ -59,6 +59,7 @@ const DEMOSTEP_LABEL_KEYS: Record<string, string> = {
 };
 
 const HOMEPAGE_PLAN_IDS = new Set(["gemini"]);
+const SUPPORT_EMAIL = "julia2124257@gmail.com";
 const AUTH_API_ERRORS = new Set([
   "invalid_email",
   "code_too_frequent",
@@ -108,6 +109,7 @@ export default function SubscriptionPage({
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [authIntent, setAuthIntent] = useState<AuthIntent>("account");
   const [toast, setToast] = useState("");
+  const [supportOpen, setSupportOpen] = useState(false);
   const [chatGPTWizardOpen, setChatGPTWizardOpen] = useState(
     resumeChatGPTFlow,
   );
@@ -163,6 +165,22 @@ export default function SubscriptionPage({
   function showToast(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(""), 2400);
+  }
+
+  async function copySupportEmail() {
+    try {
+      await navigator.clipboard.writeText(SUPPORT_EMAIL);
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = SUPPORT_EMAIL;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+    showToast(t("support.copied"));
   }
 
   function changeCategory(category: ProductCategory) {
@@ -445,6 +463,47 @@ export default function SubscriptionPage({
       </div>
 
       <MobileNavigation active="subscribe" />
+
+      {supportOpen ? (
+        <div
+          className="support-popover"
+          id="support-contact-card"
+          role="dialog"
+          aria-label={t("support.title")}
+        >
+          <button
+            className="support-popover-close"
+            type="button"
+            aria-label={t("common.close")}
+            onClick={() => setSupportOpen(false)}
+          >
+            ×
+          </button>
+          <strong>{t("support.title")}</strong>
+          <p>{t("support.description")}</p>
+          <div className="support-email-row">
+            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+            <button type="button" onClick={() => void copySupportEmail()}>
+              {t("support.copy")}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <button
+        className="support-button"
+        type="button"
+        aria-expanded={supportOpen}
+        aria-controls="support-contact-card"
+        onClick={() => setSupportOpen((open) => !open)}
+      >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4.5 13v-1a7.5 7.5 0 0 1 15 0v1" />
+          <path d="M4.5 12.5h1.25A2.25 2.25 0 0 1 8 14.75v1.5A2.25 2.25 0 0 1 5.75 18.5H4.5v-6ZM19.5 12.5h-1.25A2.25 2.25 0 0 0 16 14.75v1.5a2.25 2.25 0 0 0 2.25 2.25h1.25v-6Z" />
+          <path d="M16.5 19.5c-.9.65-2.1 1-3.5 1" />
+        </svg>
+        {t("support")}
+      </button>
 
       {modalOpen && (
         <div

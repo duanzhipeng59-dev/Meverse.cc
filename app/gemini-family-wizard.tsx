@@ -33,17 +33,6 @@ const MONTHLY_OPTIONS: Array<{
   { months: 6, price: "89.9" },
   { months: 12, price: "145" },
 ];
-const REGION_KEYS = [
-  "us",
-  "uk",
-  "jp",
-  "sg",
-  "my",
-  "hk",
-  "tw",
-  "ca",
-  "au",
-] as const;
 
 export default function GeminiFamilyWizard({
   accountEmail,
@@ -419,7 +408,6 @@ export default function GeminiFamilyWizard({
                       <input
                         id="family-region"
                         name="region"
-                        list="family-region-options"
                         value={region}
                         onChange={(event) => {
                           setRegion(event.target.value);
@@ -428,14 +416,6 @@ export default function GeminiFamilyWizard({
                         }}
                         placeholder={t("gemini.account.region_placeholder")}
                       />
-                      <datalist id="family-region-options">
-                        {REGION_KEYS.map((regionKey) => (
-                          <option
-                            key={regionKey}
-                            value={t(`gemini.region.${regionKey}`)}
-                          />
-                        ))}
-                      </datalist>
                       <small>{t("gemini.account.region_help")}</small>
                     </div>
                   </div>
