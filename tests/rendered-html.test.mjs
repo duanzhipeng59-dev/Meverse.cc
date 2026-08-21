@@ -212,7 +212,7 @@ test("lists only the signed-in user's payment orders", async () => {
 });
 
 test("protects the first admin console with server-side authorization", async () => {
-  const [adminServer, inventoryRoute, revealRoute, migration, loginPage] =
+  const [adminServer, inventoryRoute, revealRoute, migration, loginPage, adminConsole] =
     await Promise.all([
       readFile(new URL("../app/api/admin/server.ts", import.meta.url), "utf8"),
       readFile(new URL("../app/api/admin/inventory/route.ts", import.meta.url), "utf8"),
@@ -228,6 +228,7 @@ test("protects the first admin console with server-side authorization", async ()
         "utf8",
       ),
       readFile(new URL("../app/admin/login-page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/admin/admin-console.tsx", import.meta.url), "utf8"),
     ]);
 
   assert.match(adminServer, /requireAdmin/);
@@ -240,6 +241,9 @@ test("protects the first admin console with server-side authorization", async ()
   assert.match(migration, /revoke all .* from anon, authenticated/s);
   assert.match(loginPage, /\/api\/admin\/session/);
   assert.doesNotMatch(loginPage, /name="password"/);
+  assert.match(adminConsole, /adminEmail === null/);
+  assert.match(adminConsole, /admin-auth-gate/);
+  assert.match(adminConsole, /window\.location\.replace\("\/admin\/login"\)/);
 });
 
 test("uses one family-group fulfillment flow for every duration", async () => {

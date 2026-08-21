@@ -78,17 +78,34 @@ function Empty({ children }: { children: ReactNode }) {
 
 export function AdminConsole({ view }: { view: "dashboard" | "orders" | "inventory" | "logs" }) {
   const pathname = usePathname();
-  const [adminEmail, setAdminEmail] = useState("");
+  const [adminEmail, setAdminEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
     void readJson<{ admin: { email: string } }>("/api/admin/session")
-      .then((result) => setAdminEmail(result.admin.email))
-      .catch(() => undefined);
+      .then((result) => {
+        if (active) setAdminEmail(result.admin.email);
+      })
+      .catch(() => {
+        if (active) window.location.replace("/admin/login");
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.assign("/admin/login");
+  }
+
+  if (adminEmail === null) {
+    return (
+      <main className="admin-auth-gate" role="status" aria-live="polite">
+        <span className="admin-auth-spinner" aria-hidden="true" />
+        <p>正在验证管理员身份…</p>
+      </main>
+    );
   }
 
   return (
@@ -103,8 +120,8 @@ export function AdminConsole({ view }: { view: "dashboard" | "orders" | "invento
           ))}
         </nav>
         <div className="admin-user">
-          <span>{adminEmail ? adminEmail.slice(0, 1).toUpperCase() : "A"}</span>
-          <div><strong>{adminEmail || "管理员"}</strong><small>超级管理员</small></div>
+          <span>{adminEmail.slice(0, 1).toUpperCase()}</span>
+          <div><strong>{adminEmail}</strong><small>超级管理员</small></div>
           <button type="button" onClick={() => void signOut()} aria-label="退出登录">↗</button>
         </div>
       </aside>
