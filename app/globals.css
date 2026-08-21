@@ -529,7 +529,7 @@ select:focus-visible {
 }
 
 .plans-section.single-plan .plan-grid {
-  grid-template-columns: minmax(300px, 470px);
+  grid-template-columns: minmax(300px, 430px);
   justify-content: center;
 }
 
@@ -3652,8 +3652,7 @@ select:focus-visible {
   }
 
   .plans-section.single-plan .plan-grid {
-    grid-template-columns: minmax(0, 320px);
-    justify-content: center;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .plan-card {
