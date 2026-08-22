@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./admin.css";
 
 export const metadata: Metadata = {
-  title: "WildGPT 管理后台",
+  title: "Admin · WildGPT",
   description: "WildGPT 订单、履约与库存管理后台",
   robots: { index: false, follow: false },
 };

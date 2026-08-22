@@ -5,7 +5,7 @@ import { LanguageProvider } from "./language-context";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.wildgpt.org"),
-  title: "Gemini Pro / 家庭组订阅价格与套餐 - WildGPT",
+  title: "WildGPT",
   description: "Gemini Pro 与家庭组套餐，支持支付宝。",
   openGraph: {
     title: "WildGPT - Gemini Pro / 家庭组订阅",
@@ -29,6 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
+      <head>
+        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg?v=3" type="image/svg+xml" />
+      </head>
       <body>
         <LanguageProvider>
           <AuthProvider>{children}</AuthProvider>
