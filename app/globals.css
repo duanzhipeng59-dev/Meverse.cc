@@ -1914,7 +1914,7 @@ select:focus-visible {
 
 .auth-panel {
   margin: 0 -38px;
-  padding: 0 38px;
+  padding: 0 38px 38px;
 }
 
 .auth-input,
@@ -4024,7 +4024,7 @@ select:focus-visible {
 
   .auth-panel {
     margin: 0 -24px;
-    padding: 0 24px;
+    padding: 0 24px calc(24px + env(safe-area-inset-bottom));
   }
 
   .demo-modal h1 {
