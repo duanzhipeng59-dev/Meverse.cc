@@ -30,8 +30,8 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <head>
-        <link rel="icon" href="/favicon.svg?v=6" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/favicon.svg?v=6" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.svg?v=7" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg?v=7" type="image/svg+xml" />
       </head>
       <body>
         <LanguageProvider>
