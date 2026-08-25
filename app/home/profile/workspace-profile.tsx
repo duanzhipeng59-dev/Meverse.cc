@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
 import { readBasicProfile, writeBasicProfile } from "../../myfate-progressive-profile";
@@ -80,15 +81,21 @@ export default function WorkspaceProfile() {
 
             <label className="mf-profile-field">
               <span>登录邮箱</span>
-              <div className="mf-profile-readonly">
-                <input
-                  type="email"
-                  value={status === "loading" ? "正在读取…" : email ?? "尚未登录"}
-                  readOnly
-                  aria-readonly="true"
-                />
-                <span aria-hidden="true">锁定</span>
-              </div>
+              {status === "anonymous" ? (
+                <Link className="mf-profile-login-email" href="/login?next=%2Fhome%2Fprofile&from=%2Fhome%2Fprofile">
+                  <span>尚未登录</span><strong>登录 <i aria-hidden="true">→</i></strong>
+                </Link>
+              ) : (
+                <div className="mf-profile-readonly">
+                  <input
+                    type="email"
+                    value={status === "loading" ? "正在读取…" : email ?? "尚未登录"}
+                    readOnly
+                    aria-readonly="true"
+                  />
+                  <span aria-hidden="true">锁定</span>
+                </div>
+              )}
             </label>
           </div>
 

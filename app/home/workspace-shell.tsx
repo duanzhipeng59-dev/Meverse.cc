@@ -15,7 +15,7 @@ const menuItems = [
   },
   {
     icon: "profile",
-    label: "关系行为画像",
+    label: "行为画像分析",
     description: "看见你的自然相处方式",
     href: "/home/relationship-profile",
   },
@@ -80,6 +80,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const mobileMenuRef = useRef<HTMLDialogElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const isDetail = pathname.split("/").filter(Boolean).length > 2;
+  const loginHref = `/login?next=${encodeURIComponent(pathname)}&from=${encodeURIComponent(pathname)}`;
 
   useEffect(() => {
     if (status === "loading") return;
@@ -180,16 +181,23 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
             <span className="mf-workspace-nav-icon"><UserIcon /></span>
             <span>个人中心</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => {
-              markSignedOut();
-              router.replace("/");
-            }}
-          >
-            <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
-            <span>退出登录</span>
-          </button>
+          {status === "authenticated" ? (
+            <button
+              type="button"
+              onClick={() => {
+                markSignedOut();
+                router.replace("/");
+              }}
+            >
+              <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
+              <span>退出登录</span>
+            </button>
+          ) : (
+            <Link href={loginHref}>
+              <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
+              <span>登录</span>
+            </Link>
+          )}
         </div>
       </aside>
 
@@ -247,17 +255,24 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
               <span className="mf-workspace-nav-icon"><UserIcon /></span>
               <span>个人中心</span>
             </Link>
-            <button
-              type="button"
-              onClick={() => {
-                mobileMenuRef.current?.close();
-                markSignedOut();
-                router.replace("/");
-              }}
-            >
-              <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
-              <span>退出登录</span>
-            </button>
+            {status === "authenticated" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  mobileMenuRef.current?.close();
+                  markSignedOut();
+                  router.replace("/");
+                }}
+              >
+                <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
+                <span>退出登录</span>
+              </button>
+            ) : (
+              <Link href={loginHref} onClick={() => mobileMenuRef.current?.close()}>
+                <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
+                <span>登录</span>
+              </Link>
+            )}
           </div>
         </div>
       </dialog>

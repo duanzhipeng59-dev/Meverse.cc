@@ -7,9 +7,15 @@ import { useAuth } from "../auth-context";
 import { ensureLocalUser, normalizeEmail } from "../local-auth";
 import { readBasicProfile, writeBasicProfile } from "../myfate-progressive-profile";
 
+function routeParameter(name: string, fallback: string, homeOnly = false) {
+  const requested = new URLSearchParams(window.location.search).get(name);
+  if (!requested || !requested.startsWith("/") || requested.startsWith("//")) return fallback;
+  if (homeOnly && !requested.startsWith("/home")) return fallback;
+  return requested;
+}
+
 function destination() {
-  const requested = new URLSearchParams(window.location.search).get("next");
-  return requested?.startsWith("/home") ? requested : "/home/celebrity-match";
+  return routeParameter("next", "/home/celebrity-match", true);
 }
 
 export default function LocalLogin() {
@@ -21,8 +27,10 @@ export default function LocalLogin() {
   const [sentEmail, setSentEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [returnHref, setReturnHref] = useState("/");
 
   useEffect(() => {
+    queueMicrotask(() => setReturnHref(routeParameter("from", "/")));
     if (status === "authenticated") router.replace(destination());
   }, [status, router]);
 
@@ -79,6 +87,7 @@ export default function LocalLogin() {
       </Link>
 
       <section className="mf-login-card">
+        <Link className="mf-login-back" href={returnHref}>← 返回出发页</Link>
         <div className="mf-login-mark" aria-hidden="true"><span>✦</span></div>
         <span className="mf-login-kicker">WELCOME TO MYFATE</span>
         <h1>登录后，继续探索心动</h1>

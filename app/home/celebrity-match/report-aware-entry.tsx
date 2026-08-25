@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
+import AuthEntryLink from "../../auth-entry-link";
 import { readLatestSavedReportForStar, type SavedReport } from "../../myfate-report-storage";
 
 export default function ReportAwareEntry({ starId }: { starId: string }) {
@@ -32,8 +33,8 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
   }
 
   return (
-    <Link className="mf-primary-button mf-detail-cta" href={`/home/celebrity-match/${starId}/test`}>
+    <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/celebrity-match/${starId}/test`}>
       测试 TA 是否是你的正缘 <span>→</span>
-    </Link>
+    </AuthEntryLink>
   );
 }

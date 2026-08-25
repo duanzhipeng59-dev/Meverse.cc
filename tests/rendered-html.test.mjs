@@ -60,7 +60,7 @@ test("server-renders a celebrity detail inside the workspace", async () => {
   assert.match(html, /明星正缘测试/u);
   assert.match(html, /返回工作区/u);
   assert.match(html, /\/home\/celebrity-match/);
-  assert.match(html, /\/home\/celebrity-match\/hyunjin\/test/);
+  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fhyunjin%2Ftest/);
   assert.match(html, /mf-workspace-detail/u);
 });
 
@@ -84,6 +84,14 @@ test("server-renders the editable workspace profile", async () => {
   assert.match(html, /出生年月日/u);
   assert.match(html, /MBTI/u);
   assert.doesNotMatch(html, /保存资料/u);
+});
+
+test("server-renders the behavior profile workspace without the question-count summary", async () => {
+  const response = await render("/home/relationship-profile");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /行为画像分析/u);
+  assert.doesNotMatch(html, /24 道行为情境|约 5 分钟完成/u);
 });
 
 test("server-renders the local report history workspace", async () => {

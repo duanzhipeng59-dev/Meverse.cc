@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useAuth } from "./auth-context";
 
@@ -16,8 +17,11 @@ export default function AuthEntryLink({
   anonymousChildren?: ReactNode;
 }) {
   const { status } = useAuth();
+  const pathname = usePathname();
   const authenticated = status === "authenticated";
-  const target = authenticated ? href : `/login?next=${encodeURIComponent(href)}`;
+  const target = authenticated
+    ? href
+    : `/login?next=${encodeURIComponent(href)}&from=${encodeURIComponent(pathname)}`;
 
   return (
     <Link className={className} href={target}>

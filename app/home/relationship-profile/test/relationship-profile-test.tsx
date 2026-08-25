@@ -2,19 +2,25 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../auth-context";
 import { calculateRelationshipScores, relationshipArchetype, relationshipQuestions } from "../../../relationship-profile-data";
 import { createRelationshipReport } from "../../../relationship-profile-storage";
 
 export default function RelationshipProfileTest() {
-  const { email } = useAuth();
+  const { status, email } = useAuth();
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const current = relationshipQuestions[index];
   const selected = answers[current.id];
   const progress = ((index + 1) / relationshipQuestions.length) * 100;
+
+  useEffect(() => {
+    if (status === "anonymous") {
+      router.replace("/login?next=%2Fhome%2Frelationship-profile%2Ftest&from=%2Fhome%2Frelationship-profile");
+    }
+  }, [status, router]);
 
   function next() {
     if (selected === undefined) return;
@@ -23,6 +29,8 @@ export default function RelationshipProfileTest() {
     const report = createRelationshipReport(email, { title: relationshipArchetype(scores), scores, answers });
     router.push(`/home/relationship-profile/result/${report.id}`);
   }
+
+  if (status === "anonymous") return <div className="mf-auth-redirect">正在前往登录页…</div>;
 
   return (
     <div className="mf-test-page mf-workspace-test">
