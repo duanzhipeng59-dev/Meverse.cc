@@ -10,11 +10,6 @@ export default function CelebrityMatchWorkspace() {
           <h1>这一刻，你想走近谁？</h1>
           <p>选择一位心动对象，通过关系情境测试，看看你们之间藏着怎样的吸引力。</p>
         </div>
-        <div className="mf-workspace-meta">
-          <span>✦</span>
-          <strong>24 道关系情境</strong>
-          <small>约 6 分钟完成</small>
-        </div>
       </header>
 
       <CelebrityBrowser stars={stars} />

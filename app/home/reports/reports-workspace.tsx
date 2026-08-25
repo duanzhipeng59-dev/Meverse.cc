@@ -103,7 +103,6 @@ export default function ReportsWorkspace() {
           <span aria-hidden="true">✦</span>
           <h2>你还没有完成任何测试</h2>
           <p>可以从明星正缘测试或关系行为画像开始探索。</p>
-          <Link className="mf-primary-button" href="/home/relationship-profile">开始关系画像 <span>→</span></Link>
         </section>
       ) : (
         <>

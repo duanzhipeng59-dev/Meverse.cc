@@ -49,6 +49,7 @@ test("server-renders celebrity discovery inside the workspace", async () => {
   assert.match(html, /Seonghyeon/u);
   assert.match(html, /\/home\/celebrity-match\/bang-chan/);
   assert.doesNotMatch(html, /按艺人类型筛选/u);
+  assert.doesNotMatch(html, /24 道关系情境|约 6 分钟完成/u);
 });
 
 test("server-renders a celebrity detail inside the workspace", async () => {
@@ -93,6 +94,17 @@ test("server-renders the local report history workspace", async () => {
   assert.match(html, /每一次心动，都有迹可循/u);
   assert.match(html, /正缘测试与关系行为画像/u);
   assert.match(html, /份历史报告/u);
+});
+
+test("uses a mobile drawer menu and keeps the empty reports state minimal", async () => {
+  const [workspaceShell, reportsWorkspace] = await Promise.all([
+    readFile(new URL("../app/home/workspace-shell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/reports/reports-workspace.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(workspaceShell, /打开工作台菜单/u);
+  assert.match(workspaceShell, /<dialog/u);
+  assert.match(workspaceShell, /手机端工作台主菜单/u);
+  assert.doesNotMatch(reportsWorkspace, /开始关系画像/u);
 });
 
 test("saves, reuses, upgrades, and manually deletes report history", async () => {
