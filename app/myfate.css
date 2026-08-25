@@ -216,6 +216,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-home-profile-fields label:nth-child(1),
 .mf-home-profile-fields label:nth-child(2) { grid-column: span 6; }
 .mf-home-profile-fields label:nth-child(3) { grid-column: span 4; }
+.mf-home-birth-selects { min-width: 0; display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, .8fr) minmax(0, .8fr); gap: 5px; }
+.mf-home-birth-mobile { display: none; }
 .mf-home-profile-fields label > span {
   padding-left: 2px;
   color: #76676e;
@@ -1007,6 +1009,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-home-hero .mf-hero-actions { margin-top: 28px; }
   .mf-home-hero .mf-primary-button { width: 100%; min-height: 56px; box-sizing: border-box; }
   .mf-home-profile-entry { margin-top: 27px; padding: 14px; border-radius: 19px; }
+  .mf-home-birth-desktop { display: none; }
+  .mf-home-birth-mobile { display: grid; }
+  .mf-home-birth-selects { width: 100%; max-width: 100%; gap: 3px; }
+  .mf-home-birth-selects select { min-width: 0; padding: 0 5px; font-size: 10px; }
   .mf-home-profile-fields input,
   .mf-home-profile-fields select { height: 46px; }
   .mf-home-hero .mf-home-profile-submit { min-height: 46px; margin-top: 0; padding-left: 14px; font-size: 12px; }
@@ -1052,21 +1058,30 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-mobile-menu-panel { height: 100%; box-sizing: border-box; padding: 18px 16px 20px; display: flex; flex-direction: column; }
   .mf-mobile-menu-heading { margin-bottom: 42px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
   .mf-mobile-menu-heading .mf-workspace-brand { margin: 0; }
+  .mf-mobile-menu-heading .mf-workspace-brand:focus,
+  .mf-mobile-menu-heading .mf-workspace-brand:focus-visible { outline: none; box-shadow: none; }
   .mf-mobile-menu-heading > button { width: 44px; height: 44px; border: 0; border-radius: 13px; color: var(--mf-muted); background: rgba(122,41,78,.06); font: 300 28px/1 inherit; cursor: pointer; }
+  .mf-mobile-menu-heading > button:focus-visible { outline: 2px solid rgba(122,41,78,.28); outline-offset: 2px; }
   .mf-mobile-menu-dialog .mf-workspace-label { display: block; }
   .mf-mobile-menu-dialog .mf-workspace-nav { display: grid; gap: 8px; }
   .mf-mobile-menu-dialog .mf-workspace-nav-item { min-height: 66px; padding: 10px 12px; display: grid; grid-template-columns: 38px 1fr; gap: 10px; border-radius: 15px; }
   .mf-mobile-menu-dialog .mf-workspace-nav-item small { display: block; }
   .mf-mobile-menu-dialog .mf-workspace-nav-icon { width: 36px; height: 36px; }
-  .mf-mobile-menu-account { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--mf-line); }
-  .mf-mobile-menu-account button { width: 100%; min-height: 52px; padding: 6px 10px; display: grid; grid-template-columns: 36px 1fr; align-items: center; gap: 9px; border: 0; border-radius: 12px; color: var(--mf-muted); background: transparent; font: 600 12px inherit; text-align: left; }
-  .mf-mobile-menu-account button .mf-workspace-nav-icon { width: 34px; height: 34px; background: transparent; }
+  .mf-mobile-menu-account { margin-top: auto; padding-top: 16px; display: grid; gap: 3px; border-top: 1px solid var(--mf-line); }
+  .mf-mobile-menu-account button,
+  .mf-mobile-menu-account a { width: 100%; min-height: 52px; box-sizing: border-box; padding: 6px 10px; display: grid; grid-template-columns: 36px 1fr; align-items: center; gap: 9px; border: 0; border-radius: 12px; color: var(--mf-muted); background: transparent; font: 600 12px inherit; text-align: left; text-decoration: none; }
+  .mf-mobile-menu-account a.active { color: var(--mf-plum); background: rgba(122,41,78,.06); }
+  .mf-mobile-menu-account button .mf-workspace-nav-icon,
+  .mf-mobile-menu-account a .mf-workspace-nav-icon { width: 34px; height: 34px; background: transparent; }
   .mf-workspace-content { width: calc(100% - 32px); padding: 38px 0 34px; }
   .mf-profile-completion-banner { width: calc(100% - 32px); margin: 16px auto -20px; padding: 12px 12px 12px 15px; gap: 12px; }
   .mf-profile-completion-banner strong { font-size: 10px; }
   .mf-profile-completion-banner > a { min-height: 38px; padding: 0 12px; }
   .mf-workspace-heading { align-items: flex-start; flex-direction: column; gap: 22px; margin-bottom: 28px; }
   .mf-workspace-heading h1 { font-size: 39px; }
+  .mf-workspace-heading-compact .mf-kicker,
+  .mf-workspace-heading-compact h1 { display: none; }
+  .mf-workspace-heading-compact { margin-bottom: 24px; }
   .mf-workspace-meta { box-sizing: border-box; width: 100%; }
   .mf-profile-intro-card { padding: 24px 18px; grid-template-columns: 1fr; gap: 30px; border-radius: 22px; }
   .mf-profile-dimension-preview { grid-template-columns: 1fr; }

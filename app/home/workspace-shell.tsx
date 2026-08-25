@@ -169,14 +169,6 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
-          <Link
-            className={pathname === "/home/profile" ? "mf-workspace-nav-item mf-mobile-profile-link active" : "mf-workspace-nav-item mf-mobile-profile-link"}
-            href="/home/profile"
-            aria-current={pathname === "/home/profile" ? "page" : undefined}
-          >
-            <span className="mf-workspace-nav-icon"><UserIcon /></span>
-            <span><strong>个人中心</strong></span>
-          </Link>
         </nav>
 
         <div className="mf-workspace-account" aria-label="账户选项">
@@ -223,7 +215,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
               <span className="mf-brand-mark">M</span>
               <span>Myfate</span>
             </Link>
-            <button type="button" aria-label="关闭工作台菜单" onClick={closeMobileMenu}>×</button>
+            <button type="button" aria-label="关闭工作台菜单" autoFocus onClick={closeMobileMenu}>×</button>
           </div>
 
           <div className="mf-workspace-label">探索</div>
@@ -243,18 +235,18 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
+          </nav>
+
+          <div className="mf-mobile-menu-account">
             <Link
-              className={pathname === "/home/profile" ? "mf-workspace-nav-item active" : "mf-workspace-nav-item"}
+              className={pathname === "/home/profile" ? "active" : undefined}
               href="/home/profile"
               aria-current={pathname === "/home/profile" ? "page" : undefined}
               onClick={() => mobileMenuRef.current?.close()}
             >
               <span className="mf-workspace-nav-icon"><UserIcon /></span>
-              <span><strong>个人中心</strong><small>管理你的基础资料</small></span>
+              <span>个人中心</span>
             </Link>
-          </nav>
-
-          <div className="mf-mobile-menu-account">
             <button
               type="button"
               onClick={() => {
