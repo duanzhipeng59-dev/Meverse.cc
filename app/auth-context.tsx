@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { clearLocalSession, readLocalSession, writeLocalSession } from "./local-auth";
 
 export type AuthStatus = "loading" | "authenticated" | "anonymous";
 
@@ -26,27 +27,26 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 const INITIAL_STATE: AuthState = { status: "loading", email: null };
 
-// Module-level cache makes the session request happen exactly once per app
-// load: StrictMode double effects and provider remounts reuse the promise,
-// and a remounted provider restores the resolved state instead of flashing
-// the placeholder again.
 let cachedSession: AuthState | null = null;
 let sessionPromise: Promise<AuthState> | null = null;
 
 function loadSession(): Promise<AuthState> {
   if (!sessionPromise) {
-    sessionPromise = fetch("/api/auth/session", { cache: "no-store" })
-      .then(
-        (response) =>
-          response.json() as Promise<{
-            user?: { email?: string } | null;
-          }>,
-      )
-      .then((result): AuthState => ({
-        status: result.user?.email ? "authenticated" : "anonymous",
-        email: result.user?.email ?? null,
-      }))
-      .catch((): AuthState => ({ status: "anonymous", email: null }))
+    sessionPromise = Promise.resolve()
+      .then(async (): Promise<AuthState> => {
+        const email = readLocalSession();
+        if (email) return { status: "authenticated", email };
+
+        try {
+          const response = await fetch("/api/auth/session", { cache: "no-store" });
+          const result = await response.json() as { user?: { email?: string } | null };
+          return result.user?.email
+            ? { status: "authenticated", email: result.user.email }
+            : { status: "anonymous", email: null };
+        } catch {
+          return { status: "anonymous", email: null };
+        }
+      })
       .then((state) => {
         if (cachedSession === null) cachedSession = state;
         return state;
@@ -76,12 +76,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const markAuthenticated = useCallback((email: string) => {
     const next: AuthState = { status: "authenticated", email };
+    writeLocalSession(email);
     cachedSession = next;
     setState(next);
   }, []);
 
   const markSignedOut = useCallback(() => {
     const next: AuthState = { status: "anonymous", email: null };
+    clearLocalSession();
     cachedSession = next;
     setState(next);
   }, []);

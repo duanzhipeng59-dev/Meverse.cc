@@ -10,7 +10,7 @@ import {
 } from "react";
 import { type Lang, translations, t } from "./i18n";
 
-const STORAGE_KEY = "wildai-lang";
+const STORAGE_KEY = "myfate-lang";
 
 interface LanguageContextValue {
   lang: Lang;
@@ -21,7 +21,7 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-const LANGUAGE_CHANGE_EVENT = "wildai-language-change";
+const LANGUAGE_CHANGE_EVENT = "myfate-language-change";
 
 function getLanguageSnapshot(): Lang {
   const stored = window.localStorage.getItem(STORAGE_KEY);

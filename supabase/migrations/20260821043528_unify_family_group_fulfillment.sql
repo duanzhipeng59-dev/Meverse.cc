@@ -1,4 +1,4 @@
--- Applied to the WildGPT project as migration version 20260821043528.
+-- Applied to the Myfate project as migration version 20260821043528.
 alter table public.payment_orders
   drop constraint if exists payment_orders_status_check;
 

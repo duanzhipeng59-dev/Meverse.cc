@@ -1,7 +1,7 @@
 import { createClient, type Session, type User } from "@supabase/supabase-js";
 
-const ACCESS_COOKIE = "wildai_access_token";
-const REFRESH_COOKIE = "wildai_refresh_token";
+const ACCESS_COOKIE = "myfate_access_token";
+const REFRESH_COOKIE = "myfate_refresh_token";
 const REFRESH_TTL_SECONDS = 30 * 24 * 60 * 60;
 
 export function createSupabaseClient() {

@@ -97,7 +97,7 @@ export const plans: Plan[] = [
   {
     id: "coding",
     category: "coding",
-    brand: "WildAI",
+    brand: "Myfate",
     title: "Claude Code / Codex 套餐",
     detail: "支持按量付费 · 相比官方定价省 17%-50%",
     price: "10.00",
@@ -109,7 +109,7 @@ export const plans: Plan[] = [
   {
     id: "developer-api",
     category: "developer-api",
-    brand: "WildAI",
+    brand: "Myfate",
     title: "统一 API",
     detail: "Claude · GPT · Gemini · DeepSeek · Grok",
     price: "0.01",
@@ -124,7 +124,7 @@ export const demoSteps: DemoStep[] = [
   {
     id: "login",
     title: "登录 / 注册",
-    description: "使用手机号登录 WildAI",
+    description: "使用手机号登录 Myfate",
   },
   {
     id: "confirm",

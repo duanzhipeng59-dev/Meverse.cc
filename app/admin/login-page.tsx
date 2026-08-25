@@ -60,7 +60,7 @@ export function AdminLogin() {
   return (
     <main className="admin-login-page">
       <section className="admin-login-card">
-        <div className="admin-login-brand">WildGPT</div>
+        <div className="admin-login-brand">Myfate</div>
         <p className="admin-kicker">管理后台</p>
         <h1>{step === "email" ? "管理员登录" : "输入邮箱验证码"}</h1>
         <p className="admin-login-copy">
@@ -106,7 +106,7 @@ export function AdminLogin() {
             </button>
           ) : null}
         </form>
-        <Link href="/subscribe">返回 WildGPT</Link>
+        <Link href="/subscribe">返回 Myfate</Link>
       </section>
     </main>
   );

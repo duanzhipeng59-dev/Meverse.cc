@@ -42,7 +42,10 @@ next-env.d.ts
 /dist/
 /.wrangler/
 /outputs/
+/output/
 /work/
 /.playwright-cli/
+.agents/
+skills-lock.json
 *.tsbuildinfo
 worker-configuration.d.ts

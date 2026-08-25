@@ -1,100 +1,59 @@
-# vinext-starter
+# Myfate
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Myfate 是一个明星人格兼容性测试 MVP。用户可以选择心动对象，完成关系情境测试，并获得结合 MBTI、出生日期三柱与行为证据生成的高级缘分报告。
 
-## Prerequisites
+## 当前 MVP
 
-- Node.js `>=22.13.0`
+- 六位人物肖像卡片首页
+- 明星情感人格详情页
+- 首次 24 道、后续渐进缩短的偶像情境测试
+- 七维关系数据、缘分深度、长期匹配与冲突消耗
+- 三柱与 MBTI 主判断、行为结果辅助校准
+- DeepSeek 生成的七板块高级报告
+- 桌面端与移动端响应式界面
 
-## Quick Start
+公式引擎只生成固定分数与可视化证据，高级报告的个性化解读统一由 DeepSeek 输出。模型不可修改分数或关系类型；接口不可用时页面显示重试状态，不再展示本地规则报告。模型调用位于独立适配层，后续可以替换为 Gemini，而不改变评分与页面结构。
+
+## 高级报告模型
+
+复制 `.dev.vars.example` 为 `.dev.vars`，填入 DeepSeek API Key：
+
+```bash
+MYFATE_AI_PROVIDER=deepseek
+DEEPSEEK_API_KEY=your-deepseek-api-key
+DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+```
+
+不配置 `DEEPSEEK_API_KEY` 时，高级报告不会生成，页面会提示检查配置并重试。
+
+## 本地运行
+
+要求 Node.js `>=22.13.0`。
 
 ```bash
 npm install
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+常用检查：
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npm run typecheck
+npm run lint
+npm test
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+## 项目结构
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+- `app/page.tsx`：Myfate 首页
+- `app/celebrity/[id]`：人物详情
+- `app/test/[id]`：测试入口
+- `app/myfate-data.ts`：人物档案和通用测试题
+- `app/myfate-test.tsx`：渐进式测试和结果逻辑
+- `app/api/myfate/personalize`：报告输入、Prompt 与模型适配层
+- `docs/myfate-relationship-report-prompt.md`：完整报告 Prompt 规范
+- `app/myfate.css`：MVP 视觉系统
+- `public/*.webp`：本地人物肖像素材
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run typecheck`: verify application and Cloudflare runtime types
-- `npm run cf-typegen`: regenerate Cloudflare runtime and binding types
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+原订阅、支付、订单与后台代码暂时保留，当前首页不再进入这些旧业务流程。

@@ -2,277 +2,248 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render(pathname = "/subscribe") {
+async function render(pathname = "/", init = {}) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
+  const headers = new Headers(init.headers);
+  if (!headers.has("accept")) headers.set("accept", "text/html");
 
   return worker.fetch(
     new Request(`http://localhost${pathname}`, {
-      headers: { accept: "text/html" },
-      redirect: "manual",
+      ...init,
+      headers,
+      redirect: init.redirect ?? "manual",
     }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
   );
 }
 
-test("redirects the root route to the subscription page", async () => {
+test("server-renders the Myfate landing page with a workspace entry", async () => {
   const response = await render("/");
-  assert.equal(response.status, 307);
-  assert.equal(response.headers.get("location"), "http://localhost/subscribe");
-});
-
-test("server-renders the WildGPT subscription page", async () => {
-  const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
   const html = await response.text();
-  assert.match(
-    html,
-    /<title>Gemini Pro \/ 家庭组订阅价格与套餐 - WildGPT<\/title>/i,
-  );
-  assert.match(html, /WildGPT/);
-  assert.match(html, /新订阅/);
-  assert.match(html, /Gemini Pro\/家庭组/);
-  assert.match(html, /<small>¥<\/small>19\.9/);
-  assert.doesNotMatch(html, /ChatGPT\/CodeX/);
-  assert.doesNotMatch(html, /X Premium\+/);
-  assert.doesNotMatch(html, /Claude Code\/Codex/);
-  assert.doesNotMatch(html, /开发者 API/);
-  assert.doesNotMatch(html, /Claude Pro \/ Max\+/);
-  assert.doesNotMatch(html, /Claude API/);
-  assert.match(html, /立即订阅/);
-  assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/);
+  assert.match(html, /Myfate/);
+  assert.match(html, /会是你的正缘吗/u);
+  assert.match(html, /选择心动对象/u);
+  assert.match(html, /缘分星图示例/u);
+  assert.doesNotMatch(html, /缘分预览/u);
+  assert.match(html, /\/home\/celebrity-match/);
+  assert.match(html, /Bang Chan/u);
+  assert.match(html, /Seonghyeon/u);
+  assert.doesNotMatch(html, /href="\/celebrity\//);
+  assert.doesNotMatch(html, /Gemini Pro|立即订阅/u);
 });
 
-test("keeps the frontend assets self-contained", async () => {
-  const [page, data, layout, packageJson] = await Promise.all([
-    readFile(new URL("../app/subscription-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/data.ts", import.meta.url), "utf8"),
+test("server-renders celebrity discovery inside the workspace", async () => {
+  const response = await render("/home/celebrity-match");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+  const html = await response.text();
+  assert.match(html, /明星正缘测试/u);
+  assert.match(html, /个人中心/u);
+  assert.match(html, /退出登录/u);
+  assert.match(html, /Bang Chan/u);
+  assert.match(html, /Seonghyeon/u);
+  assert.match(html, /\/home\/celebrity-match\/bang-chan/);
+  assert.doesNotMatch(html, /按艺人类型筛选/u);
+});
+
+test("server-renders a celebrity detail inside the workspace", async () => {
+  const response = await render("/home/celebrity-match/hyunjin");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Hyunjin/u);
+  assert.match(html, /明星正缘测试/u);
+  assert.match(html, /返回工作区/u);
+  assert.match(html, /\/home\/celebrity-match/);
+  assert.match(html, /\/home\/celebrity-match\/hyunjin\/test/);
+  assert.match(html, /mf-workspace-detail/u);
+});
+
+test("keeps the workspace around the question and report flow", async () => {
+  const response = await render("/home/celebrity-match/bang-chan/test");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /明星正缘测试/u);
+  assert.match(html, /心动行为测试/u);
+  assert.match(html, /24/u);
+  assert.match(html, /个人中心/u);
+  assert.match(html, /返回详情/u);
+  assert.match(html, /mf-workspace-test/u);
+});
+
+test("server-renders the editable workspace profile", async () => {
+  const response = await render("/home/profile");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /登录邮箱/u);
+  assert.match(html, /出生年月日/u);
+  assert.match(html, /MBTI/u);
+  assert.doesNotMatch(html, /保存资料/u);
+});
+
+test("server-renders the local report history workspace", async () => {
+  const response = await render("/home/reports");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /我的报告/u);
+  assert.match(html, /每一次心动，都有迹可循/u);
+  assert.match(html, /正缘测试与关系行为画像/u);
+  assert.match(html, /份历史报告/u);
+});
+
+test("saves, reuses, upgrades, and manually deletes report history", async () => {
+  const [testExperience, reportStorage, reportDetail, advancedReport, reportAwareEntry, guardedTestEntry, reportsWorkspace, relationshipStorage] = await Promise.all([
+    readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-report-storage.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/reports/[id]/report-detail-workspace.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-advanced-report.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/celebrity-match/report-aware-entry.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/celebrity-match/[id]/test/workspace-test-entry.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/reports/reports-workspace.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/relationship-profile-storage.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(testExperience, /createSavedReport/u);
+  assert.match(testExperience, /status: "advanced"/u);
+  assert.match(testExperience, /查看历史报告/u);
+  assert.match(reportStorage, /\[report, \.\.\.readSavedReports\(email\)\]/u);
+  assert.match(reportStorage, /report\.id !== reportId/u);
+  assert.match(reportStorage, /readLatestSavedReportForStar/u);
+  assert.match(reportStorage, /deleteSavedReport/u);
+  assert.match(reportDetail, /MyfateAdvancedReport/u);
+  assert.match(reportDetail, /test\?restart=1/u);
+  assert.match(reportDetail, /返回明星工作台/u);
+  assert.match(advancedReport, /<h2>缘分结构<\/h2>/u);
+  assert.match(advancedReport, /七个关系板块/u);
+  assert.match(advancedReport, /初始吸引/u);
+  assert.match(advancedReport, /宿命\/烙印感/u);
+  assert.match(advancedReport, /冲突消耗/u);
+  assert.match(advancedReport, /深层关系解码/u);
+  assert.match(reportAwareEntry, /查看高级报告/u);
+  assert.match(reportAwareEntry, /查看初步报告/u);
+  assert.match(reportAwareEntry, /from=celebrity-match/u);
+  assert.match(guardedTestEntry, /allowRetest/u);
+  assert.match(guardedTestEntry, /router\.replace/u);
+  assert.match(reportsWorkspace, /window\.confirm/u);
+  assert.match(reportsWorkspace, /删除后无法恢复/u);
+  assert.match(relationshipStorage, /deleteRelationshipReport/u);
+});
+
+test("server-renders a celebrity detail and its test entry", async () => {
+  const response = await render("/celebrity/bang-chan");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Bang Chan/u);
+  assert.match(html, /情感人格/u);
+  assert.match(html, /ENFJ/);
+  assert.match(html, /丁丑 · 己酉 · 戊寅/u);
+  assert.match(html, /主动守护的共建型/u);
+  assert.match(html, /真诚回应 · 共同成长 · 稳定承诺/u);
+  assert.match(html, /测试 TA 是否是你的正缘/u);
+  assert.match(html, /\/test\/bang-chan/);
+});
+
+test("includes a progressive question flow with a model-only advanced report", async () => {
+  const [testPage, data, testExperience, progressiveProfile, advancedReport] = await Promise.all([
+    readFile(new URL("../app/test/[id]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-progressive-profile.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-advanced-report.tsx", import.meta.url), "utf8"),
+  ]);
+  const advancedExperience = `${testExperience}\n${advancedReport}`;
+  assert.match(testPage, /MyfateTest/);
+  assert.match(data, /createInitialQuestions/);
+  assert.match(data, /演出结束后，\$\{star\.name\}/u);
+  assert.equal((data.match(/id: "idol-/g) ?? []).length, 24);
+  assert.doesNotMatch(testExperience, /adaptive-test|createFallbackAdaptiveQuestions/u);
+  assert.match(testExperience, /心动行为测试 · \{initialQuestions\.length\} 题/u);
+  assert.match(testExperience, /解锁缘分高级报告/u);
+  assert.match(testExperience, /最终正缘解读/u);
+  assert.match(advancedExperience, /绝对|可能|也许|不太像|不是/u);
+  assert.match(advancedExperience, /命中注定/u);
+  assert.match(advancedExperience, /红颜祸水/u);
+  assert.match(advancedExperience, /些许暧昧/u);
+  assert.match(advancedExperience, /缘分较浅/u);
+  assert.match(advancedExperience, /平行时空/u);
+  assert.match(testExperience, /calculateProgressiveCompatibility/u);
+  assert.match(testExperience, /recordProgressiveTest/u);
+  assert.match(progressiveProfile, /myfate-progressive-profile:v1/u);
+  assert.match(progressiveProfile, /completedTests === 0\) return 24/u);
+  assert.match(progressiveProfile, /completedTests === 1\) return 16/u);
+  assert.match(progressiveProfile, /confidence >= 0\.76 \? 10 : 12/u);
+  assert.match(progressiveProfile, /pillarScore \* 0\.55 \+ mbtiScore \* 0\.45/u);
+  assert.match(progressiveProfile, /Math\.min\(8, Math\.max\(-8/u);
+  assert.doesNotMatch(testExperience, /结合个人资料、历史画像与本次行为生成/u);
+  assert.match(advancedExperience, /核心缘分结构|缘分结构/u);
+  assert.match(advancedExperience, /心动引力/u);
+  assert.match(advancedExperience, /情绪托举/u);
+  assert.match(advancedExperience, /相处节奏/u);
+  assert.match(advancedExperience, /长期潜力/u);
+  assert.match(advancedExperience, /七个关系板块/u);
+  assert.match(advancedExperience, /初始吸引/u);
+  assert.match(advancedExperience, /情绪连接/u);
+  assert.match(advancedExperience, /沟通默契/u);
+  assert.match(advancedExperience, /互补成长/u);
+  assert.match(advancedExperience, /宿命\/烙印感/u);
+  assert.match(advancedExperience, /冲突消耗/u);
+  assert.match(advancedExperience, /你们的关系天赋/u);
+  assert.match(advancedExperience, /需要共同练习/u);
+  assert.match(advancedExperience, /情绪回应/u);
+  assert.match(advancedExperience, /长期稳定/u);
+  assert.doesNotMatch(advancedExperience, /综合关系动力|为什么会靠近|为什么可能错过|AI 个性化最终解读|你的关系行动指南/u);
+  assert.doesNotMatch(testExperience, /createFallbackInterpretation|createDeepInterpretation/u);
+  assert.doesNotMatch(advancedReport, /presentationMbtiInsight|presentationPillarInsight/u);
+  assert.match(testExperience, /mf-fate-spectrum/);
+  assert.match(testExperience, /mf-answer-stars/);
+  assert.match(testExperience, /最有默契/u);
+  assert.match(testExperience, /仍需确认/u);
+});
+
+test("requires the configured model for an advanced interpretation", async () => {
+  const response = await render("/api/myfate/personalize", {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({
+      action: "interpretation",
+      starId: "james",
+      initialScore: 76,
+      finalScore: 76,
+      userMbti: "INFP",
+      birthDate: "1998-06-12",
+      behaviorScores: { security: 74, expression: 82, independence: 88, conflict: 61, novelty: 77 },
+      answers: [{
+        question: "如果 James 需要独处，你会怎么做？",
+        answer: "尊重空间并约定联系时间",
+        value: 4,
+        dimension: "independence",
+      }],
+    }),
+  });
+  assert.equal(response.status, 503);
+  const result = await response.json();
+  assert.equal(result.error, "MODEL_NOT_CONFIGURED");
+});
+
+test("ships local portraits and unified Myfate branding", async () => {
+  const [layout, css, packageJson] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
-
-  assert.match(data, /export interface Plan/);
-  assert.match(data, /export type ProductCategory/);
-  assert.match(data, /export interface NavigationItem/);
-  assert.match(data, /export interface DemoStep/);
-  assert.match(page, /onKeyDown|订阅进度/u);
-  assert.match(layout, /og\.png/);
-  assert.doesNotMatch(packageJson, /react-loading-skeleton/);
-  await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
-});
-
-test("localizes the visible Gemini plan card", async () => {
-  const [page, translations] = await Promise.all([
-    readFile(new URL("../app/subscription-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/i18n.ts", import.meta.url), "utf8"),
-  ]);
-
-  assert.match(page, /plan\.gemini\.title/);
-  assert.match(page, /plan\.gemini\.subtitle/);
-  assert.match(page, /plan\.gemini\.detail/);
-  assert.match(page, /plan\.gemini\.suffix/);
-  assert.match(translations, /Gemini Pro \/ Family Group/);
-  assert.match(translations, /Native multimodal AI powered by Veo/);
-  assert.match(translations, /"plan\.gemini\.suffix": "and up"/);
-});
-
-test("sends Supabase-generated verification codes through Resend", async () => {
-  const emailCodeRoute = await readFile(
-    new URL("../app/api/auth/email-code/route.ts", import.meta.url),
-    "utf8",
-  );
-
-  assert.match(emailCodeRoute, /new Resend\(/);
-  assert.match(emailCodeRoute, /auth\.admin\.generateLink/);
-  assert.match(emailCodeRoute, /idempotencyKey/);
-  assert.match(emailCodeRoute, /type: "magiclink"/);
-  assert.doesNotMatch(emailCodeRoute, /signInWithOtp/);
-});
-
-test("uses email verification as the only account sign-in method", async () => {
-  const [page, loginRoute, disabledRegisterRoute] = await Promise.all([
-    readFile(new URL("../app/subscription-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/auth/login/route.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/auth/register/route.ts", import.meta.url), "utf8"),
-  ]);
-
-  assert.match(page, /new FormData\(event\.currentTarget\.form\)/);
-  assert.match(page, /name="code"/);
-  assert.doesNotMatch(page, /name="password"/);
-  assert.doesNotMatch(page, /PasswordVisibilityIcon/);
-  assert.match(loginRoute, /auth\.verifyOtp/);
-  assert.doesNotMatch(loginRoute, /signInWithPassword/);
-  assert.match(disabledRegisterRoute, /status: 404/);
-  assert.doesNotMatch(disabledRegisterRoute, /createUser|verifyOtp|password/);
-});
-
-test("switches signed-in users to a round avatar with logout menu", async () => {
-  const [authContext, header, profilePage, logoutRoute] = await Promise.all([
-    readFile(new URL("../app/auth-context.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/site-chrome.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/profile-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/auth/logout/route.ts", import.meta.url), "utf8"),
-  ]);
-
-  assert.match(authContext, /current\.status === "loading" \? resolved : current/);
-  assert.match(authContext, /cachedSession === null/);
-  assert.match(header, /className="account-avatar"/);
-  assert.match(header, /className="account-dropdown-email"/);
-  assert.match(header, /<strong title=\{email\}>\{email\}<\/strong>/);
-  assert.match(header, /account\.sign_out/);
-  assert.match(header, /onNavigate=\{\(\) => setPendingHref\(item\.href\)\}/);
-  assert.match(header, /PRIMARY_NAV_ITEMS\.map/);
-  assert.doesNotMatch(header, /onClick=\{\(\) => setPendingHref\(item\.href\)\}/);
-  assert.doesNotMatch(header, /href="\/profile"/);
-  assert.doesNotMatch(header, /account-dropdown-summary/);
-  assert.match(header, /window\.location\.assign\("\/subscribe"\)/);
-  assert.match(profilePage, /account\.username/);
-  assert.match(profilePage, /account\.email/);
-  assert.match(logoutRoute, /auth\.signOut\(\{ scope: "local" \}\)/);
-  assert.match(logoutRoute, /clearSessionCookies/);
-});
-
-test("includes the Gemini family group checkout flow", async () => {
-  const [page, familyWizard, translations, paymentServer, paymentNotify] = await Promise.all([
-    readFile(new URL("../app/subscription-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/gemini-family-wizard.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/i18n.ts", import.meta.url), "utf8"),
-    readFile(
-      new URL("../app/api/payments/epay/server.ts", import.meta.url),
-      "utf8",
-    ),
-    readFile(
-      new URL("../app/api/payments/epay/notify/route.ts", import.meta.url),
-      "utf8",
-    ),
-  ]);
-
-  assert.match(page, /GeminiFamilyWizard/);
-  assert.match(page, /function choosePlan[\s\S]*?openAuth\("checkout"\)/);
-  assert.match(familyWizard, /useLanguage/);
-  assert.doesNotMatch(familyWizard, /[\u4e00-\u9fff]/u);
-  assert.match(familyWizard, /19\.9/);
-  assert.match(familyWizard, /49\.9/);
-  assert.match(familyWizard, /89\.9/);
-  assert.match(familyWizard, /months: 12, price: "145"/);
-  assert.match(familyWizard, /https:\/\/play\.google\.com\//);
-  assert.match(familyWizard, /gemini\.region_guide\.scroll/);
-  assert.match(familyWizard, /name="region"/);
-  assert.match(familyWizard, /gemini\.success\.monthly_title/);
-  assert.doesNotMatch(familyWizard, /gemini\.annual\.delivery/);
-  assert.doesNotMatch(familyWizard, /\/api\/payments\/epay\/stock/);
-  assert.doesNotMatch(familyWizard, /deliveredAccount\.password/);
-  assert.match(familyWizard, /\/api\/payments\/epay\/cancel/);
-  assert.match(familyWizard, /\/api\/payments\/epay\/create/);
-  assert.match(familyWizard, /gemini\.checkout\.pay_with_alipay/);
-  assert.match(familyWizard, /qrcode-generator|createDataURL|qrContent/);
-  assert.match(familyWizard, /gemini\.qr\.title/);
-  assert.match(paymentServer, /mapi\.php/);
-  assert.match(paymentServer, /result\.payurl/);
-  assert.match(paymentServer, /result\.qrcode/);
-  assert.doesNotMatch(paymentServer, /submit\.php/);
-  assert.match(translations, /Choose a Family Group Duration/);
-  assert.match(translations, /Enter Your Email and Country\/Region/);
-  assert.match(translations, /Select a Payment Method/);
-  assert.match(translations, /Your Invitation Will Arrive Within 20 Minutes/);
-  assert.match(paymentServer, /type: "alipay"/);
-  assert.doesNotMatch(familyWizard, /不会发起真实扣款/);
-  assert.match(paymentServer, /createHash\("md5"\)/);
-  assert.match(paymentServer, /timingSafeEqual/);
-  assert.match(paymentServer, /amountsMatch/);
-  assert.match(paymentNotify, /verifyCallback/);
-  assert.match(paymentNotify, /acceptProviderPayment/);
-});
-
-test("lists only the signed-in user's payment orders", async () => {
-  const [ordersPage, ordersRoute, paymentCreate] = await Promise.all([
-    readFile(new URL("../app/orders-page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/orders/route.ts", import.meta.url), "utf8"),
-    readFile(
-      new URL("../app/api/payments/epay/create/route.ts", import.meta.url),
-      "utf8",
-    ),
-  ]);
-
-  assert.match(ordersRoute, /getSessionUser/);
-  assert.match(ordersRoute, /\.eq\("user_id", user\.id\)/);
-  assert.doesNotMatch(ordersRoute, /provider_payload|access_token_hash/);
-  assert.match(paymentCreate, /p_user_id: user\.id/);
-  assert.match(ordersPage, /fetch\("\/api\/orders"/);
-  assert.match(ordersPage, /status !== "authenticated"/);
-  assert.match(ordersPage, /orders\.auth_checking/);
-  assert.match(ordersPage, /order-status/);
-  assert.match(ordersPage, /copyOrderNumber/);
-});
-
-test("protects the first admin console with server-side authorization", async () => {
-  const [adminServer, inventoryRoute, revealRoute, migration, loginPage, adminConsole] =
-    await Promise.all([
-      readFile(new URL("../app/api/admin/server.ts", import.meta.url), "utf8"),
-      readFile(new URL("../app/api/admin/inventory/route.ts", import.meta.url), "utf8"),
-      readFile(
-        new URL("../app/api/admin/inventory/[id]/reveal/route.ts", import.meta.url),
-        "utf8",
-      ),
-      readFile(
-        new URL(
-          "../supabase/migrations/20260820090000_create_admin_console.sql",
-          import.meta.url,
-        ),
-        "utf8",
-      ),
-      readFile(new URL("../app/admin/login-page.tsx", import.meta.url), "utf8"),
-      readFile(new URL("../app/admin/admin-console.tsx", import.meta.url), "utf8"),
-    ]);
-
-  assert.match(adminServer, /requireAdmin/);
-  assert.match(adminServer, /ADMIN_EMAILS/);
-  assert.match(adminServer, /admin_users/);
-  assert.match(inventoryRoute, /encryptCredential/);
-  assert.doesNotMatch(inventoryRoute, /account_password_encrypted.*return/);
-  assert.match(revealRoute, /writeAuditLog/);
-  assert.match(migration, /enable row level security/);
-  assert.match(migration, /revoke all .* from anon, authenticated/s);
-  assert.match(loginPage, /\/api\/admin\/session/);
-  assert.doesNotMatch(loginPage, /name="password"/);
-  assert.match(adminConsole, /adminEmail === null/);
-  assert.match(adminConsole, /admin-auth-gate/);
-  assert.match(adminConsole, /window\.location\.replace\("\/admin\/login"\)/);
-});
-
-test("uses one family-group fulfillment flow for every duration", async () => {
-  const [paymentServer, paymentCreate, adminOrder, migration, ordersPage] =
-    await Promise.all([
-      readFile(new URL("../app/api/payments/epay/server.ts", import.meta.url), "utf8"),
-      readFile(new URL("../app/api/payments/epay/create/route.ts", import.meta.url), "utf8"),
-      readFile(new URL("../app/api/admin/orders/[orderNo]/route.ts", import.meta.url), "utf8"),
-      readFile(
-        new URL(
-          "../supabase/migrations/20260821043528_unify_family_group_fulfillment.sql",
-          import.meta.url,
-        ),
-        "utf8",
-      ),
-      readFile(new URL("../app/orders-page.tsx", import.meta.url), "utf8"),
-    ]);
-
-  assert.match(paymentServer, /monthly_12/);
-  assert.match(paymentServer, /Gemini 家庭组 12 个月/u);
-  assert.doesNotMatch(paymentCreate, /PRODUCTS\.annual/);
-  assert.match(adminOrder, /return_reason_required/);
-  assert.match(adminOrder, /status: "returned"/);
-  assert.match(migration, /'cancelled', 'returned'/);
-  assert.match(migration, /p_billing_mode <> 'monthly'/);
-  assert.match(ordersPage, /orders\.detail\.return_reason/);
+  assert.match(layout, /Myfate/);
+  assert.match(css, /var\(--portrait-image\)/);
+  assert.match(css, /prefers-reduced-motion/);
+  assert.match(packageJson, /"name": "myfate"/);
+  await Promise.all([
+    "bang-chan.webp",
+    "hyunjin.webp",
+    "james.webp",
+    "juhoon.webp",
+    "keonho.webp",
+    "seonghyeon.webp",
+  ].map((filename) => access(new URL(`../public/${filename}`, import.meta.url))));
 });

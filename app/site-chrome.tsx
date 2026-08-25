@@ -108,10 +108,10 @@ export function SiteHeader({ onLogin }: { onLogin?: () => void }) {
         className="brand"
         href="/subscribe"
         prefetch={false}
-        aria-label="WildGPT 订阅首页"
+        aria-label="Myfate 订阅首页"
       >
         <BrandMark />
-        <span>WildGPT</span>
+        <span>Myfate</span>
       </Link>
       <div className="header-actions">
         <LanguageSwitcher />

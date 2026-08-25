@@ -468,7 +468,7 @@ export default function GeminiFamilyWizard({
             {step === 3 && (
               <div className="wizard-page checkout-wizard-page family-checkout-page">
                 <div className="checkout-summary">
-                  <span>WildGPT</span>
+                  <span>Myfate</span>
                   <small>{t("gemini.checkout.amount")}</small>
                   <strong>¥{selectedPrice} CNY</strong>
                   <dl>

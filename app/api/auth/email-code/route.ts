@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         ...message,
       },
       {
-        idempotencyKey: `wildgpt-login-${generated.data.user.id}-${generated.data.properties.hashed_token}`,
+        idempotencyKey: `myfate-login-${generated.data.user.id}-${generated.data.properties.hashed_token}`,
       },
     );
 

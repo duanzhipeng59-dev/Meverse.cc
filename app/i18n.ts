@@ -140,7 +140,7 @@ const zh: TranslationDict = {
     "请确认 Google Play 显示的地区与填写内容一致",
   "gemini.error.out_of_stock": "当前套餐暂时不可购买，请稍后重试。",
   "gemini.error.login_required":
-    "请先登录 WildGPT 账号后再购买套餐。",
+    "请先登录 Myfate 账号后再购买套餐。",
   "gemini.error.payment_unavailable": "支付服务暂时不可用，请稍后重试。",
   "gemini.error.payment_network":
     "支付服务暂时不可用，请检查网络后重试。",
@@ -176,7 +176,7 @@ const zh: TranslationDict = {
   "account.sign_out": "退出登录",
   "account.signing_out": "正在退出…",
   "account.profile_eyebrow": "账户",
-  "account.profile_description": "查看你的 WildGPT 基本账户信息。",
+  "account.profile_description": "查看你的 Myfate 基本账户信息。",
   "account.username": "用户名",
   "account.email": "邮箱",
   "account.loading": "正在加载账户信息…",
@@ -213,7 +213,7 @@ const zh: TranslationDict = {
   "orders.col.amount": "金额",
   "orders.loading": "正在加载订单…",
   "orders.auth_checking": "正在确认登录状态…",
-  "orders.login_required": "请先登录 WildGPT 账号查看订单",
+  "orders.login_required": "请先登录 Myfate 账号查看订单",
   "orders.unavailable": "订单暂时无法加载，请稍后重试",
   "orders.status.pending": "待支付",
   "orders.status.paid": "待发货",
@@ -267,7 +267,7 @@ const zh: TranslationDict = {
   "invite.reward.pending_amount": "待解冻金额",
 
   "invite.records.title": "邀请记录",
-  "invite.records.tab.direct": "WildAI 直接邀请",
+  "invite.records.tab.direct": "Myfate 直接邀请",
   "invite.records.tab.tier": "阶梯奖励",
   "invite.records.tab.history": "Wild 历史邀请 ⓘ",
   "invite.records.tab.history_reward": "Wild 历史奖励 ⓘ",
@@ -458,7 +458,7 @@ const en: TranslationDict = {
   "gemini.error.out_of_stock":
     "This plan is temporarily unavailable. Please try again later.",
   "gemini.error.login_required":
-    "Sign in to your WildGPT account before purchasing a plan.",
+    "Sign in to your Myfate account before purchasing a plan.",
   "gemini.error.payment_unavailable":
     "The payment service is temporarily unavailable. Please try again shortly.",
   "gemini.error.payment_network":
@@ -496,7 +496,7 @@ const en: TranslationDict = {
   "account.sign_out": "Sign out",
   "account.signing_out": "Signing out…",
   "account.profile_eyebrow": "Account",
-  "account.profile_description": "View your basic WildGPT account information.",
+  "account.profile_description": "View your basic Myfate account information.",
   "account.username": "Username",
   "account.email": "Email",
   "account.loading": "Loading account information…",
@@ -533,7 +533,7 @@ const en: TranslationDict = {
   "orders.col.amount": "Amount",
   "orders.loading": "Loading orders…",
   "orders.auth_checking": "Checking sign-in status…",
-  "orders.login_required": "Sign in to your WildGPT account to view orders",
+  "orders.login_required": "Sign in to your Myfate account to view orders",
   "orders.unavailable": "Orders are temporarily unavailable. Try again later.",
   "orders.status.pending": "Pending",
   "orders.status.paid": "Awaiting Fulfillment",
@@ -589,7 +589,7 @@ const en: TranslationDict = {
   "invite.reward.pending_amount": "Pending",
 
   "invite.records.title": "Invite Records",
-  "invite.records.tab.direct": "WildAI Direct",
+  "invite.records.tab.direct": "Myfate Direct",
   "invite.records.tab.tier": "Tier Rewards",
   "invite.records.tab.history": "Wild History ⓘ",
   "invite.records.tab.history_reward": "Wild Past Rewards ⓘ",

@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./myfate.css";
 import { AuthProvider } from "./auth-context";
 import { LanguageProvider } from "./language-context";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.wildgpt.org"),
-  title: "WildGPT",
-  description: "Gemini Pro 与家庭组套餐，支持支付宝。",
+  title: {
+    default: "Myfate · 遇见你的心动答案",
+    template: "%s · Myfate",
+  },
+  description: "选择心动对象，通过两阶段人格测试，发现你们之间的吸引力与相处密码。",
   openGraph: {
-    title: "WildGPT - Gemini Pro / 家庭组订阅",
-    description: "Gemini Pro 与家庭组套餐，支持支付宝。",
+    title: "Myfate · 遇见你的心动答案",
+    description: "两阶段人格测试与个性化缘分解读。",
     type: "website",
     locale: "zh_CN",
-    images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "WildGPT - Gemini Pro / 家庭组订阅",
-    description: "Gemini Pro 与家庭组套餐，支持支付宝。",
-    images: ["/og.png"],
+    title: "Myfate · 遇见你的心动答案",
+    description: "两阶段人格测试与个性化缘分解读。",
   },
 };
 

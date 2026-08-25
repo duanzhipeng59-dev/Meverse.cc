@@ -111,7 +111,7 @@ export function AdminConsole({ view }: { view: "dashboard" | "orders" | "invento
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
-        <Link className="admin-logo" href="/admin">WildGPT <span>Admin</span></Link>
+        <Link className="admin-logo" href="/admin">Myfate <span>Admin</span></Link>
         <nav>
           {NAV.map(([href, label, icon]) => (
             <Link key={href} href={href} className={pathname === href ? "active" : undefined}>

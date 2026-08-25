@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import MyfateHome from "./myfate-home";
 
 export default function Home() {
-  redirect("/subscribe");
+  return <MyfateHome />;
 }
