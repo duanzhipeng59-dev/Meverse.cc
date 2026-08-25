@@ -604,6 +604,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-workspace-detail { min-height: 100vh; }
 .mf-workspace-detail-topbar { width: min(1040px, calc(100% - 48px)); height: 74px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--mf-line); }
 .mf-workspace-detail-topbar > span { color: #a2949b; font-size: 11px; font-weight: 650; letter-spacing: .08em; }
+.mf-workspace-detail-topbar .mf-back-link { display: inline-flex; align-items: center; gap: 4px; }
+.mf-workspace-detail-topbar .mf-back-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .mf-workspace-detail .mf-detail-main { width: min(1040px, calc(100% - 48px)); }
 .mf-workspace-test .mf-test-header { width: min(1040px, calc(100% - 48px)); }
 .mf-workspace-test.mf-test-page, .mf-workspace-test.mf-result-page { background: transparent; }
@@ -1048,10 +1050,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-home-hero .mf-hero-actions { margin-top: 28px; }
   .mf-home-hero .mf-primary-button { width: 100%; min-height: 56px; box-sizing: border-box; }
   .mf-home-profile-entry { margin-top: 27px; padding: 14px; border-radius: 19px; }
-  .mf-home-profile-fields label:nth-child(1) { grid-column: span 5; }
-  .mf-home-profile-fields label:nth-child(2) { grid-column: span 7; }
+  .mf-home-profile-fields label:nth-child(1) { grid-column: span 4; }
+  .mf-home-profile-fields label:nth-child(2) { grid-column: span 8; }
   .mf-home-profile-fields input[type="date"] {
-    width: 100%; max-width: 100%; min-width: 0; min-inline-size: 0; font: 570 12px inherit;
+    width: 100%; max-width: 100%; max-inline-size: 100%; min-width: 0; min-inline-size: 0;
+    display: block; -webkit-appearance: none; appearance: none; font: 570 12px inherit;
   }
   .mf-home-profile-fields input[type="date"]::-webkit-date-and-time-value,
   .mf-home-profile-fields input[type="date"]::-webkit-datetime-edit,
@@ -1138,7 +1141,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-workspace-card-grid .mf-star-overlay h2 { font-size: 23px; }
   .mf-workspace-shell.is-detail .mf-workspace-mobile-bar { display: none; }
   .mf-workspace-shell.is-detail .mf-workspace-main { min-height: 100vh; padding-top: 0; }
-  .mf-workspace-detail-topbar { position: sticky; top: 0; z-index: 10; width: calc(100% - 32px); height: 60px; background: rgba(255, 250, 246, .9); backdrop-filter: blur(14px); }
+  .mf-workspace-detail-topbar { position: sticky; top: 0; z-index: 10; width: 100%; height: 60px; box-sizing: border-box; padding: 0 16px; background: rgba(255, 250, 246, .96); box-shadow: 18px 0 0 rgba(255,250,246,.96), -18px 0 0 rgba(255,250,246,.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .mf-workspace-detail-topbar > span { display: none; }
+  .mf-workspace-detail-topbar .mf-back-link { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: var(--mf-ink); background: rgba(255,255,255,.62); }
+  .mf-workspace-detail-topbar .mf-back-link span { display: none; }
+  .mf-workspace-detail-topbar .mf-back-link svg { width: 24px; height: 24px; }
   .mf-workspace-detail .mf-detail-main { width: calc(100% - 32px); }
   .mf-profile-workspace { width: calc(100% - 32px); padding: 38px 0 34px; }
   .mf-profile-heading h1 { font-size: 39px; }
@@ -1154,7 +1161,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-profile-field { min-width: 0; }
   .mf-profile-field input,
   .mf-profile-field select { width: 100%; max-width: 100%; min-width: 0; height: 50px; min-height: 50px; }
-  .mf-profile-field input[type="date"] { min-inline-size: 0; }
+  .mf-profile-field input[type="date"] { max-inline-size: 100%; min-inline-size: 0; display: block; -webkit-appearance: none; appearance: none; }
   .mf-profile-field input[type="date"]::-webkit-date-and-time-value,
   .mf-profile-field input[type="date"]::-webkit-datetime-edit,
   .mf-profile-field input[type="date"]::-webkit-datetime-edit-fields-wrapper { min-width: 0; margin: 0; font: inherit; line-height: inherit; text-align: left; }
