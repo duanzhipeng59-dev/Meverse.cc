@@ -30,6 +30,16 @@ export default function LocalLogin() {
   const [returnHref, setReturnHref] = useState("/");
 
   useEffect(() => {
+    const resetScroll = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    const frame = window.requestAnimationFrame(resetScroll);
+    window.addEventListener("pageshow", resetScroll);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("pageshow", resetScroll);
+    };
+  }, []);
+
+  useEffect(() => {
     queueMicrotask(() => setReturnHref(routeParameter("from", "/")));
     if (status === "authenticated") router.replace(destination());
   }, [status, router]);
@@ -87,7 +97,7 @@ export default function LocalLogin() {
       </Link>
 
       <section className="mf-login-card">
-        <Link className="mf-login-back" href={returnHref}>← 返回出发页</Link>
+        <Link className="mf-login-back" href={returnHref}>← 返回</Link>
         <div className="mf-login-mark" aria-hidden="true"><span>✦</span></div>
         <span className="mf-login-kicker">WELCOME TO MYFATE</span>
         <h1>登录后，继续探索心动</h1>
