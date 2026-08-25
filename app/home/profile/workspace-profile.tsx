@@ -101,7 +101,8 @@ export default function WorkspaceProfile() {
 
           <div className="mf-profile-editable-grid">
             <label className="mf-profile-field">
-              <span>出生年月日</span>
+              <span className="mf-profile-birth-label-desktop">出生年月日</span>
+              <span className="mf-profile-birth-label-mobile">出生日期</span>
               <input
                 type="date"
                 value={birthDate}
