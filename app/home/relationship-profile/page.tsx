@@ -1,4 +1,4 @@
-import AuthEntryLink from "../../auth-entry-link";
+import Link from "next/link";
 import { relationshipDimensions } from "../../relationship-profile-data";
 
 export default function RelationshipProfilePage() {
@@ -17,7 +17,7 @@ export default function RelationshipProfilePage() {
           <span>不是好坏判断，而是行为偏好</span>
           <h2>没有标准答案，选择最像你的反应</h2>
           <p>结果会形成一份六维关系画像，帮助你理解平常状态和压力状态下更容易采取的相处方式。</p>
-          <AuthEntryLink className="mf-primary-button" href="/home/relationship-profile/test">开始测试 <span>→</span></AuthEntryLink>
+          <Link className="mf-primary-button" href="/home/relationship-profile/test">开始测试 <span>→</span></Link>
         </div>
         <div className="mf-profile-dimension-preview">
           {Object.values(relationshipDimensions).map((dimension, index) => (

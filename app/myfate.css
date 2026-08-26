@@ -569,11 +569,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-workspace-account button .mf-workspace-nav-icon, .mf-workspace-account a .mf-workspace-nav-icon { width: 34px; height: 34px; background: transparent; }
 .mf-workspace-account button small { padding: 4px 7px; border-radius: 999px; color: #9c8791; background: #f1e8e9; font-size: 9px; font-weight: 650; }
 .mf-workspace-main { min-width: 0; min-height: 100vh; background: radial-gradient(circle at 90% 0, rgba(225, 173, 188, .18), transparent 28rem), #f9f5f2; }
-.mf-profile-completion-banner { width: min(1120px, calc(100% - 72px)); min-height: 66px; box-sizing: border-box; margin: 22px auto -28px; padding: 12px 14px 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border: 1px solid rgba(122,41,78,.14); border-radius: 17px; color: var(--mf-ink); background: linear-gradient(110deg, #f7e2e9, #fff8f5); box-shadow: 0 12px 30px rgba(96,38,65,.08); }
-.mf-profile-completion-banner > div { display: grid; gap: 4px; }
-.mf-profile-completion-banner > div span { color: var(--mf-rose); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
-.mf-profile-completion-banner strong { font-size: 12px; }
-.mf-profile-completion-banner > a { flex: 0 0 auto; min-height: 40px; padding: 0 16px; display: inline-flex; align-items: center; gap: 7px; border-radius: 12px; color: white; background: var(--mf-plum); font-size: 11px; font-weight: 700; text-decoration: none; }
 .mf-workspace-content { width: min(1180px, calc(100% - 72px)); margin: 0 auto; padding: 62px 0 44px; }
 .mf-workspace-heading { margin-bottom: 38px; display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; }
 .mf-workspace-heading h1 { margin: 13px 0 12px; font: 500 clamp(38px, 4.5vw, 58px)/1.1 Georgia, "Songti SC", serif; letter-spacing: -.04em; }
@@ -697,14 +692,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-fate-map-star { position: absolute; top: calc(50% - var(--mf-fate-orbit-radius)); left: 50%; width: 86px; min-height: 82px; display: grid; justify-items: center; align-content: start; color: var(--mf-ink); text-decoration: none; pointer-events: auto; transform: translate(-50%, -50%) rotate(var(--mf-fate-counter-angle)); animation: mf-fate-star-counter-orbit var(--mf-fate-orbit-duration) linear infinite; }
 .mf-fate-map-avatar { width: 52px; height: 52px; box-sizing: border-box; display: block; border: 3px solid white; border-radius: 50%; background-position: center; background-size: cover; box-shadow: 0 9px 24px rgba(70,35,51,.2); transition: transform 180ms cubic-bezier(.23,1,.32,1), box-shadow 180ms ease; }
 .mf-fate-map-star.advanced .mf-fate-map-avatar { outline: 2px solid rgba(183,89,118,.58); outline-offset: 2px; }
+.mf-fate-map-star.generating .mf-fate-map-avatar { outline: 2px dotted rgba(112,92,151,.7); outline-offset: 2px; }
 .mf-fate-map-star.initial .mf-fate-map-avatar { outline: 2px dashed rgba(163,116,76,.62); outline-offset: 2px; }
 .mf-fate-map-star > strong { width: 100%; margin-top: 8px; overflow: hidden; font: 600 12px/1.2 Georgia, serif; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 .mf-fate-map-star > small { margin-top: 3px; color: var(--mf-rose); font-size: 9px; font-weight: 750; }
 .mf-fate-map-star.initial > small { color: #8a674c; }
+.mf-fate-map-star.generating > small { color: #6f5d97; }
 .mf-fate-map-legend { display: flex; justify-content: center; gap: 20px; color: var(--mf-muted); font-size: 10px; }
 .mf-fate-map-legend span { display: inline-flex; align-items: center; gap: 7px; }
 .mf-fate-map-legend i { width: 9px; height: 9px; border: 2px solid rgba(183,89,118,.62); border-radius: 50%; }
 .mf-fate-map-legend i.initial { border-color: rgba(163,116,76,.62); border-style: dashed; }
+.mf-fate-map-legend i.generating { border-color: rgba(112,92,151,.7); border-style: dotted; }
 .mf-report-list-heading { margin-top: 42px; padding: 0 4px 13px; border-bottom: 1px solid var(--mf-line); }
 .mf-report-list { margin-top: 16px; display: grid; gap: 13px; }
 @keyframes mf-fate-star-orbit {
@@ -740,6 +738,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-report-card-meta > span, .mf-report-status { padding: 5px 9px; border-radius: 999px; font-size: 9px; font-weight: 750; }
 .mf-report-card-meta > span.initial, .mf-report-status.initial { color: #8a674c; background: #f4e7d9; }
 .mf-report-card-meta > span.advanced, .mf-report-status.advanced { color: #8b3155; background: #f7dfe7; }
+.mf-report-card-meta > span.generating, .mf-report-status.generating { color: #68528f; background: #eee8f7; }
 .mf-report-card-meta > span.profile { color: #665184; background: #ebe4f3; }
 .mf-profile-report-card { grid-template-columns: 98px minmax(0, 1fr) auto; }
 .mf-profile-report-mark { width: 98px; height: 112px; display: grid; place-items: center; border-radius: 15px; color: white; background: radial-gradient(circle at 32% 25%, #dc9eaf, transparent 34%), linear-gradient(145deg, #a14869, #6b3159); box-shadow: 0 8px 22px rgba(83,43,72,.18); font-size: 30px; }
@@ -761,6 +760,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-report-detail-state > span { color: var(--mf-rose); font-size: 30px; }
 .mf-report-detail-state h1 { margin: 0; font: 500 34px Georgia, "Songti SC", serif; }
 .mf-report-detail-state p { margin: 0 0 12px; color: var(--mf-muted); font-size: 12px; }
+.mf-generation-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .mf-saved-report-detail { min-height: 100vh; }
 .mf-saved-report-topbar { width: min(900px, calc(100% - 48px)); height: 74px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--mf-line); }
 .mf-saved-report-topbar > span { color: #a2949b; font-size: 10px; font-weight: 700; letter-spacing: .1em; }
@@ -844,6 +844,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-question-card { padding: 42px 48px 34px; border: 1px solid var(--mf-line); border-radius: 28px; background: rgba(255,255,255,.7); box-shadow: 0 20px 65px rgba(74,43,58,.07); }
 .mf-question-eyebrow { display: block; margin-bottom: 14px; color: var(--mf-rose); font-size: 12px; font-weight: 700; }
 .mf-question-card h1 { min-height: 78px; margin: 0 0 30px; font: 500 clamp(25px, 4vw, 35px)/1.42 Georgia, "Songti SC", serif; }
+.mf-profile-question-card > h1 { min-height: 0; margin-bottom: 10px; }
+.mf-profile-question-card > p { max-width: 560px; margin: 0 0 28px; color: var(--mf-muted); font-size: 13px; line-height: 1.8; }
+.mf-profile-question-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.mf-profile-question-fields:has(> :only-child) { grid-template-columns: minmax(0, 1fr); max-width: 360px; }
 .mf-options { display: grid; gap: 10px; }
 .mf-options button { min-height: 62px; padding: 10px 16px; display: grid; grid-template-columns: 34px 1fr 26px; align-items: center; gap: 14px; color: var(--mf-ink); border: 1px solid var(--mf-line); border-radius: 15px; background: rgba(255,255,255,.76); text-align: left; cursor: pointer; transition: border .2s ease, background .2s ease, transform .2s ease; }
 .mf-options button:hover { transform: translateX(3px); border-color: rgba(122,41,78,.36); }
@@ -1122,9 +1126,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-mobile-menu-account button .mf-workspace-nav-icon,
   .mf-mobile-menu-account a .mf-workspace-nav-icon { width: 34px; height: 34px; background: transparent; }
   .mf-workspace-content { width: calc(100% - 32px); padding: 38px 0 34px; }
-  .mf-profile-completion-banner { width: calc(100% - 32px); margin: 16px auto -20px; padding: 12px 12px 12px 15px; gap: 12px; }
-  .mf-profile-completion-banner strong { font-size: 10px; }
-  .mf-profile-completion-banner > a { min-height: 38px; padding: 0 12px; }
   .mf-workspace-heading { align-items: flex-start; flex-direction: column; gap: 22px; margin-bottom: 28px; }
   .mf-workspace-heading h1 { font-size: 39px; }
   .mf-workspace-heading-compact .mf-kicker,
@@ -1214,6 +1215,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-question-main { padding-top: 30px; }
   .mf-question-card { padding: 28px 20px 22px; border-radius: 22px; }
   .mf-question-card h1 { min-height: 96px; margin-bottom: 22px; font-size: 25px; }
+  .mf-profile-question-card > h1 { min-height: 0; margin-bottom: 10px; }
+  .mf-profile-question-fields { grid-template-columns: 1fr; }
   .mf-options button { min-height: 58px; padding: 9px 12px; grid-template-columns: 30px 1fr 20px; gap: 10px; }
   .mf-question-nav { gap: 10px; }
   .mf-question-nav .mf-primary-button { min-height: 46px; padding: 0 20px; gap: 15px; }

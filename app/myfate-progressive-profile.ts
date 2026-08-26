@@ -3,6 +3,21 @@ import { analyzeThreePillars } from "./myfate-deep-analysis";
 
 export const behaviorDimensions: Dimension[] = ["security", "expression", "independence", "conflict", "novelty"];
 
+export const MBTI_TYPES = [
+  "INTJ", "INTP", "ENTJ", "ENTP",
+  "INFJ", "INFP", "ENFJ", "ENFP",
+  "ISTJ", "ISFJ", "ESTJ", "ESFJ",
+  "ISTP", "ISFP", "ESTP", "ESFP",
+] as const;
+
+export function validMbti(value: string) {
+  return MBTI_TYPES.includes(value as (typeof MBTI_TYPES)[number]);
+}
+
+export function validBirthDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && value <= new Date().toISOString().slice(0, 10);
+}
+
 export type LocalBasicProfile = {
   nickname: string;
   birthDate: string;

@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { stars } from "./myfate-data";
+import { getHomepageStars } from "./myfate-stars-server";
 import HomeProfileEntry from "./home-profile-entry";
 import AuthEntryLink from "./auth-entry-link";
 
-export default function MyfateHome() {
+export default async function MyfateHome() {
+  const stars = await getHomepageStars();
   const previewScores = [92, 88, 83, 77, 71, 65];
   const previewOrbits = [
     { radius: "20%", angle: "-90deg", counterAngle: "90deg", duration: "48s", size: "56px", mobileSize: "48px" },
@@ -25,7 +26,7 @@ export default function MyfateHome() {
           <Link href="/home/celebrity-match">心动对象</Link>
           <a href="#how-it-works">测试说明</a>
         </nav>
-        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/celebrity-match" anonymousChildren="登录">进入工作台</AuthEntryLink>
+        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/celebrity-match" anonymousChildren="登录">工作台</AuthEntryLink>
       </header>
 
       <main>

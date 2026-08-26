@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getStar, stars } from "../../../../myfate-data";
+import { stars } from "../../../../myfate-data";
+import { getPublishedStar } from "../../../../myfate-stars-server";
 import WorkspaceTestEntry from "./workspace-test-entry";
 
 export function generateStaticParams() {
@@ -11,10 +12,11 @@ export default async function WorkspaceTestPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ restart?: string }>;
+  searchParams: Promise<{ restart?: string; resume?: string }>;
 }) {
-  const star = getStar((await params).id);
+  const star = await getPublishedStar((await params).id);
   if (!star) notFound();
 
-  return <WorkspaceTestEntry star={star} allowRetest={(await searchParams).restart === "1"} />;
+  const query = await searchParams;
+  return <WorkspaceTestEntry star={star} allowRetest={query.restart === "1" || query.resume === "1"} />;
 }

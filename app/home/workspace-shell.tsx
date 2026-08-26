@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
-import { readBasicProfile } from "../myfate-progressive-profile";
 
 const menuItems = [
   {
@@ -73,28 +72,13 @@ function LogoutIcon() {
 export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { status, email, markSignedOut } = useAuth();
-  const [missingProfileFields, setMissingProfileFields] = useState<string[]>([]);
+  const { status, markSignedOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
   const mobileMenuRef = useRef<HTMLDialogElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const isDetail = pathname.split("/").filter(Boolean).length > 2;
   const loginHref = `/login?next=${encodeURIComponent(pathname)}&from=${encodeURIComponent(pathname)}`;
-
-  useEffect(() => {
-    if (status === "loading") return;
-    const load = () => {
-      const profile = readBasicProfile(email);
-      setMissingProfileFields([
-        !profile.birthDate ? "出生日期" : "",
-        !/^[IE][NS][TF][JP]$/.test(profile.mbti) ? "MBTI" : "",
-      ].filter(Boolean));
-    };
-    load();
-    window.addEventListener("myfate-profile-updated", load);
-    return () => window.removeEventListener("myfate-profile-updated", load);
-  }, [status, email]);
 
   useEffect(() => () => {
     if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
@@ -278,12 +262,6 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
       </dialog>
 
       <main className="mf-workspace-main">
-        {status === "authenticated" && missingProfileFields.length > 0 && pathname !== "/home/profile" ? (
-          <aside className="mf-profile-completion-banner" aria-label="完善个人资料提醒">
-            <div><span>完善专属资料</span><strong>还差{missingProfileFields.join("和")}，完整报告会更贴合你</strong></div>
-            <Link href="/home/profile">现在填写 <span>→</span></Link>
-          </aside>
-        ) : null}
         {children}
       </main>
     </div>

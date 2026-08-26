@@ -47,13 +47,19 @@ export default function ReportDetailWorkspace({
   useEffect(() => {
     if (status === "loading") return;
     let active = true;
-    queueMicrotask(() => {
+    const load = async () => {
       if (!active) return;
-      setReport(readSavedReports(email).find((item) => item.id === reportId) ?? null);
+      const savedReports = await readSavedReports(email);
+      if (!active) return;
+      setReport(savedReports.find((item) => item.id === reportId) ?? null);
       setReady(true);
-    });
+    };
+    const reload = () => void load();
+    queueMicrotask(reload);
+    window.addEventListener("myfate-reports-updated", reload);
     return () => {
       active = false;
+      window.removeEventListener("myfate-reports-updated", reload);
     };
   }, [status, email, reportId]);
 
@@ -63,6 +69,8 @@ export default function ReportDetailWorkspace({
     if (!star) return;
     setReportGenerationError("");
     setIsUpgrading(true);
+    const generating = await updateSavedReport(report.id, { status: "generating" });
+    if (generating) setReport(generating);
     try {
       const basicProfile = readBasicProfile(email);
       const result = await personalize({
@@ -76,7 +84,7 @@ export default function ReportDetailWorkspace({
         birthDate: basicProfile.birthDate,
       });
       if (result.interpretation && result.source) {
-        const completed = updateSavedReport(email, report.id, {
+        const completed = await updateSavedReport(report.id, {
           status: "advanced",
           interpretation: result.interpretation,
           interpretationSource: result.source,
@@ -86,6 +94,8 @@ export default function ReportDetailWorkspace({
         throw new Error("MODEL_REPORT_MISSING");
       }
     } catch {
+      const restored = await updateSavedReport(report.id, { status: "initial" });
+      if (restored) setReport(restored);
       setReportGenerationError("大模型报告生成失败，请稍后重试。");
     } finally {
       setIsUpgrading(false);
@@ -119,6 +129,20 @@ export default function ReportDetailWorkspace({
   const backHref = fromCelebrityWorkspace ? "/home/celebrity-match" : "/home/reports";
   const backLabel = fromCelebrityWorkspace ? "返回明星工作台" : "返回我的报告";
   const retestHref = `/home/celebrity-match/${report.starId}/test?restart=1`;
+
+  if (report.status === "generating") {
+    return (
+      <div className="mf-saved-report-detail mf-unified-advanced-report">
+        <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>生成中</span></div>
+        <div className="mf-report-detail-state mf-ai-generation-state">
+          <span>✦</span>
+          <h1>高级报告正在生成</h1>
+          <p>你可以先返回工作台，生成完成后这份记录会自动更新为高级报告。</p>
+          <Link className="mf-secondary-button" href="/home/reports">返回我的报告</Link>
+        </div>
+      </div>
+    );
+  }
 
   if (report.status === "advanced" && reportStar) {
     if (!report.interpretationSource || !interpretation) {

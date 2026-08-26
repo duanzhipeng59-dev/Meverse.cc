@@ -96,6 +96,7 @@ export async function getSessionUser(request: Request): Promise<{
 }> {
   const accessToken = readCookie(request, ACCESS_COOKIE);
   const refreshToken = readCookie(request, REFRESH_COOKIE);
+  if (!accessToken && !refreshToken) return { user: null, refreshedSession: null };
   const supabase = createSupabaseClient();
 
   if (accessToken) {

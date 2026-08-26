@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getStar } from "../../../myfate-data";
+import { getPublishedStar } from "../../../myfate-stars-server";
 import { createDeepInterpretation } from "../../../myfate-deep-analysis";
 import {
   createFallbackInterpretation,
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
 
   const { starId, initialScore, finalScore, answers, behaviorScores, userMbti, birthDate } = parsed.data;
-  const star = getStar(starId);
+  const star = await getPublishedStar(starId);
   if (!star) return Response.json({ error: "STAR_NOT_FOUND" }, { status: 404 });
 
   const score = finalScore ?? initialScore;

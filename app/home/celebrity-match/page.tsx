@@ -1,7 +1,8 @@
-import { stars } from "../../myfate-data";
+import { getPublishedStars } from "../../myfate-stars-server";
 import CelebrityBrowser from "./celebrity-browser";
 
-export default function CelebrityMatchWorkspace() {
+export default async function CelebrityMatchWorkspace() {
+  const stars = await getPublishedStars();
   return (
     <div className="mf-workspace-content">
       <header className="mf-workspace-heading mf-workspace-heading-compact">

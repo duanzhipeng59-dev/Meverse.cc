@@ -50,19 +50,22 @@ export default function ReportsWorkspace() {
   useEffect(() => {
     if (status === "loading") return;
     let active = true;
-    const load = () => {
+    const load = async () => {
       if (!active) return;
-      setReports([...readSavedReports(email), ...readRelationshipReports(email)].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+      const savedReports = await readSavedReports(email);
+      if (!active) return;
+      setReports([...savedReports, ...readRelationshipReports(email)].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
       setNickname(readBasicProfile(email).nickname.trim());
       setReady(true);
     };
-    queueMicrotask(load);
-    window.addEventListener("myfate-reports-updated", load);
-    window.addEventListener("myfate-profile-updated", load);
+    const reload = () => void load();
+    queueMicrotask(reload);
+    window.addEventListener("myfate-reports-updated", reload);
+    window.addEventListener("myfate-profile-updated", reload);
     return () => {
       active = false;
-      window.removeEventListener("myfate-reports-updated", load);
-      window.removeEventListener("myfate-profile-updated", load);
+      window.removeEventListener("myfate-reports-updated", reload);
+      window.removeEventListener("myfate-profile-updated", reload);
     };
   }, [status, email]);
 
@@ -72,13 +75,13 @@ export default function ReportsWorkspace() {
     return latest;
   }, []);
 
-  function confirmDelete(report: SavedReport | RelationshipProfileReport) {
+  async function confirmDelete(report: SavedReport | RelationshipProfileReport) {
     const reportName = report.type === "relationship-profile" ? `「${report.title}」` : `${report.starName} 的这份报告`;
     if (!window.confirm(`确定删除${reportName}吗？删除后无法恢复。`)) return;
     if (report.type === "relationship-profile") {
       deleteRelationshipReport(email, report.id);
     } else {
-      deleteSavedReport(email, report.id);
+      await deleteSavedReport(report.id);
     }
   }
 
@@ -134,7 +137,7 @@ export default function ReportsWorkspace() {
                     <Link
                       className={`mf-fate-map-star ${report.status}`}
                       href={`/home/reports/${report.id}`}
-                      aria-label={`${report.starName}，${report.status === "advanced" ? `契合度 ${report.score}%` : "初步报告"}，查看最近报告`}
+                      aria-label={`${report.starName}，${report.status === "advanced" ? `契合度 ${report.score}%` : report.status === "generating" ? "报告生成中" : "初步报告"}，查看最近报告`}
                     >
                       <span
                         className="mf-fate-map-avatar"
@@ -143,7 +146,7 @@ export default function ReportsWorkspace() {
                         style={{ backgroundImage: `url("${report.starPortrait}")` }}
                       />
                       <strong>{report.starName}</strong>
-                      <small>{report.status === "advanced" ? `${report.score}%` : "初印象"}</small>
+                      <small>{report.status === "advanced" ? `${report.score}%` : report.status === "generating" ? "生成中" : "初印象"}</small>
                     </Link>
                   </div>
                 ))}
@@ -151,6 +154,7 @@ export default function ReportsWorkspace() {
 
               <div className="mf-fate-map-legend" aria-label="报告状态说明">
                 <span><i className="advanced" aria-hidden="true" />高级报告</span>
+                <span><i className="generating" aria-hidden="true" />生成中</span>
                 <span><i className="initial" aria-hidden="true" />初步报告</span>
               </div>
             </section>
@@ -178,7 +182,7 @@ export default function ReportsWorkspace() {
                     <span>认识自己的相处方式</span>
                     <div className="mf-report-card-actions">
                       <Link href={`/home/relationship-profile/result/${report.id}`}>查看画像 <span>→</span></Link>
-                      <button type="button" onClick={() => confirmDelete(report)} aria-label={`删除关系画像：${report.title}`}>删除</button>
+                      <button type="button" onClick={() => void confirmDelete(report)} aria-label={`删除关系画像：${report.title}`}>删除</button>
                     </div>
                   </div>
                 </article>
@@ -195,19 +199,19 @@ export default function ReportsWorkspace() {
                 />
                 <div className="mf-report-card-copy">
                   <div className="mf-report-card-meta">
-                    <span className={report.status === "advanced" ? "advanced" : "initial"}>
-                      {report.status === "advanced" ? "高级报告" : "初步报告"}
+                    <span className={report.status}>
+                      {report.status === "advanced" ? "高级报告" : report.status === "generating" ? "生成中" : "初步报告"}
                     </span>
                     <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                   </div>
                   <h2>{report.starName}</h2>
-                  <p>{report.status === "advanced" ? `你是 TA 的「${fateTitles[verdict]}」` : report.initialTitle}</p>
+                  <p>{report.status === "advanced" ? `你是 TA 的「${fateTitles[verdict]}」` : report.status === "generating" ? "高级报告正在生成，请稍候" : report.initialTitle}</p>
                 </div>
                 <div className="mf-report-card-result">
-                  {report.status === "advanced" ? <strong>{report.score}<small>%</small></strong> : <span>缘分初印象</span>}
+                  {report.status === "advanced" ? <strong>{report.score}<small>%</small></strong> : <span>{report.status === "generating" ? "正在生成" : "缘分初印象"}</span>}
                   <div className="mf-report-card-actions">
-                    <Link href={`/home/reports/${report.id}`}>查看报告 <span>→</span></Link>
-                    <button type="button" onClick={() => confirmDelete(report)} aria-label={`删除 ${report.starName} 的报告`}>删除</button>
+                    <Link href={`/home/reports/${report.id}`}>{report.status === "generating" ? "查看进度" : "查看报告"} <span>→</span></Link>
+                    <button type="button" onClick={() => void confirmDelete(report)} aria-label={`删除 ${report.starName} 的报告`}>删除</button>
                   </div>
                 </div>
               </article>

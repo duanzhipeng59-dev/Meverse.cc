@@ -44,7 +44,7 @@ test("server-renders celebrity discovery inside the workspace", async () => {
   const html = await response.text();
   assert.match(html, /明星正缘测试/u);
   assert.match(html, /个人中心/u);
-  assert.match(html, /退出登录/u);
+  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match/u);
   assert.match(html, /Bang Chan/u);
   assert.match(html, /Seonghyeon/u);
   assert.match(html, /\/home\/celebrity-match\/bang-chan/);
@@ -60,7 +60,8 @@ test("server-renders a celebrity detail inside the workspace", async () => {
   assert.match(html, /明星正缘测试/u);
   assert.match(html, /返回工作区/u);
   assert.match(html, /\/home\/celebrity-match/);
-  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fhyunjin%2Ftest/);
+  assert.match(html, /href="\/home\/celebrity-match\/hyunjin\/test"/);
+  assert.doesNotMatch(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fhyunjin%2Ftest/);
   assert.match(html, /mf-workspace-detail/u);
 });
 
@@ -91,10 +92,28 @@ test("server-renders the behavior profile workspace without the question-count s
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /行为画像分析/u);
+  assert.match(html, /href="\/home\/relationship-profile\/test"/);
   assert.doesNotMatch(html, /24 道行为情境|约 5 分钟完成/u);
 });
 
-test("server-renders the local report history workspace", async () => {
+test("lets guests finish both questionnaires before login gates the results", async () => {
+  const [celebrityEntry, celebrityTest, profileTest] = await Promise.all([
+    readFile(new URL("../app/home/celebrity-match/[id]/test/workspace-test-entry.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/relationship-profile/test/relationship-profile-test.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(celebrityEntry, /status === "anonymous"/u);
+  assert.match(celebrityTest, /myfate-pending-fate-test/u);
+  assert.match(profileTest, /myfate-pending-relationship-profile/u);
+  assert.match(celebrityTest, /登录并查看结果/u);
+  assert.match(profileTest, /登录并查看结果/u);
+  assert.match(celebrityTest, /补全你的专属资料/u);
+  assert.match(profileTest, /补全你的专属资料/u);
+  assert.match(celebrityTest, /sessionStorage/u);
+  assert.match(profileTest, /sessionStorage/u);
+});
+
+test("server-renders the cloud-backed report history workspace", async () => {
   const response = await render("/home/reports");
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -112,13 +131,16 @@ test("uses a mobile drawer menu and keeps the empty reports state minimal", asyn
   assert.match(workspaceShell, /打开工作台菜单/u);
   assert.match(workspaceShell, /<dialog/u);
   assert.match(workspaceShell, /手机端工作台主菜单/u);
+  assert.doesNotMatch(workspaceShell, /完善专属资料|完善个人资料提醒/u);
   assert.doesNotMatch(reportsWorkspace, /开始关系画像/u);
 });
 
 test("saves, reuses, upgrades, and manually deletes report history", async () => {
-  const [testExperience, reportStorage, reportDetail, advancedReport, reportAwareEntry, guardedTestEntry, reportsWorkspace, relationshipStorage] = await Promise.all([
+  const [testExperience, reportStorage, reportApi, reportDetailApi, reportDetail, advancedReport, reportAwareEntry, guardedTestEntry, reportsWorkspace, relationshipStorage] = await Promise.all([
     readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-report-storage.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/reports/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/reports/[id]/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/home/reports/[id]/report-detail-workspace.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-advanced-report.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/home/celebrity-match/report-aware-entry.tsx", import.meta.url), "utf8"),
@@ -127,15 +149,24 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
     readFile(new URL("../app/relationship-profile-storage.ts", import.meta.url), "utf8"),
   ]);
   assert.match(testExperience, /createSavedReport/u);
+  assert.match(testExperience, /status: "generating"/u);
   assert.match(testExperience, /status: "advanced"/u);
+  assert.match(testExperience, /退出并查看我的报告/u);
   assert.match(testExperience, /查看历史报告/u);
-  assert.match(reportStorage, /\[report, \.\.\.readSavedReports\(email\)\]/u);
-  assert.match(reportStorage, /report\.id !== reportId/u);
+  assert.match(reportStorage, /fetch\("\/api\/myfate\/reports"/u);
+  assert.match(reportStorage, /migrateLegacyReports/u);
+  assert.match(reportStorage, /localStorage\.removeItem/u);
+  assert.match(reportApi, /requireReportUser/u);
+  assert.match(reportApi, /\.eq\("user_id", session\.user\.id\)/u);
+  assert.match(reportDetailApi, /\.eq\("user_id", session\.user\.id\)/u);
+  assert.match(reportStorage, /method: "DELETE"/u);
   assert.match(reportStorage, /readLatestSavedReportForStar/u);
+  assert.match(reportStorage, /"initial" \| "generating" \| "advanced"/u);
   assert.match(reportStorage, /deleteSavedReport/u);
   assert.match(reportDetail, /MyfateAdvancedReport/u);
   assert.match(reportDetail, /test\?restart=1/u);
   assert.match(reportDetail, /返回明星工作台/u);
+  assert.match(reportDetail, /高级报告正在生成/u);
   assert.match(advancedReport, /<h2>缘分结构<\/h2>/u);
   assert.match(advancedReport, /七个关系板块/u);
   assert.match(advancedReport, /初始吸引/u);
@@ -144,12 +175,21 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(advancedReport, /深层关系解码/u);
   assert.match(reportAwareEntry, /查看高级报告/u);
   assert.match(reportAwareEntry, /查看初步报告/u);
+  assert.match(reportAwareEntry, /报告生成中/u);
   assert.match(reportAwareEntry, /from=celebrity-match/u);
   assert.match(guardedTestEntry, /allowRetest/u);
   assert.match(guardedTestEntry, /router\.replace/u);
   assert.match(reportsWorkspace, /window\.confirm/u);
   assert.match(reportsWorkspace, /删除后无法恢复/u);
+  assert.match(reportsWorkspace, /高级报告正在生成，请稍候/u);
   assert.match(relationshipStorage, /deleteRelationshipReport/u);
+});
+
+test("requires login for cloud report data", async () => {
+  const response = await render("/api/myfate/reports", { headers: { accept: "application/json" } });
+  assert.equal(response.status, 401);
+  const result = await response.json();
+  assert.equal(result.error, "login_required");
 });
 
 test("server-renders a celebrity detail and its test entry", async () => {
@@ -180,7 +220,12 @@ test("includes a progressive question flow with a model-only advanced report", a
   assert.match(data, /演出结束后，\$\{star\.name\}/u);
   assert.equal((data.match(/id: "idol-/g) ?? []).length, 24);
   assert.doesNotMatch(testExperience, /adaptive-test|createFallbackAdaptiveQuestions/u);
-  assert.match(testExperience, /心动行为测试 · \{initialQuestions\.length\} 题/u);
+  assert.match(testExperience, /心动行为测试 · \{totalQuestionCount\} 题/u);
+  assert.match(testExperience, /补全你的专属资料/u);
+  assert.match(testExperience, /填写后将自动保存到个人中心/u);
+  assert.match(testExperience, /writeBasicProfile/u);
+  assert.match(testExperience, /requiredProfileFields\.birthDate/u);
+  assert.match(testExperience, /requiredProfileFields\.mbti/u);
   assert.match(testExperience, /解锁缘分高级报告/u);
   assert.match(testExperience, /最终正缘解读/u);
   assert.match(advancedExperience, /绝对|可能|也许|不太像|不是/u);

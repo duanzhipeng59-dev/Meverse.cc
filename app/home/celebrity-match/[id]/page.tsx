@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CelebrityDetail from "../../../celebrity-detail";
-import { getStar, stars } from "../../../myfate-data";
+import { stars } from "../../../myfate-data";
+import { getPublishedStar } from "../../../myfate-stars-server";
 
 export function generateStaticParams() {
   return stars.map((star) => ({ id: star.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const star = getStar((await params).id);
+  const star = await getPublishedStar((await params).id);
   return { title: star ? `${star.name}与你的缘分测试` : "心动对象" };
 }
 
 export default async function WorkspaceCelebrityPage({ params }: { params: Promise<{ id: string }> }) {
-  const star = getStar((await params).id);
+  const star = await getPublishedStar((await params).id);
   if (!star) notFound();
 
   return (

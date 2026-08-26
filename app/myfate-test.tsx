@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./auth-context";
 import { createInitialQuestions, type Dimension, type StarProfile, type TestQuestion } from "./myfate-data";
 import {
@@ -16,14 +17,49 @@ import { createSavedReport, updateSavedReport } from "./myfate-report-storage";
 import {
   calculateProgressiveCompatibility,
   emptyProgressiveProfile,
+  MBTI_TYPES,
   readBasicProfile,
   readProgressiveProfile,
   recordProgressiveTest,
   selectProgressiveQuestions,
+  validBirthDate,
+  validMbti,
+  writeBasicProfile,
   type ProgressiveProfile,
 } from "./myfate-progressive-profile";
 
 type Stage = "initial-test" | "initial-result" | "final";
+
+type PendingFateTest = {
+  version: 1;
+  starId: string;
+  questionIds: string[];
+  answers: Record<string, number>;
+  mbti: string;
+  birthDate: string;
+  progressiveProfile: ProgressiveProfile;
+};
+
+function pendingFateTestKey(starId: string) {
+  return `myfate-pending-fate-test:v1:${starId}`;
+}
+
+function readPendingFateTest(starId: string): PendingFateTest | null {
+  try {
+    const parsed = JSON.parse(window.sessionStorage.getItem(pendingFateTestKey(starId)) ?? "null") as PendingFateTest | null;
+    return parsed?.version === 1 && parsed.starId === starId && Array.isArray(parsed.questionIds) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function savePendingFateTest(draft: PendingFateTest) {
+  window.sessionStorage.setItem(pendingFateTestKey(draft.starId), JSON.stringify(draft));
+}
+
+function clearPendingFateTest(starId: string) {
+  window.sessionStorage.removeItem(pendingFateTestKey(starId));
+}
 
 const positiveSignals: Record<Dimension, string> = {
   security: "你愿意在不确定里给 TA 稳定回应",
@@ -66,11 +102,15 @@ async function personalize(body: Record<string, unknown>): Promise<Personalizati
 
 export default function MyfateTest({ star, workspace = false }: { star: StarProfile; workspace?: boolean }) {
   const { status, email } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
   const allQuestions = useMemo(() => createInitialQuestions(star), [star]);
   const [initialQuestions, setInitialQuestions] = useState(allQuestions);
   const [progressiveProfile, setProgressiveProfile] = useState<ProgressiveProfile>(() => emptyProgressiveProfile());
   const [userMbti, setUserMbti] = useState("");
   const [userBirthDate, setUserBirthDate] = useState("");
+  const [requiredProfileFields, setRequiredProfileFields] = useState({ birthDate: false, mbti: false });
+  const [profileQuestionOpen, setProfileQuestionOpen] = useState(false);
   const [stage, setStage] = useState<Stage>("initial-test");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [initialAnswers, setInitialAnswers] = useState<Record<string, number>>({});
@@ -81,6 +121,57 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
   const [calculatedScore, setCalculatedScore] = useState<number | null>(null);
   const [calculatedDimensions, setCalculatedDimensions] = useState<Record<Dimension, number> | null>(null);
 
+  const finishInitialTest = useCallback(async ({
+    questions,
+    answerValues,
+    profile,
+    profileMbti,
+    profileBirthDate,
+  }: {
+    questions: TestQuestion[];
+    answerValues: Record<string, number>;
+    profile: ProgressiveProfile;
+    profileMbti: string;
+    profileBirthDate: string;
+  }) => {
+    const snapshots = answerSnapshots(questions, answerValues);
+    const sessionScores = dimensionScores(snapshots);
+    const compatibility = calculateProgressiveCompatibility({
+      currentScore: scoreAnswers(answerValues, questions.length),
+      currentDimensions: sessionScores,
+      profile,
+      userMbti: profileMbti,
+      birthDate: profileBirthDate,
+      star,
+    });
+    const nextProfile = recordProgressiveTest({
+      email,
+      profile,
+      starId: star.id,
+      questions,
+      sessionScores,
+    });
+    setProgressiveProfile(nextProfile);
+    setInitialQuestions(questions);
+    setInitialAnswers(answerValues);
+    setUserMbti(profileMbti);
+    setUserBirthDate(profileBirthDate);
+    setProfileQuestionOpen(false);
+    setCalculatedScore(compatibility.score);
+    setCalculatedDimensions(compatibility.dimensionScores);
+    const report = await createSavedReport({
+      star,
+      score: compatibility.score,
+      behaviorScores: compatibility.dimensionScores,
+      questionCount: questions.length,
+      initialTitle: initialVerdict(compatibility.score),
+      answers: snapshots,
+    });
+    setActiveReportId(report?.id ?? null);
+    setQuestionIndex(0);
+    setStage("initial-result");
+  }, [email, star]);
+
   useEffect(() => {
     if (status === "loading") return;
     let active = true;
@@ -89,8 +180,36 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
       const storedProfile = readProgressiveProfile(email);
       setProgressiveProfile(storedProfile);
       const basicProfile = readBasicProfile(email);
+      const pending = status === "authenticated" ? readPendingFateTest(star.id) : null;
+      if (pending) {
+        const questions = pending.questionIds
+          .map((id) => allQuestions.find((question) => question.id === id))
+          .filter((question): question is TestQuestion => Boolean(question));
+        if (questions.length === pending.questionIds.length && questions.length > 0) {
+          clearPendingFateTest(star.id);
+          writeBasicProfile(email, {
+            ...basicProfile,
+            birthDate: pending.birthDate,
+            mbti: pending.mbti,
+          });
+          void finishInitialTest({
+            questions,
+            answerValues: pending.answers,
+            profile: pending.progressiveProfile,
+            profileMbti: pending.mbti,
+            profileBirthDate: pending.birthDate,
+          });
+          return;
+        }
+        clearPendingFateTest(star.id);
+      }
       setUserMbti(basicProfile.mbti);
       setUserBirthDate(basicProfile.birthDate);
+      setRequiredProfileFields({
+        birthDate: !validBirthDate(basicProfile.birthDate),
+        mbti: !validMbti(basicProfile.mbti),
+      });
+      setProfileQuestionOpen(false);
       setInitialQuestions(selectProgressiveQuestions(allQuestions, storedProfile, star.id));
       setQuestionIndex(0);
       setInitialAnswers({});
@@ -102,7 +221,7 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
     return () => {
       active = false;
     };
-  }, [status, email, allQuestions, star.id]);
+  }, [status, email, allQuestions, star.id, finishInitialTest]);
 
   const currentBehaviorScore = scoreAnswers(initialAnswers, initialQuestions.length);
   const finalScore = calculatedScore ?? currentBehaviorScore;
@@ -116,87 +235,100 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
     setInitialAnswers((answers) => ({ ...answers, [currentQuestion.id]: value }));
   }
 
+  function continueToResult(profileMbti = userMbti, profileBirthDate = userBirthDate) {
+    if (status === "anonymous") {
+      savePendingFateTest({
+        version: 1,
+        starId: star.id,
+        questionIds: initialQuestions.map((question) => question.id),
+        answers: initialAnswers,
+        mbti: profileMbti,
+        birthDate: profileBirthDate,
+        progressiveProfile,
+      });
+      const next = `/home/celebrity-match/${star.id}/test?resume=1`;
+      router.push(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    void finishInitialTest({
+      questions: initialQuestions,
+      answerValues: initialAnswers,
+      profile: progressiveProfile,
+      profileMbti,
+      profileBirthDate,
+    });
+  }
+
   function nextQuestion() {
     if (questionIndex < currentQuestions.length - 1) {
       setQuestionIndex((index) => index + 1);
       return;
     }
-    const snapshots = answerSnapshots(initialQuestions, initialAnswers);
-    const sessionScores = dimensionScores(snapshots);
-    const compatibility = calculateProgressiveCompatibility({
-      currentScore: scoreAnswers(initialAnswers, initialQuestions.length),
-      currentDimensions: sessionScores,
-      profile: progressiveProfile,
-      userMbti,
-      birthDate: userBirthDate,
-      star,
-    });
-    const nextProfile = recordProgressiveTest({
-      email,
-      profile: progressiveProfile,
-      starId: star.id,
-      questions: initialQuestions,
-      sessionScores,
-    });
-    setProgressiveProfile(nextProfile);
-    setCalculatedScore(compatibility.score);
-    setCalculatedDimensions(compatibility.dimensionScores);
-    const report = createSavedReport({
-      email,
-      star,
-      score: compatibility.score,
-      behaviorScores: compatibility.dimensionScores,
-      questionCount: initialQuestions.length,
-      initialTitle: initialVerdict(compatibility.score),
-      answers: snapshots,
-    });
-    setActiveReportId(report?.id ?? null);
-    setQuestionIndex(0);
-    setStage("initial-result");
+    if (requiredProfileFields.birthDate || requiredProfileFields.mbti) {
+      setProfileQuestionOpen(true);
+      return;
+    }
+    continueToResult();
   }
 
-  function unlockAdvancedReport() {
+  function saveProfileAndFinish() {
+    if ((requiredProfileFields.birthDate && !validBirthDate(userBirthDate)) || (requiredProfileFields.mbti && !validMbti(userMbti))) return;
+    const storedProfile = readBasicProfile(email);
+    writeBasicProfile(email, {
+      ...storedProfile,
+      birthDate: userBirthDate,
+      mbti: userMbti,
+    });
+    continueToResult(userMbti, userBirthDate);
+  }
+
+  async function unlockAdvancedReport() {
     const score = finalScore;
     const answerHistory = initialSnapshots;
     setInterpretation(null);
     setReportGenerationError("");
     setIsGeneratingReport(true);
     setStage("final");
-    const reportId = activeReportId ?? createSavedReport({
-      email,
+    const fallbackReport = activeReportId ? null : await createSavedReport({
       star,
       score,
       behaviorScores: calculatedDimensions ?? dimensionScores(answerHistory),
       questionCount: initialQuestions.length,
       initialTitle: initialVerdict(score),
       answers: answerHistory,
-    })?.id ?? null;
+    });
+    const reportId = activeReportId ?? fallbackReport?.id ?? null;
     if (reportId) {
       setActiveReportId(reportId);
+      await updateSavedReport(reportId, { status: "generating" });
     }
-    void personalize({
-      action: "interpretation",
-      starId: star.id,
-      initialScore: score,
-      finalScore: score,
-      answers: answerHistory,
-      behaviorScores: calculatedDimensions ?? dimensionScores(answerHistory),
-      userMbti,
-      birthDate: userBirthDate,
-    }).then((result) => {
+    try {
+      const result = await personalize({
+        action: "interpretation",
+        starId: star.id,
+        initialScore: score,
+        finalScore: score,
+        answers: answerHistory,
+        behaviorScores: calculatedDimensions ?? dimensionScores(answerHistory),
+        userMbti,
+        birthDate: userBirthDate,
+      });
       if (result.interpretation && result.source) {
         setInterpretation(result.interpretation);
-        if (reportId) updateSavedReport(email, reportId, {
+        if (reportId) await updateSavedReport(reportId, {
           status: "advanced",
           interpretation: result.interpretation,
           interpretationSource: result.source,
         });
-        return;
+      } else {
+        throw new Error("MODEL_REPORT_MISSING");
       }
-      throw new Error("MODEL_REPORT_MISSING");
-    }).catch(() => {
+    } catch {
+      if (reportId) await updateSavedReport(reportId, { status: "initial" });
       setReportGenerationError("高级报告生成失败，请检查网络后重试。");
-    }).finally(() => setIsGeneratingReport(false));
+    } finally {
+      setIsGeneratingReport(false);
+    }
   }
 
   if (stage === "initial-result") {
@@ -262,7 +394,7 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
               </article>
             </div>
 
-            <button className="mf-primary-button" onClick={unlockAdvancedReport}>
+            <button className="mf-primary-button" onClick={() => void unlockAdvancedReport()}>
               解锁缘分高级报告 <span>→</span>
             </button>
             {activeReportId ? (
@@ -282,8 +414,11 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
           <div className="mf-report-detail-state mf-ai-generation-state">
             <span>{isGeneratingReport ? "✦" : "!"}</span>
             <h1>{isGeneratingReport ? "正在生成你的高级报告" : "高级报告暂时没有生成"}</h1>
-            <p>{isGeneratingReport ? "DeepSeek 正在结合七维数据、个人资料和全部答题记录完成解读…" : reportGenerationError}</p>
-            {!isGeneratingReport ? <button className="mf-primary-button" type="button" onClick={unlockAdvancedReport}>重新生成</button> : null}
+            <p>{isGeneratingReport ? "DeepSeek 正在结合七维数据、个人资料和全部答题记录完成解读。你可以先离开，报告会继续生成。" : reportGenerationError}</p>
+            <div className="mf-generation-actions">
+              <Link className="mf-secondary-button" href="/home/reports">退出并查看我的报告</Link>
+              {!isGeneratingReport ? <button className="mf-primary-button" type="button" onClick={() => void unlockAdvancedReport()}>重新生成</button> : null}
+            </div>
           </div>
         </ResultShell>
       );
@@ -311,8 +446,66 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
     );
   }
 
+  const hasProfileQuestion = requiredProfileFields.birthDate || requiredProfileFields.mbti;
+  const totalQuestionCount = currentQuestions.length + (hasProfileQuestion ? 1 : 0);
+
+  if (profileQuestionOpen) {
+    const canSubmit = (!requiredProfileFields.birthDate || validBirthDate(userBirthDate))
+      && (!requiredProfileFields.mbti || validMbti(userMbti));
+    return (
+      <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
+        <header className="mf-test-header">
+          {workspace ? (
+            <Link className="mf-back-link" href={`/home/celebrity-match/${star.id}`}>← 返回详情</Link>
+          ) : (
+            <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
+          )}
+          <span>心动行为测试 · {totalQuestionCount} 题</span>
+          <Link href={workspace ? "/home/celebrity-match" : `/celebrity/${star.id}`}>退出</Link>
+        </header>
+        <div className="mf-test-progress"><i style={{ width: "100%" }} /></div>
+        <main className="mf-question-main">
+          <div className="mf-question-count">{String(totalQuestionCount).padStart(2, "0")} <span>/ {String(totalQuestionCount).padStart(2, "0")}</span></div>
+          <section className="mf-question-card mf-profile-question-card">
+            <span className="mf-question-eyebrow">✦ 最后一步</span>
+            <h1>补全你的专属资料</h1>
+            <p>这些信息会用于生成更贴合你的缘分结果，填写后将自动保存到个人中心。</p>
+            <div className="mf-profile-question-fields">
+              {requiredProfileFields.birthDate ? (
+                <label className="mf-profile-field">
+                  <span>出生日期</span>
+                  <input
+                    type="date"
+                    value={userBirthDate}
+                    max={new Date().toISOString().slice(0, 10)}
+                    onChange={(event) => setUserBirthDate(event.target.value)}
+                  />
+                </label>
+              ) : null}
+              {requiredProfileFields.mbti ? (
+                <label className="mf-profile-field">
+                  <span>MBTI</span>
+                  <select value={userMbti} onChange={(event) => setUserMbti(event.target.value)}>
+                    <option value="">请选择你的 MBTI</option>
+                    {MBTI_TYPES.map((type) => <option value={type} key={type}>{type}</option>)}
+                  </select>
+                </label>
+              ) : null}
+            </div>
+            <div className="mf-question-nav">
+              <button className="mf-text-button" type="button" onClick={() => setProfileQuestionOpen(false)}>← 上一题</button>
+              <button className="mf-primary-button" type="button" disabled={!canSubmit} onClick={saveProfileAndFinish}>
+                {status === "anonymous" ? "登录并查看结果" : "保存并查看结果"} <span>→</span>
+              </button>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
   if (!currentQuestion) return null;
-  const progress = ((questionIndex + 1) / currentQuestions.length) * 100;
+  const progress = ((questionIndex + 1) / totalQuestionCount) * 100;
   return (
     <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
       <header className="mf-test-header">
@@ -321,12 +514,12 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
         ) : (
           <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
         )}
-        <span>心动行为测试 · {initialQuestions.length} 题</span>
+        <span>心动行为测试 · {totalQuestionCount} 题</span>
         <Link href={workspace ? "/home/celebrity-match" : `/celebrity/${star.id}`}>退出</Link>
       </header>
       <div className="mf-test-progress"><i style={{ width: `${progress}%` }} /></div>
       <main className="mf-question-main">
-        <div className="mf-question-count">{String(questionIndex + 1).padStart(2, "0")} <span>/ {String(currentQuestions.length).padStart(2, "0")}</span></div>
+        <div className="mf-question-count">{String(questionIndex + 1).padStart(2, "0")} <span>/ {String(totalQuestionCount).padStart(2, "0")}</span></div>
         <section className="mf-question-card">
           {currentQuestion.eyebrow && <span className="mf-question-eyebrow">✦ {currentQuestion.eyebrow}</span>}
           <h1>{currentQuestion.question}</h1>
@@ -343,7 +536,11 @@ export default function MyfateTest({ star, workspace = false }: { star: StarProf
           <div className="mf-question-nav">
             <button className="mf-text-button" disabled={questionIndex === 0} onClick={() => setQuestionIndex((index) => Math.max(0, index - 1))}>← 上一题</button>
             <button className="mf-primary-button" disabled={!currentAnswers[currentQuestion.id]} onClick={nextQuestion}>
-              {questionIndex === currentQuestions.length - 1 ? "查看初印象" : "下一题"} <span>→</span>
+              {questionIndex === currentQuestions.length - 1 && hasProfileQuestion
+                ? "填写个人资料"
+                : questionIndex === currentQuestions.length - 1 && status === "anonymous"
+                  ? "登录并查看结果"
+                  : questionIndex === currentQuestions.length - 1 ? "查看初印象" : "下一题"} <span>→</span>
             </button>
           </div>
         </section>

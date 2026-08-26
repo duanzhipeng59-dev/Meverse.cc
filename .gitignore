@@ -45,6 +45,7 @@ next-env.d.ts
 /output/
 /work/
 /.playwright-cli/
+/local-admin/
 .agents/
 skills-lock.json
 *.tsbuildinfo
