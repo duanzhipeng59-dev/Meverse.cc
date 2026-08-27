@@ -22,6 +22,7 @@ export type LocalBasicProfile = {
   nickname: string;
   birthDate: string;
   mbti: string;
+  location: string;
 };
 
 export type ProgressiveDimension = {
@@ -80,9 +81,10 @@ export function readBasicProfile(email: string | null): LocalBasicProfile {
       nickname: typeof parsed.nickname === "string" ? parsed.nickname.slice(0, 20) : "",
       birthDate: typeof parsed.birthDate === "string" ? parsed.birthDate : "",
       mbti: typeof parsed.mbti === "string" ? parsed.mbti.toUpperCase() : "",
+      location: typeof parsed.location === "string" ? parsed.location.slice(0, 40) : "",
     };
   } catch {
-    return { nickname: "", birthDate: "", mbti: "" };
+    return { nickname: "", birthDate: "", mbti: "", location: "" };
   }
 }
 

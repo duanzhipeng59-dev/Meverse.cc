@@ -8,15 +8,9 @@ import { useAuth } from "../auth-context";
 const menuItems = [
   {
     icon: "heart",
-    label: "明星正缘测试",
+    label: "正缘测试",
     description: "找到你和 TA 的相处密码",
     href: "/home/celebrity-match",
-  },
-  {
-    icon: "profile",
-    label: "行为画像分析",
-    description: "看见你的自然相处方式",
-    href: "/home/relationship-profile",
   },
   {
     icon: "report",
@@ -48,15 +42,6 @@ function ReportIcon() {
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M7 3.75h7l3 3V20.25H7z" />
       <path d="M14 3.75v3h3M10 11h4M10 14.5h4" />
-    </svg>
-  );
-}
-
-function ProfileIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="7.5" />
-      <path d="M8.5 13.5c1.1 1 2.3 1.5 3.5 1.5s2.4-.5 3.5-1.5M9.5 9.5h.01M14.5 9.5h.01" />
     </svg>
   );
 }
@@ -146,7 +131,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 key={item.href}
               >
-                <span className="mf-workspace-nav-icon">{item.icon === "report" ? <ReportIcon /> : item.icon === "profile" ? <ProfileIcon /> : <HeartIcon />}</span>
+                <span className="mf-workspace-nav-icon">{item.icon === "report" ? <ReportIcon /> : <HeartIcon />}</span>
                 <span>
                   <strong>{item.label}</strong>
                   <small>{item.description}</small>
@@ -222,7 +207,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
                   onClick={() => mobileMenuRef.current?.close()}
                   key={item.href}
                 >
-                  <span className="mf-workspace-nav-icon">{item.icon === "report" ? <ReportIcon /> : item.icon === "profile" ? <ProfileIcon /> : <HeartIcon />}</span>
+                  <span className="mf-workspace-nav-icon">{item.icon === "report" ? <ReportIcon /> : <HeartIcon />}</span>
                   <span><strong>{item.label}</strong><small>{item.description}</small></span>
                 </Link>
               );

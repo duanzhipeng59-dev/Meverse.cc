@@ -238,9 +238,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
   font: 570 12px inherit;
   transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
-.mf-home-profile-fields input::placeholder { color: #aaa0a5; }
+.mf-home-profile-fields input::placeholder { color: #aaa0a5; font-size: 12px; opacity: 1; }
 .mf-home-profile-fields .is-placeholder { color: #aaa0a5; }
-.mf-home-profile-fields input[type="date"].is-placeholder::-webkit-datetime-edit { color: #aaa0a5; }
+.mf-home-date-input { position: relative; min-width: 0; }
+.mf-home-date-input > span { position: absolute; top: 50%; left: 13px; z-index: 1; color: #aaa0a5; font-size: 12px; pointer-events: none; transform: translateY(-50%); }
+.mf-home-date-input:focus-within > span { display: none; }
+.mf-home-date-input input[type="date"].is-placeholder::-webkit-datetime-edit { color: transparent; }
+.mf-home-date-input:focus-within input[type="date"].is-placeholder::-webkit-datetime-edit { color: #aaa0a5; }
 .mf-home-profile-fields input:focus,
 .mf-home-profile-fields select:focus { border-color: rgba(122, 41, 78, .48); background: white; box-shadow: 0 0 0 4px rgba(122, 41, 78, .07); }
 .mf-home-profile-fields input:disabled,
@@ -256,8 +260,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   border-radius: 13px;
 }
 .mf-home-profile-meta {
-  min-height: 16px;
-  margin-top: 10px;
+  margin-top: 8px;
   padding: 0 2px;
   display: flex;
   align-items: center;
@@ -577,12 +580,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-workspace-meta > span { grid-row: span 2; align-self: center; color: var(--mf-rose); }
 .mf-workspace-meta strong { font-size: 11px; }
 .mf-workspace-meta small { color: #9d9096; font-size: 9px; }
-.mf-category-filter { margin: -5px 0 28px; padding-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--mf-line); }
-.mf-category-filter > span { flex: 0 0 auto; color: #9d9096; font-size: 11px; }
-.mf-category-tabs { min-width: 0; display: flex; align-items: center; gap: 7px; }
-.mf-category-tabs button { min-height: 35px; padding: 0 15px; border: 1px solid var(--mf-line); border-radius: 999px; color: var(--mf-muted); background: rgba(255,255,255,.42); font: 600 12px inherit; cursor: pointer; transition: color .2s ease, border-color .2s ease, background .2s ease; white-space: nowrap; }
-.mf-category-tabs button:hover { color: var(--mf-plum); border-color: rgba(122,41,78,.25); }
-.mf-category-tabs button.active { color: white; border-color: var(--mf-plum); background: var(--mf-plum); }
+.mf-celebrity-pagination { margin-top: 34px; padding-top: 20px; display: flex; align-items: center; justify-content: center; gap: 24px; border-top: 1px solid var(--mf-line); }
+.mf-celebrity-pagination > span { min-width: 76px; color: #9d9096; font-size: 11px; text-align: center; }
+.mf-celebrity-pagination button { min-height: 42px; padding: 0 18px; border: 1px solid rgba(122,41,78,.15); border-radius: 999px; color: var(--mf-plum); background: rgba(255,255,255,.72); font: 700 12px inherit; cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+.mf-celebrity-pagination button:hover:not(:disabled) { border-color: rgba(122,41,78,.32); background: white; transform: translateY(-1px); }
+.mf-celebrity-pagination button:disabled { opacity: .35; cursor: default; }
 .mf-workspace-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 22px; }
 .mf-workspace-card-grid .mf-star-overlay h2 { margin: 11px 0 3px; font: 500 30px/1.1 Georgia, "Songti SC", serif; }
 .mf-workspace-disclaimer { margin: 38px 0 0; color: #a3959b; font-size: 10px; text-align: center; }
@@ -650,7 +652,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-profile-login-email:focus-visible,
 .mf-login-back:focus-visible { outline: 3px solid rgba(122, 41, 78, .35); outline-offset: 2px; }
 .mf-profile-identity-grid { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: 22px; }
-.mf-profile-editable-grid { margin-top: 25px; padding-top: 25px; display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); gap: 22px; border-top: 1px solid var(--mf-line); }
+.mf-profile-editable-grid { margin-top: 25px; padding-top: 25px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; border-top: 1px solid var(--mf-line); }
 .mf-profile-actions { margin-top: 30px; padding-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid var(--mf-line); }
 .mf-profile-actions > div { min-height: 18px; font-size: 11px; }
 .mf-profile-actions .success { color: #588064; }
@@ -761,6 +763,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-report-detail-state h1 { margin: 0; font: 500 34px Georgia, "Songti SC", serif; }
 .mf-report-detail-state p { margin: 0 0 12px; color: var(--mf-muted); font-size: 12px; }
 .mf-generation-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.mf-report-generation-progress { position: relative; width: min(340px, calc(100vw - 72px)); height: 8px; margin-top: 8px; overflow: hidden; border-radius: 999px; background: rgba(122,41,78,.1); box-shadow: inset 0 1px 2px rgba(74,43,58,.07); }
+.mf-report-generation-progress i { position: absolute; inset: 0 auto 0 -42%; width: 42%; border-radius: inherit; background: linear-gradient(90deg, rgba(199,85,126,.16), var(--mf-rose), var(--mf-plum)); animation: mf-report-progress 1.65s cubic-bezier(.4,0,.2,1) infinite; }
+.mf-report-generation-note { margin-top: 2px; color: #9d9096; font-size: 10px; line-height: 1.6; }
+@keyframes mf-report-progress { to { transform: translateX(340%); } }
 .mf-saved-report-detail { min-height: 100vh; }
 .mf-saved-report-topbar { width: min(900px, calc(100% - 48px)); height: 74px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--mf-line); }
 .mf-saved-report-topbar > span { color: #a2949b; font-size: 10px; font-weight: 700; letter-spacing: .1em; }
@@ -848,6 +854,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-profile-question-card > p { max-width: 560px; margin: 0 0 28px; color: var(--mf-muted); font-size: 13px; line-height: 1.8; }
 .mf-profile-question-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .mf-profile-question-fields:has(> :only-child) { grid-template-columns: minmax(0, 1fr); max-width: 360px; }
+.mf-report-login-question-form { display: grid; }
+.mf-report-login-answer { min-height: 62px; padding: 10px 16px; display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 14px; box-sizing: border-box; border: 1px solid var(--mf-rose); border-radius: 15px; background: #fbf0f2; }
+.mf-report-login-answer > span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: white; background: var(--mf-plum); font: 600 12px Georgia, serif; }
+.mf-report-login-answer input { width: 100%; min-width: 0; min-height: 42px; box-sizing: border-box; padding: 0 12px; border: 0; border-radius: 10px; outline: none; color: var(--mf-ink); background: rgba(255,255,255,.82); font: 550 14px inherit; }
+.mf-report-login-answer input:focus { background: white; box-shadow: 0 0 0 4px rgba(122,41,78,.07); }
+.mf-report-login-answer input::placeholder { color: #aaa0a5; }
+.mf-report-login-error { min-height: 22px; padding: 7px 2px 0; box-sizing: border-box; color: #a84557; font-size: 10px; }
 .mf-options { display: grid; gap: 10px; }
 .mf-options button { min-height: 62px; padding: 10px 16px; display: grid; grid-template-columns: 34px 1fr 26px; align-items: center; gap: 14px; color: var(--mf-ink); border: 1px solid var(--mf-line); border-radius: 15px; background: rgba(255,255,255,.76); text-align: left; cursor: pointer; transition: border .2s ease, background .2s ease, transform .2s ease; }
 .mf-options button:hover { transform: translateX(3px); border-color: rgba(122,41,78,.36); }
@@ -1191,9 +1204,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-workspace-meta { box-sizing: border-box; width: 100%; }
   .mf-profile-intro-card { padding: 24px 18px; grid-template-columns: 1fr; gap: 30px; border-radius: 22px; }
   .mf-profile-dimension-preview { grid-template-columns: 1fr; }
-  .mf-category-filter { margin-top: -7px; align-items: flex-start; flex-direction: column-reverse; gap: 10px; overflow: hidden; }
-  .mf-category-tabs { width: 100%; padding-bottom: 2px; overflow-x: auto; scrollbar-width: none; }
-  .mf-category-tabs::-webkit-scrollbar { display: none; }
+  .mf-celebrity-pagination { margin-top: 26px; gap: 10px; }
+  .mf-celebrity-pagination > span { min-width: 66px; font-size: 10px; }
+  .mf-celebrity-pagination button { min-height: 44px; padding: 0 14px; }
   .mf-workspace-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
   .mf-workspace-card-grid .mf-star-overlay h2 { font-size: 23px; }
   .mf-workspace-shell.is-detail .mf-workspace-mobile-bar { display: none; }
@@ -1357,6 +1370,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   .mf-is-generating .mf-answer-star { animation: none; }
+  .mf-report-generation-progress i { left: 29%; animation: none; }
   .mf-spectrum-track > b { transition-duration: 0ms; }
   .mf-home-header-cta, .mf-home-hero .mf-primary-button { transition-duration: 0ms; }
   .mf-mobile-menu-dialog[open] { transition: none; }

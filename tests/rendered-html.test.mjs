@@ -42,7 +42,7 @@ test("server-renders celebrity discovery inside the workspace", async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /明星正缘测试/u);
+  assert.match(html, /正缘测试/u);
   assert.match(html, /个人中心/u);
   assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match/u);
   assert.match(html, /Bang Chan/u);
@@ -57,7 +57,7 @@ test("server-renders a celebrity detail inside the workspace", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Hyunjin/u);
-  assert.match(html, /明星正缘测试/u);
+  assert.match(html, /正缘测试/u);
   assert.match(html, /返回工作区/u);
   assert.match(html, /\/home\/celebrity-match/);
   assert.match(html, /href="\/home\/celebrity-match\/hyunjin\/test"/);
@@ -69,7 +69,7 @@ test("keeps the workspace around the question and report flow", async () => {
   const response = await render("/home/celebrity-match/bang-chan/test");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /明星正缘测试/u);
+  assert.match(html, /正缘测试/u);
   assert.match(html, /心动行为测试/u);
   assert.match(html, /24/u);
   assert.match(html, /个人中心/u);
@@ -83,7 +83,8 @@ test("server-renders the editable workspace profile", async () => {
   const html = await response.text();
   assert.match(html, /登录邮箱/u);
   assert.match(html, /出生年月日/u);
-  assert.match(html, /MBTI/u);
+  assert.match(html, /地点/u);
+  assert.doesNotMatch(html, /MBTI/u);
   assert.doesNotMatch(html, /保存资料/u);
 });
 
@@ -105,7 +106,8 @@ test("lets guests finish both questionnaires before login gates the results", as
   assert.doesNotMatch(celebrityEntry, /status === "anonymous"/u);
   assert.match(celebrityTest, /myfate-pending-fate-test/u);
   assert.match(profileTest, /myfate-pending-relationship-profile/u);
-  assert.match(celebrityTest, /登录并生成报告/u);
+  assert.match(celebrityTest, /完成测试/u);
+  assert.match(celebrityTest, /登录查看报告/u);
   assert.match(profileTest, /登录并生成报告/u);
   assert.doesNotMatch(celebrityTest, /补全你的专属资料|userMbti|userBirthDate/u);
   assert.doesNotMatch(profileTest, /补全你的专属资料|birthDate|mbti/u);

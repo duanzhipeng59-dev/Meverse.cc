@@ -86,7 +86,7 @@ export default async function MyfateHome() {
           </div>
 
           <div className="mf-star-grid">
-            {stars.map((star, index) => (
+            {stars.slice(0, 6).map((star, index) => (
               <article className="mf-star-card mf-home-star-card" key={star.id}>
                 <div
                   className="mf-star-portrait"
@@ -111,12 +111,12 @@ export default async function MyfateHome() {
 
         <section className="mf-how" id="how-it-works">
           <div className="mf-section-heading">
-            <div><span className="mf-kicker">如何测试</span><h2>不是随机答案，而是逐步读懂你</h2></div>
+            <div><span className="mf-kicker">测试说明</span><h2>从心动选择，到一份真正属于你的报告</h2></div>
           </div>
           <div className="mf-how-grid">
-            <article><span>01</span><h3>完成情境测试</h3><p>通过 24 道题了解你和 TA 在关系中的真实反应。</p></article>
-            <article><span>02</span><h3>读懂本次选择</h3><p>每一个选择都会作为报告依据，没有分数、对错或标准答案。</p></article>
-            <article><span>03</span><h3>生成关系报告</h3><p>大模型会从本次选择中找到真正值得解读的关系信号。</p></article>
+            <article><span>01</span><h3>填写基础资料</h3><p>留下昵称、出生日期和地点，资料会自动保存在当前设备，后续无需重复填写。</p></article>
+            <article><span>02</span><h3>选择心动对象</h3><p>登录后进入正缘测试工作台，选择一位偶像，通过关系情境题记录你的真实选择。</p></article>
+            <article><span>03</span><h3>查看专属报告</h3><p>先查看缘分初印象，再生成 AI 高级报告；每次测试都会独立保存在“我的报告”。</p></article>
           </div>
         </section>
       </main>

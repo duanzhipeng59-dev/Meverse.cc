@@ -5,18 +5,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
 import { readBasicProfile, writeBasicProfile } from "../../myfate-progressive-profile";
 
-const MBTI_TYPES = [
-  "INTJ", "INTP", "ENTJ", "ENTP",
-  "INFJ", "INFP", "ENFJ", "ENFP",
-  "ISTJ", "ISFJ", "ESTJ", "ESFJ",
-  "ISTP", "ISFP", "ESTP", "ESFP",
-];
-
 export default function WorkspaceProfile() {
   const { status, email } = useAuth();
   const [nickname, setNickname] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [mbti, setMbti] = useState("");
+  const [location, setLocation] = useState("");
   const [ready, setReady] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
   const today = new Date().toISOString().slice(0, 10);
@@ -30,7 +23,7 @@ export default function WorkspaceProfile() {
         const profile = readBasicProfile(email);
         setNickname(profile.nickname);
         setBirthDate(profile.birthDate);
-        setMbti(MBTI_TYPES.includes(profile.mbti) ? profile.mbti : "");
+        setLocation(profile.location);
         setSaveState("idle");
       } catch {
         setSaveState("error");
@@ -43,9 +36,10 @@ export default function WorkspaceProfile() {
     };
   }, [status, email]);
 
-  function saveProfile(nextNickname: string, nextBirthDate: string, nextMbti: string) {
+  function saveProfile(nextNickname: string, nextBirthDate: string, nextLocation: string) {
     try {
-      writeBasicProfile(email, { nickname: nextNickname, birthDate: nextBirthDate, mbti: nextMbti });
+      const { mbti } = readBasicProfile(email);
+      writeBasicProfile(email, { nickname: nextNickname, birthDate: nextBirthDate, mbti, location: nextLocation });
       setSaveState("saved");
     } catch {
       setSaveState("error");
@@ -74,7 +68,7 @@ export default function WorkspaceProfile() {
                 onChange={(event) => {
                   const nextNickname = event.target.value;
                   setNickname(nextNickname);
-                  saveProfile(nextNickname, birthDate, mbti);
+                  saveProfile(nextNickname, birthDate, location);
                 }}
               />
             </label>
@@ -111,25 +105,26 @@ export default function WorkspaceProfile() {
                 onChange={(event) => {
                   const nextBirthDate = event.target.value;
                   setBirthDate(nextBirthDate);
-                  saveProfile(nickname, nextBirthDate, mbti);
+                  saveProfile(nickname, nextBirthDate, location);
                 }}
               />
             </label>
 
             <label className="mf-profile-field">
-              <span>MBTI</span>
-              <select
-                value={mbti}
+              <span>地点</span>
+              <input
+                type="text"
+                value={location}
+                maxLength={40}
+                autoComplete="address-level2"
+                placeholder="城市或地区"
                 disabled={!ready}
                 onChange={(event) => {
-                  const nextMbti = event.target.value;
-                  setMbti(nextMbti);
-                  saveProfile(nickname, birthDate, nextMbti);
+                  const nextLocation = event.target.value;
+                  setLocation(nextLocation);
+                  saveProfile(nickname, birthDate, nextLocation);
                 }}
-              >
-                <option value="">请选择你的 MBTI</option>
-                {MBTI_TYPES.map((type) => <option value={type} key={type}>{type}</option>)}
-              </select>
+              />
             </label>
           </div>
 

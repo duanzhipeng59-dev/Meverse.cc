@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { useAuth } from "./auth-context";
+import { ensureLocalUser, normalizeEmail } from "./local-auth";
 import { createInitialQuestions, type StarProfile, type TestQuestion } from "./myfate-data";
 import type { AnswerSnapshot } from "./myfate-engine";
 import MyfateAdvancedReport from "./myfate-advanced-report";
+import { readBasicProfile, writeBasicProfile } from "./myfate-progressive-profile";
 import { createSavedReport, updateSavedReport } from "./myfate-report-storage";
 
 type Stage = "test" | "report";
@@ -60,15 +61,14 @@ async function generateReport(body: Record<string, unknown>): Promise<ReportResp
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
+    keepalive: true,
   });
   if (!response.ok) throw new Error("REPORT_GENERATION_FAILED");
   return response.json() as Promise<ReportResponse>;
 }
 
 export default function MyfateTest({ star, workspace = false, questions }: { star: StarProfile; workspace?: boolean; questions?: TestQuestion[] }) {
-  const { status } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { status, markAuthenticated } = useAuth();
   const allQuestions = useMemo(() => questions ?? createInitialQuestions(star), [questions, star]);
   const [currentQuestions, setCurrentQuestions] = useState(allQuestions);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -78,6 +78,9 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportGenerationError, setReportGenerationError] = useState("");
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
+  const [loginPromptOpen, setLoginPromptOpen] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const completeTest = useCallback(async (testQuestions: TestQuestion[], answerValues: Record<string, number>) => {
     const snapshots = answerSnapshots(testQuestions, answerValues);
@@ -162,11 +165,29 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
         questionIds: currentQuestions.map((question) => question.id),
         answers,
       });
-      const next = `/home/celebrity-match/${star.id}/test?resume=1`;
-      router.push(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(pathname)}`);
+      setLoginError("");
+      setLoginPromptOpen(true);
       return;
     }
     void completeTest(currentQuestions, answers);
+  }
+
+  function loginAndViewReport(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const normalized = normalizeEmail(loginEmail);
+    if (!/^\S+@\S+\.\S+$/.test(normalized)) {
+      setLoginError("请输入有效的邮箱地址");
+      return;
+    }
+
+    try {
+      const user = ensureLocalUser(normalized);
+      if (user.created) writeBasicProfile(user.email, readBasicProfile(null));
+      setLoginPromptOpen(false);
+      markAuthenticated(user.email);
+    } catch {
+      setLoginError("登录信息暂时无法保存，请稍后重试");
+    }
   }
 
   function nextQuestion() {
@@ -180,17 +201,21 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
   if (stage === "report") {
     if (!reportText) {
       return (
-        <ResultShell star={star} label="关系报告" workspace={workspace}>
+        <ResultShell star={star} label={isGeneratingReport ? "" : "关系报告"} workspace={workspace}>
           <div className="mf-report-detail-state mf-ai-generation-state">
             <span>{isGeneratingReport ? "✦" : "!"}</span>
-            <h1>{isGeneratingReport ? "正在生成你的关系报告" : "报告暂时没有生成"}</h1>
+            <h1>{isGeneratingReport ? "正在生成报告" : "报告暂时没有生成"}</h1>
             <p>{isGeneratingReport ? "正在阅读你本次测试中的全部选择，并为你写成一份完整报告。" : reportGenerationError}</p>
-            <div className="mf-generation-actions">
-              <Link className="mf-secondary-button" href="/home/reports">查看我的报告</Link>
-              {!isGeneratingReport ? (
-                <button className="mf-primary-button" type="button" onClick={() => void completeTest(currentQuestions, answers)}>重新生成</button>
-              ) : null}
-            </div>
+            {isGeneratingReport ? (
+              <>
+                <div className="mf-report-generation-progress" role="progressbar" aria-label="报告生成中" aria-valuetext="正在生成">
+                  <i />
+                </div>
+                <small className="mf-report-generation-note">可以离开当前页面，完成后会自动保存到“我的报告”</small>
+              </>
+            ) : (
+              <button className="mf-primary-button" type="button" onClick={() => void completeTest(currentQuestions, answers)}>重新生成</button>
+            )}
           </div>
         </ResultShell>
       );
@@ -213,7 +238,7 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
   }
 
   if (!currentQuestion) return null;
-  const progress = ((questionIndex + 1) / currentQuestions.length) * 100;
+  const progress = loginPromptOpen ? 100 : ((questionIndex + 1) / currentQuestions.length) * 100;
   return (
     <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
       <header className="mf-test-header">
@@ -227,28 +252,60 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
       </header>
       <div className="mf-test-progress"><i style={{ width: `${progress}%` }} /></div>
       <main className="mf-question-main">
-        <div className="mf-question-count">{String(questionIndex + 1).padStart(2, "0")} <span>/ {String(currentQuestions.length).padStart(2, "0")}</span></div>
-        <section className="mf-question-card">
-          <h1>{currentQuestion.question}</h1>
-          <div className="mf-options">
-            {currentQuestion.options.map((option, index) => {
-              const selected = answers[currentQuestion.id] === index;
-              return (
-                <button className={selected ? "selected" : ""} type="button" key={`${option.label}-${index}`} onClick={() => choose(index)}>
-                  <span>{String.fromCharCode(65 + index)}</span><strong>{option.label}</strong><i>{selected ? "✓" : ""}</i>
-                </button>
-              );
-            })}
-          </div>
-          <div className="mf-question-nav">
-            <button className="mf-text-button" type="button" disabled={questionIndex === 0} onClick={() => setQuestionIndex((index) => Math.max(0, index - 1))}>← 上一题</button>
-            <button className="mf-primary-button" type="button" disabled={answers[currentQuestion.id] === undefined} onClick={nextQuestion}>
-              {questionIndex === currentQuestions.length - 1
-                ? status === "anonymous" ? "登录并生成报告" : "生成关系报告"
-                : "下一题"} <span>→</span>
-            </button>
-          </div>
-        </section>
+        <div className="mf-question-count">
+          {String(loginPromptOpen ? currentQuestions.length : questionIndex + 1).padStart(2, "0")} <span>/ {String(currentQuestions.length).padStart(2, "0")}</span>
+        </div>
+        {loginPromptOpen ? (
+          <section className="mf-question-card mf-profile-question-card mf-report-login-question">
+            <span className="mf-question-eyebrow">测试已完成 · 最后一步</span>
+            <h1>留下邮箱，查看你的专属报告</h1>
+            <p>邮箱会用于关联本次报告，首次使用会自动创建账号。</p>
+            <form className="mf-report-login-question-form" onSubmit={loginAndViewReport}>
+              <label className="mf-report-login-answer">
+                <span aria-hidden="true">A</span>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  autoFocus
+                  required
+                  onChange={(event) => {
+                    setLoginEmail(event.target.value);
+                    setLoginError("");
+                  }}
+                />
+              </label>
+              <div className="mf-report-login-error" aria-live="polite">{loginError}</div>
+              <div className="mf-question-nav">
+                <button className="mf-text-button" type="button" onClick={() => setLoginPromptOpen(false)}>← 返回上一题</button>
+                <button className="mf-primary-button" type="submit">登录查看报告 <span>→</span></button>
+              </div>
+            </form>
+          </section>
+        ) : (
+          <section className="mf-question-card">
+            <h1>{currentQuestion.question}</h1>
+            <div className="mf-options">
+              {currentQuestion.options.map((option, index) => {
+                const selected = answers[currentQuestion.id] === index;
+                return (
+                  <button className={selected ? "selected" : ""} type="button" key={`${option.label}-${index}`} onClick={() => choose(index)}>
+                    <span>{String.fromCharCode(65 + index)}</span><strong>{option.label}</strong><i>{selected ? "✓" : ""}</i>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mf-question-nav">
+              <button className="mf-text-button" type="button" disabled={questionIndex === 0} onClick={() => setQuestionIndex((index) => Math.max(0, index - 1))}>← 上一题</button>
+              <button className="mf-primary-button" type="button" disabled={answers[currentQuestion.id] === undefined} onClick={nextQuestion}>
+                {questionIndex === currentQuestions.length - 1
+                  ? status === "anonymous" ? "完成测试" : "生成关系报告"
+                  : "下一题"} <span>→</span>
+              </button>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
@@ -273,7 +330,7 @@ function ResultShell({
         ) : (
           <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
         )}
-        <span>{label}</span>
+        {label ? <span>{label}</span> : null}
         <Link href={workspace ? "/home/celebrity-match" : `/celebrity/${star.id}`}>{workspace ? "退出" : "返回详情"}</Link>
       </header>
       <main>{children}</main>

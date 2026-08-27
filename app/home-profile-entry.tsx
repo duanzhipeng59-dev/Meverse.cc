@@ -5,18 +5,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "./auth-context";
 import { readBasicProfile, writeBasicProfile } from "./myfate-progressive-profile";
 
-const MBTI_TYPES = [
-  "INTJ", "INTP", "ENTJ", "ENTP",
-  "INFJ", "INFP", "ENFJ", "ENFP",
-  "ISTJ", "ISFJ", "ESTJ", "ESFJ",
-  "ISTP", "ISFP", "ESTP", "ESFP",
-];
-
 export default function HomeProfileEntry() {
   const { status, email } = useAuth();
   const [nickname, setNickname] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [mbti, setMbti] = useState("");
+  const [location, setLocation] = useState("");
   const [ready, setReady] = useState(false);
   const [saved, setSaved] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
@@ -26,10 +19,10 @@ export default function HomeProfileEntry() {
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
-      const profile = readBasicProfile(email);
-      setNickname(profile.nickname);
-      setBirthDate(profile.birthDate);
-      setMbti(MBTI_TYPES.includes(profile.mbti) ? profile.mbti : "");
+      setNickname("");
+      setBirthDate("");
+      setLocation("");
+      setSaved(false);
       setReady(true);
     });
     return () => {
@@ -37,8 +30,9 @@ export default function HomeProfileEntry() {
     };
   }, [status, email]);
 
-  function save(nextNickname: string, nextBirthDate: string, nextMbti: string) {
-    writeBasicProfile(email, { nickname: nextNickname, birthDate: nextBirthDate, mbti: nextMbti });
+  function save(patch: { nickname?: string; birthDate?: string; location?: string }) {
+    const profile = readBasicProfile(email);
+    writeBasicProfile(email, { ...profile, ...patch });
     setSaved(true);
   }
 
@@ -52,57 +46,62 @@ export default function HomeProfileEntry() {
             value={nickname}
             maxLength={20}
             autoComplete="nickname"
-            placeholder="怎么称呼你"
+            placeholder="输入昵称"
             disabled={!ready}
             onChange={(event) => {
               const nextNickname = event.target.value;
               setNickname(nextNickname);
-              save(nextNickname, birthDate, mbti);
+              save({ nickname: nextNickname });
             }}
           />
         </label>
 
         <label>
           <span>出生日期</span>
-          <input
-            className={birthDate ? undefined : "is-placeholder"}
-            type="date"
-            value={birthDate}
-            max={today}
-            disabled={!ready}
-            onChange={(event) => {
-              const nextBirthDate = event.target.value;
-              setBirthDate(nextBirthDate);
-              save(nickname, nextBirthDate, mbti);
-            }}
-          />
+          <div className="mf-home-date-input">
+            <input
+              className={birthDate ? undefined : "is-placeholder"}
+              type="date"
+              value={birthDate}
+              max={today}
+              aria-label="出生日期"
+              disabled={!ready}
+              onChange={(event) => {
+                const nextBirthDate = event.target.value;
+                setBirthDate(nextBirthDate);
+                save({ birthDate: nextBirthDate });
+              }}
+            />
+            {!birthDate ? <span aria-hidden="true">选择出生日期</span> : null}
+          </div>
         </label>
 
         <label>
-          <span>MBTI</span>
-          <select
-            className={mbti ? undefined : "is-placeholder"}
-            value={mbti}
+          <span>地点</span>
+          <input
+            type="text"
+            value={location}
+            maxLength={40}
+            autoComplete="address-level2"
+            placeholder="输入城市或地区"
             disabled={!ready}
             onChange={(event) => {
-              const nextMbti = event.target.value;
-              setMbti(nextMbti);
-              save(nickname, birthDate, nextMbti);
+              const nextLocation = event.target.value;
+              setLocation(nextLocation);
+              save({ location: nextLocation });
             }}
-          >
-            <option value="">选择类型</option>
-            {MBTI_TYPES.map((type) => <option value={type} key={type}>{type}</option>)}
-          </select>
+          />
         </label>
         <Link className="mf-primary-button mf-home-profile-submit" href="/home/celebrity-match">
           <span>选择心动对象</span><b aria-hidden="true">→</b>
         </Link>
       </div>
 
-      <div className="mf-home-profile-meta" aria-live="polite">
-        <span>{saved ? "✓ 资料已自动保存" : "填写一次，后续测试自动复用"}</span>
-        <Link href="/home/profile">个人中心 <i aria-hidden="true">→</i></Link>
-      </div>
+      {saved ? (
+        <div className="mf-home-profile-meta" aria-live="polite">
+          <span>✓ 资料已自动保存</span>
+        </div>
+      ) : null}
 
     </section>
   );

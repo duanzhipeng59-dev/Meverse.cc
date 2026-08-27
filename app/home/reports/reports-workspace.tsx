@@ -59,6 +59,14 @@ export default function ReportsWorkspace() {
     };
   }, [status, email]);
 
+  useEffect(() => {
+    if (!ready || !reports.some((report) => report.status === "generating")) return;
+    const timer = window.setInterval(() => {
+      window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [ready, reports]);
+
   const latestStarReports = reports.reduce<SavedReport[]>((latest, report) => {
     if (report.type === "relationship-profile" || latest.some((item) => item.starId === report.starId)) return latest;
     latest.push(report);
@@ -95,7 +103,7 @@ export default function ReportsWorkspace() {
         <section className="mf-reports-empty">
           <span aria-hidden="true">✦</span>
           <h2>你还没有完成任何测试</h2>
-          <p>可以从明星正缘测试或关系行为画像开始探索。</p>
+          <p>可以从正缘测试开始探索。</p>
         </section>
       ) : (
         <>
@@ -143,7 +151,7 @@ export default function ReportsWorkspace() {
               </div>
 
               <div className="mf-fate-map-legend" aria-label="报告状态说明">
-                <span><i className="advanced" aria-hidden="true" />完整报告</span>
+                <span><i className="advanced" aria-hidden="true" />已生成</span>
                 <span><i className="generating" aria-hidden="true" />生成中</span>
                 <span><i className="initial" aria-hidden="true" />待重新生成</span>
               </div>
@@ -189,7 +197,7 @@ export default function ReportsWorkspace() {
                 <div className="mf-report-card-copy">
                   <div className="mf-report-card-meta">
                     <span className={report.status}>
-                      {report.status === "advanced" ? "关系报告" : report.status === "generating" ? "生成中" : "待重新生成"}
+                      {report.status === "advanced" ? "已生成" : report.status === "generating" ? "生成中" : "待重新生成"}
                     </span>
                     <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                   </div>
