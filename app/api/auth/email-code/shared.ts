@@ -1,4 +1,7 @@
-export const CODE_TTL_SECONDS = 10 * 60;
+import { EMAIL_CODE_LENGTH, EMAIL_CODE_TTL_SECONDS } from "../../../auth-code-config";
+
+export const CODE_TTL_SECONDS = EMAIL_CODE_TTL_SECONDS;
+export { EMAIL_CODE_LENGTH };
 
 export function normalizeEmail(value: string) {
   return value.trim().toLowerCase();

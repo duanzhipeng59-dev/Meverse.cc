@@ -122,7 +122,6 @@ export default function ReportDetailWorkspace({
           star={star}
           reportText={reportText}
           questionCount={report.questionCount ?? report.answers.length}
-          disclaimer="历史报告仅用于娱乐与关系想象，不构成现实关系预测。"
           actions={<Link className="mf-secondary-button" href={retestHref}>重新测试</Link>}
         />
       </div>

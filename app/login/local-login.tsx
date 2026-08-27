@@ -4,8 +4,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { useAuth } from "../auth-context";
+import { EMAIL_CODE_LENGTH } from "../auth-code-config";
 import { ensureLocalUser, normalizeEmail } from "../local-auth";
 import { readBasicProfile, writeBasicProfile } from "../myfate-progressive-profile";
+
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  invalid_email: "请输入有效的邮箱地址",
+  code_too_frequent: "发送过于频繁，请稍后再试",
+  email_send_failed: "验证码邮件发送失败，请稍后重试",
+  email_service_unavailable: "邮箱验证服务暂时不可用",
+  email_code_length_mismatch: "验证码服务正在调整，请稍后重试",
+  invalid_code: "验证码不正确，请重新输入",
+  code_expired: "验证码已过期，请重新获取",
+  auth_unavailable: "登录服务暂时不可用",
+};
+
+type AuthApiResult = {
+  error?: string;
+  expiresIn?: number;
+  user?: { id: string; email?: string };
+};
 
 function routeParameter(name: string, fallback: string, homeOnly = false) {
   const requested = new URLSearchParams(window.location.search).get(name);
@@ -23,8 +41,10 @@ export default function LocalLogin() {
   const { status, markAuthenticated } = useAuth();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [sentCode, setSentCode] = useState("");
   const [sentEmail, setSentEmail] = useState("");
+  const [sendingCode, setSendingCode] = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+  const [codeCooldown, setCodeCooldown] = useState(0);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [returnHref, setReturnHref] = useState("/");
@@ -44,36 +64,81 @@ export default function LocalLogin() {
     if (status === "authenticated") router.replace(destination());
   }, [status, router]);
 
-  function sendCode() {
+  useEffect(() => {
+    if (codeCooldown <= 0) return;
+    const timer = window.setTimeout(
+      () => setCodeCooldown((current) => Math.max(0, current - 1)),
+      1000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [codeCooldown]);
+
+  function authErrorMessage(error?: string) {
+    return AUTH_ERROR_MESSAGES[error ?? ""] ?? "请求失败，请稍后重试";
+  }
+
+  async function sendCode() {
     const normalized = normalizeEmail(email);
     if (!/^\S+@\S+\.\S+$/.test(normalized)) {
       setError("请输入有效的邮箱地址");
       return;
     }
+    if (sendingCode || codeCooldown > 0) return;
 
-    const nextCode = String(Math.floor(100000 + Math.random() * 900000));
-    setSentCode(nextCode);
-    setSentEmail(normalized);
-    setCode("");
+    setSendingCode(true);
     setError("");
-    setMessage(`本地验证码：${nextCode}`);
+    setMessage("");
+    try {
+      const response = await fetch("/api/auth/email-code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: normalized }),
+      });
+      const result = (await response.json()) as AuthApiResult;
+      if (!response.ok) {
+        setError(authErrorMessage(result.error));
+        return;
+      }
+      setSentEmail(normalized);
+      setCode("");
+      setCodeCooldown(60);
+      setMessage("验证码已发送，请检查收件箱和垃圾邮件");
+    } catch {
+      setError(AUTH_ERROR_MESSAGES.email_service_unavailable);
+    } finally {
+      setSendingCode(false);
+    }
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalized = normalizeEmail(email);
 
-    if (!sentCode || sentEmail !== normalized) {
+    if (!sentEmail || sentEmail !== normalized) {
       setError("请先获取当前邮箱的验证码");
       return;
     }
-    if (code !== sentCode) {
-      setError("验证码不正确，请重新输入");
+    if (code.length !== EMAIL_CODE_LENGTH) {
+      setError(`请输入 ${EMAIL_CODE_LENGTH} 位邮箱验证码`);
       return;
     }
 
+    setVerifyingCode(true);
+    setError("");
     try {
-      const user = ensureLocalUser(normalized);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: normalized, code }),
+      });
+      const result = (await response.json()) as AuthApiResult;
+      if (!response.ok) {
+        setError(authErrorMessage(result.error));
+        return;
+      }
+
+      const authenticatedEmail = normalizeEmail(result.user?.email ?? normalized);
+      const user = ensureLocalUser(authenticatedEmail);
       if (user.created) {
         const guestProfile = readBasicProfile(null);
         writeBasicProfile(user.email, guestProfile);
@@ -81,7 +146,9 @@ export default function LocalLogin() {
       markAuthenticated(user.email);
       router.replace(destination());
     } catch {
-      setError("本地登录信息暂时无法保存");
+      setError(AUTH_ERROR_MESSAGES.auth_unavailable);
+    } finally {
+      setVerifyingCode(false);
     }
   }
 
@@ -97,8 +164,13 @@ export default function LocalLogin() {
       </Link>
 
       <section className="mf-login-card">
-        <Link className="mf-login-back" href={returnHref}>← 返回</Link>
-        <div className="mf-login-mark" aria-hidden="true"><span>✦</span></div>
+        <div className="mf-login-card-head">
+          <div className="mf-login-mark" aria-hidden="true"><span>✦</span></div>
+          <Link className="mf-login-back" href={returnHref}>
+            <span aria-hidden="true">←</span>
+            <span>返回</span>
+          </Link>
+        </div>
         <span className="mf-login-kicker">WELCOME TO MYFATE</span>
         <h1>登录后，继续探索心动</h1>
         <p>使用邮箱验证码登录。首次使用的邮箱会自动创建账号。</p>
@@ -112,7 +184,11 @@ export default function LocalLogin() {
               onChange={(event) => {
                 setEmail(event.target.value);
                 setError("");
-                if (sentEmail && normalizeEmail(event.target.value) !== sentEmail) setMessage("");
+                if (sentEmail && normalizeEmail(event.target.value) !== sentEmail) {
+                  setSentEmail("");
+                  setCode("");
+                  setMessage("");
+                }
               }}
               autoComplete="email"
               placeholder="name@example.com"
@@ -126,14 +202,22 @@ export default function LocalLogin() {
               <input
                 type="text"
                 value={code}
-                onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, EMAIL_CODE_LENGTH))}
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                placeholder="6 位验证码"
-                maxLength={6}
+                placeholder={`${EMAIL_CODE_LENGTH} 位验证码`}
+                maxLength={EMAIL_CODE_LENGTH}
                 required
               />
-              <button type="button" onClick={sendCode}>{sentCode && sentEmail === normalizeEmail(email) ? "重新获取" : "获取验证码"}</button>
+              <button type="button" onClick={sendCode} disabled={sendingCode || codeCooldown > 0}>
+                {sendingCode
+                  ? "发送中…"
+                  : codeCooldown > 0
+                    ? `${codeCooldown}s 后重试`
+                    : sentEmail === normalizeEmail(email)
+                      ? "重新获取"
+                      : "获取验证码"}
+              </button>
             </div>
           </label>
 
@@ -141,10 +225,12 @@ export default function LocalLogin() {
             {error ? <span className="error">{error}</span> : message ? <span>{message}</span> : null}
           </div>
 
-          <button className="mf-login-submit" type="submit">登录</button>
+          <button className="mf-login-submit" type="submit" disabled={verifyingCode}>
+            {verifyingCode ? "正在验证…" : "登录"}
+          </button>
         </form>
 
-        <small>当前版本的账号与资料仅保存在这台设备的浏览器中。</small>
+        <small>验证码仅用于本次登录，10 分钟内有效，请勿转发给他人。</small>
       </section>
     </main>
   );

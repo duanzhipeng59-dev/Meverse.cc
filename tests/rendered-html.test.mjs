@@ -115,6 +115,20 @@ test("lets guests finish both questionnaires before login gates the results", as
   assert.match(profileTest, /sessionStorage/u);
 });
 
+test("uses server-verified email codes on the login page", async () => {
+  const [login, authContext] = await Promise.all([
+    readFile(new URL("../app/login/local-login.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/auth-context.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(login, /fetch\("\/api\/auth\/email-code"/u);
+  assert.match(login, /fetch\("\/api\/auth\/login"/u);
+  assert.match(login, /codeCooldown/u);
+  assert.match(login, /验证码已发送，请检查收件箱和垃圾邮件/u);
+  assert.doesNotMatch(login, /Math\.random\(\)|本地验证码/u);
+  assert.match(authContext, /fetch\("\/api\/auth\/session"/u);
+  assert.doesNotMatch(authContext, /if \(email\) return \{ status: "authenticated"/u);
+});
+
 test("server-renders the cloud-backed report history workspace", async () => {
   const response = await render("/home/reports");
   assert.equal(response.status, 200);
@@ -152,7 +166,9 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   ]);
   assert.match(testExperience, /createSavedReport/u);
   assert.match(testExperience, /status: "advanced"/u);
-  assert.match(testExperience, /查看历史报告/u);
+  assert.match(testExperience, /查看历史记录/u);
+  assert.match(testExperience, /href="\/home\/reports"/u);
+  assert.doesNotMatch(testExperience, /保存结果/u);
   assert.match(reportStorage, /fetch\("\/api\/myfate\/reports"/u);
   assert.match(reportStorage, /migrateLegacyReports/u);
   assert.match(reportStorage, /localStorage\.removeItem/u);
@@ -245,8 +261,8 @@ test("uses the full managed question bank with a free-form model-only report", a
   assert.match(reportTemplate, /关系相处规则/u);
   assert.match(reportTemplate, /每个主板块必须使用上述【小标题】结构/u);
   assert.match(reportTemplate, /关系类型｜/u);
-  assert.match(reportTemplate, /关系主标题｜/u);
-  assert.match(reportTemplate, /关系导语｜/u);
+  assert.doesNotMatch(reportTemplate, /关系主标题｜/u);
+  assert.doesNotMatch(reportTemplate, /关系导语｜/u);
   assert.match(reportTemplate, /核心张力｜/u);
   assert.match(reportTemplate, /时间窗口与建议地点类型/u);
   assert.match(relationshipTest, /options: question\.options\.map/u);

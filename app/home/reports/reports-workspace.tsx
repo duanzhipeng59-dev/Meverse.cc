@@ -8,6 +8,10 @@ import { readBasicProfile } from "../../myfate-progressive-profile";
 import { deleteSavedReport, readSavedReports, type SavedReport } from "../../myfate-report-storage";
 import { deleteRelationshipReport, readRelationshipReports, type RelationshipProfileReport } from "../../relationship-profile-storage";
 
+type ReportItem = SavedReport | RelationshipProfileReport;
+
+const reportPageSnapshots = new Map<string, { reports: ReportItem[]; nickname: string }>();
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
@@ -33,9 +37,11 @@ function starOrbitStyle(index: number, count: number) {
 
 export default function ReportsWorkspace() {
   const { status, email } = useAuth();
-  const [reports, setReports] = useState<(SavedReport | RelationshipProfileReport)[]>([]);
-  const [nickname, setNickname] = useState("");
-  const [ready, setReady] = useState(false);
+  const snapshotKey = email || "guest";
+  const initialSnapshot = reportPageSnapshots.get(snapshotKey);
+  const [reports, setReports] = useState<ReportItem[]>(initialSnapshot?.reports ?? []);
+  const [nickname, setNickname] = useState(initialSnapshot?.nickname ?? "");
+  const [ready, setReady] = useState(Boolean(initialSnapshot));
 
   useEffect(() => {
     if (status === "loading") return;
@@ -44,28 +50,40 @@ export default function ReportsWorkspace() {
       if (!active) return;
       const savedReports = await readSavedReports(email);
       if (!active) return;
-      setReports([...savedReports, ...readRelationshipReports(email)].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
-      setNickname(readBasicProfile(email).nickname.trim());
+      const nextReports = [...savedReports, ...readRelationshipReports(email)].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const nextNickname = readBasicProfile(email).nickname.trim();
+      reportPageSnapshots.set(snapshotKey, { reports: nextReports, nickname: nextNickname });
+      setReports(nextReports);
+      setNickname(nextNickname);
       setReady(true);
     };
     const reload = () => void load();
-    queueMicrotask(reload);
+    const refreshNickname = () => {
+      const nextNickname = readBasicProfile(email).nickname.trim();
+      const current = reportPageSnapshots.get(snapshotKey);
+      if (current) reportPageSnapshots.set(snapshotKey, { ...current, nickname: nextNickname });
+      setNickname(nextNickname);
+    };
+    const cached = reportPageSnapshots.get(snapshotKey);
+    queueMicrotask(() => {
+      if (!active) return;
+      if (cached) {
+        setReports(cached.reports);
+        setNickname(cached.nickname);
+        setReady(true);
+        return;
+      }
+      setReady(false);
+      reload();
+    });
     window.addEventListener("myfate-reports-updated", reload);
-    window.addEventListener("myfate-profile-updated", reload);
+    window.addEventListener("myfate-profile-updated", refreshNickname);
     return () => {
       active = false;
       window.removeEventListener("myfate-reports-updated", reload);
-      window.removeEventListener("myfate-profile-updated", reload);
+      window.removeEventListener("myfate-profile-updated", refreshNickname);
     };
-  }, [status, email]);
-
-  useEffect(() => {
-    if (!ready || !reports.some((report) => report.status === "generating")) return;
-    const timer = window.setInterval(() => {
-      window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
-    }, 3000);
-    return () => window.clearInterval(timer);
-  }, [ready, reports]);
+  }, [status, email, snapshotKey]);
 
   const latestStarReports = reports.reduce<SavedReport[]>((latest, report) => {
     if (report.type === "relationship-profile" || latest.some((item) => item.starId === report.starId)) return latest;

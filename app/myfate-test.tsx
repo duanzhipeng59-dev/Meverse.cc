@@ -77,7 +77,6 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
   const [reportText, setReportText] = useState("");
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportGenerationError, setReportGenerationError] = useState("");
-  const [activeReportId, setActiveReportId] = useState<string | null>(null);
   const [loginPromptOpen, setLoginPromptOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -97,7 +96,6 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
       answers: snapshots,
     });
     const reportId = savedReport?.id ?? null;
-    setActiveReportId(reportId);
 
     try {
       const result = await generateReport({
@@ -145,7 +143,6 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
       setStage("test");
       setReportText("");
       setReportGenerationError("");
-      setActiveReportId(null);
     });
     return () => { active = false; };
   }, [status, allQuestions, star.id, completeTest]);
@@ -227,10 +224,7 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
           reportText={reportText}
           questionCount={currentQuestions.length}
           actions={(
-            <>
-              <button className="mf-primary-button" type="button" onClick={() => window.print()}>保存结果</button>
-              {activeReportId ? <Link className="mf-secondary-button" href={`/home/reports/${activeReportId}`}>查看历史报告</Link> : null}
-            </>
+            <Link className="mf-secondary-button" href="/home/reports">查看历史记录</Link>
           )}
         />
       </ResultShell>

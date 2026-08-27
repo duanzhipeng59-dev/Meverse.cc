@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { clearLocalSession, readLocalSession, writeLocalSession } from "./local-auth";
+import { clearLocalSession, writeLocalSession } from "./local-auth";
 
 export type AuthStatus = "loading" | "authenticated" | "anonymous";
 
@@ -34,16 +34,17 @@ function loadSession(): Promise<AuthState> {
   if (!sessionPromise) {
     sessionPromise = Promise.resolve()
       .then(async (): Promise<AuthState> => {
-        const email = readLocalSession();
-        if (email) return { status: "authenticated", email };
-
         try {
           const response = await fetch("/api/auth/session", { cache: "no-store" });
           const result = await response.json() as { user?: { email?: string } | null };
-          return result.user?.email
-            ? { status: "authenticated", email: result.user.email }
-            : { status: "anonymous", email: null };
+          if (response.ok && result.user?.email) {
+            writeLocalSession(result.user.email);
+            return { status: "authenticated", email: result.user.email };
+          }
+          clearLocalSession();
+          return { status: "anonymous", email: null };
         } catch {
+          clearLocalSession();
           return { status: "anonymous", email: null };
         }
       })

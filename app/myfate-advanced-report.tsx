@@ -57,17 +57,10 @@ function splitReport(reportText: string) {
     if (item) meta.set(item[1], item[2].trim());
     else leadLines.push(line);
   }
-  const firstSectionSummary = sections[0]?.body
-    .replace(/【[^】]+】/gu, "")
-    .replace(/\s+/gu, " ")
-    .trim()
-    .slice(0, 220);
   const reportedCoreTension = meta.get("核心张力");
   const coreTension = reportedCoreTension || "心动很自然，理解仍需要被具体确认";
   return {
     title,
-    openingTitle: meta.get("关系主标题") || reportedCoreTension || sections[0]?.title || title,
-    openingSummary: meta.get("关系导语") || firstSectionSummary || "你们的吸引来自对彼此节奏的敏锐感知，而真正决定关系能否走深的，是心动之后能否把没有说出口的需要变成清楚、稳定的回应。",
     relationshipType: meta.get("关系类型") || "深度磨合型",
     relationshipRhythm: meta.get("关系节奏") || "在靠近与留白之间寻找共同节奏",
     coreTension,
@@ -106,36 +99,21 @@ export default function MyfateAdvancedReport({
   reportText,
   questionCount,
   actions,
-  disclaimer = "本测试仅用于娱乐与关系想象，不构成现实关系预测。",
 }: {
   star: StarProfile;
   reportText: string;
   questionCount?: number;
   actions?: ReactNode;
-  disclaimer?: string;
 }) {
   const report = splitReport(reportText);
 
   return (
     <div className="mf-final-result mf-model-only-report">
       <section className="mf-model-report-paper">
-        <div className="mf-model-report-person">
-          <div
-            className="mf-final-avatar"
-            role="img"
-            aria-label={star.name}
-            style={{ backgroundImage: `url("${star.portraitSrc}")` }}
-          />
-          <span>你与 <strong>{star.name}</strong> 的关系报告</span>
-        </div>
         <header className="mf-model-report-cover">
           <div className="mf-model-report-cover-topline">
             <span>MYFATE · RELATIONSHIP TYPE</span>
             <small>{report.title}</small>
-          </div>
-          <div className="mf-model-report-opening">
-            <h1>{report.openingTitle}</h1>
-            <p>{report.openingSummary}</p>
           </div>
           <div className="mf-model-report-visual">
             <div className="mf-model-report-type">
@@ -183,7 +161,6 @@ export default function MyfateAdvancedReport({
         </div>
       </section>
       {actions ? <div className="mf-result-actions">{actions}</div> : null}
-      <p className="mf-disclaimer">{disclaimer}</p>
     </div>
   );
 }

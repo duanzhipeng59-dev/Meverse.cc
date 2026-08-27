@@ -436,8 +436,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-login-page {
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   box-sizing: border-box;
-  padding: 26px 24px 48px;
+  padding: 28px 24px;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -458,13 +459,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .mf-login-page::before { width: 540px; height: 540px; top: -260px; right: -120px; box-shadow: 0 0 0 70px rgba(255, 255, 255, .1), 0 0 0 140px rgba(122, 41, 78, .025); }
 .mf-login-page::after { width: 340px; height: 340px; left: -170px; bottom: -170px; box-shadow: 0 0 0 55px rgba(255, 255, 255, .13); }
-.mf-login-brand { position: absolute; top: 28px; left: 34px; z-index: 2; }
+.mf-login-brand { position: absolute; top: 30px; left: 32px; z-index: 2; }
 .mf-login-card {
   position: relative;
   z-index: 1;
   width: min(470px, calc(100vw - 40px));
   box-sizing: border-box;
-  padding: 42px 44px 34px;
+  padding: 34px 44px 34px;
   border: 1px solid rgba(255, 255, 255, .88);
   border-radius: 30px;
   background: rgba(255, 252, 249, .72);
@@ -472,24 +473,24 @@ button, a { -webkit-tap-highlight-color: transparent; }
   backdrop-filter: blur(28px) saturate(140%);
   -webkit-backdrop-filter: blur(28px) saturate(140%);
 }
+.mf-login-card-head { min-height: 52px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .mf-login-back {
-  position: absolute;
-  top: 30px;
-  right: 32px;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 40px;
+  padding: 0 14px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 1px solid rgba(122, 41, 78, .1);
   border-radius: 999px;
   color: var(--mf-muted);
   background: rgba(255, 255, 255, .5);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 680;
   text-decoration: none;
 }
 .mf-login-back:hover { color: var(--mf-plum); background: rgba(255, 255, 255, .82); }
-.mf-login-mark { width: 54px; height: 54px; margin-bottom: 24px; display: grid; place-items: center; border-radius: 18px; color: white; background: linear-gradient(145deg, #b75276, #702443); box-shadow: 0 13px 30px rgba(122, 41, 78, .23); }
+.mf-login-mark { width: 52px; height: 52px; flex: 0 0 52px; display: grid; place-items: center; border-radius: 17px; color: white; background: linear-gradient(145deg, #b75276, #702443); box-shadow: 0 13px 30px rgba(122, 41, 78, .23); }
 .mf-login-mark span { font-size: 17px; }
 .mf-login-kicker { color: var(--mf-rose); font-size: 9px; font-weight: 800; letter-spacing: .16em; }
 .mf-login-card h1 { margin: 11px 0 12px; font: 500 35px/1.18 Georgia, "Songti SC", serif; letter-spacing: -.035em; }
@@ -529,6 +530,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   cursor: pointer;
 }
 .mf-login-code-field button:active { transform: scale(.97); }
+.mf-login-code-field button:disabled { color: #9f8993; background: rgba(122, 41, 78, .05); cursor: not-allowed; transform: none; }
 .mf-login-feedback { min-height: 18px; margin: -4px 2px -6px; color: #6c856f; font-size: 10px; }
 .mf-login-feedback .error { color: #a84557; }
 .mf-login-submit {
@@ -543,6 +545,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   transition: transform 160ms cubic-bezier(.23, 1, .32, 1), box-shadow 160ms ease;
 }
 .mf-login-submit:active { transform: scale(.98); }
+.mf-login-submit:disabled { opacity: .68; cursor: wait; transform: none; box-shadow: 0 8px 20px rgba(37, 27, 34, .12); }
 .mf-login-card > small { margin-top: 22px; display: block; color: #9f9298; font-size: 9px; line-height: 1.6; text-align: center; }
 .mf-login-loading,
 .mf-auth-redirect { min-height: 100vh; display: grid; place-items: center; color: var(--mf-muted); background: var(--mf-cream); font: 12px Inter, sans-serif; }
@@ -759,6 +762,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-report-card-actions button:focus-visible { outline: 2px solid rgba(156,49,76,.35); outline-offset: 3px; border-radius: 5px; }
 .mf-reports-storage-note { margin: 18px 4px 0; color: #a2949b; font-size: 10px; line-height: 1.6; }
 .mf-report-detail-state { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; }
+.mf-result-page > main > .mf-ai-generation-state { min-height: clamp(250px, 42dvh, 360px); }
 .mf-report-detail-state > span { color: var(--mf-rose); font-size: 30px; }
 .mf-report-detail-state h1 { margin: 0; font: 500 34px Georgia, "Songti SC", serif; }
 .mf-report-detail-state p { margin: 0 0 12px; color: var(--mf-muted); font-size: 12px; }
@@ -1012,10 +1016,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-model-report-cover-topline { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .mf-model-report-cover-topline > span { color: var(--mf-rose); font: 760 10px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; letter-spacing: .14em; }
 .mf-model-report-cover-topline > small { max-width: 52%; color: #98858e; font: 570 11px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; text-align: right; }
-.mf-model-report-opening { position: relative; z-index: 2; max-width: 780px; margin-top: 39px; }
-.mf-model-report-opening h1 { margin: 0; color: #302a31; font: 650 clamp(42px, 6.8vw, 64px)/1.12 -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif; letter-spacing: -.055em; text-wrap: balance; }
-.mf-model-report-opening p { max-width: 790px; margin: 25px 0 0; color: #55505a; font: 440 clamp(17px, 2.25vw, 21px)/1.85 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; letter-spacing: -.012em; text-wrap: pretty; }
-.mf-model-report-visual { position: relative; z-index: 1; margin-top: 38px; padding-top: 30px; display: grid; grid-template-columns: minmax(0,1.12fr) minmax(280px,.88fr); align-items: center; gap: 38px; border-top: 1px solid rgba(122,41,78,.1); }
+.mf-model-report-visual { position: relative; z-index: 1; margin-top: 38px; display: grid; grid-template-columns: minmax(0,1.12fr) minmax(280px,.88fr); align-items: center; gap: 38px; }
 .mf-model-report-type > span { color: #9d8691; font: 650 12px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
 .mf-model-report-type h2 { max-width: 560px; margin: 9px 0 0; color: var(--mf-ink); font: 540 clamp(29px, 4vw, 40px)/1.12 Georgia, "Songti SC", serif; letter-spacing: -.035em; text-wrap: balance; }
 .mf-model-report-type p { max-width: 520px; margin: 18px 0 0; color: #6f5e66; font: 560 15px/1.7 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
@@ -1081,10 +1082,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-disclaimer { margin: 18px 0 0; color: #a99ca2; font-size: 11px; }
 
 @media (max-width: 800px) {
-  .mf-login-page { min-height: 100dvh; padding: 84px 16px 32px; place-items: start center; overflow-x: hidden; overflow-y: visible; }
+  .mf-login-page { min-height: 100dvh; padding: 72px 16px; place-items: center; overflow-x: hidden; overflow-y: visible; }
   .mf-login-brand { top: 22px; left: 22px; }
-  .mf-login-card { width: 100%; padding: 34px 22px 28px; border-radius: 25px; }
-  .mf-login-mark { width: 48px; height: 48px; margin-bottom: 21px; border-radius: 16px; }
+  .mf-login-card { width: 100%; padding: 26px 22px 28px; border-radius: 25px; }
+  .mf-login-card-head { min-height: 48px; margin-bottom: 24px; }
+  .mf-login-mark { width: 48px; height: 48px; flex-basis: 48px; border-radius: 16px; }
   .mf-login-card h1 { font-size: 31px; }
   .mf-login-form { margin-top: 26px; }
   .mf-header, .mf-test-header { width: calc(100% - 32px); height: 66px; }
@@ -1336,10 +1338,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-model-report-cover { padding: 31px 22px 33px; border-radius: 20px; }
   .mf-model-report-cover-topline { align-items: flex-start; flex-direction: column; gap: 8px; }
   .mf-model-report-cover-topline > small { max-width: 100%; text-align: left; }
-  .mf-model-report-opening { margin-top: 30px; }
-  .mf-model-report-opening h1 { font-size: clamp(37px, 11.5vw, 49px); line-height: 1.16; letter-spacing: -.045em; }
-  .mf-model-report-opening p { margin-top: 19px; font-size: 16px; line-height: 1.85; }
-  .mf-model-report-visual { margin-top: 28px; padding-top: 24px; grid-template-columns: 1fr; gap: 18px; }
+  .mf-model-report-visual { margin-top: 28px; grid-template-columns: 1fr; gap: 18px; }
   .mf-model-report-type h2 { font-size: 32px; line-height: 1.1; }
   .mf-model-report-type p { margin-top: 14px; font-size: 14px; }
   .mf-relationship-orbit { min-height: 154px; }

@@ -4,6 +4,7 @@ import {
   apiError,
   buildVerificationEmail,
   CODE_TTL_SECONDS,
+  EMAIL_CODE_LENGTH,
   getEmailEnvironment,
   isValidEmail,
   normalizeEmail,
@@ -30,6 +31,13 @@ export async function POST(request: Request) {
         generated.error?.message,
       );
       return apiError("email_service_unavailable", 500);
+    }
+
+    if (generated.data.properties.email_otp.length !== EMAIL_CODE_LENGTH) {
+      console.error(
+        `Supabase email OTP length is ${generated.data.properties.email_otp.length}; expected ${EMAIL_CODE_LENGTH}`,
+      );
+      return apiError("email_code_length_mismatch", 503);
     }
 
     const { apiKey, from } = getEmailEnvironment();

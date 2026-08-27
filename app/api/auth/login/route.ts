@@ -1,4 +1,4 @@
-import { apiError, isValidEmail, normalizeEmail } from "../email-code/shared";
+import { apiError, EMAIL_CODE_LENGTH, isValidEmail, normalizeEmail } from "../email-code/shared";
 import {
   appendSessionCookies,
   createSupabaseClient,
@@ -13,11 +13,15 @@ export async function POST(request: Request) {
     };
     const email = normalizeEmail(payload.email ?? "");
     if (!isValidEmail(email)) return apiError("invalid_email", 400);
+    const code = payload.code?.trim() ?? "";
+    if (!new RegExp(`^\\d{${EMAIL_CODE_LENGTH}}$`, "u").test(code)) {
+      return apiError("invalid_code", 400);
+    }
 
     const supabase = createSupabaseClient();
     const result = await supabase.auth.verifyOtp({
       email,
-      token: payload.code?.trim() ?? "",
+      token: code,
       type: "magiclink",
     });
 
