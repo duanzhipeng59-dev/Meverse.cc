@@ -279,9 +279,7 @@ function behaviorInsight(scores: Record<Dimension, number>, answers: AnswerSnaps
   const ranked = [...dimensions].sort((left, right) => scores[right] - scores[left]);
   const strongest = ranked[0];
   const weakest = ranked.at(-1) ?? "security";
-  const evidence = answers
-    .filter((answer) => answer.dimension === strongest)
-    .sort((left, right) => right.value - left.value)[0];
+  const evidence = answers[0];
   const evidenceCopy = evidence ? `例如在“${evidence.question}”里，你选择了“${evidence.answer}”，` : "从这次连续选择来看，";
   return `${evidenceCopy}说明你的${dimensionLabels[strongest]}是这段关系最可靠的资源；而${dimensionLabels[weakest]}得分相对较低，压力出现时更容易成为误会入口。`;
 }

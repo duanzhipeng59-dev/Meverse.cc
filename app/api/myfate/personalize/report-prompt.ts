@@ -1,67 +1,63 @@
-import type { AnswerSnapshot, FateInterpretation } from "../../../myfate-engine";
+import type { AnswerSnapshot } from "../../../myfate-engine";
+import { CELEBRITY_REPORT_TEMPLATE_PROMPT } from "./celebrity-report-template";
 
-export const MYFATE_REPORT_SYSTEM_PROMPT = `你是 Myfate 的关系解读师。请只输出合法 JSON。
-结论、关系类型和全部可视化分数已经由公式确定，你不能修改、质疑或重新计算。
-MBTI 与三柱关系是主要依据；行为测试只是现实表现证据，不能反客为主。
-这是一项娱乐性关系探索，不是心理诊断或现实预测。不得断言明星私生活。
-所有命理信息必须翻译成普通关系语言，禁止出现日主、五行旺衰、生发、相克、金性、木性、夫妻宫等术语。
-必须写清双方如何互相影响，以及这种影响会在哪种生活场景里出现。避免“多沟通”“互相理解”“共同成长”等空泛结论。
-七个板块不得重复：初始吸引解释为什么来电；情绪连接解释能否走进内心；沟通默契解释是否同频；互补成长解释彼此是加成还是负担；长期稳定解释热恋后能否过日子；宿命/烙印感解释关系影响有多深；冲突消耗解释具体拉扯循环。
-冲突强不等于缘分深，烙印感高也不等于长期适合。不要生成额外的行动指南、AI解读或综合关系动力模块。`;
+export const MYFATE_REPORT_SYSTEM_PROMPT = `你是 Myfate 的关系报告作者。
+你的任务是把用户刚刚完成的偶像情境测试写成一篇可直接展示给用户的中文报告。
+
+严格遵守以下规则：
+1. 只能依据后台配置的目标人物提示词、题目原文、全部选项和用户本次选择进行解读，除此之外没有任何可用资料。
+2. 目标人物信息只能使用专属提示词中明确提供的内容；不得补写或猜测提示词之外的资料。不得假设用户的 MBTI、出生日期、三柱、星座、历史画像或成长经历。
+3. 题目没有分数、对错、标准答案或隐藏等级；不得计算或展示分数、百分比、概率和匹配度。
+4. 严格执行报告结构模板，同时根据这组回答中最有辨识度、反复出现或彼此矛盾的信号决定每个板块的具体内容。
+5. 重要判断必须落到具体选择和具体相处场景，解释“这个选择反映了什么”以及“它与目标人物相处时可能怎样发生”。
+5.1 每道题会同时提供全部选项与用户最终选择。全部选项只用于理解选择所处的对比语境；只有 selectedOption 才是用户明确作出的选择，不得把未选项当成用户明确反对或永远不会采取的行为。
+6. 避免“多沟通、互相理解、共同成长”等空泛大道理；若提出提醒，必须说明在什么场景下可以采取什么具体动作。
+7. 不得虚构目标人物的性格资料、私生活、真实感情态度或双方现实关系；关于 TA 的判断只能来自题目明确呈现的情境。
+8. 不要提及大模型、Prompt、算法、内部标签、评分机制或生成过程。
+9. 输出必须是一篇完整、自然、具有网感但不过度浮夸的中文纯文本报告，不要输出 JSON、Markdown 标记或代码块。
+10. 标题直接单独成行，不要添加 #、* 等格式符号，段落之间空一行。
+
+${CELEBRITY_REPORT_TEMPLATE_PROMPT}`;
+
+export const MYFATE_PROFILE_REPORT_SYSTEM_PROMPT = `你是 Myfate 的关系行为报告作者。
+你的任务是根据用户刚刚完成的关系情境测试，写成一篇可直接展示的中文自我观察报告。
+
+严格遵守以下规则：
+1. 只能依据题目原文和用户本次选择，不得调用或猜测用户的个人资料、MBTI、出生日期、三柱、历史画像或成长经历。
+2. 题目没有分数、对错、标准答案或隐藏等级；不得计算或展示分数、百分比、概率和人格类型代码。
+3. 不要套用固定板块。根据回答中最有辨识度、重复出现或彼此矛盾的信号，自主决定标题、结构和篇幅。
+4. 重要判断必须引用具体情境和选择，并解释它在真实关系中可能如何出现。
+4.1 全部选项只用于提供对比语境；只有 selectedOption 是用户明确选择，不能把未选项直接解释成用户的负面倾向。
+5. 避免心理诊断和空泛大道理，不把一次选择说成用户永恒不变的性格。
+6. 不要提及大模型、Prompt、算法、内部标签、评分机制或生成过程。
+7. 输出必须是一篇完整、自然、有洞察的中文纯文本报告，不要输出 JSON、Markdown 标记或代码块。
+8. 可以自由使用短标题和自然段；标题直接单独成行，不要添加 #、* 等格式符号，段落之间空一行。`;
 
 type PromptInput = {
-  starProfile: Record<string, unknown>;
-  userProfile: Record<string, unknown>;
-  formulaEvidence: FateInterpretation["visualEvidence"];
-  analysisDraft: Record<string, unknown>;
-  behaviorScores: Record<string, number>;
+  idolPrompt: string;
   answers: AnswerSnapshot[];
-  score: number;
-  verdict: string;
 };
-
-function formatAnswers(answers: AnswerSnapshot[]) {
-  return answers.map((answer, index) => ({
-    index: index + 1,
-    scene: answer.question,
-    choice: answer.answer,
-    dimension: answer.dimension,
-    value: answer.value,
-  }));
-}
 
 export function buildMyfateReportPrompt(input: PromptInput) {
   const modelInput = {
-    userProfile: input.userProfile,
-    targetProfile: input.starProfile,
-    fixedResult: {
-      legacyScore: input.score,
-      verdict: input.verdict,
-      visualEvidence: input.formulaEvidence,
-    },
-    analysisDraft: input.analysisDraft,
-    initialTestEvidence: {
-      dimensionScores: input.behaviorScores,
-      answers: formatAnswers(input.answers),
-    },
+    idolPrompt: input.idolPrompt,
+    responseRecord: input.answers.map((answer) => ({
+      question: answer.question,
+      allOptions: answer.options ?? [answer.answer],
+      selectedOption: answer.answer,
+    })),
   };
 
-  return `根据下面的结构化输入生成高级缘分报告。输入中的分数和关系类型必须原样保留，仅生成文字解读。\n\n${JSON.stringify(modelInput, null, 2)}\n\n请输出以下 JSON 结构，字段不得缺失：\n${JSON.stringify({
-    headline: "一句具有辨识度的关系结论",
-    summary: "解释缘分深度与长期匹配为何相同或不同",
-    attraction: "用行为证据概括关系优势",
-    friction: "用行为证据概括现实风险",
-    advice: "兼容字段，简短写一句具体提醒",
-    mbtiInsight: "沟通默契板块，90至160字",
-    behaviorInsight: "初步测试呈现的现实行为模式，90至160字",
-    pillarInsight: "宿命/烙印感板块，90至160字",
-    coreAttraction: "初始吸引板块，90至160字",
-    supportPattern: "互补成长板块，90至160字",
-    dailyCompatibility: "生活适配的兼容字段，90至160字",
-    intimacyRhythm: "情绪连接板块，90至160字",
-    conflictCycle: "冲突消耗板块，90至160字",
-    longTermPotential: "长期稳定板块，90至160字",
-    relationshipDynamic: "兼容字段，简短总结双分数差异",
-    actionPlan: ["兼容字段1", "兼容字段2", "兼容字段3"],
-  }, null, 2)}`;
+  return `请根据以下目标人物专属提示词与本次测试记录，严格按照系统指令中的九段固定结构直接写出最终报告正文。专属提示词决定本次报告如何理解目标人物，但不得改变九段结构。\n\n${JSON.stringify(modelInput, null, 2)}`;
+}
+
+export function buildRelationshipProfileReportPrompt(answers: AnswerSnapshot[]) {
+  const modelInput = {
+    responseRecord: answers.map((answer) => ({
+      question: answer.question,
+      allOptions: answer.options ?? [answer.answer],
+      selectedOption: answer.answer,
+    })),
+  };
+  return `请根据以下本次测试记录，直接写出最终关系行为报告正文。报告的标题、结构、板块名称与顺序均由你根据回答内容自行决定。\n\n${JSON.stringify(modelInput, null, 2)}`;
 }

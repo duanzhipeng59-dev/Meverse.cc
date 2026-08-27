@@ -4,18 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { useAuth } from "../../auth-context";
-import { finalVerdict } from "../../myfate-engine";
 import { readBasicProfile } from "../../myfate-progressive-profile";
 import { deleteSavedReport, readSavedReports, type SavedReport } from "../../myfate-report-storage";
 import { deleteRelationshipReport, readRelationshipReports, type RelationshipProfileReport } from "../../relationship-profile-storage";
-
-const fateTitles = {
-  "绝对": "红颜祸水",
-  "可能": "命定心动",
-  "也许": "暧昧引力",
-  "不太像": "擦肩缘分",
-  "不是": "平行时空",
-} as const;
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
@@ -27,9 +18,8 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function starOrbitStyle(score: number, index: number, count: number) {
-  const safeScore = Math.max(0, Math.min(100, score));
-  const radius = 23 + (100 - safeScore) * 0.2;
+function starOrbitStyle(index: number, count: number) {
+  const radius = 29 + (index % 3) * 8;
   const angle = -90 + (360 / Math.max(count, 1)) * index;
   const duration = 27 + (index % 3) * 4;
 
@@ -116,7 +106,7 @@ export default function ReportsWorkspace() {
                   <span>缘分星图</span>
                   <h2 id="mf-fate-map-title">谁离你最近？</h2>
                 </div>
-                <p>距离越近，代表契合度越高；每位偶像展示最近一次测试。</p>
+                <p>每位偶像展示最近一次测试，点击即可回看完整报告。</p>
               </div>
 
               <div className="mf-fate-map-stage">
@@ -132,12 +122,12 @@ export default function ReportsWorkspace() {
                   <div
                     className="mf-fate-map-star-orbit"
                     key={report.starId}
-                    style={starOrbitStyle(report.score, index, latestStarReports.length)}
+                    style={starOrbitStyle(index, latestStarReports.length)}
                   >
                     <Link
                       className={`mf-fate-map-star ${report.status}`}
                       href={`/home/reports/${report.id}`}
-                      aria-label={`${report.starName}，${report.status === "advanced" ? `契合度 ${report.score}%` : report.status === "generating" ? "报告生成中" : "初步报告"}，查看最近报告`}
+                      aria-label={`${report.starName}，${report.status === "advanced" ? "报告已生成" : report.status === "generating" ? "报告生成中" : "等待重新生成"}，查看最近报告`}
                     >
                       <span
                         className="mf-fate-map-avatar"
@@ -146,16 +136,16 @@ export default function ReportsWorkspace() {
                         style={{ backgroundImage: `url("${report.starPortrait}")` }}
                       />
                       <strong>{report.starName}</strong>
-                      <small>{report.status === "advanced" ? `${report.score}%` : report.status === "generating" ? "生成中" : "初印象"}</small>
+                      <small>{report.status === "advanced" ? "已生成" : report.status === "generating" ? "生成中" : "待生成"}</small>
                     </Link>
                   </div>
                 ))}
               </div>
 
               <div className="mf-fate-map-legend" aria-label="报告状态说明">
-                <span><i className="advanced" aria-hidden="true" />高级报告</span>
+                <span><i className="advanced" aria-hidden="true" />完整报告</span>
                 <span><i className="generating" aria-hidden="true" />生成中</span>
-                <span><i className="initial" aria-hidden="true" />初步报告</span>
+                <span><i className="initial" aria-hidden="true" />待重新生成</span>
               </div>
             </section>
           ) : null}
@@ -176,10 +166,10 @@ export default function ReportsWorkspace() {
                   <div className="mf-profile-report-mark" aria-hidden="true">✦</div>
                   <div className="mf-report-card-copy">
                     <div className="mf-report-card-meta"><span className="profile">关系画像</span><time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time></div>
-                    <h2>{report.title}</h2><p>六维关系行为画像 · 24 道情境回答</p>
+                    <h2>{report.title}</h2><p>{report.status === "complete" ? "完整文字报告已生成" : report.status === "generating" ? "报告正在生成" : "报告需要重新生成"}</p>
                   </div>
                   <div className="mf-report-card-result">
-                    <span>认识自己的相处方式</span>
+                    <span>{report.status === "complete" ? "回看本次选择的完整解读" : "保留了本次全部选择"}</span>
                     <div className="mf-report-card-actions">
                       <Link href={`/home/relationship-profile/result/${report.id}`}>查看画像 <span>→</span></Link>
                       <button type="button" onClick={() => void confirmDelete(report)} aria-label={`删除关系画像：${report.title}`}>删除</button>
@@ -188,7 +178,6 @@ export default function ReportsWorkspace() {
                 </article>
               );
             }
-            const verdict = finalVerdict(report.score);
             return (
               <article className="mf-report-card" key={report.id}>
                 <div
@@ -200,15 +189,15 @@ export default function ReportsWorkspace() {
                 <div className="mf-report-card-copy">
                   <div className="mf-report-card-meta">
                     <span className={report.status}>
-                      {report.status === "advanced" ? "高级报告" : report.status === "generating" ? "生成中" : "初步报告"}
+                      {report.status === "advanced" ? "关系报告" : report.status === "generating" ? "生成中" : "待重新生成"}
                     </span>
                     <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                   </div>
                   <h2>{report.starName}</h2>
-                  <p>{report.status === "advanced" ? `你是 TA 的「${fateTitles[verdict]}」` : report.status === "generating" ? "高级报告正在生成，请稍候" : report.initialTitle}</p>
+                  <p>{report.status === "advanced" ? "完整解读已生成" : report.status === "generating" ? "正在阅读本次选择并生成报告" : "这份报告需要重新生成"}</p>
                 </div>
                 <div className="mf-report-card-result">
-                  {report.status === "advanced" ? <strong>{report.score}<small>%</small></strong> : <span>{report.status === "generating" ? "正在生成" : "缘分初印象"}</span>}
+                  <span>{report.status === "advanced" ? "查看完整解读" : report.status === "generating" ? "正在生成" : "可重新生成"}</span>
                   <div className="mf-report-card-actions">
                     <Link href={`/home/reports/${report.id}`}>{report.status === "generating" ? "查看进度" : "查看报告"} <span>→</span></Link>
                     <button type="button" onClick={() => void confirmDelete(report)} aria-label={`删除 ${report.starName} 的报告`}>删除</button>

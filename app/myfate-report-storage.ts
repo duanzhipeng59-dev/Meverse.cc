@@ -1,5 +1,6 @@
 import type { Dimension, StarProfile } from "./myfate-data";
 import type { AnswerSnapshot, FateInterpretation } from "./myfate-engine";
+import { readLocalSession } from "./local-auth";
 
 export type SavedReportStatus = "initial" | "generating" | "advanced";
 
@@ -17,6 +18,7 @@ export type SavedReport = {
   initialTitle: string;
   answers: AnswerSnapshot[];
   interpretation: FateInterpretation | null;
+  reportText: string | null;
   interpretationSource?: "deepseek" | "gemini";
   createdAt: string;
   updatedAt: string;
@@ -29,6 +31,26 @@ async function readJson<T>(response: Response): Promise<T | null> {
 
 function announceReportUpdate() {
   window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
+}
+
+function localReportsKey(email: string | null) {
+  return `myfate-local-reports:${email || "guest"}`;
+}
+
+function readLocalReports(email: string | null): SavedReport[] {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(localReportsKey(email)) ?? "[]") as unknown;
+    return Array.isArray(parsed) ? parsed as SavedReport[] : [];
+  } catch { return []; }
+}
+
+function writeLocalReports(email: string | null, reports: SavedReport[]) {
+  window.localStorage.setItem(localReportsKey(email), JSON.stringify(reports));
+  announceReportUpdate();
+}
+
+function currentLocalEmail() {
+  return typeof window === "undefined" ? null : readLocalSession();
 }
 
 const migrations = new Map<string, Promise<void>>();
@@ -52,21 +74,25 @@ async function migrateLegacyReports(email: string | null) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           starId: legacyReport.starId,
-          score: legacyReport.score,
-          behaviorScores: legacyReport.behaviorScores,
           questionCount: legacyReport.questionCount,
-          initialTitle: legacyReport.initialTitle,
           answers: legacyReport.answers,
         }),
       }));
       if (!created?.report) continue;
       if (legacyReport.status !== "initial") {
+        const legacyText = legacyReport.reportText ?? [
+          legacyReport.interpretation?.headline,
+          legacyReport.interpretation?.summary,
+          legacyReport.interpretation?.attraction,
+          legacyReport.interpretation?.friction,
+          legacyReport.interpretation?.advice,
+        ].filter(Boolean).join("\n\n");
         const upgraded = await readJson<{ report?: SavedReport }>(await fetch(`/api/myfate/reports/${created.report.id}`, {
           method: "PATCH",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             status: legacyReport.status,
-            interpretation: legacyReport.interpretation,
+            ...(legacyText ? { reportText: legacyText } : {}),
             interpretationSource: legacyReport.interpretationSource,
           }),
         }));
@@ -88,65 +114,68 @@ export async function readSavedReports(email: string | null): Promise<SavedRepor
   try {
     await migrateLegacyReports(email);
     const result = await readJson<{ reports?: SavedReport[] }>(await fetch("/api/myfate/reports", { cache: "no-store" }));
-    return Array.isArray(result?.reports) ? result.reports : [];
+    if (Array.isArray(result?.reports)) return result.reports;
   } catch {
-    return [];
+    // Local development can run without the report database.
   }
+  return readLocalReports(email).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export async function readLatestSavedReportForStar(email: string | null, starId: string): Promise<SavedReport | null> {
   try {
     await migrateLegacyReports(email);
     const result = await readJson<{ reports?: SavedReport[] }>(await fetch(`/api/myfate/reports?starId=${encodeURIComponent(starId)}`, { cache: "no-store" }));
-    return result?.reports?.[0] ?? null;
+    if (result?.reports) return result.reports[0] ?? null;
   } catch {
-    return null;
+    // Fall back to the browser-local report archive.
   }
+  return readLocalReports(email).filter((report) => report.starId === starId).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null;
 }
 
 export async function deleteSavedReport(reportId: string) {
   try {
     const response = await fetch(`/api/myfate/reports/${encodeURIComponent(reportId)}`, { method: "DELETE" });
-    if (!response.ok) return false;
-    announceReportUpdate();
-    return true;
+    if (response.ok) { announceReportUpdate(); return true; }
   } catch {
-    return false;
+    // Local development can run without the report database.
   }
+  const email = currentLocalEmail();
+  const reports = readLocalReports(email);
+  const next = reports.filter((report) => report.id !== reportId);
+  if (next.length === reports.length) return false;
+  writeLocalReports(email, next);
+  return true;
 }
 
 export async function createSavedReport({
   star,
-  score,
-  behaviorScores,
   questionCount,
-  initialTitle,
   answers,
 }: {
   star: StarProfile;
-  score: number;
-  behaviorScores?: Record<Dimension, number>;
   questionCount?: number;
-  initialTitle: string;
   answers: AnswerSnapshot[];
 }): Promise<SavedReport | null> {
   try {
     const result = await readJson<{ report?: SavedReport }>(await fetch("/api/myfate/reports", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ starId: star.id, score, behaviorScores, questionCount, initialTitle, answers }),
+      body: JSON.stringify({ starId: star.id, questionCount, answers }),
     }));
-    if (!result?.report) return null;
-    announceReportUpdate();
-    return result.report;
+    if (result?.report) { announceReportUpdate(); return result.report; }
   } catch {
-    return null;
+    // Local development can run without the report database.
   }
+  const email = currentLocalEmail();
+  const now = new Date().toISOString();
+  const report: SavedReport = { id: crypto.randomUUID(), version: 1, type: "celebrity-match", starId: star.id, starName: star.name, starPortrait: star.portraitSrc, status: "generating", score: 0, questionCount, initialTitle: "AI 报告", answers, interpretation: null, reportText: null, createdAt: now, updatedAt: now };
+  writeLocalReports(email, [report, ...readLocalReports(email)]);
+  return report;
 }
 
 export async function updateSavedReport(
   reportId: string,
-  patch: Partial<Pick<SavedReport, "status" | "interpretation" | "interpretationSource">>,
+  patch: Partial<Pick<SavedReport, "status" | "reportText" | "interpretationSource">>,
 ): Promise<SavedReport | null> {
   try {
     const result = await readJson<{ report?: SavedReport }>(await fetch(`/api/myfate/reports/${encodeURIComponent(reportId)}`, {
@@ -154,10 +183,16 @@ export async function updateSavedReport(
       headers: { "content-type": "application/json" },
       body: JSON.stringify(patch),
     }));
-    if (!result?.report) return null;
-    announceReportUpdate();
-    return result.report;
+    if (result?.report) { announceReportUpdate(); return result.report; }
   } catch {
-    return null;
+    // Local development can run without the report database.
   }
+  const email = currentLocalEmail();
+  const reports = readLocalReports(email);
+  const index = reports.findIndex((report) => report.id === reportId);
+  if (index < 0) return null;
+  const updated = { ...reports[index], ...patch, updatedAt: new Date().toISOString() };
+  reports[index] = updated;
+  writeLocalReports(email, reports);
+  return updated;
 }

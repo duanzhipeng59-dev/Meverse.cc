@@ -3,19 +3,14 @@ import { createSupabaseAdminClient } from "../../auth/server";
 import { getPublishedStar } from "../../../myfate-stars-server";
 import { mapReportRow, requireReportUser, type ReportRow } from "./server";
 
-const dimensionSchema = z.record(z.enum(["security", "expression", "independence", "conflict", "novelty"]), z.number().min(0).max(100));
 const answerSchema = z.object({
   question: z.string().max(500),
+  options: z.array(z.string().min(1).max(500)).min(1).max(12).optional(),
   answer: z.string().max(500),
-  value: z.number().int().min(1).max(4),
-  dimension: z.enum(["security", "expression", "independence", "conflict", "novelty"]),
 });
 const createSchema = z.object({
   starId: z.string().max(80),
-  score: z.number().int().min(0).max(100),
-  behaviorScores: dimensionSchema.optional(),
   questionCount: z.number().int().min(1).max(64).optional(),
-  initialTitle: z.string().min(1).max(200),
   answers: z.array(answerSchema).max(64),
 });
 
@@ -54,11 +49,11 @@ export async function POST(request: Request) {
         star_id: star.id,
         star_name: star.name,
         star_portrait: star.portraitSrc,
-        status: "initial",
-        score: parsed.data.score,
-        behavior_scores: parsed.data.behaviorScores ?? null,
+        status: "generating",
+        score: 0,
+        behavior_scores: null,
         question_count: parsed.data.questionCount ?? null,
-        initial_title: parsed.data.initialTitle,
+        initial_title: "AI 报告",
         answers: parsed.data.answers,
       })
       .select("id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at")

@@ -16,7 +16,7 @@ export default function RelationshipProfilePage() {
         <div className="mf-profile-intro-copy">
           <span>不是好坏判断，而是行为偏好</span>
           <h2>没有标准答案，选择最像你的反应</h2>
-          <p>结果会形成一份六维关系画像，帮助你理解平常状态和压力状态下更容易采取的相处方式。</p>
+          <p>完成后，大模型会从你本次的全部选择中找到最值得解读的信号，写成一份结构不设限的关系行为报告。</p>
           <Link className="mf-primary-button" href="/home/relationship-profile/test">开始测试 <span>→</span></Link>
         </div>
         <div className="mf-profile-dimension-preview">

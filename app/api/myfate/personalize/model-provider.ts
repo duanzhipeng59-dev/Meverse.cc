@@ -30,13 +30,12 @@ async function generateWithDeepSeek(system: string, prompt: string): Promise<Mod
         { role: "system", content: system },
         { role: "user", content: prompt },
       ],
-      response_format: { type: "json_object" },
       thinking: { type: "disabled" },
-      temperature: 0.7,
-      max_tokens: 4200,
+      temperature: 0.8,
+      max_tokens: 5000,
       stream: false,
     }),
-    signal: AbortSignal.timeout(45_000),
+    signal: AbortSignal.timeout(60_000),
   });
   if (!response.ok) throw new Error(`DEEPSEEK_HTTP_${response.status}`);
   const parsed = deepSeekResponseSchema.safeParse(await response.json());
@@ -46,9 +45,8 @@ async function generateWithDeepSeek(system: string, prompt: string): Promise<Mod
   return { content, provider: "deepseek", model };
 }
 
-export async function generateReportJson(system: string, prompt: string): Promise<ModelGeneration> {
+export async function generateReportText(system: string, prompt: string): Promise<ModelGeneration> {
   const provider = process.env.MYFATE_AI_PROVIDER ?? "deepseek";
   if (provider === "deepseek") return generateWithDeepSeek(system, prompt);
-  // Gemini will be added here without changing scoring, prompt construction, or report rendering.
   throw new Error(`UNSUPPORTED_MYFATE_AI_PROVIDER:${provider}`);
 }

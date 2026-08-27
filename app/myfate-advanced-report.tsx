@@ -1,219 +1,187 @@
 import type { ReactNode } from "react";
-import type { Dimension, StarProfile } from "./myfate-data";
-import { finalVerdict, type AnswerSnapshot, type FateInterpretation } from "./myfate-engine";
+import type { StarProfile } from "./myfate-data";
 
-const fateTitles = {
-  "绝对": "命中注定",
-  "可能": "红颜祸水",
-  "也许": "些许暧昧",
-  "不太像": "缘分较浅",
-  "不是": "平行时空",
-} as const;
+type ReportSection = {
+  number: string;
+  title: string;
+  body: string;
+};
 
-function relationshipSignalLabel(score: number) {
-  if (score >= 82) return "高度同步";
-  if (score >= 68) return "明显默契";
-  if (score >= 55) return "仍需磨合";
-  return "差异明显";
+type ReportSubsection = {
+  title: string;
+  body: string;
+};
+
+const fallbackSubtitles: Record<string, string[]> = {
+  "01": ["你的自然模式", "你们形成的关系氛围", "需要留意的落差"],
+  "02": ["TA 最需要的感受", "TA 期待的回应", "关系里的隐藏需求"],
+  "03": ["情绪共鸣", "日常相处", "关系修复"],
+  "04": ["自然优势", "滋养方式", "仍需观察"],
+  "05": ["防御反应", "承接状态", "潜在张力"],
+  "06": ["长期消耗", "现实负担", "情绪余波"],
+  "07": ["核心风险", "触发循环", "调整动作"],
+  "08": ["健康支持", "非健康滑坡", "判断边界"],
+  "09": ["规则名称", "触发条件", "执行步骤", "结束确认"],
+};
+
+function cleanHeading(value: string) {
+  return value.replace(/^[#*\s]+|[#*\s]+$/gu, "").trim();
+}
+
+function splitReport(reportText: string) {
+  const lines = reportText.replace(/\r\n?/gu, "\n").split("\n");
+  const intro: string[] = [];
+  const sections: ReportSection[] = [];
+  let current: ReportSection | null = null;
+
+  for (const line of lines) {
+    const heading = line.trim().match(/^(\d{1,2})[.．、]\s*(.+)$/u);
+    const headingNumber = heading ? Number(heading[1]) : 0;
+    const expectedHeadingNumber = current ? Number(current.number) + 1 : 1;
+    if (heading && headingNumber === expectedHeadingNumber && headingNumber <= 9) {
+      if (current) sections.push({ ...current, body: current.body.trim() });
+      current = { number: heading[1].padStart(2, "0"), title: cleanHeading(heading[2]), body: "" };
+      continue;
+    }
+    if (current) current.body += `${line}\n`;
+    else intro.push(line);
+  }
+  if (current) sections.push({ ...current, body: current.body.trim() });
+
+  const introLines = intro.map((line) => cleanHeading(line)).filter(Boolean);
+  const title = introLines[0] || "目标人物亲密关系匹配与深度磨合分析报告";
+  const meta = new Map<string, string>();
+  const leadLines: string[] = [];
+  for (const line of introLines.slice(1)) {
+    const item = line.match(/^(关系主标题|关系导语|关系类型|关系节奏|核心张力|关系关键词)[｜|：:]\s*(.+)$/u);
+    if (item) meta.set(item[1], item[2].trim());
+    else leadLines.push(line);
+  }
+  const firstSectionSummary = sections[0]?.body
+    .replace(/【[^】]+】/gu, "")
+    .replace(/\s+/gu, " ")
+    .trim()
+    .slice(0, 220);
+  const reportedCoreTension = meta.get("核心张力");
+  const coreTension = reportedCoreTension || "心动很自然，理解仍需要被具体确认";
+  return {
+    title,
+    openingTitle: meta.get("关系主标题") || reportedCoreTension || sections[0]?.title || title,
+    openingSummary: meta.get("关系导语") || firstSectionSummary || "你们的吸引来自对彼此节奏的敏锐感知，而真正决定关系能否走深的，是心动之后能否把没有说出口的需要变成清楚、稳定的回应。",
+    relationshipType: meta.get("关系类型") || "深度磨合型",
+    relationshipRhythm: meta.get("关系节奏") || "在靠近与留白之间寻找共同节奏",
+    coreTension,
+    keywords: (meta.get("关系关键词") || "真实回应 / 边界感 / 长期确认")
+      .split(/\s*[\/／|｜、]\s*/u)
+      .map((keyword) => keyword.trim())
+      .filter(Boolean)
+      .slice(0, 4),
+    lead: leadLines.join("\n"),
+    sections: sections.length ? sections : [{ number: "01", title: "关系解读", body: reportText.trim() }],
+  };
+}
+
+function splitSubsections(section: ReportSection): ReportSubsection[] {
+  const blocks = section.body
+    .split(/\n\s*\n+|\n(?=[•·]\s*)|\n(?=【[^】]+】)/gu)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  const fallbacks = fallbackSubtitles[section.number] ?? ["关系解读"];
+
+  return blocks.map((block, index) => {
+    const bracketHeading = block.match(/^【([^】]{1,48})】[：:]?\s*\n?([\s\S]*)$/u);
+    if (bracketHeading) {
+      return { title: cleanHeading(bracketHeading[1]), body: bracketHeading[2].trim() };
+    }
+    const inlineHeading = block.match(/^[•·-]?\s*([^：:\n]{2,36})[：:]\s*([\s\S]+)$/u);
+    if (inlineHeading) {
+      return { title: cleanHeading(inlineHeading[1]), body: inlineHeading[2].trim() };
+    }
+    return { title: fallbacks[Math.min(index, fallbacks.length - 1)], body: block };
+  });
 }
 
 export default function MyfateAdvancedReport({
   star,
-  score,
+  reportText,
   questionCount,
-  behaviorScores,
-  interpretation,
   actions,
-  disclaimer = "本测试仅用于娱，不构成现实关系预测。",
+  disclaimer = "本测试仅用于娱乐与关系想象，不构成现实关系预测。",
 }: {
   star: StarProfile;
-  score: number;
-  questionCount: number;
-  answers: AnswerSnapshot[];
-  behaviorScores: Record<Dimension, number>;
-  interpretation: FateInterpretation;
-  userMbti?: string;
-  isInterpreting?: boolean;
+  reportText: string;
+  questionCount?: number;
   actions?: ReactNode;
   disclaimer?: string;
 }) {
-  const verdict = finalVerdict(score);
-  const evidenceScores = interpretation.relationshipScores;
-  const visualEvidence = interpretation.visualEvidence;
-  const visualDimensions = visualEvidence ? [
-    { label: "初始吸引", score: visualEvidence.dimensions.initialAttraction },
-    { label: "情绪连接", score: visualEvidence.dimensions.emotionalConnection },
-    { label: "沟通默契", score: visualEvidence.dimensions.communicationHarmony },
-    { label: "互补成长", score: visualEvidence.dimensions.mutualGrowth },
-    { label: "长期稳定", score: visualEvidence.dimensions.longTermStability },
-    { label: "宿命/烙印感", score: visualEvidence.dimensions.fateImprint },
-    { label: "冲突消耗", score: visualEvidence.dimensions.conflictConsumption, negative: true },
-  ] : [];
-  const relationshipSignals = [
-    {
-      label: "心动引力",
-      description: "关系底色与认知偏好共同形成的吸引强度",
-      score: evidenceScores?.attraction ?? Math.round((behaviorScores.expression + behaviorScores.novelty) / 2),
-      color: "#b64770",
-    },
-    {
-      label: "情绪托举",
-      description: "双方能否接住需要，并让理性与感受互相补位",
-      score: evidenceScores?.support ?? behaviorScores.security,
-      color: "#d27b70",
-    },
-    {
-      label: "相处节奏",
-      description: "计划、陪伴、独处和现实选择中的协作程度",
-      score: evidenceScores?.daily ?? behaviorScores.independence,
-      color: "#8d6193",
-    },
-    {
-      label: "长期潜力",
-      description: "关系底色能否承受差异，并沉淀成稳定配合",
-      score: evidenceScores?.longTerm ?? behaviorScores.conflict,
-      color: "#697b9d",
-    },
-  ];
-  const relationshipStructureSignals = [
-    {
-      label: "情绪回应",
-      description: "理解感受，也能回应彼此没有说出口的需要",
-      score: behaviorScores.expression,
-    },
-    {
-      label: "相处节奏",
-      description: "协调亲密、独处以及生活变化带来的距离",
-      score: Math.round((behaviorScores.independence + behaviorScores.novelty) / 2),
-    },
-    {
-      label: "长期稳定",
-      description: "面对不确定、冲突与现实选择时继续共建关系",
-      score: Math.round((behaviorScores.security + behaviorScores.conflict) / 2),
-    },
-  ];
-  const deepLenses = [
-    interpretation.mbtiInsight ? {
-      title: "认知与表达节奏",
-      content: interpretation.mbtiInsight,
-    } : null,
-    interpretation.behaviorInsight ? {
-      title: "压力下的自然反应",
-      content: interpretation.behaviorInsight,
-    } : null,
-    interpretation.pillarInsight ? {
-      title: "关系底色与相处张力",
-      content: interpretation.pillarInsight,
-    } : null,
-  ].filter((lens): lens is NonNullable<typeof lens> => lens !== null);
-  const relationshipReadings = [
-    interpretation.coreAttraction ? { index: "01", title: "初始吸引", content: interpretation.coreAttraction } : null,
-    interpretation.intimacyRhythm ? { index: "02", title: "情绪连接", content: interpretation.intimacyRhythm } : null,
-    interpretation.mbtiInsight ? { index: "03", title: "沟通默契", content: interpretation.mbtiInsight } : null,
-    interpretation.supportPattern ? { index: "04", title: "互补成长", content: interpretation.supportPattern } : null,
-    interpretation.longTermPotential ? { index: "05", title: "长期稳定", content: interpretation.longTermPotential } : null,
-    interpretation.pillarInsight ? { index: "06", title: "宿命/烙印感", content: interpretation.pillarInsight } : null,
-    interpretation.conflictCycle ? { index: "07", title: "冲突消耗", content: interpretation.conflictCycle } : null,
-  ].filter((reading): reading is NonNullable<typeof reading> => reading !== null);
+  const report = splitReport(reportText);
 
   return (
-    <div className="mf-final-result">
-      <section className="mf-final-hero">
-        <div className="mf-final-person">
-          <div className="mf-final-avatar" role="img" aria-label={star.name} style={{ backgroundImage: `url("${star.portraitSrc}")` }} />
-          <span>你与 <strong>{star.name}</strong> 的最终缘分报告</span>
+    <div className="mf-final-result mf-model-only-report">
+      <section className="mf-model-report-paper">
+        <div className="mf-model-report-person">
+          <div
+            className="mf-final-avatar"
+            role="img"
+            aria-label={star.name}
+            style={{ backgroundImage: `url("${star.portraitSrc}")` }}
+          />
+          <span>你与 <strong>{star.name}</strong> 的关系报告</span>
         </div>
-        <div className="mf-final-verdict-row">
-          <div className="mf-fate-title">
-            <small>你和 TA 的关系</small>
-            <div className="mf-fate-answer">{fateTitles[verdict]}</div>
-            <span>{verdict}正缘</span>
+        <header className="mf-model-report-cover">
+          <div className="mf-model-report-cover-topline">
+            <span>MYFATE · RELATIONSHIP TYPE</span>
+            <small>{report.title}</small>
           </div>
-          <div className="mf-final-score"><strong>{score}</strong><span>%</span><small>综合匹配度</small></div>
-        </div>
-        <p className="mf-final-lead">{interpretation.summary}</p>
-      </section>
-
-      {visualEvidence ? (
-        <section className="mf-evidence-overview">
-          <div className="mf-final-section-heading"><span>关系数据画像</span><h2>{visualEvidence.relationshipType}</h2><p>缘分深不等于一定适合，两个分数分别呈现关系影响与长期相处能力</p></div>
-          <div className="mf-evidence-summary">
-            <article><strong>{visualEvidence.fateDepthScore}<small>%</small></strong><span>缘分深度</span></article>
-            <article><strong>{visualEvidence.longTermMatchScore}<small>%</small></strong><span>长期匹配</span></article>
-            <article className="is-conflict"><strong>{visualEvidence.conflictConsumptionScore}<small>%</small></strong><span>冲突消耗</span></article>
+          <div className="mf-model-report-opening">
+            <h1>{report.openingTitle}</h1>
+            <p>{report.openingSummary}</p>
           </div>
-          <div className="mf-evidence-bars">
-            {visualDimensions.map((item) => <article className={item.negative ? "is-negative" : undefined} key={item.label}><div><span>{item.label}</span><strong>{item.score}%</strong></div><i><b style={{ width: `${item.score}%` }} /></i></article>)}
+          <div className="mf-model-report-visual">
+            <div className="mf-model-report-type">
+              <span>你们更像</span>
+              <h2>{report.relationshipType}</h2>
+              <p>{report.relationshipRhythm}</p>
+            </div>
+            <div className="mf-relationship-orbit" aria-label={`你与 ${star.name} 的关系连接示意`}>
+              <div className="mf-relationship-node mf-is-user"><span>你</span></div>
+              <i><b>✦</b></i>
+              <div className="mf-relationship-node mf-is-star" style={{ backgroundImage: `url("${star.portraitSrc}")` }}><span>{star.name}</span></div>
+            </div>
           </div>
-        </section>
-      ) : null}
-
-      <section className="mf-relationship-structure mf-core-dimensions">
-        <div className="mf-final-section-heading">
-          <span>{questionCount} </span>
-          <h2>缘分结构</h2>
-          <p>四个分数描绘关系的相处质感</p>
-        </div>
-        <div className="mf-relationship-signals">
-          {relationshipSignals.map((signal) => (
-            <article key={signal.label} style={{ "--signal-color": signal.color, "--signal-score": `${signal.score}%` } as React.CSSProperties}>
-              <i><b><strong>{signal.score}</strong><span>%</span></b></i>
-              <h3>{signal.label}</h3>
-              <small>{relationshipSignalLabel(signal.score)}</small>
-              <p>{signal.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {relationshipReadings.length ? (
-        <section className="mf-deep-report-lenses mf-seven-readings">
-          <div className="mf-final-section-heading"><span>七个关系板块</span><h2>从心动到长期，看清你们的关系轨迹</h2><p>分别呈现吸引、连接、成长与消耗会如何发生</p></div>
-          <div className="mf-deep-lens-grid">
-            {relationshipReadings.map((reading) => <article key={reading.title}><span>{reading.index}</span><h3>{reading.title}</h3><p>{reading.content}</p></article>)}
+          <div className="mf-model-report-facts">
+            <div><strong>{questionCount === undefined ? "—" : String(questionCount).padStart(2, "0")}</strong><span>本次情境选择</span></div>
+            <div><strong>09</strong><span>深度解读板块</span></div>
+            <div className="mf-is-tension"><small>核心张力</small><p>{report.coreTension}</p></div>
           </div>
-        </section>
-      ) : null}
-
-      <section className="mf-final-dual">
-        <article>
-          <span>你们的关系天赋</span>
-          <h2>最自然的靠近方式</h2>
-          <p className="mf-insight-summary">{interpretation.attraction}</p>
-        </article>
-        <article>
-          <span>需要共同练习</span>
-          <h2>真正进入关系后的提醒</h2>
-          <p className="mf-insight-summary">{interpretation.friction}</p>
-        </article>
-      </section>
-
-      <section className="mf-relationship-structure mf-original-structure">
-        <div className="mf-final-section-heading"><span>缘分结构</span><h2>你们的关系会在这三个方面被真正看见</h2></div>
-        <div className="mf-structure-bars">
-          {relationshipStructureSignals.map((signal) => (
-            <article key={signal.label}>
-              <div><span>{signal.label}</span><strong>{relationshipSignalLabel(signal.score)}</strong></div>
-              <i><b style={{ width: `${signal.score}%` }} /></i>
-              <p>{signal.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {deepLenses.length ? (
-        <section className="mf-deep-report-lenses">
-          <div className="mf-final-section-heading"><span>深层关系解码</span><h2>为什么会心动，又会在哪里卡住</h2><p>拆开看你们在不同关系场景里的相处动力</p></div>
-          <div className="mf-deep-lens-grid">
-            {deepLenses.map((lens) => (
-              <article key={lens.title}>
-                <h3>{lens.title}</h3><p>{lens.content}</p>
+          <div className="mf-model-report-keywords">
+            {report.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}
+          </div>
+          {report.lead ? <p className="mf-model-report-lead">{report.lead}</p> : null}
+        </header>
+        <div className="mf-model-report-sections">
+          {report.sections.map((section, index) => {
+            const headingId = `mf-report-section-${index + 1}`;
+            const subsections = splitSubsections(section);
+            return (
+              <article className="mf-model-report-section" aria-labelledby={headingId} key={`${section.number}-${section.title}`}>
+                <div className="mf-model-report-section-heading">
+                  <span>{section.number}</span>
+                  <h2 id={headingId}>{section.title}</h2>
+                </div>
+                <div className="mf-model-report-section-copy">
+                  {subsections.map((subsection, subsectionIndex) => (
+                    <section className="mf-model-report-subsection" key={`${subsection.title}-${subsectionIndex}`}>
+                      <h3>{subsection.title}</h3>
+                      {subsection.body ? <p>{subsection.body}</p> : null}
+                    </section>
+                  ))}
+                </div>
               </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
+            );
+          })}
+        </div>
+      </section>
       {actions ? <div className="mf-result-actions">{actions}</div> : null}
       <p className="mf-disclaimer">{disclaimer}</p>
     </div>

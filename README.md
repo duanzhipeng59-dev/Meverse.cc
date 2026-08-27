@@ -1,20 +1,21 @@
 # Myfate
 
-Myfate 是一个明星人格兼容性测试 MVP。用户可以选择心动对象，完成关系情境测试，并获得结合 MBTI、出生日期三柱与行为证据生成的高级缘分报告。
+Myfate 是一个明星关系情境测试 MVP。用户可以选择心动对象、完成题目，并获得由大模型根据本次选择写成的个性化文字报告。
 
 ## 当前 MVP
 
 - 六位人物肖像卡片首页
 - 明星情感人格详情页
-- 首次 24 道、后续渐进缩短的偶像情境测试
-- 七维关系数据、缘分深度、长期匹配与冲突消耗
-- 三柱与 MBTI 主判断、行为结果辅助校准
-- DeepSeek 生成的七板块高级报告
+- 后台统一管理的偶像情境测试题
+- 不设分数、对错或结果等级；明星报告使用可独立维护的九段模板
+- 仅保存用户本次选择，不向报告引擎传入用户个人资料
+- DeepSeek 只根据题目与本次选择生成完整纯文字报告
+- 关系行为画像同样使用无评分的大模型报告
 - 桌面端与移动端响应式界面
 
-公式引擎只生成固定分数与可视化证据，高级报告的个性化解读统一由 DeepSeek 输出。模型不可修改分数或关系类型；接口不可用时页面显示重试状态，不再展示本地规则报告。模型调用位于独立适配层，后续可以替换为 Gemini，而不改变评分与页面结构。
+产品端不再计算或映射测试结果。明星报告按照独立 Prompt 中的九段结构生成，关系行为画像仍由模型根据回答自主组织；前端只安全地呈现模型返回的纯文本并保存历史报告。接口不可用时页面显示重试状态，不展示本地规则报告。模型调用位于独立适配层，后续可替换为 Gemini。
 
-## 高级报告模型
+## 大模型报告
 
 复制 `.dev.vars.example` 为 `.dev.vars`，填入 DeepSeek API Key：
 
@@ -25,7 +26,7 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 ```
 
-不配置 `DEEPSEEK_API_KEY` 时，高级报告不会生成，页面会提示检查配置并重试。
+不配置 `DEEPSEEK_API_KEY` 时，文字报告不会生成，页面会提示检查配置并重试。
 
 ## 本地运行
 
@@ -50,8 +51,9 @@ npm test
 - `app/celebrity/[id]`：人物详情
 - `app/test/[id]`：测试入口
 - `app/myfate-data.ts`：人物档案和通用测试题
-- `app/myfate-test.tsx`：渐进式测试和结果逻辑
+- `app/myfate-test.tsx`：测试作答和文字报告生成流程
 - `app/api/myfate/personalize`：报告输入、Prompt 与模型适配层
+- `app/api/myfate/personalize/celebrity-report-template.ts`：可手动修改的明星报告九段结构
 - `docs/myfate-relationship-report-prompt.md`：完整报告 Prompt 规范
 - `app/myfate.css`：MVP 视觉系统
 - `public/*.webp`：本地人物肖像素材

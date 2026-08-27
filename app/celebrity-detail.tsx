@@ -62,7 +62,7 @@ export default function CelebrityDetail({
               测试 TA 是否是你的正缘 <span>→</span>
             </Link>
           )}
-          <p className="mf-detail-hint">24 道偶像情境题 · 完成后可解锁缘分高级报告 · 约 6 分钟</p>
+          <p className="mf-detail-hint">24 道偶像情境题 · 完成后生成专属文字报告 · 约 6 分钟</p>
           <p className="mf-bazi-note">人格画像由 MBTI 与出生日期三柱倾向交叉生成；缺少出生时辰，不构成完整八字排盘。</p>
         </section>
       </div>

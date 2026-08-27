@@ -46,6 +46,8 @@ next-env.d.ts
 /work/
 /.playwright-cli/
 /local-admin/
+/启动本地服务.command
+/启动本地后台.command
 .agents/
 skills-lock.json
 *.tsbuildinfo

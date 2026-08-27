@@ -115,8 +115,8 @@ export default async function MyfateHome() {
           </div>
           <div className="mf-how-grid">
             <article><span>01</span><h3>完成情境测试</h3><p>通过 24 道题了解你和 TA 在关系中的真实反应。</p></article>
-            <article><span>02</span><h3>查看缘分初印象</h3><p>先看缘分区间，以及你最自然和最需要确认的回应。</p></article>
-            <article><span>03</span><h3>解锁高级报告</h3><p>查看匹配指数、四维画像、吸引来源、相处挑战与专属建议。</p></article>
+            <article><span>02</span><h3>读懂本次选择</h3><p>每一个选择都会作为报告依据，没有分数、对错或标准答案。</p></article>
+            <article><span>03</span><h3>生成关系报告</h3><p>大模型会从本次选择中找到真正值得解读的关系信号。</p></article>
           </div>
         </section>
       </main>

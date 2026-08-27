@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from "./api/auth/server";
-import { getStar, stars, type StarProfile } from "./myfate-data";
+import { createDefaultCelebrityReportPrompt, getStar, stars, type StarProfile } from "./myfate-data";
 
 type CelebrityRow = {
   id: string;
@@ -16,10 +16,11 @@ type CelebrityRow = {
   categories: string[];
   match_count: number;
   portrait_url: string;
-  ideal: StarProfile["ideal"];
+  ideal: StarProfile["ideal"] & { _reportPrompt?: string };
+  report_prompt?: string | null;
 };
 
-const selection = "id,name,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal";
+const selection = "*";
 
 function hasCloudConfig() {
   return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY);
@@ -41,8 +42,19 @@ function mapCelebrity(row: CelebrityRow): StarProfile {
     categories: row.categories,
     matchCount: new Intl.NumberFormat("en-US").format(row.match_count),
     portraitSrc: row.portrait_url,
-    ideal: row.ideal,
+    ideal: {
+      security: row.ideal.security,
+      expression: row.ideal.expression,
+      independence: row.ideal.independence,
+      conflict: row.ideal.conflict,
+      novelty: row.ideal.novelty,
+    },
   };
+}
+
+function reportPromptForRow(row: CelebrityRow) {
+  const star = mapCelebrity(row);
+  return row.report_prompt?.trim() || row.ideal?._reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star);
 }
 
 export async function getPublishedStars(): Promise<StarProfile[]> {
@@ -98,4 +110,25 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
     console.error("Failed to read celebrity profile", error);
   }
   return getStar(id);
+}
+
+export async function getCelebrityReportPrompt(id: string): Promise<string | undefined> {
+  if (!hasCloudConfig()) {
+    const star = getStar(id);
+    return star ? star.reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star) : undefined;
+  }
+  try {
+    const { data, error } = await createSupabaseAdminClient()
+      .from("celebrity_profiles")
+      .select(selection)
+      .eq("id", id)
+      .eq("published", true)
+      .maybeSingle();
+    if (error) throw error;
+    if (data) return reportPromptForRow(data as unknown as CelebrityRow);
+  } catch (error) {
+    console.error("Failed to read celebrity report prompt", error);
+  }
+  const star = getStar(id);
+  return star ? star.reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star) : undefined;
 }

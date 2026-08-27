@@ -58,7 +58,7 @@ export default function WorkspaceProfile() {
         <div className="mf-profile-purpose">
           <span>建议完整填写</span>
           <h2>让每一次缘分报告真正属于你</h2>
-          <p>出生日期与 MBTI 填写一次即可，之后测试不同对象时会自动复用。</p>
+          <p>你可以在这里保存个人资料；当前关系测试不会读取这些信息。</p>
         </div>
         <div className="mf-profile-form">
           <div className="mf-profile-identity-grid">

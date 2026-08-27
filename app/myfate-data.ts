@@ -21,11 +21,11 @@ export type StarProfile = {
   matchCount: string;
   portraitSrc: string;
   ideal: Record<Dimension, number>;
+  reportPrompt?: string;
 };
 
 export type TestOption = {
   label: string;
-  value: number;
 };
 
 export type TestQuestion = {
@@ -43,6 +43,14 @@ export const dimensionLabels: Record<Dimension, string> = {
   conflict: "冲突沟通",
   novelty: "新鲜体验",
 };
+
+export function createDefaultCelebrityReportPrompt(star: StarProfile) {
+  return `你正在解读的目标人物是 ${star.name}（${star.role}）。
+人物基准：${star.tagline}。${star.description}
+亲密关系倾向：${star.relationshipStyle}；重点关注：${star.focus}。
+可参考的人物资料：MBTI 为 ${star.mbti}，三柱为 ${star.threePillars}。
+请把以上内容只作为目标人物的解读背景，结合测试题、全部选项和用户实际选择，分析用户与 TA 相处时的具体互动。不要虚构私生活或真实恋爱经历，也不要把 MBTI 与三柱表述成科学定论。`;
+}
 
 export const stars: StarProfile[] = [
   {
@@ -152,317 +160,414 @@ export const stars: StarProfile[] = [
 export function createInitialQuestions(star: StarProfile): TestQuestion[] {
   const [, , thirdTrait] = star.traits;
   const pressureScenario: Record<string, string> = {
-    "bang-chan": "又主动承担了很多团队责任，嘴上却说“我没事”",
-    hyunjin: "因为作品没有达到理想效果而反复修改，情绪明显低落",
-    james: "为了弄懂一个问题沉浸了很久，几乎忘记照顾自己",
-    juhoon: "跟着当下感觉临时改变了原本的安排",
-    keonho: "对一个新想法投入全部注意力，暂时顾不上周围的人",
-    seonghyeon: "默默承担了很多任务，却不愿主动诉苦",
+    "bang-chan": "忙完团队的事，嘴上还说“没事”",
+    hyunjin: "作品不顺，嘴上还说“没事”",
+    james: "钻研太久，差点忘了休息",
+    juhoon: "临时改完安排，有点疲惫",
+    keonho: "沉浸在新想法里，忘了休息",
+    seonghyeon: "扛下很多事，却一句没抱怨",
   };
   const affectionMoment: Record<string, string> = {
-    "bang-chan": "后台安静下来后，在确认你愿意后轻轻亲了一下你的额头",
-    hyunjin: "分别前忽然靠近，在确认你没有躲开后轻轻亲了一下你的额头",
-    james: "聊天停下来的瞬间，在确认你愿意后轻轻亲了一下你的额头",
-    juhoon: "人群散去后，忽然轻轻牵住了你的手",
-    keonho: "并肩走路时，忽然轻轻牵住了你的手",
-    seonghyeon: "送你回去的路上，忽然轻轻牵住了你的手",
+    "bang-chan": "在后台没人时，轻轻亲了你的额头",
+    hyunjin: "分别前，忽然亲了你的额头",
+    james: "聊天停下时，轻轻亲了你的额头",
+    juhoon: "人群散去后，忽然牵住你的手",
+    keonho: "并肩走路时，忽然牵住你的手",
+    seonghyeon: "送你回家时，忽然牵住你的手",
   };
-
-  const coreQuestions: TestQuestion[] = [
-    {
-      id: "idol-pressure",
-      dimension: "security",
-      eyebrow: `只有你看见的${thirdTrait}时刻`,
-      question: `演出结束后，${star.name}${pressureScenario[star.id] ?? "把大量精力投入一件重要的事"}，却悄悄靠在你肩上。你会怎么做？`,
-      options: [
-        { label: "先问 TA 希望被怎样支持，再默默分担能做的部分", value: 4 },
-        { label: "立刻替 TA 做决定，让 TA 必须休息", value: 2 },
-        { label: "相信 TA 能处理，完全不过问", value: 1 },
-        { label: "送上一句鼓励，等 TA 主动找我", value: 3 },
-      ],
-    },
-    {
-      id: "idol-silence",
-      dimension: "expression",
-      eyebrow: `${star.name}只向你露出的安静`,
-      question: `散场后的车里，${star.name}忽然变得安静，只低声说“和你待着就好”。你会怎么回应？`,
-      options: [
-        { label: "不断追问，直到 TA 告诉我", value: 1 },
-        { label: "说明我愿意听，同时给 TA 一点整理情绪的空间", value: 4 },
-        { label: "装作没有发现，避免气氛尴尬", value: 2 },
-        { label: "先陪在身边，过一会儿再轻轻确认", value: 3 },
-      ],
-    },
-    {
-      id: "idol-focus",
-      dimension: "independence",
-      eyebrow: `一句深夜的“想见你”`,
-      question: `${star.name}为了重要作品忙了很久，深夜忽然发来“有点想见你”，但你明天也有重要安排。你会？`,
-      options: [
-        { label: "尊重 TA 的专注，也安排好自己的生活和节奏", value: 4 },
-        { label: "支持，但希望 TA 每天固定向我报备", value: 3 },
-        { label: "故意冷淡，让 TA 意识到忽略了我", value: 1 },
-        { label: "暂时忍耐，等结束后再一次性表达不满", value: 2 },
-      ],
-    },
-    {
-      id: "idol-disagreement",
-      dimension: "conflict",
-      eyebrow: `心动也会遇到分歧`,
-      question: `一次很期待的约会中，你和${star.name}对未来安排的看法完全相反，气氛忽然安静下来。你会？`,
-      options: [
-        { label: "先理解 TA 在意什么，再清楚表达自己的理由", value: 4 },
-        { label: "为了不争吵，直接同意 TA", value: 2 },
-        { label: "证明我的判断更正确", value: 1 },
-        { label: "先暂停，约定情绪稳定后继续谈", value: 3 },
-      ],
-    },
-    {
-      id: "idol-surprise",
-      dimension: "novelty",
-      eyebrow: `${star.name}发来的秘密坐标`,
-      question: `${star.name}突然发来一个地址，说“想带你去一个只有我知道的地方”，但会打乱你的计划。你会？`,
-      options: [
-        { label: "先了解安排，如果条件允许就陪 TA 一起尝试", value: 4 },
-        { label: "马上答应，即使要取消所有原计划", value: 3 },
-        { label: "拒绝，我不喜欢任何计划外变化", value: 1 },
-        { label: "让 TA 自己去，我不想参与 TA 的圈子", value: 2 },
-      ],
-    },
-    {
-      id: "idol-care",
-      dimension: "expression",
-      eyebrow: `被${star.name}记住的小细节`,
-      question: `${star.name}把你随口提过的小愿望记了很久，见面时若无其事地把礼物递给你。你会？`,
-      options: [
-        { label: "认真告诉 TA，我看见了礼物背后的心意", value: 4 },
-        { label: "表现得很夸张，证明自己足够感动", value: 2 },
-        { label: "自然收下，之后用行动回应 TA", value: 3 },
-        { label: "更关心礼物值不值钱", value: 1 },
-      ],
-    },
-    {
-      id: "idol-boundary",
-      dimension: "independence",
-      eyebrow: `靠近之后，也允许独处`,
-      question: `刚度过一个很亲密的下午，${star.name}却轻声说“今晚想自己待一会儿”。你的第一反应是？`,
-      options: [
-        { label: "尊重这个需要，并约定合适的时候再联系", value: 4 },
-        { label: "答应，但会反复查看 TA 的动态", value: 2 },
-        { label: "觉得 TA 一定是不喜欢我了", value: 1 },
-        { label: "留下一句关心，然后去做自己的事情", value: 3 },
-      ],
-    },
-    {
-      id: "idol-publicity",
-      dimension: "security",
-      eyebrow: `人群里只有你看懂的信号`,
-      question: `面对很多外界目光，${star.name}不能公开靠近，却在人群里只对你做了熟悉的小动作。你会？`,
-      options: [
-        { label: "一起商量边界，用私下的稳定替代公开证明", value: 4 },
-        { label: "理解，但仍希望 TA 偶尔公开暗示", value: 3 },
-        { label: "要求 TA 公开证明关系", value: 1 },
-        { label: "把所有决定都交给 TA", value: 2 },
-      ],
-    },
-    {
-      id: "idol-mistake",
-      dimension: "conflict",
-      eyebrow: `${star.name}最怕被你失望的瞬间`,
-      question: `${star.name}犯错后低声问“你是不是对我失望了”，眼神却一直停在你身上。你会怎么回应？`,
-      options: [
-        { label: "先接住情绪，再陪 TA 复盘可以改变的部分", value: 4 },
-        { label: "马上说“没关系”，尽快结束这个话题", value: 2 },
-        { label: "指出所有问题，避免下次再犯", value: 1 },
-        { label: "给出安慰，等 TA 好一点再谈事情本身", value: 3 },
-      ],
-    },
-    {
-      id: "idol-future",
-      dimension: "novelty",
-      eyebrow: `一句关于“以后”的试探`,
-      question: `夜聊时，${star.name}忽然问“如果几年以后，我们还在一起呢？”你会？`,
-      options: [
-        { label: "说出真实期待，也一起讨论现实中的节奏和责任", value: 4 },
-        { label: "先享受当下，不回应任何未来话题", value: 1 },
-        { label: "给出浪漫承诺，具体怎么做以后再说", value: 2 },
-        { label: "表达愿意认真尝试，再通过行动慢慢兑现", value: 3 },
-      ],
-    },
+  const templates: TestQuestion[] = [
+  {
+    id: "idol-pressure",
+    "dimension": "security",
+    "question": "Bang Chan忙完之后，转头靠在你肩上，你会怎么做？",
+    "options": [
+      {
+        "label": "先抱住：累了就说，我在呢",},
+      {
+        "label": "别嘴硬了，今天必须休息",},
+      {
+        "label": "问题不大，TA 自己能缓过来",},
+      {
+        "label": "抱一下，不想说就先不说",}
+    ]
+  },
+  {
+    id: "idol-silence",
+    "dimension": "expression",
+    "question": "Bang Chan低声说：“和你待着就好”，你会？",
+    "options": [
+      {
+        "label": "怎么了怎么了？",},
+      {
+        "label": "那就待着",},
+      {
+        "label": "假装没听见",},
+      {
+        "label": "先陪一会儿",}
+    ]
+  },
+  {
+    id: "idol-focus",
+    "dimension": "independence",
+    "question": "Bang Chan深夜说想见你，但你明早有事。你会怎么做？",
+    "options": [
+      {
+        "label": "商量今晚先视频，明晚见面",},
+      {
+        "label": "直接开冲",},
+      {
+        "label": "已读不回",},
+      {
+        "label": "问清楚怎么了",}
+    ]
+  },
+  {
+    id: "idol-disagreement",
+    "dimension": "conflict",
+    "question": "约会时，你和Bang Chan聊未来聊崩了。你会？",
+    "options": [
+      {
+        "label": "先别急，我想听听你怎么想",},
+      {
+        "label": "不想吵，先说你对你对",},
+      {
+        "label": "这题我必须掰扯赢",},
+      {
+        "label": "先暂停，等会儿再好好聊",}
+    ]
+  },
+  {
+    id: "idol-surprise",
+    "dimension": "novelty",
+    "question": "Bang Chan突然约你去秘密地点，会打乱计划。你会？",
+    "options": [
+      {
+        "label": "先发定位，能赶上我就来",},
+      {
+        "label": "去去去，原计划先放一边",},
+      {
+        "label": "不去，临时改计划真的很烦",},
+      {
+        "label": "你自己玩吧，我就不去了",}
+    ]
+  },
+  {
+    id: "idol-care",
+    "dimension": "expression",
+    "question": "Bang Chan送来你随口提过的礼物。你会？",
+    "options": [
+      {
+        "label": "救命，你居然真的记得！",},
+      {
+        "label": "当场尖叫，情绪价值给满",},
+      {
+        "label": "收下，改天也偷偷给 TA 惊喜",},
+      {
+        "label": "先搜一下这个多少钱",}
+    ]
+  },
+  {
+    id: "idol-boundary",
+    "dimension": "independence",
+    "question": "Bang Chan说今晚想一个人待着。你会？",
+    "options": [
+      {
+        "label": "好呀，明天记得来找我",},
+      {
+        "label": "嘴上答应，手上狂刷动态",},
+      {
+        "label": "完了，TA 是不是不爱了",},
+      {
+        "label": "行，我也快乐过自己的晚上",}
+    ]
+  },
+  {
+    id: "idol-publicity",
+    "dimension": "security",
+    "question": "Bang Chan不能公开靠近，只偷偷给你暗号。你会？",
+    "options": [
+      {
+        "label": "不公开可以，别让我一直猜就行",},
+      {
+        "label": "能懂，但偶尔也想被偷偷偏爱",},
+      {
+        "label": "必须公开，不然算什么关系",},
+      {
+        "label": "TA 说怎样就怎样",}
+    ]
+  },
+  {
+    id: "idol-mistake",
+    "dimension": "conflict",
+    "question": "Bang Chan犯错后问：“你对我失望了吗？”你会？",
+    "options": [
+      {
+        "label": "失望有一点，但我们一起改",},
+      {
+        "label": "没有没有，别难过了",},
+      {
+        "label": "那我就把问题一次说完",},
+      {
+        "label": "先哄好，事情晚点再说",}
+    ]
+  },
+  {
+    id: "idol-future",
+    "dimension": "novelty",
+    "question": "Bang Chan问：“几年后我们还在一起呢？”你会？",
+    "options": [
+      {
+        "label": "想啊，那我们得一起认真点",},
+      {
+        "label": "几年太远了，先别想",},
+      {
+        "label": "肯定在啊，先把氛围拉满",},
+      {
+        "label": "希望在，我会慢慢证明",}
+    ]
+  },
+  {
+    id: "idol-unspoken",
+    "dimension": "expression",
+    "question": "Bang Chan连着几天回复很短，说只是累了。你会？",
+    "options": [
+      {
+        "label": "是不是烦我了？现在说清楚",},
+      {
+        "label": "行，那我也消失几天",},
+      {
+        "label": "累就先休息，想聊再找我",},
+      {
+        "label": "感觉你有点不对，我怎么陪你？",}
+    ]
+  },
+  {
+    id: "idol-opportunity",
+    "dimension": "independence",
+    "question": "Bang Chan有个好机会，但你们会长期异地。你会？",
+    "options": [
+      {
+        "label": "机会和我，只能选一个",},
+      {
+        "label": "嘴上支持，心里等 TA 补偿",},
+      {
+        "label": "你去吧，但我真的会舍不得",},
+      {
+        "label": "去追机会，我们把见面安排好",}
+    ]
+  },
+  {
+    id: "idol-repair",
+    "dimension": "conflict",
+    "question": "Bang Chan说想冷静一下，你却想马上解决。你会？",
+    "options": [
+      {
+        "label": "不行，今天必须聊明白",},
+      {
+        "label": "那就冷战，看谁先低头",},
+      {
+        "label": "可以静静，但今晚得回我",},
+      {
+        "label": "好，晚点几点我们再聊？",}
+    ]
+  },
+  {
+    id: "idol-visibility",
+    "dimension": "security",
+    "question": "关系被外界猜测，Bang Chan压力很大。你会？",
+    "options": [
+      {
+        "label": "直接公开，让大家别猜了",},
+      {
+        "label": "全听 TA 的，我没意见",},
+      {
+        "label": "先别回应外界，我们自己说清楚",},
+      {
+        "label": "先少见面，等风头过去",}
+    ]
+  },
+  {
+    id: "idol-rhythm",
+    "dimension": "novelty",
+    "question": "Bang Chan开始更喜欢吃饭、散步、安静陪伴。你会？",
+    "options": [
+      {
+        "label": "不刺激了，是不是不爱了",},
+      {
+        "label": "日常可以，惊喜得 TA 负责",},
+      {
+        "label": "平淡也挺甜，偶尔浪漫一下",},
+      {
+        "label": "偶尔整点新体验，看 TA 反应",}
+    ]
+  },
+  {
+    id: "idol-values",
+    "dimension": "security",
+    "question": "你和Bang Chan的未来规划差很多。你会？",
+    "options": [
+      {
+        "label": "有爱就行，以后自然会解决",},
+      {
+        "label": "总得有一个人彻底改变",},
+      {
+        "label": "先说哪些能让，哪些真不能",},
+      {
+        "label": "先各退一步，以后再说",}
+    ]
+  },
+  {
+    id: "idol-listening",
+    "dimension": "expression",
+    "question": "Bang Chan很挫败，但暂时不想听建议。你会？",
+    "options": [
+      {
+        "label": "还是给方案，解决最重要",},
+      {
+        "label": "不知道说啥，赶紧换话题",},
+      {
+        "label": "好，我先听。想听建议再叫我",},
+      {
+        "label": "嗯嗯，我在，你继续说",}
+    ]
+  },
+  {
+    id: "idol-privacy",
+    "dimension": "independence",
+    "question": "Bang Chan让你选歌，私人消息突然弹出。你会？",
+    "options": [
+      {
+        "label": "顺便看一眼，恋人不该有秘密",},
+      {
+        "label": "立刻划走，我只负责选歌",},
+      {
+        "label": "不看，但之后旁敲侧击",},
+      {
+        "label": "提醒 TA 来消息了，我没点开",}
+    ]
+  },
+  {
+    id: "idol-pattern",
+    "dimension": "conflict",
+    "question": "Bang Chan又忘了重要约定，还来抱你道歉。你会？",
+    "options": [
+      {
+        "label": "翻旧账：你果然从没变",},
+      {
+        "label": "继续忍，时间久了会好的",},
+      {
+        "label": "先说说原因，我确实挺失望",},
+      {
+        "label": "抱可以，但这次准备怎么改？",}
+    ]
+  },
+  {
+    id: "idol-relocation",
+    "dimension": "novelty",
+    "question": "Bang Chan要长期搬去陌生城市，问你怎么办。你会？",
+    "options": [
+      {
+        "label": "别去了，这段关系更重要",},
+      {
+        "label": "我跟你走，别的以后再说",},
+      {
+        "label": "先算算钱和工作，再决定怎么去",},
+      {
+        "label": "你先去，我再慢慢想办法",}
+    ]
+  },
+  {
+    id: "idol-consistency",
+    "dimension": "security",
+    "question": "Bang Chan联系变少，但重要时刻都在。你看重什么？",
+    "options": [
+      {
+        "label": "每天消息数量不能少",},
+      {
+        "label": "TA 愿不愿意公开秀恩爱",},
+      {
+        "label": "关键时刻在，说过的也做到",},
+      {
+        "label": "我不主动，TA 会不会发现",}
+    ]
+  },
+  {
+    id: "idol-affection",
+    "dimension": "expression",
+    "question": "后台没人时，轻轻亲了你的额头。你会？",
+    "options": [
+      {
+        "label": "太突然了，赶紧开玩笑岔开",},
+      {
+        "label": "表面淡定，等 TA 再主动",},
+      {
+        "label": "偷偷靠近一点，回应 TA",},
+      {
+        "label": "看着 TA 说：其实我也心动",}
+    ]
+  },
+  {
+    id: "idol-social-boundary",
+    "dimension": "independence",
+    "question": "Bang Chan说今晚只和老朋友聚会。你会？",
+    "options": [
+      {
+        "label": "要求带上我，恋人不能被排除",},
+      {
+        "label": "答应，但整晚在线查岗",},
+      {
+        "label": "去吧，我今晚也有自己的快乐",},
+      {
+        "label": "没问题，回来分享八卦就行",}
+    ]
+  },
+  {
+    id: "idol-change-plan",
+    "dimension": "novelty",
+    "question": "Bang Chan临时想改掉筹备很久的旅行。你会？",
+    "options": [
+      {
+        "label": "拒绝，攻略不能白做",},
+      {
+        "label": "都听 TA 的，我不提顾虑",},
+      {
+        "label": "先看看预算，划算就换",},
+      {
+        "label": "改动不大就冲一把",}
+    ]
+  }
+];
+  const questions = [
+    `${star.name}${pressureScenario[star.id] ?? "忙完一件大事"}，靠在你肩上。你会怎么陪 TA？`,
+    `${star.name}说：“和你待着就好。”你怎么回应？`,
+    `${star.name}深夜说想见你，但你明早有事。你准备怎么安排？`,
+    `约会时，你和${star.name}聊未来聊僵了。你想先说什么？`,
+    `${star.name}临时约你去一个秘密地点，原计划会被打乱。你更可能怎么选？`,
+    `${star.name}送来你随口提过的礼物。你的第一反应是什么？`,
+    `${star.name}说今晚想一个人待着。你会给 TA 怎样的空间？`,
+    `${star.name}不能公开靠近，只能偷偷给你暗号。这会让你在意什么？`,
+    `${star.name}犯错后问：“你对我失望了吗？”你会先安慰，还是先谈问题？`,
+    `${star.name}问：“几年后我们还会在一起吗？”你会怎么回答？`,
+    `${star.name}连续几天回复很短，只说自己累了。你准备怎么靠近？`,
+    `${star.name}得到一个好机会，但你们会长期异地。你会怎么和 TA 商量？`,
+    `${star.name}想先冷静，你却想马上解决。你想现在谈，还是晚点再说？`,
+    `外界开始猜测你们的关系，${star.name}压力很大。你最先考虑什么？`,
+    `${star.name}更喜欢吃饭、散步和安静陪伴。这样的日常你适应吗？`,
+    `你和${star.name}的未来计划差很多。你会先谈哪部分？`,
+    `${star.name}很挫败，但暂时不想听建议。此刻你会怎么陪 TA？`,
+    `${star.name}让你选歌，私人消息突然弹出。你的第一反应是什么？`,
+    `${star.name}又忘了重要约定，还来向你道歉。你准备怎么处理？`,
+    `${star.name}要长期搬去陌生城市，也想听听你的想法。你会怎样参与这个决定？`,
+    `${star.name}联系变少，但重要时刻都在。你会用什么判断关系是否稳定？`,
+    `${star.name}${affectionMoment[star.id] ?? "忽然向你靠近"}。当下你怎么回应？`,
+    `${star.name}今晚只想和老朋友聚会。你会介意吗？`,
+    `${star.name}临时想改掉准备很久的旅行计划。你愿意一起调整吗？`,
   ];
-
-  const deepQuestions: TestQuestion[] = [
-    {
-      id: "idol-unspoken",
-      dimension: "expression",
-      eyebrow: `热烈之后，忽然变短的消息`,
-      question: `一次很心动的见面后，${star.name}连续几天回复都很简短，却说自己只是太累。你会如何判断什么时候该靠近？`,
-      options: [
-        { label: "立刻追问到底发生了什么", value: 1 },
-        { label: "不再联系，等 TA 完全恢复", value: 2 },
-        { label: "先表达关心，观察 TA 是否愿意继续说", value: 3 },
-        { label: "说明我注意到了变化，并让 TA 自己选择陪伴方式", value: 4 },
-      ],
-    },
-    {
-      id: "idol-opportunity",
-      dimension: "independence",
-      eyebrow: `拥抱告别前的远方消息`,
-      question: `拥抱告别前，${star.name}告诉你自己得到一个重要机会，但这意味着你们很长时间无法见面。你会怎么谈？`,
-      options: [
-        { label: "让 TA 在机会和关系之间选一个", value: 1 },
-        { label: "嘴上支持，心里等待 TA 主动补偿", value: 2 },
-        { label: "支持选择，同时提出我真实的不安", value: 3 },
-        { label: "共同设计远距离节奏，并保留彼此独立成长的空间", value: 4 },
-      ],
-    },
-    {
-      id: "idol-repair",
-      dimension: "conflict",
-      eyebrow: "争执后的那句“我们谈谈吧”",
-      question: `争执后，${star.name}发来“我不想失去你，但需要先想清楚”，而你希望马上解决。你会？`,
-      options: [
-        { label: "继续谈到当场解决为止", value: 1 },
-        { label: "彻底冷处理，看谁先低头", value: 2 },
-        { label: "先暂停，但要求 TA 当天给答复", value: 3 },
-        { label: "约定重新沟通的时间，也分别整理真正的需求", value: 4 },
-      ],
-    },
-    {
-      id: "idol-visibility",
-      dimension: "security",
-      eyebrow: "镜头之外的一次握手",
-      question: `外界开始猜测你们的关系，${star.name}承受了明显压力，却在无人注意时轻轻握住你的手。你会把什么放在第一位？`,
-      options: [
-        { label: "让所有人知道事实，停止猜测", value: 1 },
-        { label: "完全听 TA 的，我不表达意见", value: 2 },
-        { label: "先保护隐私，再讨论彼此需要的确定感", value: 4 },
-        { label: "减少接触，等风波自己过去", value: 3 },
-      ],
-    },
-    {
-      id: "idol-rhythm",
-      dimension: "novelty",
-      eyebrow: `心跳慢下来以后`,
-      question: `最初的热烈过去后，${star.name}更喜欢一起吃饭、散步和安静陪伴。你会如何回应这种变化？`,
-      options: [
-        { label: "认为没有惊喜就是不爱了", value: 1 },
-        { label: "接受日常，但希望 TA 负责制造变化", value: 2 },
-        { label: "一起保留仪式感，也允许关系自然安静", value: 4 },
-        { label: "偶尔提出新体验，观察 TA 的反馈", value: 3 },
-      ],
-    },
-    {
-      id: "idol-values",
-      dimension: "security",
-      eyebrow: "聊到未来时的不同答案",
-      question: `一次温柔的夜聊里，你和${star.name}都承认很在意彼此，却发现对未来生活方式有明显分歧。你会？`,
-      options: [
-        { label: "相信爱能解决一切，不必现在讨论", value: 2 },
-        { label: "要求其中一方彻底改变", value: 1 },
-        { label: "先找共同底线，再判断差异是否真的能共存", value: 4 },
-        { label: "暂时各退一步，以后再决定", value: 3 },
-      ],
-    },
-    {
-      id: "idol-listening",
-      dimension: "expression",
-      eyebrow: `深夜只想说给你听的话`,
-      question: `${star.name}深夜向你讲起一件很挫败的事，最后说“我现在只想让你听着”。你会怎么陪 TA？`,
-      options: [
-        { label: "还是给出方案，解决问题最重要", value: 1 },
-        { label: "不知道说什么，于是转换话题", value: 2 },
-        { label: "先听完，再确认 TA 是否需要我的想法", value: 4 },
-        { label: "表达理解，等 TA 主动继续讲", value: 3 },
-      ],
-    },
-    {
-      id: "idol-privacy",
-      dimension: "independence",
-      eyebrow: "被信任，不等于可以越界",
-      question: `${star.name}把手机交给你选歌，一条私人消息刚好弹出来。你最真实的反应是？`,
-      options: [
-        { label: "顺便看一下，亲密关系不该有秘密", value: 1 },
-        { label: "立刻移开视线，也不把这件事当作试探", value: 4 },
-        { label: "不看，但之后旁敲侧击询问内容", value: 2 },
-        { label: "告诉 TA 我看到了界面，但没有继续阅读", value: 3 },
-      ],
-    },
-    {
-      id: "idol-pattern",
-      dimension: "conflict",
-      eyebrow: "心软之前，先看见重复的问题",
-      question: `${star.name}再次忘记了对你的一个重要约定，见面时认真道歉并想抱抱你。你会怎么判断这段关系还能不能修复？`,
-      options: [
-        { label: "翻出以前所有问题，证明 TA 从没改变", value: 1 },
-        { label: "继续忍耐，相信时间久了自然会好", value: 2 },
-        { label: "先看这次是否有新的原因，再表达失望", value: 3 },
-        { label: "讨论行为模式、改进期限和彼此不能退让的底线", value: 4 },
-      ],
-    },
-    {
-      id: "idol-relocation",
-      dimension: "novelty",
-      eyebrow: `“想和你一起去”的远方`,
-      question: `${star.name}兴奋地告诉你，自己获得了一个需要长期搬去陌生城市的机会，并问“你愿意和我一起想办法吗？”你会？`,
-      options: [
-        { label: "要求 TA 为关系放弃机会", value: 1 },
-        { label: "马上决定跟随，不考虑自己的生活", value: 2 },
-        { label: "分别列出现实代价，再寻找阶段性方案", value: 4 },
-        { label: "先支持 TA，再慢慢思考自己的选择", value: 3 },
-      ],
-    },
-    {
-      id: "idol-consistency",
-      dimension: "security",
-      eyebrow: "晚安还在，消息却变少了",
-      question: `${star.name}最近依然会说晚安、记得重要日子，但联系频率不再像最初那么高。什么最能帮助你判断关系是否稳定？`,
-      options: [
-        { label: "每天消息数量是否保持不变", value: 1 },
-        { label: "TA 是否愿意公开表达关系", value: 2 },
-        { label: "重要时刻是否出现，并持续兑现约定", value: 4 },
-        { label: "我不主动时，TA 会不会立刻发现", value: 3 },
-      ],
-    },
-    {
-      id: "idol-affection",
-      dimension: "expression",
-      eyebrow: "突然加速的心跳",
-      question: `如果${affectionMoment[star.id] ?? `${star.name}忽然向你靠近`}，随后有些害羞地移开视线，你会？`,
-      options: [
-        { label: "因为太突然，用玩笑把这一刻岔开", value: 1 },
-        { label: "假装镇定，等 TA 再主动一点", value: 2 },
-        { label: "用一个靠近的动作回应，让 TA 知道我没有拒绝", value: 3 },
-        { label: "先确认彼此都舒服，再坦白自己也很心动", value: 4 },
-      ],
-    },
-    {
-      id: "idol-social-boundary",
-      dimension: "independence",
-      eyebrow: `被偏爱，也不占有全部生活`,
-      question: `${star.name}抱了抱你，又笑着说今晚想只和老朋友聚会。你会怎么回应？`,
-      options: [
-        { label: "要求一起参加，恋人不该被排除", value: 1 },
-        { label: "答应，但整晚频繁询问情况", value: 2 },
-        { label: "尊重安排，也自然过好自己的时间", value: 4 },
-        { label: "表示理解，希望结束后分享有趣的事", value: 3 },
-      ],
-    },
-    {
-      id: "idol-change-plan",
-      dimension: "novelty",
-      eyebrow: `一张写着“和你一起”的新地图`,
-      question: `${star.name}拿出一张新地图，想改变你们筹备很久的旅行计划，因为发现了更特别的目的地。你会？`,
-      options: [
-        { label: "直接拒绝，计划确定后就不能改变", value: 1 },
-        { label: "完全听 TA 的，不表达自己的顾虑", value: 2 },
-        { label: "一起比较期待和现实成本，再共同决定", value: 4 },
-        { label: "如果改动不大，我愿意尝试新方案", value: 3 },
-      ],
-    },
-  ];
-
-  return [...coreQuestions, ...deepQuestions];
+  return templates.map((question, index) => ({
+    ...question,
+    eyebrow: index === 0 ? `TA 只给你看的${thirdTrait}` : question.eyebrow?.replaceAll("Bang Chan", star.name),
+    question: questions[index],
+  }));
 }
 
 const legacyStarIds: Record<string, string> = {

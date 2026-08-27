@@ -28,7 +28,7 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
   if (report) {
     return (
       <Link className="mf-primary-button mf-detail-cta" href={`/home/reports/${report.id}?from=celebrity-match`}>
-        {report.status === "advanced" ? "查看高级报告" : report.status === "generating" ? "报告生成中" : "查看初步报告"} <span>→</span>
+        {report.status === "advanced" ? "查看关系报告" : report.status === "generating" ? "报告生成中" : "重新生成报告"} <span>→</span>
       </Link>
     );
   }

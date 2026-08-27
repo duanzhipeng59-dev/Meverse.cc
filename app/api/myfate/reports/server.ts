@@ -19,6 +19,10 @@ export type ReportRow = {
 };
 
 export function mapReportRow(row: ReportRow): SavedReport {
+  const reportText = typeof row.interpretation === "object" && row.interpretation !== null
+    && "reportText" in row.interpretation && typeof row.interpretation.reportText === "string"
+    ? row.interpretation.reportText
+    : null;
   return {
     id: row.id,
     version: 1,
@@ -33,6 +37,7 @@ export function mapReportRow(row: ReportRow): SavedReport {
     initialTitle: row.initial_title,
     answers: row.answers,
     interpretation: row.interpretation,
+    reportText,
     interpretationSource: row.interpretation_source ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

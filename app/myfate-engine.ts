@@ -1,10 +1,9 @@
-import { dimensionLabels, type Dimension, type StarProfile, type TestQuestion } from "./myfate-data";
+import { type StarProfile, type TestQuestion } from "./myfate-data";
 
 export type AnswerSnapshot = {
   question: string;
   answer: string;
-  value: number;
-  dimension: Dimension;
+  options?: string[];
 };
 
 export type FateVerdict = "绝对" | "可能" | "也许" | "不太像" | "不是";
@@ -54,16 +53,11 @@ export type FateInterpretation = {
   actionPlan?: string[];
 };
 
-const dimensions: Dimension[] = ["security", "expression", "independence", "conflict", "novelty"];
-
-export function scoreAnswers(answers: Record<string, number>, questionCount: number) {
-  const total = Object.values(answers).reduce((sum, value) => sum + value, 0);
-  return Math.round((total / Math.max(questionCount * 4, 1)) * 100);
-}
-
 export function initialVerdict(score: number) {
-  if (score >= 82) return "你和 TA 的缘分貌似很强";
-  if (score >= 58) return "你和 TA 的缘分需要加强";
+  if (score >= 80) return "你是 TA 的命中注定";
+  if (score >= 60) return "你是 TA 的红颜祸水";
+  if (score >= 40) return "你是 TA 的山水知音";
+  if (score >= 20) return "你和 TA 的黄粱一梦";
   return "你和 TA 的缘分貌似很浅";
 }
 
@@ -94,14 +88,6 @@ export function presentationPillarInsight(value: string) {
     .replace(/生发/gu, "带动");
 }
 
-export function dimensionScores(answers: AnswerSnapshot[]) {
-  return Object.fromEntries(dimensions.map((dimension) => {
-    const values = answers.filter((answer) => answer.dimension === dimension).map((answer) => answer.value);
-    const score = values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / (values.length * 4) * 100) : 0;
-    return [dimension, score];
-  })) as Record<Dimension, number>;
-}
-
 export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore: number): TestQuestion[] {
   const tone = initialScore >= 82 ? "验证你们的深层默契" : initialScore >= 58 ? "找到需要靠近的部分" : "辨认真正的关系边界";
   return [
@@ -111,10 +97,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: tone,
       question: `${star.name}连续几天回复都很简短，却说自己只是太累。你会如何判断什么时候该靠近？`,
       options: [
-        { label: "立刻追问到底发生了什么", value: 1 },
-        { label: "不再联系，等 TA 完全恢复", value: 2 },
-        { label: "先表达关心，观察 TA 是否愿意继续说", value: 3 },
-        { label: "说明我注意到了变化，并让 TA 自己选择陪伴方式", value: 4 },
+        { label: "立刻追问到底发生了什么" },
+        { label: "不再联系，等 TA 完全恢复" },
+        { label: "先表达关心，观察 TA 是否愿意继续说" },
+        { label: "说明我注意到了变化，并让 TA 自己选择陪伴方式" },
       ],
     },
     {
@@ -123,10 +109,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: `关于${star.name}的自主空间`,
       question: `${star.name}得到一个重要机会，但这意味着你们很长时间无法见面。你会怎么谈这件事？`,
       options: [
-        { label: "让 TA 在机会和关系之间选一个", value: 1 },
-        { label: "嘴上支持，心里等待 TA 主动补偿", value: 2 },
-        { label: "支持选择，同时提出我真实的不安", value: 3 },
-        { label: "共同设计远距离节奏，并保留彼此独立成长的空间", value: 4 },
+        { label: "让 TA 在机会和关系之间选一个" },
+        { label: "嘴上支持，心里等待 TA 主动补偿" },
+        { label: "支持选择，同时提出我真实的不安" },
+        { label: "共同设计远距离节奏，并保留彼此独立成长的空间" },
       ],
     },
     {
@@ -135,10 +121,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "一次真正的关系修复",
       question: `争执后，${star.name}需要时间想清楚，而你希望马上解决。你最可能怎么做？`,
       options: [
-        { label: "继续谈到当场解决为止", value: 1 },
-        { label: "彻底冷处理，看谁先低头", value: 2 },
-        { label: "先暂停，但要求 TA 当天给答复", value: 3 },
-        { label: "约定重新沟通的时间，也分别整理真正的需求", value: 4 },
+        { label: "继续谈到当场解决为止" },
+        { label: "彻底冷处理，看谁先低头" },
+        { label: "先暂停，但要求 TA 当天给答复" },
+        { label: "约定重新沟通的时间，也分别整理真正的需求" },
       ],
     },
     {
@@ -147,10 +133,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "安全感与现实压力",
       question: `外界开始猜测你们的关系，${star.name}承受了明显压力。你会把什么放在第一位？`,
       options: [
-        { label: "让所有人知道事实，停止猜测", value: 1 },
-        { label: "完全听 TA 的，我不表达意见", value: 2 },
-        { label: "先保护隐私，再讨论彼此需要的确定感", value: 4 },
-        { label: "减少接触，等风波自己过去", value: 3 },
+        { label: "让所有人知道事实，停止猜测" },
+        { label: "完全听 TA 的，我不表达意见" },
+        { label: "先保护隐私，再讨论彼此需要的确定感" },
+        { label: "减少接触，等风波自己过去" },
       ],
     },
     {
@@ -159,10 +145,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: `进入“${star.relationshipStyle}”`,
       question: `当热烈期过去，${star.name}更想用稳定日常维持关系，你会如何回应？`,
       options: [
-        { label: "认为没有惊喜就是不爱了", value: 1 },
-        { label: "接受日常，但希望 TA 负责制造变化", value: 2 },
-        { label: "一起保留仪式感，也允许关系自然安静", value: 4 },
-        { label: "偶尔提出新体验，观察 TA 的反馈", value: 3 },
+        { label: "认为没有惊喜就是不爱了" },
+        { label: "接受日常，但希望 TA 负责制造变化" },
+        { label: "一起保留仪式感，也允许关系自然安静" },
+        { label: "偶尔提出新体验，观察 TA 的反馈" },
       ],
     },
     {
@@ -171,10 +157,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "最难回避的长期选择",
       question: `如果你和${star.name}很相爱，但对未来生活方式有明显分歧，你会？`,
       options: [
-        { label: "相信爱能解决一切，不必现在讨论", value: 2 },
-        { label: "要求其中一方彻底改变", value: 1 },
-        { label: "先找共同底线，再判断差异是否真的能共存", value: 4 },
-        { label: "暂时各退一步，以后再决定", value: 3 },
+        { label: "相信爱能解决一切，不必现在讨论" },
+        { label: "要求其中一方彻底改变" },
+        { label: "先找共同底线，再判断差异是否真的能共存" },
+        { label: "暂时各退一步，以后再决定" },
       ],
     },
     {
@@ -183,10 +169,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "分清安慰与解决问题",
       question: `${star.name}向你讲起一件很挫败的事，但暂时不想听任何建议。你会怎么陪 TA？`,
       options: [
-        { label: "还是给出方案，解决问题最重要", value: 1 },
-        { label: "不知道说什么，于是转换话题", value: 2 },
-        { label: "先听完，再确认 TA 是否需要我的想法", value: 4 },
-        { label: "表达理解，等 TA 主动继续讲", value: 3 },
+        { label: "还是给出方案，解决问题最重要" },
+        { label: "不知道说什么，于是转换话题" },
+        { label: "先听完，再确认 TA 是否需要我的想法" },
+        { label: "表达理解，等 TA 主动继续讲" },
       ],
     },
     {
@@ -195,10 +181,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "亲密不等于没有隐私",
       question: `你无意间看到${star.name}没有锁屏的私人聊天界面，你最真实的反应是？`,
       options: [
-        { label: "顺便看一下，亲密关系不该有秘密", value: 1 },
-        { label: "立刻移开视线，也不把这件事当作试探", value: 4 },
-        { label: "不看，但之后旁敲侧击询问内容", value: 2 },
-        { label: "告诉 TA 我看到了界面，但没有继续阅读", value: 3 },
+        { label: "顺便看一下，亲密关系不该有秘密" },
+        { label: "立刻移开视线，也不把这件事当作试探" },
+        { label: "不看，但之后旁敲侧击询问内容" },
+        { label: "告诉 TA 我看到了界面，但没有继续阅读" },
       ],
     },
     {
@@ -207,10 +193,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "同一个问题再次发生",
       question: `${star.name}又一次出现你们曾经讨论过的问题，你会怎么判断这段关系还能不能修复？`,
       options: [
-        { label: "翻出以前所有问题，证明 TA 从没改变", value: 1 },
-        { label: "继续忍耐，相信时间久了自然会好", value: 2 },
-        { label: "先看这次是否有新的原因，再表达失望", value: 3 },
-        { label: "讨论行为模式、改进期限和彼此不能退让的底线", value: 4 },
+        { label: "翻出以前所有问题，证明 TA 从没改变" },
+        { label: "继续忍耐，相信时间久了自然会好" },
+        { label: "先看这次是否有新的原因，再表达失望" },
+        { label: "讨论行为模式、改进期限和彼此不能退让的底线" },
       ],
     },
     {
@@ -219,10 +205,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "机会与共同生活",
       question: `${star.name}获得一个需要长期搬去陌生城市的机会，你会如何参与这个决定？`,
       options: [
-        { label: "要求 TA 为关系放弃机会", value: 1 },
-        { label: "马上决定跟随，不考虑自己的生活", value: 2 },
-        { label: "分别列出现实代价，再寻找阶段性方案", value: 4 },
-        { label: "先支持 TA，再慢慢思考自己的选择", value: 3 },
+        { label: "要求 TA 为关系放弃机会" },
+        { label: "马上决定跟随，不考虑自己的生活" },
+        { label: "分别列出现实代价，再寻找阶段性方案" },
+        { label: "先支持 TA，再慢慢思考自己的选择" },
       ],
     },
     {
@@ -231,10 +217,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "热情之后的确定感",
       question: `${star.name}最近依然关心你，但联系频率不再像最初那么高。什么最能帮助你判断关系是否稳定？`,
       options: [
-        { label: "每天消息数量是否保持不变", value: 1 },
-        { label: "TA 是否愿意公开表达关系", value: 2 },
-        { label: "重要时刻是否出现，并持续兑现约定", value: 4 },
-        { label: "我不主动时，TA 会不会立刻发现", value: 3 },
+        { label: "每天消息数量是否保持不变" },
+        { label: "TA 是否愿意公开表达关系" },
+        { label: "重要时刻是否出现，并持续兑现约定" },
+        { label: "我不主动时，TA 会不会立刻发现" },
       ],
     },
     {
@@ -243,10 +229,10 @@ export function createFallbackAdaptiveQuestions(star: StarProfile, initialScore:
       eyebrow: "不同的情感表达频率",
       question: `你希望经常表达喜欢，而${star.name}更习惯在重要时刻才说出口。你会？`,
       options: [
-        { label: "要求 TA 按照我的频率表达", value: 1 },
-        { label: "压下需要，告诉自己不要太敏感", value: 2 },
-        { label: "说明哪些回应对我重要，也了解 TA 舒服的方式", value: 4 },
-        { label: "先观察 TA 的行动，再决定是否需要谈", value: 3 },
+        { label: "要求 TA 按照我的频率表达" },
+        { label: "压下需要，告诉自己不要太敏感" },
+        { label: "说明哪些回应对我重要，也了解 TA 舒服的方式" },
+        { label: "先观察 TA 的行动，再决定是否需要谈" },
       ],
     },
   ];
@@ -258,22 +244,18 @@ export function createFallbackInterpretation(
   verdict: FateVerdict,
   answers: AnswerSnapshot[],
 ): FateInterpretation {
-  const scores = dimensionScores(answers);
-  const ranked = [...dimensions].sort((a, b) => scores[b] - scores[a]);
-  const strongest = ranked[0];
-  const weakest = ranked.at(-1) ?? "security";
+  const answerExample = answers[0];
+  const evidence = answerExample
+    ? `例如面对“${answerExample.question}”时，你选择了“${answerExample.answer}”。`
+    : "你完成了本轮全部关系情境。";
   return {
-    headline: `${verdict}，你们是否是正缘已经有了答案`,
-    summary: `你的选择显示，你并不只是在想象${star.name}，而是在回应一个具有“${star.relationshipStyle}”特征的真实关系情境。${score >= 68 ? "你有能力理解 TA 的节奏，也愿意在重要节点给出行动。" : "吸引力存在，但遇到压力时，你们对靠近与退后的理解仍可能不同。"}`,
-    attraction: `你在${dimensionLabels[strongest]}上的回答最稳定，这恰好能回应${star.name}看重的“${star.focus}”。这种匹配更像长期相处中的舒服，而不是一时的心动。`,
-    friction: `${dimensionLabels[weakest]}是目前最容易出现误读的地方。真正进入关系后，含糊地等待对方理解，可能会把小分歧放大。`,
+    headline: `你和 ${star.name} 的关系画像`,
+    summary: `MBTI 与三柱关系构成这份结果的基础；本轮选择只用于理解你会怎样把这种潜力带进现实互动。`,
+    attraction: `${evidence}这类真实选择能帮助理解你会如何回应${star.name}看重的“${star.focus}”。`,
+    friction: `答题不再被划分为高分或低分；真正需要留意的是，你的选择与双方固有节奏放在一起后，可能出现怎样的误读。`,
     advice: `保留你真实的反应，但在关键时刻多问一句“你现在希望我怎么陪你”。对你和${star.name}来说，清楚而不逼迫的沟通，比猜中答案更重要。`,
-    behaviorInsight: `你在${dimensionLabels[strongest]}上的回应最稳定，而${dimensionLabels[weakest]}更容易在压力下出现误读。真正决定关系走向的，不是一次高分选择，而是这种回应能否持续出现。`,
+    behaviorInsight: `${evidence}这里没有标准答案，这些内容只用于补充你在具体场景里的自然反应。`,
     relationshipDynamic: `这段关系的吸引来自彼此节奏被看见，能否长期靠近则取决于你们是否愿意把默契变成清晰、稳定、可重复的行动。`,
-    actionPlan: [
-      `继续发挥${dimensionLabels[strongest]}上的稳定回应。`,
-      `在${dimensionLabels[weakest]}触发不安时，用直接表达代替猜测。`,
-      `给彼此留出可持续的靠近节奏，不用一时热烈证明全部关系。`,
-    ],
+    actionPlan: ["把真实感受说清楚。", "用具体回应代替猜测。", "给彼此留出可持续的靠近节奏。"],
   };
 }

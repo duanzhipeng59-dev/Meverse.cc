@@ -128,60 +128,6 @@ function averageConfidence(profile: ProgressiveProfile) {
   return behaviorDimensions.reduce((sum, dimension) => sum + profile.dimensions[dimension].confidence, 0) / behaviorDimensions.length;
 }
 
-export function recommendedQuestionCount(profile: ProgressiveProfile) {
-  const confidence = averageConfidence(profile);
-  if (profile.completedTests === 0) return 24;
-  if (profile.completedTests === 1) return 16;
-  if (profile.completedTests === 2) return confidence >= 0.68 ? 12 : 14;
-  return confidence >= 0.76 ? 10 : 12;
-}
-
-function stableHash(value: string) {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
-  return Math.abs(hash);
-}
-
-export function selectProgressiveQuestions(allQuestions: TestQuestion[], profile: ProgressiveProfile, starId: string) {
-  const count = Math.min(recommendedQuestionCount(profile), allQuestions.length);
-  if (count === allQuestions.length) return allQuestions;
-
-  const dimensionOrder = [...behaviorDimensions].sort((left, right) => (
-    profile.dimensions[left].confidence - profile.dimensions[right].confidence
-  ));
-  const selected = new Set<string>();
-  const minimumPerDimension = Math.floor(count / behaviorDimensions.length);
-  const rank = (question: TestQuestion) => [
-    profile.seenQuestionCounts[question.id] ?? 0,
-    stableHash(`${starId}:${profile.completedTests}:${question.id}`),
-  ];
-
-  for (const dimension of dimensionOrder) {
-    const candidates = allQuestions
-      .filter((question) => question.dimension === dimension)
-      .sort((left, right) => {
-        const [leftSeen, leftHash] = rank(left);
-        const [rightSeen, rightHash] = rank(right);
-        return leftSeen - rightSeen || leftHash - rightHash;
-      });
-    for (const question of candidates.slice(0, minimumPerDimension)) selected.add(question.id);
-  }
-
-  const remaining = allQuestions
-    .filter((question) => !selected.has(question.id))
-    .sort((left, right) => {
-      const confidenceDifference = profile.dimensions[left.dimension].confidence - profile.dimensions[right.dimension].confidence;
-      const [leftSeen, leftHash] = rank(left);
-      const [rightSeen, rightHash] = rank(right);
-      return leftSeen - rightSeen || confidenceDifference || leftHash - rightHash;
-    });
-  for (const question of remaining) {
-    if (selected.size >= count) break;
-    selected.add(question.id);
-  }
-  return allQuestions.filter((question) => selected.has(question.id));
-}
-
 function clampScore(score: number) {
   return Math.round(Math.min(100, Math.max(0, score)));
 }
@@ -201,6 +147,13 @@ export function mbtiCompatibility(userMbti: string, starMbti: string) {
   ];
   const weights = [0.2, 0.3, 0.25, 0.25];
   return Math.round(scores.reduce((sum, score, index) => sum + score * weights[index], 0));
+}
+
+export function profileCompatibilityScore(userMbti: string, birthDate: string, star: StarProfile) {
+  const mbtiScore = mbtiCompatibility(userMbti, star.mbti);
+  const pillarScore = analyzeThreePillars(birthDate, star.threePillars)?.score ?? null;
+  if (mbtiScore !== null && pillarScore !== null) return clampScore(pillarScore * 0.55 + mbtiScore * 0.45);
+  return pillarScore ?? mbtiScore ?? 50;
 }
 
 export function calculateProgressiveCompatibility({

@@ -105,10 +105,10 @@ test("lets guests finish both questionnaires before login gates the results", as
   assert.doesNotMatch(celebrityEntry, /status === "anonymous"/u);
   assert.match(celebrityTest, /myfate-pending-fate-test/u);
   assert.match(profileTest, /myfate-pending-relationship-profile/u);
-  assert.match(celebrityTest, /登录并查看结果/u);
-  assert.match(profileTest, /登录并查看结果/u);
-  assert.match(celebrityTest, /补全你的专属资料/u);
-  assert.match(profileTest, /补全你的专属资料/u);
+  assert.match(celebrityTest, /登录并生成报告/u);
+  assert.match(profileTest, /登录并生成报告/u);
+  assert.doesNotMatch(celebrityTest, /补全你的专属资料|userMbti|userBirthDate/u);
+  assert.doesNotMatch(profileTest, /补全你的专属资料|birthDate|mbti/u);
   assert.match(celebrityTest, /sessionStorage/u);
   assert.match(profileTest, /sessionStorage/u);
 });
@@ -149,9 +149,7 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
     readFile(new URL("../app/relationship-profile-storage.ts", import.meta.url), "utf8"),
   ]);
   assert.match(testExperience, /createSavedReport/u);
-  assert.match(testExperience, /status: "generating"/u);
   assert.match(testExperience, /status: "advanced"/u);
-  assert.match(testExperience, /退出并查看我的报告/u);
   assert.match(testExperience, /查看历史报告/u);
   assert.match(reportStorage, /fetch\("\/api\/myfate\/reports"/u);
   assert.match(reportStorage, /migrateLegacyReports/u);
@@ -166,22 +164,22 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(reportDetail, /MyfateAdvancedReport/u);
   assert.match(reportDetail, /test\?restart=1/u);
   assert.match(reportDetail, /返回明星工作台/u);
-  assert.match(reportDetail, /高级报告正在生成/u);
-  assert.match(advancedReport, /<h2>缘分结构<\/h2>/u);
-  assert.match(advancedReport, /七个关系板块/u);
-  assert.match(advancedReport, /初始吸引/u);
-  assert.match(advancedReport, /宿命\/烙印感/u);
-  assert.match(advancedReport, /冲突消耗/u);
-  assert.match(advancedReport, /深层关系解码/u);
-  assert.match(reportAwareEntry, /查看高级报告/u);
-  assert.match(reportAwareEntry, /查看初步报告/u);
+  assert.match(reportDetail, /关系报告正在生成/u);
+  assert.match(advancedReport, /mf-model-report-sections/u);
+  assert.match(advancedReport, /mf-model-report-section/u);
+  assert.match(advancedReport, /mf-model-report-subsection/u);
+  assert.match(advancedReport, /mf-relationship-orbit/u);
+  assert.match(advancedReport, /mf-model-report-facts/u);
+  assert.doesNotMatch(advancedReport, /缘分结构|七个关系板块|初始吸引|综合匹配度/u);
+  assert.match(reportAwareEntry, /查看关系报告/u);
+  assert.match(reportAwareEntry, /重新生成报告/u);
   assert.match(reportAwareEntry, /报告生成中/u);
   assert.match(reportAwareEntry, /from=celebrity-match/u);
-  assert.match(guardedTestEntry, /allowRetest/u);
-  assert.match(guardedTestEntry, /router\.replace/u);
+  assert.match(guardedTestEntry, /questions=\{questions\}/u);
+  assert.doesNotMatch(guardedTestEntry, /allowRetest|router\.replace/u);
   assert.match(reportsWorkspace, /window\.confirm/u);
   assert.match(reportsWorkspace, /删除后无法恢复/u);
-  assert.match(reportsWorkspace, /高级报告正在生成，请稍候/u);
+  assert.match(reportsWorkspace, /正在阅读本次选择并生成报告/u);
   assert.match(relationshipStorage, /deleteRelationshipReport/u);
 });
 
@@ -206,85 +204,65 @@ test("server-renders a celebrity detail and its test entry", async () => {
   assert.match(html, /\/test\/bang-chan/);
 });
 
-test("includes a progressive question flow with a model-only advanced report", async () => {
-  const [testPage, data, testExperience, progressiveProfile, advancedReport] = await Promise.all([
+test("uses the full managed question bank with a free-form model-only report", async () => {
+  const [testPage, data, testExperience, advancedReport, prompt, reportTemplate, relationshipTest] = await Promise.all([
     readFile(new URL("../app/test/[id]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-progressive-profile.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-advanced-report.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/personalize/report-prompt.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/personalize/celebrity-report-template.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/relationship-profile/test/relationship-profile-test.tsx", import.meta.url), "utf8"),
   ]);
-  const advancedExperience = `${testExperience}\n${advancedReport}`;
   assert.match(testPage, /MyfateTest/);
   assert.match(data, /createInitialQuestions/);
-  assert.match(data, /演出结束后，\$\{star\.name\}/u);
+  assert.match(data, /你会怎么陪 TA/u);
   assert.equal((data.match(/id: "idol-/g) ?? []).length, 24);
-  assert.doesNotMatch(testExperience, /adaptive-test|createFallbackAdaptiveQuestions/u);
-  assert.match(testExperience, /心动行为测试 · \{totalQuestionCount\} 题/u);
-  assert.match(testExperience, /补全你的专属资料/u);
-  assert.match(testExperience, /填写后将自动保存到个人中心/u);
-  assert.match(testExperience, /writeBasicProfile/u);
-  assert.match(testExperience, /requiredProfileFields\.birthDate/u);
-  assert.match(testExperience, /requiredProfileFields\.mbti/u);
-  assert.match(testExperience, /解锁缘分高级报告/u);
-  assert.match(testExperience, /最终正缘解读/u);
-  assert.match(advancedExperience, /绝对|可能|也许|不太像|不是/u);
-  assert.match(advancedExperience, /命中注定/u);
-  assert.match(advancedExperience, /红颜祸水/u);
-  assert.match(advancedExperience, /些许暧昧/u);
-  assert.match(advancedExperience, /缘分较浅/u);
-  assert.match(advancedExperience, /平行时空/u);
-  assert.match(testExperience, /calculateProgressiveCompatibility/u);
-  assert.match(testExperience, /recordProgressiveTest/u);
-  assert.match(progressiveProfile, /myfate-progressive-profile:v1/u);
-  assert.match(progressiveProfile, /completedTests === 0\) return 24/u);
-  assert.match(progressiveProfile, /completedTests === 1\) return 16/u);
-  assert.match(progressiveProfile, /confidence >= 0\.76 \? 10 : 12/u);
-  assert.match(progressiveProfile, /pillarScore \* 0\.55 \+ mbtiScore \* 0\.45/u);
-  assert.match(progressiveProfile, /Math\.min\(8, Math\.max\(-8/u);
-  assert.doesNotMatch(testExperience, /结合个人资料、历史画像与本次行为生成/u);
-  assert.match(advancedExperience, /核心缘分结构|缘分结构/u);
-  assert.match(advancedExperience, /心动引力/u);
-  assert.match(advancedExperience, /情绪托举/u);
-  assert.match(advancedExperience, /相处节奏/u);
-  assert.match(advancedExperience, /长期潜力/u);
-  assert.match(advancedExperience, /七个关系板块/u);
-  assert.match(advancedExperience, /初始吸引/u);
-  assert.match(advancedExperience, /情绪连接/u);
-  assert.match(advancedExperience, /沟通默契/u);
-  assert.match(advancedExperience, /互补成长/u);
-  assert.match(advancedExperience, /宿命\/烙印感/u);
-  assert.match(advancedExperience, /冲突消耗/u);
-  assert.match(advancedExperience, /你们的关系天赋/u);
-  assert.match(advancedExperience, /需要共同练习/u);
-  assert.match(advancedExperience, /情绪回应/u);
-  assert.match(advancedExperience, /长期稳定/u);
-  assert.doesNotMatch(advancedExperience, /综合关系动力|为什么会靠近|为什么可能错过|AI 个性化最终解读|你的关系行动指南/u);
-  assert.doesNotMatch(testExperience, /createFallbackInterpretation|createDeepInterpretation/u);
-  assert.doesNotMatch(advancedReport, /presentationMbtiInsight|presentationPillarInsight/u);
-  assert.match(testExperience, /mf-fate-spectrum/);
-  assert.match(testExperience, /mf-answer-stars/);
-  assert.match(testExperience, /最有默契/u);
-  assert.match(testExperience, /仍需确认/u);
+  assert.match(testExperience, /心动行为测试 · \{currentQuestions\.length\} 题/u);
+  assert.match(testExperience, /reportType: "celebrity-match"/u);
+  assert.match(testExperience, /options: question\.options\.map/u);
+  assert.match(testExperience, /answer: option\.label/u);
+  assert.match(testExperience, /starId: star\.id/u);
+  assert.doesNotMatch(testExperience, /score|userMbti|userBirthDate|birthDate|profileCompatibility/u);
+  assert.match(advancedReport, /mf-model-report-sections/u);
+  assert.doesNotMatch(advancedReport, /score|七个关系板块|初始吸引|长期稳定/u);
+  assert.match(prompt, /九段结构/u);
+  assert.match(prompt, /后台配置的目标人物提示词/u);
+  assert.match(prompt, /idolPrompt: input\.idolPrompt/u);
+  assert.match(prompt, /不得计算或展示分数、百分比/u);
+  assert.doesNotMatch(prompt, /targetProfile|starProfile/u);
+  assert.match(prompt, /allOptions: answer\.options/u);
+  assert.match(reportTemplate, /整体相处模式与需求共鸣综述/u);
+  assert.match(reportTemplate, /目标人物的真实渴望总结/u);
+  assert.match(reportTemplate, /三大维度互动特质解析/u);
+  assert.match(reportTemplate, /测试者最能自然滋养 TA 的特质/u);
+  assert.match(reportTemplate, /目标人物的盲点\/防御/u);
+  assert.match(reportTemplate, /长期相处中最可能感到疲惫/u);
+  assert.match(reportTemplate, /核心风险与雷区预警/u);
+  assert.match(reportTemplate, /健康支持与相处底线提示/u);
+  assert.match(reportTemplate, /关系相处规则/u);
+  assert.match(reportTemplate, /每个主板块必须使用上述【小标题】结构/u);
+  assert.match(reportTemplate, /关系类型｜/u);
+  assert.match(reportTemplate, /关系主标题｜/u);
+  assert.match(reportTemplate, /关系导语｜/u);
+  assert.match(reportTemplate, /核心张力｜/u);
+  assert.match(reportTemplate, /时间窗口与建议地点类型/u);
+  assert.match(relationshipTest, /options: question\.options\.map/u);
+  assert.match(relationshipTest, /answer: option\.label/u);
+  assert.doesNotMatch(relationshipTest, /calculateRelationshipScores|relationshipArchetype|birthDate|mbti/u);
 });
 
-test("requires the configured model for an advanced interpretation", async () => {
+test("requires the configured model for a free-form report", async () => {
   const response = await render("/api/myfate/personalize", {
     method: "POST",
     headers: { "content-type": "application/json", accept: "application/json" },
     body: JSON.stringify({
-      action: "interpretation",
+      action: "report",
+      reportType: "celebrity-match",
       starId: "james",
-      initialScore: 76,
-      finalScore: 76,
-      userMbti: "INFP",
-      birthDate: "1998-06-12",
-      behaviorScores: { security: 74, expression: 82, independence: 88, conflict: 61, novelty: 77 },
       answers: [{
         question: "如果 James 需要独处，你会怎么做？",
         answer: "尊重空间并约定联系时间",
-        value: 4,
-        dimension: "independence",
       }],
     }),
   });
