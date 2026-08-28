@@ -2,6 +2,20 @@ import Link from "next/link";
 import type { StarProfile } from "./myfate-data";
 import type { FormulaTestResult } from "./myfate-generated-test-types";
 
+function fallbackCorrectExplanation(testType: string) {
+  if (testType === "脆弱点承接") return "这个回应会先接住 TA 当下的感受，同时保留必要边界，更不容易触发防御或让关系进入相互消耗。";
+  if (testType === "长期磨合") return "这个回应兼顾了双方的现实需要、个人边界与后续沟通，更有利于关系形成稳定、可持续的良性循环。";
+  return "这个回应能够更直接地看见并满足 TA 在当前情境中的核心情感需求，因此更容易被 TA 真正接收到。";
+}
+
+function correctExplanation(review: FormulaTestResult["reviews"][number]) {
+  return review.correctExplanation?.trim() || fallbackCorrectExplanation(review.testType);
+}
+
+function selectedExplanation(review: FormulaTestResult["reviews"][number]) {
+  return review.selectedExplanation?.trim() || "这个回应虽然可能出于好意，但没有优先处理 TA 在当前情境中的核心需要，容易造成情绪、边界或沟通方式上的错位。";
+}
+
 export default function MyfateFormulaResult({
   star,
   result,
@@ -38,8 +52,8 @@ export default function MyfateFormulaResult({
               <article key={review.questionId}>
                 <div className="mf-formula-review-index"><span>{String(index + 1).padStart(2, "0")}</span>{review.riskItem ? <b>关键风险题</b> : <b>{review.testType}</b>}</div>
                 <h3>{review.question}</h3>
-                <div className="mf-formula-choice is-user"><small>你的选择</small><strong>{review.selectedOption}</strong><p>{review.selectedExplanation}</p></div>
-                <div className="mf-formula-choice is-correct"><small>更适合 TA 的回答</small><strong>{review.correctOption}</strong><p>{review.correctExplanation}</p></div>
+                <div className="mf-formula-choice is-user"><small>你的选择</small><strong>{review.selectedOption}</strong><div className="mf-formula-explanation"><b>为什么会错位</b><p>{selectedExplanation(review)}</p></div></div>
+                <div className="mf-formula-choice is-correct"><small>正确答案 · 更适合 TA 的回答</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
               </article>
             ))}
           </div>
@@ -54,7 +68,7 @@ export default function MyfateFormulaResult({
               <article key={review.questionId}>
                 <div className="mf-formula-review-index"><span>{String(index + 1).padStart(2, "0")}</span>{review.riskItem ? <b>关键风险题</b> : <b>{review.testType}</b>}</div>
                 <h3>{review.question}</h3>
-                <div className="mf-formula-choice is-correct"><small>你的正确选择</small><strong>{review.correctOption}</strong><p>{review.correctExplanation}</p></div>
+                <div className="mf-formula-choice is-correct"><small>你的选择 · 正确答案</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
               </article>
             ))}
           </div>

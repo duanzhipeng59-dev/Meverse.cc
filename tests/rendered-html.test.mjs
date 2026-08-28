@@ -284,7 +284,9 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.match(prompt, /动态提炼 5–8 个专属关系互动维度/u);
   assert.doesNotMatch(prompt, /后台专属提示词|idolPrompt/u);
   assert.match(prompt, /correctIndex/u);
-  assert.match(prompt, /每个选项都预先写 explanation/u);
+  assert.match(prompt, /每个选项.*explanation/u);
+  assert.match(prompt, /建议 60–120 个中文字符/u);
+  assert.match(prompt, /TA 当下更可能有什么感受/u);
   assert.match(prompt, /恰好 5 道 riskItem=true/u);
   assert.match(submitRoute, /evaluateGeneratedTest/u);
   assert.doesNotMatch(submitRoute, /generateReportText|personalize/u);
@@ -292,6 +294,8 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.match(evaluation, /correctExplanation: correct\.explanation/u);
   assert.match(evaluation, /riskWrongCount >= 3/u);
   assert.match(formulaResult, /为什么适配|更适合 TA 的回答/u);
+  assert.match(formulaResult, /为什么这是正确答案/u);
+  assert.match(formulaResult, /fallbackCorrectExplanation/u);
   assert.doesNotMatch(formulaResult, /generateReportText|personalize/u);
   assert.match(relationshipTest, /options: question\.options\.map/u);
   assert.match(relationshipTest, /answer: option\.label/u);

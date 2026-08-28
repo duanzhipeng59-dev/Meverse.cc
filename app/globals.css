@@ -4492,11 +4492,45 @@ select:focus-visible {
 .mf-formula-choice { margin-top: 12px; padding: 18px 20px; border-radius: 15px; }
 .mf-formula-choice small { display: block; margin-bottom: 7px; font-weight: 800; }
 .mf-formula-choice strong { display: block; font-size: 16px; line-height: 1.55; }
-.mf-formula-choice p { margin: 8px 0 0; color: #6f6268; line-height: 1.75; }
 .mf-formula-choice.is-user { background: #fff1f1; }
 .mf-formula-choice.is-user small { color: #ad4a58; }
 .mf-formula-choice.is-correct { background: #f2f8f4; }
 .mf-formula-choice.is-correct small { color: #397455; }
+.mf-formula-explanation {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgb(86 70 77 / 12%);
+}
+.mf-formula-explanation b {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #493d42;
+  font-size: 13px;
+  letter-spacing: .02em;
+}
+.mf-formula-explanation b::before {
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  flex: 0 0 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: #397455;
+  color: white;
+  content: "✓";
+  font-size: 11px;
+}
+.mf-formula-choice.is-user .mf-formula-explanation b::before {
+  background: #ad4a58;
+  content: "!";
+}
+.mf-formula-explanation p {
+  margin: 8px 0 0;
+  color: #65585e;
+  font-size: 15px;
+  line-height: 1.8;
+}
 
 @media (max-width: 640px) {
   .mf-formula-result { width: min(100% - 20px, 1180px); margin-top: 18px; }
