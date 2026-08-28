@@ -28,6 +28,7 @@ test("server-renders the Myfate landing page with a workspace entry", async () =
   assert.match(html, /Myfate/);
   assert.match(html, /会是你的正缘吗/u);
   assert.match(html, /选择心动对象/u);
+  assert.match(html, /href="\/#stars"/u);
   assert.match(html, /缘分星图示例/u);
   assert.doesNotMatch(html, /缘分预览/u);
   assert.match(html, /\/home\/celebrity-match/);
@@ -60,8 +61,8 @@ test("server-renders a celebrity detail inside the workspace", async () => {
   assert.match(html, /正缘测试/u);
   assert.match(html, /返回工作区/u);
   assert.match(html, /\/home\/celebrity-match/);
-  assert.match(html, /href="\/home\/celebrity-match\/hyunjin\/test"/);
-  assert.doesNotMatch(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fhyunjin%2Ftest/);
+  assert.doesNotMatch(html, /href="\/home\/celebrity-match\/hyunjin\/test"/);
+  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fhyunjin%2Ftest/);
   assert.match(html, /mf-workspace-detail/u);
 });
 
@@ -97,21 +98,24 @@ test("server-renders the behavior profile workspace without the question-count s
   assert.doesNotMatch(html, /24 道行为情境|约 5 分钟完成/u);
 });
 
-test("lets guests finish both questionnaires before login gates the results", async () => {
-  const [celebrityEntry, celebrityTest, profileTest] = await Promise.all([
-    readFile(new URL("../app/home/celebrity-match/[id]/test/workspace-test-entry.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
+test("gates generated celebrity tests before model use while keeping the behavior questionnaire resumable", async () => {
+  const [celebrityDetail, celebrityEntry, generatedTest, generateRoute, profileTest] = await Promise.all([
+    readFile(new URL("../app/celebrity-detail.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/celebrity-match/report-aware-entry.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-generated-test.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/generated-tests/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/home/relationship-profile/test/relationship-profile-test.tsx", import.meta.url), "utf8"),
   ]);
-  assert.doesNotMatch(celebrityEntry, /status === "anonymous"/u);
-  assert.match(celebrityTest, /myfate-pending-fate-test/u);
+  assert.match(celebrityDetail, /AuthEntryLink/u);
+  assert.match(celebrityEntry, /AuthEntryLink/u);
+  assert.match(generatedTest, /status === "anonymous"/u);
+  assert.match(generatedTest, /window\.location\.replace/u);
+  assert.doesNotMatch(generatedTest, /sessionStorage/u);
+  assert.match(generateRoute, /requireReportUser/u);
+  assert.match(generateRoute, /LOGIN_REQUIRED/u);
   assert.match(profileTest, /myfate-pending-relationship-profile/u);
-  assert.match(celebrityTest, /完成测试/u);
-  assert.match(celebrityTest, /登录查看报告/u);
   assert.match(profileTest, /登录并生成报告/u);
-  assert.doesNotMatch(celebrityTest, /补全你的专属资料|userMbti|userBirthDate/u);
   assert.doesNotMatch(profileTest, /补全你的专属资料|birthDate|mbti/u);
-  assert.match(celebrityTest, /sessionStorage/u);
   assert.match(profileTest, /sessionStorage/u);
 });
 
@@ -249,7 +253,7 @@ test("server-renders a celebrity detail and its test entry", async () => {
   assert.match(html, /主动守护的共建型/u);
   assert.match(html, /真诚回应 · 共同成长 · 稳定承诺/u);
   assert.match(html, /测试 TA 是否是你的正缘/u);
-  assert.match(html, /\/test\/bang-chan/);
+  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fbang-chan%2Ftest/);
 });
 
 test("generates a fresh sealed question set and evaluates it without a second model call", async () => {
@@ -265,8 +269,8 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   ]);
   assert.match(testPage, /MyfateGeneratedTest/u);
   assert.match(generatedTest, /fetch\("\/api\/myfate\/generated-tests"/u);
-  assert.match(generatedTest, /登录查看结果/u);
-  assert.match(generatedTest, /sessionStorage/u);
+  assert.match(generatedTest, /查看正缘结果/u);
+  assert.doesNotMatch(generatedTest, /sessionStorage/u);
   assert.match(generatedTest, /serializeFormulaResult/u);
   assert.match(generateRoute, /generateReportText/u);
   assert.match(generateRoute, /myfate_generated_tests/u);
@@ -285,6 +289,17 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.match(relationshipTest, /options: question\.options\.map/u);
   assert.match(relationshipTest, /answer: option\.label/u);
   assert.doesNotMatch(relationshipTest, /calculateRelationshipScores|relationshipArchetype|birthDate|mbti/u);
+});
+
+test("rejects anonymous generated-test requests before invoking the model", async () => {
+  const response = await render("/api/myfate/generated-tests", {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ starId: "hyunjin" }),
+  });
+  assert.equal(response.status, 401);
+  const result = await response.json();
+  assert.equal(result.error, "LOGIN_REQUIRED");
 });
 
 test("requires the configured model for a free-form report", async () => {

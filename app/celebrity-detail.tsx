@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { StarProfile } from "./myfate-data";
+import AuthEntryLink from "./auth-entry-link";
 import ReportAwareEntry from "./home/celebrity-match/report-aware-entry";
 
 export default function CelebrityDetail({
@@ -58,9 +59,9 @@ export default function CelebrityDetail({
           {workspace ? (
             <ReportAwareEntry starId={star.id} />
           ) : (
-            <Link className="mf-primary-button mf-detail-cta" href={`/test/${star.id}`}>
+            <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/celebrity-match/${star.id}/test`}>
               测试 TA 是否是你的正缘 <span>→</span>
-            </Link>
+            </AuthEntryLink>
           )}
           <p className="mf-detail-hint">每次生成 25 道全新专属情境题 · 选择直接决定结果</p>
           <p className="mf-bazi-note">人格画像由 MBTI 与出生日期三柱倾向交叉生成；缺少出生时辰，不构成完整八字排盘。</p>

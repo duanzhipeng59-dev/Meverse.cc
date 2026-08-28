@@ -17,25 +17,6 @@ type GeneratedResponse = {
   questions: GeneratedTestQuestion[];
 };
 
-type PendingGeneratedTest = {
-  version: 1;
-  starId: string;
-  testId: string;
-  questions: GeneratedTestQuestion[];
-  answers: Record<string, number>;
-};
-
-function pendingKey(starId: string) {
-  return `myfate-generated-test:v1:${starId}`;
-}
-
-function readPending(starId: string): PendingGeneratedTest | null {
-  try {
-    const value = JSON.parse(window.sessionStorage.getItem(pendingKey(starId)) ?? "null") as PendingGeneratedTest | null;
-    return value?.version === 1 && value.starId === starId ? value : null;
-  } catch { return null; }
-}
-
 export default function MyfateGeneratedTest({ star, workspace = false }: { star: StarProfile; workspace?: boolean }) {
   const { status } = useAuth();
   const started = useRef(false);
@@ -84,9 +65,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     const body = await response.json() as { result: FormulaTestResult };
     setResult(body.result);
     setPhase("result");
-    window.sessionStorage.removeItem(pendingKey(star.id));
     await saveResult(body.result, targetQuestions, targetAnswers);
-  }, [saveResult, star.id]);
+  }, [saveResult]);
 
   const generate = useCallback(async () => {
     setPhase("loading");
@@ -96,6 +76,11 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ starId: star.id }),
     });
+    if (response.status === 401) {
+      const next = `/home/celebrity-match/${star.id}/test`;
+      window.location.replace(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/celebrity-match/${star.id}`)}`);
+      return;
+    }
     if (!response.ok) throw new Error("专属题目生成失败，请稍后重试。");
     const body = await response.json() as GeneratedResponse;
     setTestId(body.testId);
@@ -107,16 +92,16 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
 
   useEffect(() => {
     if (status === "loading" || started.current) return;
+    if (status === "anonymous") {
+      started.current = true;
+      const next = `/home/celebrity-match/${star.id}/test`;
+      window.location.replace(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/celebrity-match/${star.id}`)}`);
+      return;
+    }
     started.current = true;
-    const pending = status === "authenticated" ? readPending(star.id) : null;
     const start = async () => {
       try {
-        if (pending) {
-          setTestId(pending.testId);
-          setQuestions(pending.questions);
-          setAnswers(pending.answers);
-          await evaluate(pending.testId, pending.questions, pending.answers);
-        } else await generate();
+        await generate();
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "暂时无法开始测试");
         setPhase("error");
@@ -127,9 +112,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
 
   function finish() {
     if (status !== "authenticated") {
-      window.sessionStorage.setItem(pendingKey(star.id), JSON.stringify({ version: 1, starId: star.id, testId, questions, answers } satisfies PendingGeneratedTest));
-      const next = `${window.location.pathname}?resume=1`;
-      window.location.assign(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(window.location.pathname)}`);
+      const next = `/home/celebrity-match/${star.id}/test`;
+      window.location.assign(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/celebrity-match/${star.id}`)}`);
       return;
     }
     void evaluate(testId, questions, answers).catch((cause) => {
@@ -173,7 +157,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
           </div>
           <div className="mf-question-nav">
             <button className="mf-text-button" type="button" disabled={index === 0} onClick={() => setIndex((value) => Math.max(0, value - 1))}>← 上一题</button>
-            <button className="mf-primary-button" type="button" disabled={answers[question.id] === undefined} onClick={() => index < questions.length - 1 ? setIndex((value) => value + 1) : finish()}>{index < questions.length - 1 ? "下一题" : status === "authenticated" ? "查看正缘结果" : "登录查看结果"} <span>→</span></button>
+            <button className="mf-primary-button" type="button" disabled={answers[question.id] === undefined} onClick={() => index < questions.length - 1 ? setIndex((value) => value + 1) : finish()}>{index < questions.length - 1 ? "下一题" : "查看正缘结果"} <span>→</span></button>
           </div>
         </section>
       </main>

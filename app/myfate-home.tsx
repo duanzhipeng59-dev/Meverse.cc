@@ -23,7 +23,7 @@ export default async function MyfateHome() {
           <span>Myfate</span>
         </Link>
         <nav className="mf-nav" aria-label="主导航">
-          <Link href="/home/celebrity-match">心动对象</Link>
+          <Link href="/#stars">心动对象</Link>
           <a href="#how-it-works">测试说明</a>
         </nav>
         <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/celebrity-match" anonymousChildren="登录">工作台</AuthEntryLink>
@@ -35,7 +35,7 @@ export default async function MyfateHome() {
             <div className="mf-home-eyebrow"><span>✦</span> 关系兼容性探索</div>
             <h1><span>那个让你心动的人，</span><em>会是你的正缘吗？</em></h1>
             <p>
-              选择一位心动对象，通过 24 个关系情境，发现你们之间真正的吸引力与相处密码。
+              选择一位心动对象，通过每次全新生成的 25 个关系情境，发现你们之间真正的吸引力与相处密码。
             </p>
             <HomeProfileEntry />
           </div>
@@ -116,7 +116,7 @@ export default async function MyfateHome() {
           <div className="mf-how-grid">
             <article><span>01</span><h3>填写基础资料</h3><p>留下昵称、出生日期和地点，资料会自动保存在当前设备，后续无需重复填写。</p></article>
             <article><span>02</span><h3>选择心动对象</h3><p>登录后进入正缘测试工作台，选择一位偶像，通过关系情境题记录你的真实选择。</p></article>
-            <article><span>03</span><h3>查看专属报告</h3><p>先查看缘分初印象，再生成 AI 高级报告；每次测试都会独立保存在“我的报告”。</p></article>
+            <article><span>03</span><h3>查看正缘结果</h3><p>按照本次全部选择得到正缘判定，并逐题查看适配与错位原因；每次结果都会独立保存。</p></article>
           </div>
         </section>
       </main>

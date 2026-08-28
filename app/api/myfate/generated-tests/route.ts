@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createSupabaseAdminClient } from "../../auth/server";
 import { getCelebrityReportPrompt, getPublishedStar } from "../../../myfate-stars-server";
+import { requireReportUser } from "../reports/server";
 import { generateReportText } from "../personalize/model-provider";
 import { buildGeneratedTestPrompt, GENERATED_TEST_SYSTEM_PROMPT } from "./prompt";
 import { parseGeneratedPayload, publicQuestions } from "./server";
@@ -12,6 +13,8 @@ const requestSchema = z.object({
 export async function POST(request: Request) {
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
+  const session = await requireReportUser(request);
+  if (!session) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
   if (!process.env.DEEPSEEK_API_KEY) return Response.json({ error: "MODEL_NOT_CONFIGURED" }, { status: 503 });
 
   try {
@@ -56,7 +59,7 @@ export async function POST(request: Request) {
       testId: data.id,
       expiresAt: data.expires_at,
       questions: publicQuestions(payload),
-    }, { status: 201 });
+    }, { status: 201, headers: session.headers });
   } catch (error) {
     console.error("Generated fate test failed", error);
     return Response.json({ error: "TEST_GENERATION_FAILED" }, { status: 502 });
