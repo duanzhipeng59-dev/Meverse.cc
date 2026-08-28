@@ -2,7 +2,7 @@ export type GeneratedTestQuestion = {
   id: string;
   question: string;
   eyebrow: string;
-  dimension: "security" | "expression" | "independence" | "conflict" | "novelty";
+  dimension: string;
   testType: "核心需求满足" | "脆弱点承接" | "长期磨合";
   riskItem: boolean;
   options: Array<{ label: string }>;
@@ -52,4 +52,3 @@ export function parseFormulaResult(value: string | null | undefined): FormulaTes
     return null;
   }
 }
-

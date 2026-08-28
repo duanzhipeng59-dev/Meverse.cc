@@ -13,7 +13,7 @@ const optionSchema = z.object({
 const storedQuestionSchema = z.object({
   question: z.string().trim().min(8).max(500),
   eyebrow: z.string().trim().min(2).max(80),
-  dimension: z.enum(["security", "expression", "independence", "conflict", "novelty"]),
+  dimension: z.string().trim().min(2).max(80),
   testType: z.enum(["核心需求满足", "脆弱点承接", "长期磨合"]),
   riskItem: z.boolean(),
   targetTrait: z.string().trim().min(2).max(500),

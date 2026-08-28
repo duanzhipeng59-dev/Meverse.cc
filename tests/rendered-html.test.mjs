@@ -277,8 +277,12 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.match(generateRoute, /publicQuestions/u);
   assert.match(prompt, /恰好 25 道/u);
   assert.match(prompt, /MBTI：\$\{star\.mbti\}/u);
-  assert.match(prompt, /出生日期：\$\{star\.birthDate\}/u);
+  assert.match(prompt, /出生年月日：\$\{star\.birthDate\}/u);
   assert.doesNotMatch(prompt, /star\.(?:name|role|threePillars|traits|description|relationshipStyle|focus)/u);
+  assert.match(prompt, /约占 70% 定性参考/u);
+  assert.match(prompt, /约占 30% 定性参考/u);
+  assert.match(prompt, /动态提炼 5–8 个专属关系互动维度/u);
+  assert.doesNotMatch(prompt, /后台专属提示词|idolPrompt/u);
   assert.match(prompt, /correctIndex/u);
   assert.match(prompt, /每个选项都预先写 explanation/u);
   assert.match(prompt, /恰好 5 道 riskItem=true/u);

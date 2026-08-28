@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createSupabaseAdminClient } from "../../auth/server";
-import { getCelebrityReportPrompt, getPublishedStar } from "../../../myfate-stars-server";
+import { getPublishedStar } from "../../../myfate-stars-server";
 import { requireReportUser } from "../reports/server";
 import { generateReportText } from "../personalize/model-provider";
 import { buildGeneratedTestPrompt, GENERATED_TEST_SYSTEM_PROMPT } from "./prompt";
@@ -18,13 +18,10 @@ export async function POST(request: Request) {
   if (!process.env.DEEPSEEK_API_KEY) return Response.json({ error: "MODEL_NOT_CONFIGURED" }, { status: 503 });
 
   try {
-    const [star, idolPrompt] = await Promise.all([
-      getPublishedStar(parsed.data.starId),
-      getCelebrityReportPrompt(parsed.data.starId),
-    ]);
-    if (!star || !idolPrompt) return Response.json({ error: "CELEBRITY_NOT_FOUND" }, { status: 404 });
+    const star = await getPublishedStar(parsed.data.starId);
+    if (!star) return Response.json({ error: "CELEBRITY_NOT_FOUND" }, { status: 404 });
 
-    const prompt = buildGeneratedTestPrompt(star, idolPrompt);
+    const prompt = buildGeneratedTestPrompt(star);
     let generation = await generateReportText(GENERATED_TEST_SYSTEM_PROMPT, prompt, {
       temperature: 0.9,
       maxTokens: 16000,
