@@ -1129,10 +1129,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-home-hero .mf-hero-actions { margin-top: 28px; }
   .mf-home-hero .mf-primary-button { width: 100%; min-height: 56px; box-sizing: border-box; }
   .mf-home-profile-entry { margin-top: 27px; padding: 14px; border-radius: 19px; }
+  .mf-home-profile-fields { min-width: 0; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .mf-home-profile-fields > label { min-width: 0; overflow: hidden; }
   .mf-home-profile-fields label:nth-child(1) { grid-column: span 5; }
   .mf-home-profile-fields label:nth-child(2) { grid-column: span 7; }
   .mf-home-profile-fields input[type="date"] {
-    width: 100%; max-width: 100%; min-width: 0; min-inline-size: 0; font: 570 12px inherit;
+    width: 100%; max-width: 100%; min-width: 0; min-inline-size: 0; padding-right: 6px; -webkit-appearance: none; appearance: none; font: 570 12px inherit;
   }
   .mf-home-profile-fields input[type="date"]::-webkit-date-and-time-value,
   .mf-home-profile-fields input[type="date"]::-webkit-datetime-edit,
