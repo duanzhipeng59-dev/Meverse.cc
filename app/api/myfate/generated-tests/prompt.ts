@@ -4,8 +4,8 @@ export const GENERATED_TEST_SYSTEM_PROMPT = `你是 Myfate 的亲密关系情境
 你只负责生成测试题、隐藏正确答案和每个选项的预写解释，不负责在用户答题后再次生成报告。
 
 必须遵守：
-1. 根据目标人物卡片资料中的 MBTI、出生日期、三柱、情感人格、关系模式、看重的事与专属提示词，建立本次专属关系需求画像。
-2. MBTI 是主要人格参考；三柱只能作为传统文化视角的辅助观察，不得写成科学结论或命运预测。
+1. 只根据目标人物的 MBTI、出生日期与后台专属提示词，建立本次专属关系需求画像。
+2. 不得自行补充目标人物的姓名、身份、三柱、标签、人物描述、关系模式、看重的事、私生活或真实恋爱态度。
 3. 生成恰好 25 道具体生活情境题，每题恰好 4 个行为选项。
 4. 题型分布：核心需求满足 9 至 10 道、脆弱点承接 8 至 9 道、长期磨合 6 至 7 道。
 5. 恰好 5 道 riskItem=true 的关键风险题。
@@ -37,23 +37,18 @@ JSON 结构必须严格为：
   ]
 }`;
 
-export function buildGeneratedTestPrompt(star: StarProfile, idolPrompt: string) {
-  return `请为下面这位目标人物生成一次全新的 25 道正缘情境测试。即使人物相同，本次场景、措辞和选项组合也应与常见模板不同，但判断标准必须服从人物资料。
+export function buildGeneratedTestPrompt(
+  star: Pick<StarProfile, "mbti" | "birthDate">,
+  idolPrompt: string,
+) {
+  return `请为下面这位目标人物生成一次全新的 25 道正缘情境测试。即使输入相同，本次场景、措辞和选项组合也应与常见模板不同，但判断标准必须服从以下输入。
 
-目标人物卡片资料：
-姓名：${star.name}
-身份：${star.role}
+目标人物基础输入：
 MBTI：${star.mbti}
 出生日期：${star.birthDate}
-三柱：${star.threePillars}
-卡片标签：${star.traits.join("、")}
-人物描述：${star.description}
-关系模式：${star.relationshipStyle}
-看重的事：${star.focus}
 
 后台专属提示词：
 ${idolPrompt}
 
 现在直接输出符合系统结构的 JSON。`;
 }
-
