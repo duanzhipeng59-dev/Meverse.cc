@@ -41,10 +41,10 @@ async function readManagedQuestionBank<T>(starId: string): Promise<T[] | null> {
 
 export async function getQuestionsForStar(star: StarProfile): Promise<TestQuestion[]> {
   const managed = await readManagedQuestionBank<TestQuestion>(star.id);
-  return managed?.length ? managed : createInitialQuestions(star);
+  return managed ?? createInitialQuestions(star);
 }
 
 export async function getRelationshipQuestions(): Promise<RelationshipQuestion[]> {
   const managed = await readManagedQuestionBank<RelationshipQuestion>("relationship-profile");
-  return managed?.length ? managed : relationshipQuestions;
+  return managed ?? relationshipQuestions;
 }

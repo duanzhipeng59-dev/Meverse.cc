@@ -12,5 +12,6 @@ export default async function TestPage({ params }: { params: Promise<{ id: strin
   const star = await getPublishedStar((await params).id);
   if (!star) notFound();
   const questions = await getQuestionsForStar(star);
+  if (!questions.length) notFound();
   return <MyfateTest star={star} questions={questions} />;
 }

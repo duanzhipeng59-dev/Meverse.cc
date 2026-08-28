@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { createSupabaseAdminClient } from "./api/auth/server";
 import { createDefaultCelebrityReportPrompt, getStar, stars, type StarProfile } from "./myfate-data";
 
@@ -59,6 +60,7 @@ function reportPromptForRow(row: CelebrityRow) {
 
 export async function getPublishedStars(): Promise<StarProfile[]> {
   if (!hasCloudConfig()) return stars;
+  noStore();
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
@@ -67,9 +69,7 @@ export async function getPublishedStars(): Promise<StarProfile[]> {
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
-    const managed = ((data ?? []) as unknown as CelebrityRow[]).map(mapCelebrity);
-    const managedIds = new Set(managed.map((star) => star.id));
-    return [...stars.filter((star) => !managedIds.has(star.id)), ...managed];
+    return ((data ?? []) as unknown as CelebrityRow[]).map(mapCelebrity);
   } catch (error) {
     console.error("Failed to read published celebrity profiles", error);
     return stars;
@@ -78,6 +78,7 @@ export async function getPublishedStars(): Promise<StarProfile[]> {
 
 export async function getHomepageStars(): Promise<StarProfile[]> {
   if (!hasCloudConfig()) return stars;
+  noStore();
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
@@ -87,8 +88,7 @@ export async function getHomepageStars(): Promise<StarProfile[]> {
       .order("homepage_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
-    const managed = ((data ?? []) as unknown as CelebrityRow[]).map(mapCelebrity);
-    return managed.length ? managed : stars;
+    return ((data ?? []) as unknown as CelebrityRow[]).map(mapCelebrity);
   } catch (error) {
     console.error("Failed to read homepage celebrity profiles", error);
     return stars;
@@ -97,6 +97,7 @@ export async function getHomepageStars(): Promise<StarProfile[]> {
 
 export async function getPublishedStar(id: string): Promise<StarProfile | undefined> {
   if (!hasCloudConfig()) return getStar(id);
+  noStore();
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
@@ -105,11 +106,11 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
       .eq("published", true)
       .maybeSingle();
     if (error) throw error;
-    if (data) return mapCelebrity(data as unknown as CelebrityRow);
+    return data ? mapCelebrity(data as unknown as CelebrityRow) : undefined;
   } catch (error) {
     console.error("Failed to read celebrity profile", error);
+    return getStar(id);
   }
-  return getStar(id);
 }
 
 export async function getCelebrityReportPrompt(id: string): Promise<string | undefined> {
@@ -117,6 +118,7 @@ export async function getCelebrityReportPrompt(id: string): Promise<string | und
     const star = getStar(id);
     return star ? star.reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star) : undefined;
   }
+  noStore();
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
@@ -125,10 +127,10 @@ export async function getCelebrityReportPrompt(id: string): Promise<string | und
       .eq("published", true)
       .maybeSingle();
     if (error) throw error;
-    if (data) return reportPromptForRow(data as unknown as CelebrityRow);
+    return data ? reportPromptForRow(data as unknown as CelebrityRow) : undefined;
   } catch (error) {
     console.error("Failed to read celebrity report prompt", error);
+    const star = getStar(id);
+    return star ? star.reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star) : undefined;
   }
-  const star = getStar(id);
-  return star ? star.reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star) : undefined;
 }

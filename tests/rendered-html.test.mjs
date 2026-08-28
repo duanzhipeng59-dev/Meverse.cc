@@ -208,6 +208,30 @@ test("requires login for cloud report data", async () => {
   assert.equal(result.error, "login_required");
 });
 
+test("keeps managed content authoritative and protects the hidden studio", async () => {
+  const [starsServer, questionsServer, adminPage, adminContentApi] = await Promise.all([
+    readFile(new URL("../app/myfate-stars-server.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-questions-server.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/studio/orbit/mf-7k9v2q4x/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/admin/content/route.ts", import.meta.url), "utf8"),
+  ]);
+  assert.doesNotMatch(starsServer, /\.\.\.stars\.filter/u);
+  assert.doesNotMatch(starsServer, /managed\.length \? managed : stars/u);
+  assert.match(starsServer, /return data \? mapCelebrity/u);
+  assert.match(questionsServer, /return managed \?\? createInitialQuestions/u);
+  assert.match(questionsServer, /return managed \?\? relationshipQuestions/u);
+  assert.match(adminPage, /requireAdmin/u);
+  assert.match(adminPage, /notFound/u);
+  assert.match(adminContentApi, /requireAdmin\(request\)/u);
+
+  const [hiddenPage, contentApi] = await Promise.all([
+    render("/studio/orbit/mf-7k9v2q4x"),
+    render("/api/admin/content", { headers: { accept: "application/json" } }),
+  ]);
+  assert.equal(hiddenPage.status, 404);
+  assert.equal(contentApi.status, 401);
+});
+
 test("server-renders a celebrity detail and its test entry", async () => {
   const response = await render("/celebrity/bang-chan");
   assert.equal(response.status, 200);

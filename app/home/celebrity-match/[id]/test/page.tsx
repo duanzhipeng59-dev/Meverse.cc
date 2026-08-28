@@ -16,6 +16,7 @@ export default async function WorkspaceTestPage({
   const star = await getPublishedStar((await params).id);
   if (!star) notFound();
   const questions = await getQuestionsForStar(star);
+  if (!questions.length) notFound();
 
   return <WorkspaceTestEntry star={star} questions={questions} />;
 }
