@@ -1237,10 +1237,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-profile-field { min-width: 0; }
   .mf-profile-field input,
   .mf-profile-field select { width: 100%; max-width: 100%; min-width: 0; height: 50px; min-height: 50px; }
-  .mf-profile-field input[type="date"] { max-inline-size: 100%; min-inline-size: 0; display: block; -webkit-appearance: none; appearance: none; }
+  .mf-profile-field input[type="date"] { width: 100%; max-width: 100%; max-inline-size: 100%; min-width: 0; min-inline-size: 0; height: 50px; display: block; overflow: hidden; padding-top: 0; padding-bottom: 0; padding-right: 8px; line-height: 50px; -webkit-appearance: none; appearance: none; }
   .mf-profile-field input[type="date"]::-webkit-date-and-time-value,
   .mf-profile-field input[type="date"]::-webkit-datetime-edit,
-  .mf-profile-field input[type="date"]::-webkit-datetime-edit-fields-wrapper { min-width: 0; margin: 0; font: inherit; line-height: inherit; text-align: left; }
+  .mf-profile-field input[type="date"]::-webkit-datetime-edit-fields-wrapper { min-width: 0; height: 50px; margin: 0; padding: 0; font: inherit; line-height: 50px; text-align: left; }
   .mf-profile-actions { align-items: stretch; flex-direction: column; }
   .mf-profile-actions .mf-primary-button { width: 100%; }
   .mf-reports-workspace { width: calc(100% - 32px); padding: 38px 0 34px; }
