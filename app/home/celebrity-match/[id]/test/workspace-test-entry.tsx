@@ -1,14 +1,12 @@
 "use client";
 
-import type { StarProfile, TestQuestion } from "../../../../myfate-data";
-import MyfateTest from "../../../../myfate-test";
+import type { StarProfile } from "../../../../myfate-data";
+import MyfateGeneratedTest from "../../../../myfate-generated-test";
 
 export default function WorkspaceTestEntry({
   star,
-  questions,
 }: {
   star: StarProfile;
-  questions: TestQuestion[];
 }) {
-  return <MyfateTest star={star} questions={questions} workspace />;
+  return <MyfateGeneratedTest star={star} workspace />;
 }

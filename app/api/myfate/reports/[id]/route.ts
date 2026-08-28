@@ -4,7 +4,8 @@ import { mapReportRow, requireReportUser, type ReportRow } from "../server";
 
 const updateSchema = z.object({
   status: z.enum(["initial", "generating", "advanced"]).optional(),
-  reportText: z.string().min(1).max(30000).nullable().optional(),
+  score: z.number().int().min(0).max(25).optional(),
+  reportText: z.string().min(1).max(100000).nullable().optional(),
   interpretation: z.record(z.string(), z.unknown()).nullable().optional(),
   interpretationSource: z.enum(["deepseek", "gemini"]).nullable().optional(),
 }).refine((value) => Object.keys(value).length > 0);
@@ -17,6 +18,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (!parsed.success) return Response.json({ error: "invalid_report_update" }, { status: 400 });
     const patch = {
       ...(parsed.data.status ? { status: parsed.data.status } : {}),
+      ...(parsed.data.score !== undefined ? { score: parsed.data.score } : {}),
       ...(parsed.data.reportText !== undefined
         ? { interpretation: parsed.data.reportText === null ? null : { reportText: parsed.data.reportText } }
         : parsed.data.interpretation !== undefined ? { interpretation: parsed.data.interpretation } : {}),

@@ -175,7 +175,7 @@ export async function createSavedReport({
 
 export async function updateSavedReport(
   reportId: string,
-  patch: Partial<Pick<SavedReport, "status" | "reportText" | "interpretationSource">>,
+  patch: Partial<Pick<SavedReport, "status" | "score" | "reportText" | "interpretationSource">>,
 ): Promise<SavedReport | null> {
   try {
     const result = await readJson<{ report?: SavedReport }>(await fetch(`/api/myfate/reports/${encodeURIComponent(reportId)}`, {

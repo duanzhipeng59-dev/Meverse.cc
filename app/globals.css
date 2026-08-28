@@ -4385,3 +4385,123 @@ select:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+.mf-formula-result {
+  width: min(1180px, calc(100% - 32px));
+  margin: 42px auto 80px;
+  color: #2a2026;
+}
+
+.mf-formula-verdict {
+  padding: clamp(38px, 7vw, 82px);
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid #eadce1;
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 15% 0%, #fff8f0 0, transparent 38%),
+    radial-gradient(circle at 88% 90%, #f5dce5 0, transparent 36%),
+    #fff;
+  box-shadow: 0 28px 80px rgb(92 35 59 / 10%);
+}
+
+.mf-formula-verdict > span {
+  color: #a14a6c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .18em;
+}
+
+.mf-formula-verdict-person {
+  margin: 28px 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.mf-formula-verdict-person i {
+  width: 72px;
+  height: 72px;
+  display: block;
+  border: 4px solid white;
+  border-radius: 50%;
+  background: #eee center / cover;
+  box-shadow: 0 10px 30px rgb(71 35 49 / 18%);
+}
+
+.mf-formula-verdict-person small { color: #83747b; }
+
+.mf-formula-verdict h1 {
+  margin: 0;
+  font-family: Georgia, "Songti SC", serif;
+  font-size: clamp(42px, 7vw, 82px);
+  font-weight: 500;
+  letter-spacing: -.04em;
+}
+
+.mf-formula-verdict > p {
+  max-width: 680px;
+  margin: 22px auto 0;
+  color: #71636a;
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.mf-formula-facts {
+  max-width: 620px;
+  margin: 34px auto 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 1px solid #e9dce1;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 72%);
+}
+
+.mf-formula-facts div { padding: 20px; }
+.mf-formula-facts div + div { border-left: 1px solid #e9dce1; }
+.mf-formula-facts strong { display: block; color: #852d54; font: 500 34px/1 Georgia, serif; }
+.mf-formula-facts span { display: block; margin-top: 7px; color: #806f77; font-size: 13px; }
+.mf-formula-cap-note { display: block; margin-top: 18px; color: #9a536b; }
+
+.mf-formula-review-section {
+  margin-top: 28px;
+  padding: clamp(26px, 5vw, 52px);
+  border: 1px solid #eadfe3;
+  border-radius: 28px;
+  background: #fff;
+}
+
+.mf-formula-review-section > header { margin-bottom: 28px; }
+.mf-formula-review-section > header > span { color: #a34b6c; font-size: 12px; font-weight: 800; letter-spacing: .14em; }
+.mf-formula-review-section > header h2 { margin: 8px 0; font-family: Georgia, "Songti SC", serif; font-size: clamp(30px, 4vw, 48px); font-weight: 500; }
+.mf-formula-review-section > header p { margin: 0; color: #817279; }
+.mf-formula-review-list { display: grid; gap: 16px; }
+
+.mf-formula-review-list article {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid #eee4e7;
+  border-radius: 20px;
+  background: #fdfbfb;
+}
+
+.mf-formula-review-index { display: flex; align-items: center; gap: 10px; }
+.mf-formula-review-index span { color: #8c3158; font: 500 20px/1 Georgia, serif; }
+.mf-formula-review-index b { padding: 5px 9px; color: #8b5c6e; border-radius: 99px; background: #f3e8ec; font-size: 11px; }
+.mf-formula-review-list h3 { margin: 16px 0 20px; font-size: 21px; line-height: 1.55; }
+.mf-formula-choice { margin-top: 12px; padding: 18px 20px; border-radius: 15px; }
+.mf-formula-choice small { display: block; margin-bottom: 7px; font-weight: 800; }
+.mf-formula-choice strong { display: block; font-size: 16px; line-height: 1.55; }
+.mf-formula-choice p { margin: 8px 0 0; color: #6f6268; line-height: 1.75; }
+.mf-formula-choice.is-user { background: #fff1f1; }
+.mf-formula-choice.is-user small { color: #ad4a58; }
+.mf-formula-choice.is-correct { background: #f2f8f4; }
+.mf-formula-choice.is-correct small { color: #397455; }
+
+@media (max-width: 640px) {
+  .mf-formula-result { width: min(100% - 20px, 1180px); margin-top: 18px; }
+  .mf-formula-verdict { padding: 34px 20px; border-radius: 24px; }
+  .mf-formula-facts { grid-template-columns: 1fr; }
+  .mf-formula-facts div + div { border-top: 1px solid #e9dce1; border-left: 0; }
+  .mf-formula-review-section { padding: 24px 16px; border-radius: 22px; }
+}

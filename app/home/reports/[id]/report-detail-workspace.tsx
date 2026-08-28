@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../../auth-context";
 import { getStar } from "../../../myfate-data";
 import MyfateAdvancedReport from "../../../myfate-advanced-report";
+import MyfateFormulaResult from "../../../myfate-formula-result";
+import { parseFormulaResult } from "../../../myfate-generated-test-types";
 import { readSavedReports, updateSavedReport, type SavedReport } from "../../../myfate-report-storage";
 
 type ReportResponse = {
@@ -98,6 +100,12 @@ export default function ReportDetailWorkspace({
 
   const star = getStar(report.starId);
   const reportText = legacyReportText(report);
+  const formulaResult = parseFormulaResult(reportText);
+  const formulaStar = star ?? {
+    id: report.starId,
+    name: report.starName,
+    portraitSrc: report.starPortrait,
+  };
   const backHref = fromCelebrityWorkspace ? "/home/celebrity-match" : "/home/reports";
   const backLabel = fromCelebrityWorkspace ? "返回明星工作台" : "返回我的报告";
   const retestHref = `/home/celebrity-match/${report.starId}/test?restart=1`;
@@ -114,7 +122,27 @@ export default function ReportDetailWorkspace({
     );
   }
 
-  if (report.status === "advanced" && star && reportText) {
+  if (report.status === "advanced" && reportText) {
+    if (formulaResult) {
+      return (
+        <div className="mf-saved-report-detail mf-unified-advanced-report">
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>正缘结果</span></div>
+          <MyfateFormulaResult
+            star={formulaStar}
+            result={formulaResult}
+            actions={<Link className="mf-primary-button" href={retestHref}>再测一次</Link>}
+          />
+        </div>
+      );
+    }
+    if (!star) {
+      return (
+        <div className="mf-report-detail-state">
+          <span>!</span><h1>目标人物资料暂不可用</h1><p>这份旧报告仍然保留，但对应的明星卡片已经下线。</p>
+          <Link className="mf-primary-button" href={backHref}>{backLabel}</Link>
+        </div>
+      );
+    }
     return (
       <div className="mf-saved-report-detail mf-unified-advanced-report">
         <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>关系报告</span></div>

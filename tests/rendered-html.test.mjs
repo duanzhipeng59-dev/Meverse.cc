@@ -70,8 +70,8 @@ test("keeps the workspace around the question and report flow", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /正缘测试/u);
-  assert.match(html, /心动行为测试/u);
-  assert.match(html, /24/u);
+  assert.match(html, /专属正缘测试/u);
+  assert.match(html, /正在为你生成一套全新的/u);
   assert.match(html, /个人中心/u);
   assert.match(html, /返回详情/u);
   assert.match(html, /mf-workspace-test/u);
@@ -152,8 +152,9 @@ test("uses a mobile drawer menu and keeps the empty reports state minimal", asyn
 });
 
 test("saves, reuses, upgrades, and manually deletes report history", async () => {
-  const [testExperience, reportStorage, reportApi, reportDetailApi, reportDetail, advancedReport, reportAwareEntry, guardedTestEntry, reportsWorkspace, relationshipStorage] = await Promise.all([
+  const [testExperience, generatedTest, reportStorage, reportApi, reportDetailApi, reportDetail, advancedReport, reportAwareEntry, guardedTestEntry, reportsWorkspace, relationshipStorage] = await Promise.all([
     readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-generated-test.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-report-storage.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/myfate/reports/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/myfate/reports/[id]/route.ts", import.meta.url), "utf8"),
@@ -180,6 +181,8 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(reportStorage, /"initial" \| "generating" \| "advanced"/u);
   assert.match(reportStorage, /deleteSavedReport/u);
   assert.match(reportDetail, /MyfateAdvancedReport/u);
+  assert.match(reportDetail, /MyfateFormulaResult/u);
+  assert.match(reportDetail, /parseFormulaResult/u);
   assert.match(reportDetail, /test\?restart=1/u);
   assert.match(reportDetail, /返回明星工作台/u);
   assert.match(reportDetail, /关系报告正在生成/u);
@@ -193,8 +196,11 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(reportAwareEntry, /重新生成报告/u);
   assert.match(reportAwareEntry, /报告生成中/u);
   assert.match(reportAwareEntry, /from=celebrity-match/u);
-  assert.match(guardedTestEntry, /questions=\{questions\}/u);
+  assert.match(guardedTestEntry, /MyfateGeneratedTest/u);
+  assert.doesNotMatch(guardedTestEntry, /questions=\{questions\}/u);
   assert.doesNotMatch(guardedTestEntry, /allowRetest|router\.replace/u);
+  assert.match(generatedTest, /createSavedReport/u);
+  assert.match(generatedTest, /serializeFormulaResult/u);
   assert.match(reportsWorkspace, /window\.confirm/u);
   assert.match(reportsWorkspace, /删除后无法恢复/u);
   assert.match(reportsWorkspace, /正在阅读本次选择并生成报告/u);
@@ -246,49 +252,36 @@ test("server-renders a celebrity detail and its test entry", async () => {
   assert.match(html, /\/test\/bang-chan/);
 });
 
-test("uses the full managed question bank with a free-form model-only report", async () => {
-  const [testPage, data, testExperience, advancedReport, prompt, reportTemplate, relationshipTest] = await Promise.all([
+test("generates a fresh sealed question set and evaluates it without a second model call", async () => {
+  const [testPage, generatedTest, generateRoute, submitRoute, prompt, evaluation, formulaResult, relationshipTest] = await Promise.all([
     readFile(new URL("../app/test/[id]/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-data.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-test.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-advanced-report.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/myfate/personalize/report-prompt.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/myfate/personalize/celebrity-report-template.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-generated-test.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/generated-tests/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/generated-tests/[id]/submit/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/generated-tests/prompt.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/generated-tests/server.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-formula-result.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/home/relationship-profile/test/relationship-profile-test.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(testPage, /MyfateTest/);
-  assert.match(data, /createInitialQuestions/);
-  assert.match(data, /你会怎么陪 TA/u);
-  assert.equal((data.match(/id: "idol-/g) ?? []).length, 24);
-  assert.match(testExperience, /心动行为测试 · \{currentQuestions\.length\} 题/u);
-  assert.match(testExperience, /reportType: "celebrity-match"/u);
-  assert.match(testExperience, /options: question\.options\.map/u);
-  assert.match(testExperience, /answer: option\.label/u);
-  assert.match(testExperience, /starId: star\.id/u);
-  assert.doesNotMatch(testExperience, /score|userMbti|userBirthDate|birthDate|profileCompatibility/u);
-  assert.match(advancedReport, /mf-model-report-sections/u);
-  assert.doesNotMatch(advancedReport, /score|七个关系板块|初始吸引|长期稳定/u);
-  assert.match(prompt, /九段结构/u);
-  assert.match(prompt, /后台配置的目标人物提示词/u);
-  assert.match(prompt, /idolPrompt: input\.idolPrompt/u);
-  assert.match(prompt, /不得计算或展示分数、百分比/u);
-  assert.doesNotMatch(prompt, /targetProfile|starProfile/u);
-  assert.match(prompt, /allOptions: answer\.options/u);
-  assert.match(reportTemplate, /整体相处模式与需求共鸣综述/u);
-  assert.match(reportTemplate, /目标人物的真实渴望总结/u);
-  assert.match(reportTemplate, /三大维度互动特质解析/u);
-  assert.match(reportTemplate, /测试者最能自然滋养 TA 的特质/u);
-  assert.match(reportTemplate, /目标人物的盲点\/防御/u);
-  assert.match(reportTemplate, /长期相处中最可能感到疲惫/u);
-  assert.match(reportTemplate, /核心风险与雷区预警/u);
-  assert.match(reportTemplate, /健康支持与相处底线提示/u);
-  assert.match(reportTemplate, /关系相处规则/u);
-  assert.match(reportTemplate, /每个主板块必须使用上述【小标题】结构/u);
-  assert.match(reportTemplate, /关系类型｜/u);
-  assert.doesNotMatch(reportTemplate, /关系主标题｜/u);
-  assert.doesNotMatch(reportTemplate, /关系导语｜/u);
-  assert.match(reportTemplate, /核心张力｜/u);
-  assert.match(reportTemplate, /时间窗口与建议地点类型/u);
+  assert.match(testPage, /MyfateGeneratedTest/u);
+  assert.match(generatedTest, /fetch\("\/api\/myfate\/generated-tests"/u);
+  assert.match(generatedTest, /登录查看结果/u);
+  assert.match(generatedTest, /sessionStorage/u);
+  assert.match(generatedTest, /serializeFormulaResult/u);
+  assert.match(generateRoute, /generateReportText/u);
+  assert.match(generateRoute, /myfate_generated_tests/u);
+  assert.match(generateRoute, /publicQuestions/u);
+  assert.match(prompt, /恰好 25 道/u);
+  assert.match(prompt, /correctIndex/u);
+  assert.match(prompt, /每个选项都预先写 explanation/u);
+  assert.match(prompt, /恰好 5 道 riskItem=true/u);
+  assert.match(submitRoute, /evaluateGeneratedTest/u);
+  assert.doesNotMatch(submitRoute, /generateReportText|personalize/u);
+  assert.match(evaluation, /selectedExplanation: selected\.explanation/u);
+  assert.match(evaluation, /correctExplanation: correct\.explanation/u);
+  assert.match(evaluation, /riskWrongCount >= 3/u);
+  assert.match(formulaResult, /为什么适配|更适合 TA 的回答/u);
+  assert.doesNotMatch(formulaResult, /generateReportText|personalize/u);
   assert.match(relationshipTest, /options: question\.options\.map/u);
   assert.match(relationshipTest, /answer: option\.label/u);
   assert.doesNotMatch(relationshipTest, /calculateRelationshipScores|relationshipArchetype|birthDate|mbti/u);
