@@ -1368,7 +1368,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 @media (max-width: 430px) {
-  .mf-home-profile-fields { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .mf-home-profile-fields { grid-template-columns: repeat(12, minmax(0, 1fr)); }
   .mf-home-profile-fields label:nth-child(1) { grid-column: span 5; }
   .mf-home-profile-fields label:nth-child(2) { grid-column: span 7; }
   .mf-home-profile-fields label:nth-child(3) { grid-column: span 4; }
