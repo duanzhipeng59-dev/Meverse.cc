@@ -10,6 +10,20 @@ const optionSchema = z.object({
   explanation: z.string().trim().min(8).max(800),
 });
 
+const designBasisSchema = z.object({
+  mbti: z.string().trim().min(8).max(500),
+  threePillars: z.string().trim().min(4).max(500),
+  coreConcern: z.string().trim().min(4).max(300),
+  reason: z.string().trim().min(8).max(800),
+});
+
+const globalBasisSchema = z.object({
+  mbti: z.string().trim().min(8).max(800),
+  threePillars: z.string().trim().min(8).max(800),
+  coreConcerns: z.array(z.string().trim().min(2).max(120)).min(3).max(5),
+  summary: z.string().trim().min(12).max(1200),
+});
+
 const storedQuestionSchema = z.object({
   question: z.string().trim().min(8).max(500),
   eyebrow: z.string().trim().min(2).max(80),
@@ -18,12 +32,14 @@ const storedQuestionSchema = z.object({
   riskItem: z.boolean(),
   targetTrait: z.string().trim().min(2).max(500),
   intent: z.string().trim().min(4).max(800),
+  designBasis: designBasisSchema.optional(),
   correctIndex: z.number().int().min(0).max(3),
   options: z.array(optionSchema).length(4),
 });
 
 export const generatedPayloadSchema = z.object({
   relationshipNeeds: z.array(z.string().trim().min(2).max(300)).min(5).max(7),
+  globalBasis: globalBasisSchema.optional(),
   questions: z.array(storedQuestionSchema).length(25),
 }).superRefine((payload, context) => {
   const risks = payload.questions.filter((question) => question.riskItem).length;
@@ -42,6 +58,7 @@ export const generatedPayloadSchema = z.object({
 
 const rawGeneratedPayloadSchema = z.object({
   relationshipNeeds: z.array(z.string().trim().min(2).max(300)).min(5).max(7),
+  globalBasis: globalBasisSchema.optional(),
   questions: z.array(storedQuestionSchema).min(25).max(35),
 });
 
@@ -85,7 +102,7 @@ export function parseGeneratedPayload(content: string): StoredGeneratedPayload {
   const riskIndexes = new Set(preferredRiskIndexes);
   questions = questions.map((question, index) => ({ ...question, riskItem: riskIndexes.has(index) }));
 
-  return generatedPayloadSchema.parse({ relationshipNeeds: raw.relationshipNeeds, questions });
+  return generatedPayloadSchema.parse({ relationshipNeeds: raw.relationshipNeeds, globalBasis: raw.globalBasis, questions });
 }
 
 export function publicQuestions(payload: StoredGeneratedPayload): GeneratedTestQuestion[] {
@@ -142,6 +159,7 @@ export function evaluateGeneratedTest(
   });
   const correctCount = reviews.filter((review) => review.correct).length;
   const riskWrongCount = reviews.filter((review) => review.riskItem && !review.correct).length;
+  const legacyBasis = payload.questions.find((question) => question.designBasis)?.designBasis;
   return {
     version: 1,
     testId,
@@ -150,6 +168,12 @@ export function evaluateGeneratedTest(
     correctCount,
     riskWrongCount,
     verdict: verdictFor(correctCount, riskWrongCount),
+    basis: payload.globalBasis ?? {
+      mbti: legacyBasis?.mbti ?? "本套题结合目标人物的 MBTI 关系需求，重点观察情绪回应、边界感与冲突处理方式。",
+      threePillars: legacyBasis?.threePillars ?? "出生日期对应的三柱关系意象仅作为传统文化层面的辅助观察，不构成确定预测。",
+      coreConcerns: payload.relationshipNeeds.slice(0, 5),
+      summary: "题目通过具体相处情境，观察你的自然回应能否被 TA 接收到，并在长期互动中形成相对健康的循环。",
+    },
     reviews,
   };
 }

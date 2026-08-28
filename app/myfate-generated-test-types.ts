@@ -34,6 +34,12 @@ export type FormulaTestResult = {
     title: string;
     summary: string;
   };
+  basis?: {
+    mbti: string;
+    threePillars: string;
+    coreConcerns: string[];
+    summary: string;
+  };
   reviews: FormulaReview[];
 };
 

@@ -292,7 +292,11 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.doesNotMatch(prompt, /后台专属提示词|idolPrompt/u);
   assert.match(prompt, /correctIndex/u);
   assert.match(prompt, /每个选项.*explanation/u);
-  assert.match(prompt, /建议 60–120 个中文字符/u);
+  assert.match(prompt, /最长与最短相差不得超过 8 个字符/u);
+  assert.match(prompt, /正确项为四项最长的题不得超过 6 道/u);
+  assert.match(prompt, /globalBasis/u);
+  assert.match(prompt, /35–65 个中文字符/u);
+  assert.match(prompt, /10,000 个中文字符以内/u);
   assert.match(prompt, /TA 当下更可能有什么感受/u);
   assert.match(prompt, /恰好 5 道 riskItem=true/u);
   assert.match(submitRoute, /evaluateGeneratedTest/u);
@@ -303,6 +307,8 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.match(formulaResult, /为什么适配|更适合 TA 的回答/u);
   assert.match(formulaResult, /为什么这是正确答案/u);
   assert.match(formulaResult, /fallbackCorrectExplanation/u);
+  assert.match(formulaResult, /result\.reviews\.map/u);
+  assert.doesNotMatch(formulaResult, /你容易误读 TA 的地方|你真正懂 TA 的地方|本次测试依据/u);
   assert.doesNotMatch(formulaResult, /generateReportText|personalize/u);
   assert.match(relationshipTest, /options: question\.options\.map/u);
   assert.match(relationshipTest, /answer: option\.label/u);

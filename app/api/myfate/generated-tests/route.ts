@@ -25,8 +25,8 @@ async function generateAndStoreTest(starId: string, reportId: string, userId: st
 
     const prompt = buildGeneratedTestPrompt(star);
     let generation = await generateReportText(GENERATED_TEST_SYSTEM_PROMPT, prompt, {
-      temperature: 0.9,
-      maxTokens: 16000,
+      temperature: 0.78,
+      maxTokens: 12000,
       json: true,
     });
     let payload;
@@ -36,10 +36,23 @@ async function generateAndStoreTest(starId: string, reportId: string, userId: st
       generation = await generateReportText(
         GENERATED_TEST_SYSTEM_PROMPT,
         `${prompt}\n\n上一次输出没有通过结构校验。请重新生成，并严格保证恰好25题、恰好5道风险题、题型数量符合要求。`,
-        { temperature: 0.75, maxTokens: 16000, json: true },
+        { temperature: 0.65, maxTokens: 12000, json: true },
       );
       payload = parseGeneratedPayload(generation.content);
     }
+    payload = {
+      ...payload,
+      globalBasis: payload.globalBasis ? {
+        ...payload.globalBasis,
+        mbti: `${star.mbti}：${payload.globalBasis.mbti}`,
+        threePillars: `${star.threePillars}：${payload.globalBasis.threePillars}`,
+      } : {
+        mbti: `${star.mbti}：本套题围绕该类型更可能出现的亲密关系需求、沟通节奏与压力反应设计。`,
+        threePillars: `${star.threePillars}：三柱仅作为传统关系意象的辅助观察，不构成确定预测。`,
+        coreConcerns: payload.relationshipNeeds.slice(0, 5),
+        summary: "整套题通过情绪回应、边界协商、冲突修复与长期磨合场景，观察测试者的自然相处方式能否被 TA 接收到。",
+      },
+    };
 
     const { error: cleanupError } = await supabase
       .from("myfate_generated_tests")

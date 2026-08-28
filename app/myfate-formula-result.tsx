@@ -25,8 +25,6 @@ export default function MyfateFormulaResult({
   result: FormulaTestResult;
   actions?: React.ReactNode;
 }) {
-  const correct = result.reviews.filter((review) => review.correct);
-  const incorrect = result.reviews.filter((review) => !review.correct);
   return (
     <div className="mf-formula-result">
       <section className={`mf-formula-verdict is-${result.verdict.key}`}>
@@ -44,31 +42,32 @@ export default function MyfateFormulaResult({
         {result.riskWrongCount >= 3 ? <small className="mf-formula-cap-note">关键风险题错位达到 3 道，本次结果不会进入最高档。</small> : null}
       </section>
 
-      {incorrect.length ? (
-        <section className="mf-formula-review-section is-incorrect">
-          <header><span>需要调准</span><h2>你容易误读 TA 的地方</h2><p>下面的“错”只代表这次回应没有落到 TA 更需要的位置。</p></header>
-          <div className="mf-formula-review-list">
-            {incorrect.map((review, index) => (
-              <article key={review.questionId}>
-                <div className="mf-formula-review-index"><span>{String(index + 1).padStart(2, "0")}</span>{review.riskItem ? <b>关键风险题</b> : <b>{review.testType}</b>}</div>
-                <h3>{review.question}</h3>
-                <div className="mf-formula-choice is-user"><small>你的选择</small><strong>{review.selectedOption}</strong><div className="mf-formula-explanation"><b>为什么会错位</b><p>{selectedExplanation(review)}</p></div></div>
-                <div className="mf-formula-choice is-correct"><small>正确答案 · 更适合 TA 的回答</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
-              </article>
-            ))}
+      {result.basis ? (
+        <section className="mf-formula-global-basis">
+          <p className="mf-formula-basis-summary">{result.basis.summary}</p>
+          <div className="mf-formula-basis-grid">
+            <article><span>MBTI 关系倾向</span><p>{result.basis.mbti}</p></article>
+            <article><span>三柱辅助观察</span><p>{result.basis.threePillars}</p></article>
           </div>
+          <div className="mf-formula-basis-concerns"><span>TA 更在意</span><div>{result.basis.coreConcerns.map((concern) => <b key={concern}>{concern}</b>)}</div></div>
         </section>
       ) : null}
 
-      {correct.length ? (
-        <section className="mf-formula-review-section is-correct">
-          <header><span>自然适配</span><h2>你真正懂 TA 的地方</h2><p>这些回应不只是好听，而是在具体关系场景里能被 TA 接收到。</p></header>
+      {result.reviews.length ? (
+        <section className="mf-formula-review-section is-sequential">
           <div className="mf-formula-review-list">
-            {correct.map((review, index) => (
-              <article key={review.questionId}>
+            {result.reviews.map((review, index) => (
+              <article className={review.correct ? "is-correct" : "is-incorrect"} key={review.questionId}>
                 <div className="mf-formula-review-index"><span>{String(index + 1).padStart(2, "0")}</span>{review.riskItem ? <b>关键风险题</b> : <b>{review.testType}</b>}</div>
                 <h3>{review.question}</h3>
-                <div className="mf-formula-choice is-correct"><small>你的选择 · 正确答案</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
+                {review.correct ? (
+                  <div className="mf-formula-choice is-correct"><small>你的选择 · 正确答案</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
+                ) : (
+                  <>
+                    <div className="mf-formula-choice is-user"><small>你的选择</small><strong>{review.selectedOption}</strong><div className="mf-formula-explanation"><b>为什么会错位</b><p>{selectedExplanation(review)}</p></div></div>
+                    <div className="mf-formula-choice is-correct"><small>正确答案 · 更适合 TA 的回答</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
+                  </>
+                )}
               </article>
             ))}
           </div>

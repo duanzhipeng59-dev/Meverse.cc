@@ -4471,6 +4471,7 @@ select:focus-visible {
   border-radius: 28px;
   background: #fff;
 }
+.mf-formula-review-section.is-sequential { padding-top: clamp(26px, 4vw, 40px); }
 
 .mf-formula-review-section > header { margin-bottom: 28px; }
 .mf-formula-review-section > header > span { color: #a34b6c; font-size: 12px; font-weight: 800; letter-spacing: .14em; }
@@ -4489,6 +4490,15 @@ select:focus-visible {
 .mf-formula-review-index span { color: #8c3158; font: 500 20px/1 Georgia, serif; }
 .mf-formula-review-index b { padding: 5px 9px; color: #8b5c6e; border-radius: 99px; background: #f3e8ec; font-size: 11px; }
 .mf-formula-review-list h3 { margin: 16px 0 20px; font-size: 21px; line-height: 1.55; }
+.mf-formula-global-basis { margin-top: 28px; padding: clamp(28px, 5vw, 52px); border: 1px solid #eadfe3; border-radius: 28px; background: linear-gradient(145deg, #fff, #fbf1f4); box-shadow: 0 20px 54px rgb(92 35 59 / 6%); }
+.mf-formula-basis-summary { max-width: 900px; margin: 0; color: #5f5158; font-size: 17px; line-height: 1.85; }
+.mf-formula-basis-grid { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mf-formula-basis-grid article { padding: 20px; border: 1px solid rgb(122 41 78 / 9%); border-radius: 17px; background: rgb(255 255 255 / 72%); }
+.mf-formula-basis-grid span, .mf-formula-basis-concerns > span { color: #9d5672; font-size: 11px; font-weight: 800; }
+.mf-formula-basis-grid p { margin: 9px 0 0; color: #66585f; font-size: 14px; line-height: 1.75; }
+.mf-formula-basis-concerns { margin-top: 18px; display: flex; align-items: center; gap: 18px; }
+.mf-formula-basis-concerns > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.mf-formula-basis-concerns b { padding: 8px 12px; border-radius: 999px; color: #7f3555; background: #f3e5ea; font-size: 11px; }
 .mf-formula-choice { margin-top: 12px; padding: 18px 20px; border-radius: 15px; }
 .mf-formula-choice small { display: block; margin-bottom: 7px; font-weight: 800; }
 .mf-formula-choice strong { display: block; font-size: 16px; line-height: 1.55; }
@@ -4538,4 +4548,7 @@ select:focus-visible {
   .mf-formula-facts { grid-template-columns: 1fr; }
   .mf-formula-facts div + div { border-top: 1px solid #e9dce1; border-left: 0; }
   .mf-formula-review-section { padding: 24px 16px; border-radius: 22px; }
+  .mf-formula-global-basis { padding: 24px 18px; border-radius: 22px; }
+  .mf-formula-basis-grid { grid-template-columns: 1fr; }
+  .mf-formula-basis-concerns { align-items: flex-start; flex-direction: column; gap: 10px; }
 }
