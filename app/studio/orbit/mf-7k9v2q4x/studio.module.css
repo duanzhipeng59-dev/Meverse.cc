@@ -5,25 +5,17 @@
 .header h1, .editorTitle h2 { margin: 0; font-family: Georgia, "Songti SC", serif; }
 .header small { color: #786b72; }
 .brand { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; color: white; background: #7f294f; font-family: Georgia, serif; font-size: 24px; box-shadow: 0 10px 30px #7f294f33; }
-.tabs { max-width: 1440px; margin: 0 auto 16px; padding: 5px; display: flex; gap: 5px; width: fit-content; border: 1px solid #eadfe3; border-radius: 14px; background: #ffffffcc; }
-.tabs button { padding: 9px 20px; border: 0; border-radius: 10px; color: #74666d; background: transparent; cursor: pointer; }
-.tabs .active { color: white; background: #7f294f; }
 .notice { max-width: 1440px; margin: 0 auto 14px; padding: 12px 16px; border: 1px solid #ead4dc; border-radius: 12px; color: #7f294f; background: #fff9fb; }
 .workspace { max-width: 1440px; min-height: 720px; margin: auto; display: grid; grid-template-columns: 330px 1fr; overflow: hidden; border: 1px solid #e8dfe2; border-radius: 24px; background: #fff; box-shadow: 0 24px 70px #5f304010; }
 .sidebar { padding: 18px; overflow-y: auto; border-right: 1px solid #eee6e8; background: #fbf9f9; }
 .sideHeading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .sideHeading button, .actions button { border: 0; border-radius: 10px; padding: 9px 13px; color: white; background: #7f294f; cursor: pointer; }
-.starRow, .questionRow { width: 100%; margin: 0 0 8px; padding: 11px; display: flex; gap: 11px; text-align: left; border: 1px solid transparent; border-radius: 14px; color: inherit; background: transparent; cursor: pointer; }
-.starRow:hover, .questionRow:hover, .selected { border-color: #e2c9d3; background: white; box-shadow: 0 8px 20px #5725380b; }
+.starRow { width: 100%; margin: 0 0 8px; padding: 11px; display: flex; gap: 11px; text-align: left; border: 1px solid transparent; border-radius: 14px; color: inherit; background: transparent; cursor: pointer; }
+.starRow:hover, .selected { border-color: #e2c9d3; background: white; box-shadow: 0 8px 20px #5725380b; }
 .starRow > span { flex: 0 0 44px; height: 44px; border-radius: 13px; background: #eee center/cover; }
 .starRow div { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-.starRow strong, .questionRow strong { overflow: hidden; text-overflow: ellipsis; }
-.starRow small, .questionRow small { margin-top: 4px; color: #95888e; }
-.questionRow { flex-direction: column; gap: 2px; }
-.questionRow strong { white-space: nowrap; }
-.selectWrap { margin-bottom: 16px; }
-.selectWrap label { color: #75676e; font-size: 12px; }
-.selectWrap select { margin-top: 7px; }
+.starRow strong { overflow: hidden; text-overflow: ellipsis; }
+.starRow small { margin-top: 4px; color: #95888e; }
 .editor { padding: 32px; overflow-y: auto; }
 .editorTitle { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
 .editorTitle h2 { font-size: 30px; }
@@ -32,11 +24,10 @@
 .actions button:disabled { opacity: .55; cursor: wait; }
 .formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .formGrid label { display: flex; flex-direction: column; gap: 7px; color: #76686f; font-size: 12px; font-weight: 700; }
-.formGrid input, .formGrid textarea, .formGrid select, .selectWrap select { width: 100%; box-sizing: border-box; border: 1px solid #dfd5d8; border-radius: 11px; padding: 11px 12px; color: #2a2026; background: #fff; font: inherit; outline: none; }
+.formGrid input, .formGrid textarea, .formGrid select { width: 100%; box-sizing: border-box; border: 1px solid #dfd5d8; border-radius: 11px; padding: 11px 12px; color: #2a2026; background: #fff; font: inherit; outline: none; }
 .formGrid input:focus, .formGrid textarea:focus, .formGrid select:focus { border-color: #a65a78; box-shadow: 0 0 0 3px #a65a7814; }
 .formGrid textarea { min-height: 105px; resize: vertical; line-height: 1.65; }
 .formGrid .prompt { min-height: 220px; }
-.formGrid .options { min-height: 160px; }
 .formGrid .file { margin-top: 2px; padding: 8px; }
 .full { grid-column: 1 / -1; }
 .formGrid .check { flex-direction: row; align-items: center; font-size: 14px; }

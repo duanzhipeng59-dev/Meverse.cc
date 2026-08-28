@@ -4,7 +4,6 @@ import { createSupabaseAdminClient } from "../../auth/server";
 import {
   loadAdminContent,
   moveCelebrity,
-  normalizeOptions,
   safeId,
 } from "./data";
 
@@ -68,28 +67,6 @@ export async function POST(request: Request) {
       await writeAuditLog(admin, "celebrity_create", "celebrity_profile", id);
       refreshProductPages(id);
       return adminJson({ ok: true, id }, request, admin, { status: 201 });
-    }
-
-    if (kind === "question") {
-      const starId = safeId(payload.starId);
-      const code = safeId(payload.code);
-      const question = String(payload.question ?? "").trim();
-      if (!starId || !code || !question) return adminJson({ error: "invalid_question" }, request, admin, { status: 400 });
-      const { error } = await supabase.from("myfate_question_bank").insert({
-        star_id: starId,
-        code,
-        eyebrow: String(payload.eyebrow ?? "").trim() || null,
-        question,
-        dimension: String(payload.dimension ?? "security").trim(),
-        options: normalizeOptions(payload.options),
-        enabled: payload.enabled !== false,
-        position: Math.max(1, Number(payload.position) || 1),
-        updated_at: new Date().toISOString(),
-      });
-      if (error) throw error;
-      await writeAuditLog(admin, "question_create", "question", `${starId}:${code}`);
-      refreshProductPages(starId);
-      return adminJson({ ok: true }, request, admin, { status: 201 });
     }
 
     return adminJson({ error: "invalid_kind" }, request, admin, { status: 400 });

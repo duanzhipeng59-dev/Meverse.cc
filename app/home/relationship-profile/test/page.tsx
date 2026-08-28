@@ -1,9 +1,6 @@
-import { notFound } from "next/navigation";
 import RelationshipProfileTest from "./relationship-profile-test";
-import { getRelationshipQuestions } from "../../../myfate-questions-server";
+import { relationshipQuestions } from "../../../relationship-profile-data";
 
-export default async function RelationshipProfileTestPage() {
-  const questions = await getRelationshipQuestions();
-  if (!questions.length) notFound();
-  return <RelationshipProfileTest questions={questions} />;
+export default function RelationshipProfileTestPage() {
+  return <RelationshipProfileTest questions={relationshipQuestions} />;
 }

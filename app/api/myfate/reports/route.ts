@@ -12,6 +12,7 @@ const createSchema = z.object({
   starId: z.string().max(80),
   questionCount: z.number().int().min(1).max(64).optional(),
   answers: z.array(answerSchema).max(64),
+  initialTitle: z.string().trim().min(1).max(80).optional(),
 });
 
 export async function GET(request: Request) {
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
         score: 0,
         behavior_scores: null,
         question_count: parsed.data.questionCount ?? null,
-        initial_title: "AI 报告",
+        initial_title: parsed.data.initialTitle ?? "AI 报告",
         answers: parsed.data.answers,
       })
       .select("id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at")

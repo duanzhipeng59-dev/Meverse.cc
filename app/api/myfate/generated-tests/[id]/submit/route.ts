@@ -5,6 +5,7 @@ import { evaluateGeneratedTest, generatedPayloadSchema } from "../../server";
 
 const answerSchema = z.object({
   answers: z.array(z.number().int().min(0).max(3)).length(25),
+  reportId: z.string().uuid(),
 });
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -14,13 +15,26 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const parsed = answerSchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) return Response.json({ error: "INVALID_ANSWERS" }, { status: 400 });
     const { id } = await context.params;
-    const { data, error } = await createSupabaseAdminClient()
+    const supabase = createSupabaseAdminClient();
+    const { data: report, error: reportError } = await supabase
+      .from("myfate_reports")
+      .select("id,star_id,interpretation")
+      .eq("id", parsed.data.reportId)
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (reportError) throw reportError;
+    const marker = (report?.interpretation ?? {}) as { generatedTestId?: string };
+    if (!report || marker.generatedTestId !== id) {
+      return Response.json({ error: "TEST_NOT_OWNED" }, { status: 403 });
+    }
+    const { data, error } = await supabase
       .from("myfate_generated_tests")
       .select("id,star_id,payload,expires_at")
       .eq("id", id)
       .maybeSingle();
     if (error) throw error;
     if (!data) return Response.json({ error: "TEST_NOT_FOUND" }, { status: 404 });
+    if (data.star_id !== report.star_id) return Response.json({ error: "TEST_NOT_OWNED" }, { status: 403 });
     if (new Date(data.expires_at).getTime() <= Date.now()) {
       return Response.json({ error: "TEST_EXPIRED" }, { status: 410 });
     }
@@ -32,4 +46,3 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return Response.json({ error: "TEST_EVALUATION_FAILED" }, { status: 502 });
   }
 }
-

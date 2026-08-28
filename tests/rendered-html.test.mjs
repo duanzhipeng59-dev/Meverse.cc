@@ -72,7 +72,9 @@ test("keeps the workspace around the question and report flow", async () => {
   const html = await response.text();
   assert.match(html, /正缘测试/u);
   assert.match(html, /专属正缘测试/u);
-  assert.match(html, /正在为你生成一套全新的/u);
+  assert.match(html, /正在为你生成专属测试/u);
+  assert.match(html, /仍会在后台生成/u);
+  assert.doesNotMatch(html, /退出，稍后继续/u);
   assert.match(html, /个人中心/u);
   assert.match(html, /返回详情/u);
   assert.match(html, /mf-workspace-test/u);
@@ -189,7 +191,8 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(reportDetail, /parseFormulaResult/u);
   assert.match(reportDetail, /test\?restart=1/u);
   assert.match(reportDetail, /返回明星工作台/u);
-  assert.match(reportDetail, /关系报告正在生成/u);
+  assert.match(reportDetail, /正在为你生成专属测试/u);
+  assert.match(reportDetail, /去答题/u);
   assert.match(advancedReport, /mf-model-report-sections/u);
   assert.match(advancedReport, /mf-model-report-section/u);
   assert.match(advancedReport, /mf-model-report-subsection/u);
@@ -197,8 +200,8 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(advancedReport, /mf-model-report-facts/u);
   assert.doesNotMatch(advancedReport, /缘分结构|七个关系板块|初始吸引|综合匹配度/u);
   assert.match(reportAwareEntry, /查看关系报告/u);
-  assert.match(reportAwareEntry, /重新生成报告/u);
-  assert.match(reportAwareEntry, /报告生成中/u);
+  assert.match(reportAwareEntry, /去答题/u);
+  assert.match(reportAwareEntry, /去测试/u);
   assert.match(reportAwareEntry, /from=celebrity-match/u);
   assert.match(guardedTestEntry, /MyfateGeneratedTest/u);
   assert.doesNotMatch(guardedTestEntry, /questions=\{questions\}/u);
@@ -207,7 +210,9 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(generatedTest, /serializeFormulaResult/u);
   assert.match(reportsWorkspace, /window\.confirm/u);
   assert.match(reportsWorkspace, /删除后无法恢复/u);
-  assert.match(reportsWorkspace, /正在阅读本次选择并生成报告/u);
+  assert.match(reportsWorkspace, /label: "生成中"/u);
+  assert.match(reportsWorkspace, /label: "去答题"/u);
+  assert.match(reportsWorkspace, /mf-report-generation-disabled/u);
   assert.match(relationshipStorage, /deleteRelationshipReport/u);
 });
 
@@ -218,21 +223,23 @@ test("requires login for cloud report data", async () => {
   assert.equal(result.error, "login_required");
 });
 
-test("keeps managed content authoritative and protects the hidden studio", async () => {
-  const [starsServer, questionsServer, adminPage, adminContentApi] = await Promise.all([
+test("keeps celebrity content authoritative and protects the hidden studio", async () => {
+  const [starsServer, adminPage, adminStudio, adminContentApi, relationshipPage] = await Promise.all([
     readFile(new URL("../app/myfate-stars-server.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-questions-server.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/studio/orbit/mf-7k9v2q4x/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/studio/orbit/mf-7k9v2q4x/studio.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/admin/content/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/relationship-profile/test/page.tsx", import.meta.url), "utf8"),
   ]);
   assert.doesNotMatch(starsServer, /\.\.\.stars\.filter/u);
   assert.doesNotMatch(starsServer, /managed\.length \? managed : stars/u);
   assert.match(starsServer, /return data \? mapCelebrity/u);
-  assert.match(questionsServer, /return managed \?\? createInitialQuestions/u);
-  assert.match(questionsServer, /return managed \?\? relationshipQuestions/u);
   assert.match(adminPage, /requireAdmin/u);
   assert.match(adminPage, /notFound/u);
   assert.match(adminContentApi, /requireAdmin\(request\)/u);
+  assert.doesNotMatch(adminStudio, /题库管理|AdminQuestion|questionDraft/u);
+  assert.doesNotMatch(adminContentApi, /myfate_question_bank|kind === "question"/u);
+  assert.match(relationshipPage, /relationshipQuestions/u);
 
   const [hiddenPage, contentApi] = await Promise.all([
     render("/studio/orbit/mf-7k9v2q4x"),

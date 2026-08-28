@@ -1,7 +1,5 @@
 import { createSupabaseAdminClient } from "../../auth/server";
 
-export const RELATIONSHIP_PROFILE_ID = "relationship-profile";
-
 export type AdminCelebrity = {
   id: string;
   name: string;
@@ -21,18 +19,6 @@ export type AdminCelebrity = {
   workspacePosition: number | null;
   homepageFeatured: boolean;
   homepagePosition: number | null;
-};
-
-export type AdminQuestion = {
-  id: string;
-  starId: string;
-  code: string;
-  eyebrow: string;
-  question: string;
-  dimension: string;
-  options: Array<{ label: string; value: number }>;
-  enabled: boolean;
-  position: number;
 };
 
 type CelebrityRow = {
@@ -55,18 +41,6 @@ type CelebrityRow = {
   workspace_position: number | null;
   homepage_featured: boolean;
   homepage_position: number | null;
-};
-
-type QuestionRow = {
-  id: string;
-  star_id: string;
-  code: string;
-  eyebrow: string | null;
-  question: string;
-  dimension: string;
-  options: Array<{ label: string; value: number }>;
-  enabled: boolean;
-  position: number;
 };
 
 function mapCelebrity(row: CelebrityRow): AdminCelebrity {
@@ -93,39 +67,16 @@ function mapCelebrity(row: CelebrityRow): AdminCelebrity {
   };
 }
 
-function mapQuestion(row: QuestionRow): AdminQuestion {
-  return {
-    id: row.id,
-    starId: row.star_id,
-    code: row.code,
-    eyebrow: row.eyebrow ?? "",
-    question: row.question,
-    dimension: row.dimension,
-    options: Array.isArray(row.options) ? row.options : [],
-    enabled: row.enabled,
-    position: row.position,
-  };
-}
-
 export async function loadAdminContent() {
   const supabase = createSupabaseAdminClient();
-  const [celebrityResult, questionResult] = await Promise.all([
-    supabase
-      .from("celebrity_profiles")
-      .select("*")
-      .order("workspace_position", { ascending: true, nullsFirst: false })
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("myfate_question_bank")
-      .select("id,star_id,code,eyebrow,question,dimension,options,enabled,position")
-      .order("star_id", { ascending: true })
-      .order("position", { ascending: true }),
-  ]);
+  const celebrityResult = await supabase
+    .from("celebrity_profiles")
+    .select("*")
+    .order("workspace_position", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: true });
   if (celebrityResult.error) throw celebrityResult.error;
-  if (questionResult.error) throw questionResult.error;
   return {
     celebrities: ((celebrityResult.data ?? []) as unknown as CelebrityRow[]).map(mapCelebrity),
-    questions: ((questionResult.data ?? []) as unknown as QuestionRow[]).map(mapQuestion),
   };
 }
 
@@ -167,18 +118,6 @@ export async function moveCelebrity(id: string, requestedPosition: number) {
       .eq("id", ordered[index].id);
     if (updateError) throw updateError;
   }
-}
-
-export function normalizeOptions(value: unknown) {
-  if (!Array.isArray(value)) throw new Error("invalid_options");
-  const options = value
-    .map((option, index) => ({
-      label: String((option as { label?: unknown })?.label ?? "").trim(),
-      value: Number((option as { value?: unknown })?.value ?? index),
-    }))
-    .filter((option) => option.label);
-  if (options.length < 2 || options.length > 6) throw new Error("invalid_options");
-  return options;
 }
 
 export function safeId(value: unknown) {

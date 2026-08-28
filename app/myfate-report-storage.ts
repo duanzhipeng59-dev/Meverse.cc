@@ -20,6 +20,8 @@ export type SavedReport = {
   interpretation: FateInterpretation | null;
   reportText: string | null;
   interpretationSource?: "deepseek" | "gemini";
+  generatedTestId?: string;
+  testGenerationFailed?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -151,16 +153,18 @@ export async function createSavedReport({
   star,
   questionCount,
   answers,
+  initialTitle,
 }: {
   star: StarProfile;
   questionCount?: number;
   answers: AnswerSnapshot[];
+  initialTitle?: string;
 }): Promise<SavedReport | null> {
   try {
     const result = await readJson<{ report?: SavedReport }>(await fetch("/api/myfate/reports", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ starId: star.id, questionCount, answers }),
+      body: JSON.stringify({ starId: star.id, questionCount, answers, initialTitle }),
     }));
     if (result?.report) { announceReportUpdate(); return result.report; }
   } catch {
@@ -168,14 +172,14 @@ export async function createSavedReport({
   }
   const email = currentLocalEmail();
   const now = new Date().toISOString();
-  const report: SavedReport = { id: crypto.randomUUID(), version: 1, type: "celebrity-match", starId: star.id, starName: star.name, starPortrait: star.portraitSrc, status: "generating", score: 0, questionCount, initialTitle: "AI 报告", answers, interpretation: null, reportText: null, createdAt: now, updatedAt: now };
+  const report: SavedReport = { id: crypto.randomUUID(), version: 1, type: "celebrity-match", starId: star.id, starName: star.name, starPortrait: star.portraitSrc, status: "generating", score: 0, questionCount, initialTitle: initialTitle ?? "AI 报告", answers, interpretation: null, reportText: null, createdAt: now, updatedAt: now };
   writeLocalReports(email, [report, ...readLocalReports(email)]);
   return report;
 }
 
 export async function updateSavedReport(
   reportId: string,
-  patch: Partial<Pick<SavedReport, "status" | "score" | "reportText" | "interpretationSource">>,
+  patch: Partial<Pick<SavedReport, "status" | "score" | "reportText" | "interpretationSource" | "answers" | "questionCount">>,
 ): Promise<SavedReport | null> {
   try {
     const result = await readJson<{ report?: SavedReport }>(await fetch(`/api/myfate/reports/${encodeURIComponent(reportId)}`, {

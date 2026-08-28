@@ -49,8 +49,6 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     const admin = await requireAdmin(request);
     const { id } = await context.params;
     const supabase = createSupabaseAdminClient();
-    const { error: questionError } = await supabase.from("myfate_question_bank").delete().eq("star_id", id);
-    if (questionError) throw questionError;
     const { data, error } = await supabase.from("celebrity_profiles").delete().eq("id", id).select("id");
     if (error) throw error;
     if (!data?.length) return adminJson({ error: "celebrity_not_found" }, request, admin, { status: 404 });

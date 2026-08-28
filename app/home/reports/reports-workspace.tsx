@@ -22,6 +22,20 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+function reportAction(report: SavedReport) {
+  if (report.status === "advanced") return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
+  if (report.status === "generating") return { label: "生成中", href: "", disabled: true };
+  return {
+    label: "去答题",
+    href: `/home/celebrity-match/${report.starId}/test?report=${encodeURIComponent(report.id)}`,
+    disabled: false,
+  };
+}
+
+function reportStatusLabel(report: SavedReport) {
+  return report.status === "generating" ? "生成中" : "已完成";
+}
+
 function starOrbitStyle(index: number, count: number) {
   const radius = 29 + (index % 3) * 8;
   const angle = -90 + (360 / Math.max(count, 1)) * index;
@@ -84,6 +98,18 @@ export default function ReportsWorkspace() {
       window.removeEventListener("myfate-profile-updated", refreshNickname);
     };
   }, [status, email, snapshotKey]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !reports.some((report) => report.type !== "relationship-profile" && report.status === "generating")) return;
+    const timer = window.setInterval(() => {
+      void readSavedReports(email).then((savedReports) => {
+        const nextReports = [...savedReports, ...readRelationshipReports(email)].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        reportPageSnapshots.set(snapshotKey, { reports: nextReports, nickname });
+        setReports(nextReports);
+      });
+    }, 3000);
+    return () => window.clearInterval(timer);
+  }, [email, nickname, reports, snapshotKey, status]);
 
   const latestStarReports = reports.reduce<SavedReport[]>((latest, report) => {
     if (report.type === "relationship-profile" || latest.some((item) => item.starId === report.starId)) return latest;
@@ -152,8 +178,10 @@ export default function ReportsWorkspace() {
                   >
                     <Link
                       className={`mf-fate-map-star ${report.status}`}
-                      href={`/home/reports/${report.id}`}
-                      aria-label={`${report.starName}，${report.status === "advanced" ? "报告已生成" : report.status === "generating" ? "报告生成中" : "等待重新生成"}，查看最近报告`}
+                      href={reportAction(report).href || "/home/reports"}
+                      aria-label={`${report.starName}，${reportStatusLabel(report)}，${reportAction(report).label}`}
+                      aria-disabled={reportAction(report).disabled}
+                      tabIndex={reportAction(report).disabled ? -1 : undefined}
                     >
                       <span
                         className="mf-fate-map-avatar"
@@ -162,16 +190,15 @@ export default function ReportsWorkspace() {
                         style={{ backgroundImage: `url("${report.starPortrait}")` }}
                       />
                       <strong>{report.starName}</strong>
-                      <small>{report.status === "advanced" ? "已生成" : report.status === "generating" ? "生成中" : "待生成"}</small>
+                      <small>{reportStatusLabel(report)}</small>
                     </Link>
                   </div>
                 ))}
               </div>
 
               <div className="mf-fate-map-legend" aria-label="报告状态说明">
-                <span><i className="advanced" aria-hidden="true" />已生成</span>
+                <span><i className="advanced" aria-hidden="true" />已完成</span>
                 <span><i className="generating" aria-hidden="true" />生成中</span>
-                <span><i className="initial" aria-hidden="true" />待重新生成</span>
               </div>
             </section>
           ) : null}
@@ -204,6 +231,7 @@ export default function ReportsWorkspace() {
                 </article>
               );
             }
+            const action = reportAction(report);
             return (
               <article className="mf-report-card" key={report.id}>
                 <div
@@ -215,17 +243,19 @@ export default function ReportsWorkspace() {
                 <div className="mf-report-card-copy">
                   <div className="mf-report-card-meta">
                     <span className={report.status}>
-                      {report.status === "advanced" ? "已生成" : report.status === "generating" ? "生成中" : "待重新生成"}
+                      {reportStatusLabel(report)}
                     </span>
                     <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                   </div>
                   <h2>{report.starName}</h2>
-                  <p>{report.status === "advanced" ? "完整解读已生成" : report.status === "generating" ? "正在阅读本次选择并生成报告" : "这份报告需要重新生成"}</p>
+                  <p>{report.status === "advanced" ? "测试已完成，完整结果可随时查看" : report.status === "generating" ? "正在为你生成这位偶像的专属题目" : "专属题目已经准备好，等待你完成测试"}</p>
                 </div>
                 <div className="mf-report-card-result">
-                  <span>{report.status === "advanced" ? "查看完整解读" : report.status === "generating" ? "正在生成" : "可重新生成"}</span>
+                  <span>{report.status === "advanced" ? "查看完整解读" : report.status === "generating" ? "可以离开页面，完成后继续" : "继续完成专属测试"}</span>
                   <div className="mf-report-card-actions">
-                    <Link href={`/home/reports/${report.id}`}>{report.status === "generating" ? "查看进度" : "查看报告"} <span>→</span></Link>
+                    {action.disabled
+                      ? <button className="mf-report-generation-disabled" type="button" disabled>生成中</button>
+                      : <Link href={action.href}>{action.label} <span>→</span></Link>}
                     <button type="button" onClick={() => void confirmDelete(report)} aria-label={`删除 ${report.starName} 的报告`}>删除</button>
                   </div>
                 </div>

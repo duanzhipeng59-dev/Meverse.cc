@@ -30,9 +30,12 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
   }, [status, email, starId]);
 
   if (report) {
+    const href = report.status === "advanced"
+      ? `/home/reports/${report.id}?from=celebrity-match`
+      : `/home/celebrity-match/${starId}/test?report=${encodeURIComponent(report.id)}`;
     return (
-      <Link className="mf-primary-button mf-detail-cta" href={`/home/reports/${report.id}?from=celebrity-match`}>
-        {report.status === "advanced" ? "查看关系报告" : report.status === "generating" ? "报告生成中" : "重新生成报告"} <span>→</span>
+      <Link className="mf-primary-button mf-detail-cta" href={href}>
+        {report.status === "advanced" ? "查看关系报告" : report.status === "generating" ? "去测试" : "去答题"} <span>→</span>
       </Link>
     );
   }

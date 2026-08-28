@@ -8,6 +8,12 @@ const updateSchema = z.object({
   reportText: z.string().min(1).max(100000).nullable().optional(),
   interpretation: z.record(z.string(), z.unknown()).nullable().optional(),
   interpretationSource: z.enum(["deepseek", "gemini"]).nullable().optional(),
+  questionCount: z.number().int().min(1).max(64).optional(),
+  answers: z.array(z.object({
+    question: z.string().max(500),
+    options: z.array(z.string().min(1).max(500)).min(1).max(12).optional(),
+    answer: z.string().max(500),
+  })).max(64).optional(),
 }).refine((value) => Object.keys(value).length > 0);
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -23,6 +29,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         ? { interpretation: parsed.data.reportText === null ? null : { reportText: parsed.data.reportText } }
         : parsed.data.interpretation !== undefined ? { interpretation: parsed.data.interpretation } : {}),
       ...(parsed.data.interpretationSource !== undefined ? { interpretation_source: parsed.data.interpretationSource } : {}),
+      ...(parsed.data.questionCount !== undefined ? { question_count: parsed.data.questionCount } : {}),
+      ...(parsed.data.answers !== undefined ? { answers: parsed.data.answers } : {}),
       updated_at: new Date().toISOString(),
     };
     const { data, error } = await createSupabaseAdminClient()

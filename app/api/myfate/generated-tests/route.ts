@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "../../auth/server";
 import { getPublishedStar } from "../../../myfate-stars-server";
@@ -8,18 +9,19 @@ import { parseGeneratedPayload, publicQuestions } from "./server";
 
 const requestSchema = z.object({
   starId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(100),
+  reportId: z.string().uuid(),
 });
 
-export async function POST(request: Request) {
-  const parsed = requestSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
-  const session = await requireReportUser(request);
-  if (!session) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
-  if (!process.env.DEEPSEEK_API_KEY) return Response.json({ error: "MODEL_NOT_CONFIGURED" }, { status: 503 });
+type GenerationMarker = {
+  generatedTestId?: string;
+  generationError?: boolean;
+};
 
+async function generateAndStoreTest(starId: string, reportId: string, userId: string) {
+  const supabase = createSupabaseAdminClient();
   try {
-    const star = await getPublishedStar(parsed.data.starId);
-    if (!star) return Response.json({ error: "CELEBRITY_NOT_FOUND" }, { status: 404 });
+    const star = await getPublishedStar(starId);
+    if (!star) throw new Error("CELEBRITY_NOT_FOUND");
 
     const prompt = buildGeneratedTestPrompt(star);
     let generation = await generateReportText(GENERATED_TEST_SYSTEM_PROMPT, prompt, {
@@ -39,7 +41,6 @@ export async function POST(request: Request) {
       payload = parseGeneratedPayload(generation.content);
     }
 
-    const supabase = createSupabaseAdminClient();
     const { error: cleanupError } = await supabase
       .from("myfate_generated_tests")
       .delete()
@@ -50,15 +51,118 @@ export async function POST(request: Request) {
       payload,
       provider: generation.provider,
       model: generation.model,
-    }).select("id,expires_at").single();
+    }).select("id").single();
     if (error) throw error;
-    return Response.json({
-      testId: data.id,
-      expiresAt: data.expires_at,
-      questions: publicQuestions(payload),
-    }, { status: 201, headers: session.headers });
+
+    const { error: reportError } = await supabase
+      .from("myfate_reports")
+      .update({
+        status: "initial",
+        question_count: payload.questions.length,
+        initial_title: "专属测试已生成",
+        interpretation: { generatedTestId: data.id },
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", reportId)
+      .eq("user_id", userId)
+      .eq("star_id", star.id);
+    if (reportError) throw reportError;
   } catch (error) {
     console.error("Generated fate test failed", error);
-    return Response.json({ error: "TEST_GENERATION_FAILED" }, { status: 502 });
+    await supabase
+      .from("myfate_reports")
+      .update({
+        initial_title: "专属测试生成失败",
+        interpretation: { generationError: true },
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", reportId)
+      .eq("user_id", userId);
   }
+}
+
+export async function GET(request: Request) {
+  try {
+    const session = await requireReportUser(request);
+    if (!session) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
+    const reportId = new URL(request.url).searchParams.get("reportId");
+    if (!reportId || !z.string().uuid().safeParse(reportId).success) {
+      return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
+    }
+    const supabase = createSupabaseAdminClient();
+    const { data: report, error: reportError } = await supabase
+      .from("myfate_reports")
+      .select("id,star_id,status,answers,interpretation")
+      .eq("id", reportId)
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (reportError) throw reportError;
+    if (!report) return Response.json({ error: "REPORT_NOT_FOUND" }, { status: 404 });
+    const marker = (report.interpretation ?? {}) as GenerationMarker;
+    if (marker.generationError) {
+      return Response.json({ status: "failed", error: "TEST_GENERATION_FAILED" }, { status: 409, headers: session.headers });
+    }
+    if (!marker.generatedTestId) {
+      return Response.json({ status: "generating" }, { status: 202, headers: session.headers });
+    }
+    const { data: test, error: testError } = await supabase
+      .from("myfate_generated_tests")
+      .select("id,payload,expires_at")
+      .eq("id", marker.generatedTestId)
+      .eq("star_id", report.star_id)
+      .maybeSingle();
+    if (testError) throw testError;
+    if (!test) return Response.json({ error: "TEST_NOT_FOUND" }, { status: 404 });
+    if (new Date(test.expires_at).getTime() <= Date.now()) {
+      return Response.json({ error: "TEST_EXPIRED" }, { status: 410, headers: session.headers });
+    }
+    const payload = parseGeneratedPayload(JSON.stringify(test.payload));
+    return Response.json({
+      status: "ready",
+      testId: test.id,
+      questions: publicQuestions(payload),
+      savedAnswers: Array.isArray(report.answers) ? report.answers : [],
+    }, { headers: session.headers });
+  } catch (error) {
+    console.error("Generated fate test lookup failed", error);
+    return Response.json({ error: "TEST_LOOKUP_FAILED" }, { status: 503 });
+  }
+}
+
+export async function POST(request: Request) {
+  const session = await requireReportUser(request);
+  if (!session) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
+  const parsed = requestSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
+  if (!process.env.DEEPSEEK_API_KEY) return Response.json({ error: "MODEL_NOT_CONFIGURED" }, { status: 503 });
+
+  const supabase = createSupabaseAdminClient();
+  const { data: report, error: reportError } = await supabase
+    .from("myfate_reports")
+    .select("id,star_id,status,interpretation")
+    .eq("id", parsed.data.reportId)
+    .eq("user_id", session.user.id)
+    .eq("star_id", parsed.data.starId)
+    .maybeSingle();
+  if (reportError) return Response.json({ error: "REPORT_LOOKUP_FAILED" }, { status: 503 });
+  if (!report) return Response.json({ error: "REPORT_NOT_FOUND" }, { status: 404 });
+  const marker = (report.interpretation ?? {}) as GenerationMarker;
+  if (marker.generatedTestId) {
+    return Response.json({ reportId: report.id, status: "ready" }, { headers: session.headers });
+  }
+
+  const { error: resetError } = await supabase
+    .from("myfate_reports")
+    .update({
+      status: "generating",
+      initial_title: "题目生成中",
+      interpretation: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", report.id)
+    .eq("user_id", session.user.id);
+  if (resetError) return Response.json({ error: "REPORT_UPDATE_FAILED" }, { status: 503 });
+
+  after(() => generateAndStoreTest(report.star_id, report.id, session.user.id));
+  return Response.json({ reportId: report.id, status: "generating" }, { status: 202, headers: session.headers });
 }

@@ -19,6 +19,9 @@ export type ReportRow = {
 };
 
 export function mapReportRow(row: ReportRow): SavedReport {
+  const generationMarker = typeof row.interpretation === "object" && row.interpretation !== null
+    ? row.interpretation as Record<string, unknown>
+    : null;
   const reportText = typeof row.interpretation === "object" && row.interpretation !== null
     && "reportText" in row.interpretation && typeof row.interpretation.reportText === "string"
     ? row.interpretation.reportText
@@ -39,6 +42,8 @@ export function mapReportRow(row: ReportRow): SavedReport {
     interpretation: row.interpretation,
     reportText,
     interpretationSource: row.interpretation_source ?? undefined,
+    generatedTestId: typeof generationMarker?.generatedTestId === "string" ? generationMarker.generatedTestId : undefined,
+    testGenerationFailed: generationMarker?.generationError === true,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

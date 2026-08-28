@@ -760,6 +760,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-report-card-actions button { min-height: 34px; padding: 0 4px; border: 0; color: #a66c78; background: transparent; font: 650 10px inherit; cursor: pointer; }
 .mf-report-card-actions button:hover { color: #9c314c; }
 .mf-report-card-actions button:focus-visible { outline: 2px solid rgba(156,49,76,.35); outline-offset: 3px; border-radius: 5px; }
+.mf-report-card-actions .mf-report-generation-disabled,
+.mf-report-card-actions .mf-report-generation-disabled:hover { padding: 7px 12px; border-radius: 999px; color: #aaa2a6; background: #ebe8e9; cursor: not-allowed; }
+.mf-fate-map-star[aria-disabled="true"] { pointer-events: none; opacity: .58; filter: grayscale(.3); }
 .mf-reports-storage-note { margin: 18px 4px 0; color: #a2949b; font-size: 10px; line-height: 1.6; }
 .mf-report-detail-state { min-height: 100vh; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; }
 .mf-result-page > main > .mf-ai-generation-state { min-height: clamp(250px, 42dvh, 360px); }
