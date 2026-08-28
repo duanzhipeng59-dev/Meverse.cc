@@ -1367,9 +1367,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-result-actions { flex-direction: column; }
 }
 
-@media (max-width: 360px) {
-  .mf-home-profile-fields label:nth-child(1),
-  .mf-home-profile-fields label:nth-child(2) { grid-column: span 12; }
+@media (max-width: 430px) {
+  .mf-home-profile-fields { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+  .mf-home-profile-fields label:nth-child(1) { grid-column: span 5; }
+  .mf-home-profile-fields label:nth-child(2) { grid-column: span 7; }
+  .mf-home-profile-fields label:nth-child(3) { grid-column: span 4; }
+  .mf-home-hero .mf-home-profile-submit { grid-column: span 8; }
 }
 
 @media (prefers-reduced-motion: reduce) {
