@@ -305,8 +305,10 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.match(evaluation, /correctExplanation: correct\.explanation/u);
   assert.match(evaluation, /riskWrongCount >= 3/u);
   assert.match(formulaResult, /为什么适配|更适合 TA 的回答/u);
-  assert.match(formulaResult, /为什么这是正确答案/u);
+  assert.doesNotMatch(formulaResult, /为什么这是正确答案|为什么会错位/u);
   assert.match(formulaResult, /fallbackCorrectExplanation/u);
+  assert.match(formulaResult, /HighlightedCopy/u);
+  assert.match(formulaResult, /mf-key-point/u);
   assert.match(formulaResult, /result\.reviews\.map/u);
   assert.doesNotMatch(formulaResult, /你容易误读 TA 的地方|你真正懂 TA 的地方|本次测试依据/u);
   assert.doesNotMatch(formulaResult, /generateReportText|personalize/u);

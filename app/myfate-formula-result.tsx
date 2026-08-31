@@ -2,6 +2,35 @@ import Link from "next/link";
 import type { StarProfile } from "./myfate-data";
 import type { FormulaTestResult } from "./myfate-generated-test-types";
 
+type HighlightTone = "neutral" | "positive" | "attention";
+
+const emphasisKeywords: Record<HighlightTone, RegExp> = {
+  neutral: /核心|关键|需要|更在意|观察|关系|回应|边界|沟通|情绪|长期/u,
+  positive: /能够|满足|接住|理解|尊重|信任|稳定|有利|正向|更容易|良性/u,
+  attention: /缺少|忽略|错位|触发|防御|消耗|压力|误解|建议|需要调整|不容易/u,
+};
+
+function HighlightedCopy({ text, tone = "neutral" }: { text: string; tone?: HighlightTone }) {
+  const parts = text.split(/([，。；！？：])/u);
+  let highlightIndex = -1;
+  let bestScore = -1;
+  for (let index = 0; index < parts.length; index += 2) {
+    const part = parts[index]?.trim();
+    if (!part || part.length < 4) continue;
+    const score = (emphasisKeywords[tone].test(part) ? 5 : 0)
+      + (emphasisKeywords.neutral.test(part) ? 2 : 0)
+      + (part.length >= 8 && part.length <= 32 ? 2 : 0)
+      - (/^(这个回应|这种回应|看似|虽然)/u.test(part) ? 1 : 0);
+    if (score > bestScore) {
+      bestScore = score;
+      highlightIndex = index;
+    }
+  }
+  return <>{parts.map((part, index) => index === highlightIndex
+    ? <mark className={`mf-key-point is-${tone}`} key={`${part}-${index}`}>{part}</mark>
+    : part)}</>;
+}
+
 function fallbackCorrectExplanation(testType: string) {
   if (testType === "脆弱点承接") return "这个回应会先接住 TA 当下的感受，同时保留必要边界，更不容易触发防御或让关系进入相互消耗。";
   if (testType === "长期磨合") return "这个回应兼顾了双方的现实需要、个人边界与后续沟通，更有利于关系形成稳定、可持续的良性循环。";
@@ -34,20 +63,19 @@ export default function MyfateFormulaResult({
           <small>你与 {star.name}</small>
         </div>
         <h1>{result.verdict.title}</h1>
-        <p>{result.verdict.summary}</p>
+        <p><HighlightedCopy text={result.verdict.summary} /></p>
         <div className="mf-formula-facts">
-          <div><strong>{result.correctCount}</strong><span>/ {result.total} 道适配回应</span></div>
-          <div><strong>{result.riskWrongCount}</strong><span>/ 5 道风险题错位</span></div>
+          <div><strong>一共 {result.total} 题</strong></div>
+          <div><strong>答对 {result.correctCount} 题</strong></div>
         </div>
-        {result.riskWrongCount >= 3 ? <small className="mf-formula-cap-note">关键风险题错位达到 3 道，本次结果不会进入最高档。</small> : null}
       </section>
 
       {result.basis ? (
         <section className="mf-formula-global-basis">
-          <p className="mf-formula-basis-summary">{result.basis.summary}</p>
+          <p className="mf-formula-basis-summary"><HighlightedCopy text={result.basis.summary} /></p>
           <div className="mf-formula-basis-grid">
-            <article><span>MBTI 关系倾向</span><p>{result.basis.mbti}</p></article>
-            <article><span>三柱辅助观察</span><p>{result.basis.threePillars}</p></article>
+            <article><span>MBTI 关系倾向</span><p><HighlightedCopy text={result.basis.mbti} /></p></article>
+            <article><span>三柱辅助观察</span><p><HighlightedCopy text={result.basis.threePillars} /></p></article>
           </div>
           <div className="mf-formula-basis-concerns"><span>TA 更在意</span><div>{result.basis.coreConcerns.map((concern) => <b key={concern}>{concern}</b>)}</div></div>
         </section>
@@ -61,11 +89,11 @@ export default function MyfateFormulaResult({
                 <div className="mf-formula-review-index"><span>{String(index + 1).padStart(2, "0")}</span>{review.riskItem ? <b>关键风险题</b> : <b>{review.testType}</b>}</div>
                 <h3>{review.question}</h3>
                 {review.correct ? (
-                  <div className="mf-formula-choice is-correct"><small>你的选择 · 正确答案</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
+                  <div className="mf-formula-choice is-correct"><small>你的选择 · 正确答案</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><p><HighlightedCopy text={correctExplanation(review)} tone="positive" /></p></div></div>
                 ) : (
                   <>
-                    <div className="mf-formula-choice is-user"><small>你的选择</small><strong>{review.selectedOption}</strong><div className="mf-formula-explanation"><b>为什么会错位</b><p>{selectedExplanation(review)}</p></div></div>
-                    <div className="mf-formula-choice is-correct"><small>正确答案 · 更适合 TA 的回答</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><b>为什么这是正确答案</b><p>{correctExplanation(review)}</p></div></div>
+                    <div className="mf-formula-choice is-user"><small>你的选择</small><strong>{review.selectedOption}</strong><div className="mf-formula-explanation"><p><HighlightedCopy text={selectedExplanation(review)} tone="attention" /></p></div></div>
+                    <div className="mf-formula-choice is-correct"><small>正确答案 · 更适合 TA 的回答</small><strong>{review.correctOption}</strong><div className="mf-formula-explanation"><p><HighlightedCopy text={correctExplanation(review)} tone="positive" /></p></div></div>
                   </>
                 )}
               </article>

@@ -4460,7 +4460,7 @@ select:focus-visible {
 
 .mf-formula-facts div { padding: 20px; }
 .mf-formula-facts div + div { border-left: 1px solid #e9dce1; }
-.mf-formula-facts strong { display: block; color: #852d54; font: 500 34px/1 Georgia, serif; }
+.mf-formula-facts strong { display: block; color: #852d54; font: 500 28px/1.2 Georgia, "Songti SC", serif; }
 .mf-formula-facts span { display: block; margin-top: 7px; color: #806f77; font-size: 13px; }
 .mf-formula-cap-note { display: block; margin-top: 18px; color: #9a536b; }
 
@@ -4511,36 +4511,22 @@ select:focus-visible {
   padding-top: 14px;
   border-top: 1px solid rgb(86 70 77 / 12%);
 }
-.mf-formula-explanation b {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #493d42;
-  font-size: 13px;
-  letter-spacing: .02em;
-}
-.mf-formula-explanation b::before {
-  width: 18px;
-  height: 18px;
-  display: inline-grid;
-  flex: 0 0 18px;
-  place-items: center;
-  border-radius: 50%;
-  background: #397455;
-  color: white;
-  content: "✓";
-  font-size: 11px;
-}
-.mf-formula-choice.is-user .mf-formula-explanation b::before {
-  background: #ad4a58;
-  content: "!";
-}
 .mf-formula-explanation p {
-  margin: 8px 0 0;
+  margin: 0;
   color: #65585e;
   font-size: 15px;
   line-height: 1.8;
 }
+.mf-key-point {
+  padding: 0 .08em;
+  color: inherit;
+  font-weight: 750;
+  background: linear-gradient(transparent 57%, rgb(174 113 139 / 22%) 57%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.mf-key-point.is-positive { background-image: linear-gradient(transparent 57%, rgb(78 150 112 / 21%) 57%); }
+.mf-key-point.is-attention { background-image: linear-gradient(transparent 57%, rgb(196 91 105 / 20%) 57%); }
 
 @media (max-width: 640px) {
   .mf-formula-result { width: min(100% - 20px, 1180px); margin-top: 18px; }
