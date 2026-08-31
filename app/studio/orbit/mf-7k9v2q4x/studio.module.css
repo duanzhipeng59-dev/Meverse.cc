@@ -10,9 +10,18 @@
 .sidebar { padding: 18px; overflow-y: auto; border-right: 1px solid #eee6e8; background: #fbf9f9; }
 .sideHeading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .sideHeading button, .actions button { border: 0; border-radius: 10px; padding: 9px 13px; color: white; background: #7f294f; cursor: pointer; }
-.starRow { width: 100%; margin: 0 0 8px; padding: 11px; display: flex; gap: 11px; text-align: left; border: 1px solid transparent; border-radius: 14px; color: inherit; background: transparent; cursor: pointer; }
+.bulkToolbar { margin: 0 0 12px; padding: 10px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px 10px; border: 1px solid #eadfe2; border-radius: 13px; background: #fff; }
+.bulkToolbar label { display: flex; align-items: center; gap: 6px; color: #6f6067; font-size: 12px; font-weight: 700; cursor: pointer; }
+.bulkToolbar label input, .selectBox { width: 16px; height: 16px; accent-color: #7f294f; cursor: pointer; }
+.bulkToolbar > span { color: #9b8d93; font-size: 11px; text-align: right; }
+.bulkToolbar > div { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.bulkToolbar button { border: 0; border-radius: 9px; padding: 8px; color: white; background: #7f294f; font-size: 12px; font-weight: 700; cursor: pointer; }
+.bulkToolbar button:disabled { opacity: .5; cursor: wait; }
+.bulkToolbar .bulkDanger { color: #a13d4d; background: #f9e8eb; }
+.starRow { width: 100%; margin: 0 0 8px; padding: 11px; display: flex; gap: 11px; text-align: left; border: 1px solid transparent; border-radius: 14px; color: inherit; background: transparent; cursor: pointer; content-visibility: auto; contain-intrinsic-size: 68px; }
 .starRow:hover, .selected { border-color: #e2c9d3; background: white; box-shadow: 0 8px 20px #5725380b; }
-.starRow > span { flex: 0 0 44px; height: 44px; border-radius: 13px; background: #eee center/cover; }
+.starRow > img { flex: 0 0 44px; height: 44px; object-fit: cover; border-radius: 13px; background: #eee; }
+.starRow .selectBox { flex: 0 0 16px; align-self: center; }
 .starRow div { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
 .starRow strong { overflow: hidden; text-overflow: ellipsis; }
 .starRow small { margin-top: 4px; color: #95888e; }
@@ -32,5 +41,7 @@
 .full { grid-column: 1 / -1; }
 .formGrid .check { flex-direction: row; align-items: center; font-size: 14px; }
 .formGrid .check input { width: 17px; height: 17px; accent-color: #7f294f; }
-.empty { min-height: 550px; display: grid; place-items: center; color: #a3979c; }
+.empty { min-height: 550px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #a3979c; }
+.loader { width: 17px; height: 17px; border: 2px solid #ead7df; border-top-color: #7f294f; border-radius: 50%; animation: studio-spin .7s linear infinite; }
+@keyframes studio-spin { to { transform: rotate(360deg); } }
 @media (max-width: 860px) { .page { padding: 14px; } .header small { display: none; } .workspace { grid-template-columns: 1fr; } .sidebar { max-height: 300px; border-right: 0; border-bottom: 1px solid #eee6e8; } .editor { padding: 22px 18px; } .formGrid { grid-template-columns: 1fr; } .full { grid-column: auto; } .editorTitle { align-items: flex-start; flex-direction: column; } }

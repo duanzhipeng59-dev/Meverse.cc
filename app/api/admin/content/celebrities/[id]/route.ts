@@ -1,13 +1,25 @@
 import { revalidatePath } from "next/cache";
 import { adminError, adminJson, requireAdmin, writeAuditLog } from "../../../server";
 import { createSupabaseAdminClient } from "../../../../auth/server";
-import { moveCelebrity, normalizeCelebrityOrder } from "../../data";
+import { loadAdminCelebrity, moveCelebrity, normalizeCelebrityOrder } from "../../data";
 
 function paths(id: string) {
   revalidatePath("/");
   revalidatePath("/home/celebrity-match");
   revalidatePath(`/home/celebrity-match/${id}`);
   revalidatePath(`/home/celebrity-match/${id}/test`);
+}
+
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  try {
+    const admin = await requireAdmin(request);
+    const { id } = await context.params;
+    const celebrity = await loadAdminCelebrity(id);
+    if (!celebrity) return adminJson({ error: "celebrity_not_found" }, request, admin, { status: 404 });
+    return adminJson({ celebrity }, request, admin);
+  } catch (error) {
+    return adminError(error, request);
+  }
 }
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -18,8 +30,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
     const textFields: Array<[string, string, number]> = [
       ["name", "name", 120], ["role", "role", 160], ["tagline", "tagline", 240],
+      ["nameEn", "name_en", 160], ["nameZh", "name_zh", 160], ["gender", "gender", 16],
       ["description", "description", 4000], ["relationshipStyle", "relationship_style", 2000],
       ["focus", "focus", 2000], ["mbti", "mbti", 8], ["birthDate", "birth_date", 40],
+      ["mbtiSourceType", "mbti_source_type", 40],
+      ["mbtiConfidence", "mbti_confidence", 16], ["birthDateConfidence", "birth_date_confidence", 16],
+      ["portraitRisk", "portrait_risk", 16], ["commercialDemoRisk", "commercial_demo_risk", 16],
       ["threePillars", "three_pillars", 120], ["portraitUrl", "portrait_url", 2000],
       ["reportPrompt", "report_prompt", 20000],
     ];
@@ -28,8 +44,14 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     }
     if (Array.isArray(payload.traits)) updates.traits = payload.traits.map(String).map((item) => item.trim()).filter(Boolean);
     if (Array.isArray(payload.categories)) updates.categories = payload.categories.map(String).map((item) => item.trim()).filter(Boolean);
+    if (payload.deathDate !== undefined) updates.death_date = String(payload.deathDate ?? "").trim() || null;
     if (typeof payload.published === "boolean") updates.published = payload.published;
     if (typeof payload.homepageFeatured === "boolean") updates.homepage_featured = payload.homepageFeatured;
+    if (typeof payload.isHistoricalFigure === "boolean") updates.is_historical_figure = payload.isHistoricalFigure;
+    if (typeof payload.isDeceased === "boolean") updates.is_deceased = payload.isDeceased;
+    if (typeof payload.enableBazi === "boolean") updates.enable_bazi = payload.enableBazi;
+    if (typeof payload.enableMbti === "boolean") updates.enable_mbti = payload.enableMbti;
+    if (payload.recommendationLevel !== undefined) updates.recommendation_level = payload.recommendationLevel === null ? null : Number(payload.recommendationLevel);
     if (payload.homepagePosition !== undefined) updates.homepage_position = payload.homepagePosition === null ? null : Number(payload.homepagePosition);
 
     const supabase = createSupabaseAdminClient();

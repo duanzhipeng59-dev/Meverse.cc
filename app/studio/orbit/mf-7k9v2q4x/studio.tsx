@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
-import type { AdminCelebrity } from "../../../api/admin/content/data";
+import Image from "next/image";
+import { useRef, useState, type ChangeEvent } from "react";
+import type { AdminCelebrity, AdminCelebritySummary } from "../../../api/admin/content/data";
 import styles from "./studio.module.css";
 
-type Content = { celebrities: AdminCelebrity[] };
+type Content = { celebrities: AdminCelebritySummary[] };
 
 const emptyCelebrity: AdminCelebrity = {
   id: "", name: "", role: "艺人 · 舞台创作者", tagline: "", description: "",
+  nameEn: "", nameZh: "", gender: "unknown", deathDate: "",
+  mbtiSourceType: "unknown", mbtiConfidence: "unknown", birthDateConfidence: "unknown",
+  isHistoricalFigure: false, isDeceased: false, portraitRisk: "unknown", commercialDemoRisk: "unknown",
+  enableBazi: true, enableMbti: true, recommendationLevel: null,
   relationshipStyle: "", focus: "", mbti: "", birthDate: "", threePillars: "",
   traits: [], categories: [], portraitUrl: "", reportPrompt: "", published: true,
   workspacePosition: null, homepageFeatured: false, homepagePosition: null,
@@ -33,9 +38,13 @@ function splitList(value: string) {
 
 export default function AdminContentStudio({ initialContent, adminEmail }: { initialContent: Content; adminEmail: string }) {
   const [content, setContent] = useState(initialContent);
-  const [celebrityDraft, setCelebrityDraft] = useState<AdminCelebrity | null>(initialContent.celebrities[0] ?? null);
+  const [celebrityDraft, setCelebrityDraft] = useState<AdminCelebrity | null>(null);
+  const [activeId, setActiveId] = useState("");
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const detailRequest = useRef(0);
 
   async function reload(message = "已同步到线上产品") {
     const latest = await api<Content>("/api/admin/content", { cache: "no-store" });
@@ -51,14 +60,37 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
     } finally { setBusy(false); }
   }
 
+  async function openCelebrity(celebrity: AdminCelebritySummary) {
+    const requestId = ++detailRequest.current;
+    setActiveId(celebrity.id);
+    setLoadingDetail(true);
+    setNotice("");
+    try {
+      const result = await api<{ celebrity: AdminCelebrity }>(`/api/admin/content/celebrities/${encodeURIComponent(celebrity.id)}`, { cache: "no-store" });
+      if (detailRequest.current === requestId) setCelebrityDraft(result.celebrity);
+    } catch (error) {
+      if (detailRequest.current === requestId) setNotice(error instanceof Error ? `读取失败：${error.message}` : "读取失败");
+    } finally {
+      if (detailRequest.current === requestId) setLoadingDetail(false);
+    }
+  }
+
+  function createCelebrity() {
+    detailRequest.current += 1;
+    setActiveId("");
+    setLoadingDetail(false);
+    setCelebrityDraft({ ...emptyCelebrity });
+  }
+
   async function saveCelebrity() {
     if (!celebrityDraft) return;
     await run(async () => {
       const creating = !content.celebrities.some((item) => item.id === celebrityDraft.id);
-      await api("/api/admin/content" + (creating ? "" : `/celebrities/${encodeURIComponent(celebrityDraft.id)}`), {
+      const result = await api<{ id?: string }>("/api/admin/content" + (creating ? "" : `/celebrities/${encodeURIComponent(celebrityDraft.id)}`), {
         method: creating ? "POST" : "PATCH",
         body: JSON.stringify(creating ? { kind: "celebrity", ...celebrityDraft } : celebrityDraft),
       });
+      if (creating && result.id) setActiveId(result.id);
       await reload(creating ? "明星卡片已创建并同步" : "明星卡片已保存并同步");
     });
   }
@@ -70,8 +102,50 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
       await api(`/api/admin/content/celebrities/${encodeURIComponent(celebrityDraft.id)}`, { method: "DELETE" });
       const latest = await api<Content>("/api/admin/content", { cache: "no-store" });
       setContent(latest);
-      setCelebrityDraft(latest.celebrities[0] ?? null);
+      setCelebrityDraft(null);
+      setActiveId("");
+      setSelectedIds((current) => {
+        const next = new Set(current);
+        next.delete(celebrityDraft.id);
+        return next;
+      });
       setNotice("明星卡片已从线上删除");
+    });
+  }
+
+  function toggleSelected(id: string) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelectedIds((current) => current.size === content.celebrities.length
+      ? new Set()
+      : new Set(content.celebrities.map((item) => item.id)));
+  }
+
+  async function runBulkAction(action: "publish" | "delete") {
+    const ids = [...selectedIds];
+    if (!ids.length) return;
+    if (action === "delete" && !window.confirm(`确认删除选中的 ${ids.length} 张明星卡片？此操作无法撤销。`)) return;
+    await run(async () => {
+      const result = await api<{ count: number }>("/api/admin/content/celebrities/bulk", {
+        method: "POST",
+        body: JSON.stringify({ action, ids }),
+      });
+      const latest = await api<Content>("/api/admin/content", { cache: "no-store" });
+      setContent(latest);
+      if (action === "delete" && activeId && selectedIds.has(activeId)) {
+        setCelebrityDraft(null);
+        setActiveId("");
+      } else if (action === "publish" && celebrityDraft && selectedIds.has(celebrityDraft.id)) {
+        setCelebrityDraft({ ...celebrityDraft, published: true });
+      }
+      setSelectedIds(new Set());
+      setNotice(action === "publish" ? `已上架 ${result.count} 张卡片` : `已删除 ${result.count} 张卡片`);
     });
   }
 
@@ -99,25 +173,41 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
 
       <section className={styles.workspace}>
         <aside className={styles.sidebar}>
-          <div className={styles.sideHeading}><strong>{content.celebrities.length} 张卡片</strong><button onClick={() => setCelebrityDraft({ ...emptyCelebrity })}>＋ 添加</button></div>
+          <div className={styles.sideHeading}><strong>{content.celebrities.length} 张卡片</strong><button onClick={createCelebrity}>＋ 添加</button></div>
+          <div className={styles.bulkToolbar}>
+            <label><input type="checkbox" checked={content.celebrities.length > 0 && selectedIds.size === content.celebrities.length} onChange={toggleAll} />全选</label>
+            <span>{selectedIds.size ? `已选 ${selectedIds.size} 张` : "可多选卡片"}</span>
+            {selectedIds.size > 0 && <div><button disabled={busy} onClick={() => runBulkAction("publish")}>一键上架</button><button className={styles.bulkDanger} disabled={busy} onClick={() => runBulkAction("delete")}>一键删除</button></div>}
+          </div>
           {content.celebrities.map((celebrity) => (
-            <button className={`${styles.starRow} ${celebrityDraft?.id === celebrity.id ? styles.selected : ""}`} key={celebrity.id} onClick={() => setCelebrityDraft({ ...celebrity })}>
-              <span style={{ backgroundImage: `url("${celebrity.portraitUrl}")` }} />
+            <div className={`${styles.starRow} ${activeId === celebrity.id ? styles.selected : ""}`} key={celebrity.id} role="button" tabIndex={0} onClick={() => void openCelebrity(celebrity)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") void openCelebrity(celebrity); }}>
+              <input className={styles.selectBox} type="checkbox" aria-label={`选择 ${celebrity.name}`} checked={selectedIds.has(celebrity.id)} onChange={() => toggleSelected(celebrity.id)} onClick={(event) => event.stopPropagation()} />
+              <Image src={celebrity.portraitUrl || "/historical-figure.svg"} alt="" loading="lazy" width={44} height={44} sizes="44px" unoptimized />
               <div><strong>{celebrity.name}</strong><small>{celebrity.published ? "已上架" : "未上架"} · 排序 {celebrity.workspacePosition ?? "—"}</small></div>
-            </button>
+            </div>
           ))}
         </aside>
 
         <div className={styles.editor}>
-          {!celebrityDraft ? <div className={styles.empty}>选择或添加一张明星卡片</div> : <>
+          {loadingDetail ? <div className={styles.empty}><span className={styles.loader} />正在读取卡片资料</div> : !celebrityDraft ? <div className={styles.empty}>选择或添加一张明星卡片</div> : <>
             <div className={styles.editorTitle}><div><p>CELEBRITY PROFILE</p><h2>{celebrityDraft.name || "新明星卡片"}</h2></div><div className={styles.actions}><button disabled={busy} onClick={saveCelebrity}>保存卡片</button>{content.celebrities.some((item) => item.id === celebrityDraft.id) && <button className={styles.danger} disabled={busy} onClick={deleteCelebrity}>删除</button>}</div></div>
             <div className={styles.formGrid}>
               <label>英文 ID<input value={celebrityDraft.id} disabled={content.celebrities.some((item) => item.id === celebrityDraft.id)} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, id: event.target.value })} /></label>
               <label>姓名<input value={celebrityDraft.name} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, name: event.target.value })} /></label>
+              <label>英文名<input value={celebrityDraft.nameEn} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, nameEn: event.target.value })} /></label>
+              <label>中文名<input value={celebrityDraft.nameZh} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, nameZh: event.target.value })} /></label>
+              <label>性别<select value={celebrityDraft.gender} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, gender: event.target.value as AdminCelebrity["gender"] })}><option value="unknown">未知</option><option value="female">女性</option><option value="male">男性</option><option value="other">其他</option></select></label>
               <label>身份说明<input value={celebrityDraft.role} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, role: event.target.value })} /></label>
               <label>MBTI<input value={celebrityDraft.mbti} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, mbti: event.target.value.toUpperCase() })} /></label>
               <label>出生日期<input value={celebrityDraft.birthDate} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, birthDate: event.target.value })} /></label>
+              <label>逝世日期<input value={celebrityDraft.deathDate} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, deathDate: event.target.value })} /></label>
               <label>三柱<input value={celebrityDraft.threePillars} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, threePillars: event.target.value })} /></label>
+              <label>MBTI 来源<select value={celebrityDraft.mbtiSourceType} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, mbtiSourceType: event.target.value as AdminCelebrity["mbtiSourceType"] })}><option value="self_reported">本人自我类型</option><option value="biographical_inference">传记推定</option><option value="unknown">未知</option></select></label>
+              <label>MBTI 可信度<select value={celebrityDraft.mbtiConfidence} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, mbtiConfidence: event.target.value as AdminCelebrity["mbtiConfidence"] })}><option value="high">高</option><option value="medium">中</option><option value="low">低</option><option value="unknown">未知</option></select></label>
+              <label>出生日期可信度<select value={celebrityDraft.birthDateConfidence} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, birthDateConfidence: event.target.value as AdminCelebrity["birthDateConfidence"] })}><option value="high">高</option><option value="medium">中</option><option value="low">低</option><option value="unknown">未知</option></select></label>
+              <label>推荐度（1–5）<input type="number" min="1" max="5" value={celebrityDraft.recommendationLevel ?? ""} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, recommendationLevel: Number(event.target.value) || null })} /></label>
+              <label>肖像风险<select value={celebrityDraft.portraitRisk} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, portraitRisk: event.target.value as AdminCelebrity["portraitRisk"] })}><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="unknown">未知</option></select></label>
+              <label>商业演示风险<select value={celebrityDraft.commercialDemoRisk} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, commercialDemoRisk: event.target.value as AdminCelebrity["commercialDemoRisk"] })}><option value="low">低</option><option value="medium">中</option><option value="high">高</option><option value="unknown">未知</option></select></label>
               <label>展示排序<input type="number" min="1" value={celebrityDraft.workspacePosition ?? ""} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, workspacePosition: Number(event.target.value) || null })} /></label>
               <label>首页排序<input type="number" min="1" value={celebrityDraft.homepagePosition ?? ""} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, homepagePosition: Number(event.target.value) || null })} /></label>
               <label className={styles.full}>卡片标签<input value={csv(celebrityDraft.traits)} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, traits: splitList(event.target.value) })} placeholder="温柔、清醒、慢热" /></label>
@@ -129,6 +219,10 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
               <label className={styles.full}>肖像地址<input value={celebrityDraft.portraitUrl} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, portraitUrl: event.target.value })} /><input className={styles.file} type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadPortrait} /></label>
               <label className={styles.check}><input type="checkbox" checked={celebrityDraft.published} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, published: event.target.checked })} />产品端上架</label>
               <label className={styles.check}><input type="checkbox" checked={celebrityDraft.homepageFeatured} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, homepageFeatured: event.target.checked })} />首页展示</label>
+              <label className={styles.check}><input type="checkbox" checked={celebrityDraft.isHistoricalFigure} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, isHistoricalFigure: event.target.checked })} />历史人物</label>
+              <label className={styles.check}><input type="checkbox" checked={celebrityDraft.isDeceased} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, isDeceased: event.target.checked })} />已故</label>
+              <label className={styles.check}><input type="checkbox" checked={celebrityDraft.enableMbti} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, enableMbti: event.target.checked })} />启用 MBTI</label>
+              <label className={styles.check}><input type="checkbox" checked={celebrityDraft.enableBazi} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, enableBazi: event.target.checked })} />启用三柱</label>
             </div>
           </>}
         </div>

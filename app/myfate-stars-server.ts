@@ -21,7 +21,8 @@ type CelebrityRow = {
   report_prompt?: string | null;
 };
 
-const selection = "*";
+const profileSelection = "id,name,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal";
+const reportSelection = `${profileSelection},report_prompt`;
 
 function hasCloudConfig() {
   return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY);
@@ -64,7 +65,7 @@ export async function getPublishedStars(): Promise<StarProfile[]> {
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
-      .select(selection)
+      .select(profileSelection)
       .eq("published", true)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
@@ -82,7 +83,7 @@ export async function getHomepageStars(): Promise<StarProfile[]> {
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
-      .select(selection)
+      .select(profileSelection)
       .eq("published", true)
       .eq("homepage_featured", true)
       .order("homepage_position", { ascending: true, nullsFirst: false })
@@ -101,7 +102,7 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
-      .select(selection)
+      .select(profileSelection)
       .eq("id", id)
       .eq("published", true)
       .maybeSingle();
@@ -122,7 +123,7 @@ export async function getCelebrityReportPrompt(id: string): Promise<string | und
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
-      .select(selection)
+      .select(reportSelection)
       .eq("id", id)
       .eq("published", true)
       .maybeSingle();

@@ -3,6 +3,9 @@ import { createSupabaseAdminClient } from "../../auth/server";
 export type AdminCelebrity = {
   id: string;
   name: string;
+  nameEn: string;
+  nameZh: string;
+  gender: "female" | "male" | "other" | "unknown";
   role: string;
   tagline: string;
   description: string;
@@ -10,6 +13,17 @@ export type AdminCelebrity = {
   focus: string;
   mbti: string;
   birthDate: string;
+  deathDate: string;
+  mbtiSourceType: "self_reported" | "biographical_inference" | "unknown";
+  mbtiConfidence: "high" | "medium" | "low" | "unknown";
+  birthDateConfidence: "high" | "medium" | "low" | "unknown";
+  isHistoricalFigure: boolean;
+  isDeceased: boolean;
+  portraitRisk: "low" | "medium" | "high" | "unknown";
+  commercialDemoRisk: "low" | "medium" | "high" | "unknown";
+  enableBazi: boolean;
+  enableMbti: boolean;
+  recommendationLevel: number | null;
   threePillars: string;
   traits: string[];
   categories: string[];
@@ -21,9 +35,18 @@ export type AdminCelebrity = {
   homepagePosition: number | null;
 };
 
+export type AdminCelebritySummary = Pick<AdminCelebrity,
+  "id" | "name" | "nameEn" | "nameZh" | "mbti" | "portraitUrl" |
+  "published" | "workspacePosition" | "homepageFeatured" | "homepagePosition" |
+  "isHistoricalFigure" | "recommendationLevel"
+>;
+
 type CelebrityRow = {
   id: string;
   name: string;
+  name_en: string | null;
+  name_zh: string | null;
+  gender: AdminCelebrity["gender"] | null;
   role: string;
   tagline: string;
   description: string;
@@ -31,6 +54,17 @@ type CelebrityRow = {
   focus: string;
   mbti: string;
   birth_date: string;
+  death_date: string | null;
+  mbti_source_type: AdminCelebrity["mbtiSourceType"] | null;
+  mbti_confidence: AdminCelebrity["mbtiConfidence"] | null;
+  birth_date_confidence: AdminCelebrity["birthDateConfidence"] | null;
+  is_historical_figure: boolean | null;
+  is_deceased: boolean | null;
+  portrait_risk: AdminCelebrity["portraitRisk"] | null;
+  commercial_demo_risk: AdminCelebrity["commercialDemoRisk"] | null;
+  enable_bazi: boolean | null;
+  enable_mbti: boolean | null;
+  recommendation_level: number | null;
   three_pillars: string;
   traits: string[] | null;
   categories: string[] | null;
@@ -48,6 +82,9 @@ function mapCelebrity(row: CelebrityRow): AdminCelebrity {
   return {
     id: row.id,
     name: row.name,
+    nameEn: row.name_en ?? row.name,
+    nameZh: row.name_zh ?? "",
+    gender: row.gender ?? "unknown",
     role: row.role,
     tagline: row.tagline,
     description: row.description,
@@ -55,6 +92,17 @@ function mapCelebrity(row: CelebrityRow): AdminCelebrity {
     focus: row.focus,
     mbti: row.mbti,
     birthDate: row.birth_date,
+    deathDate: row.death_date ?? "",
+    mbtiSourceType: row.mbti_source_type ?? "unknown",
+    mbtiConfidence: row.mbti_confidence ?? "unknown",
+    birthDateConfidence: row.birth_date_confidence ?? "unknown",
+    isHistoricalFigure: row.is_historical_figure ?? false,
+    isDeceased: row.is_deceased ?? false,
+    portraitRisk: row.portrait_risk ?? "unknown",
+    commercialDemoRisk: row.commercial_demo_risk ?? "unknown",
+    enableBazi: row.enable_bazi ?? true,
+    enableMbti: row.enable_mbti ?? true,
+    recommendationLevel: row.recommendation_level,
     threePillars: row.three_pillars,
     traits: row.traits ?? [],
     categories: row.categories ?? [],
@@ -67,17 +115,65 @@ function mapCelebrity(row: CelebrityRow): AdminCelebrity {
   };
 }
 
+type CelebritySummaryRow = Pick<CelebrityRow,
+  "id" | "name" | "name_en" | "name_zh" | "mbti" | "portrait_url" |
+  "published" | "workspace_position" | "homepage_featured" | "homepage_position" |
+  "is_historical_figure" | "recommendation_level"
+>;
+
+function mapCelebritySummary(row: CelebritySummaryRow): AdminCelebritySummary {
+  return {
+    id: row.id,
+    name: row.name,
+    nameEn: row.name_en ?? row.name,
+    nameZh: row.name_zh ?? "",
+    mbti: row.mbti,
+    portraitUrl: row.portrait_url,
+    published: row.published,
+    workspacePosition: row.workspace_position,
+    homepageFeatured: row.homepage_featured,
+    homepagePosition: row.homepage_position,
+    isHistoricalFigure: row.is_historical_figure ?? false,
+    recommendationLevel: row.recommendation_level,
+  };
+}
+
 export async function loadAdminContent() {
   const supabase = createSupabaseAdminClient();
   const celebrityResult = await supabase
     .from("celebrity_profiles")
-    .select("*")
+    .select("id,name,name_en,name_zh,mbti,portrait_url,published,workspace_position,homepage_featured,homepage_position,is_historical_figure,recommendation_level")
     .order("workspace_position", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: true });
   if (celebrityResult.error) throw celebrityResult.error;
   return {
-    celebrities: ((celebrityResult.data ?? []) as unknown as CelebrityRow[]).map(mapCelebrity),
+    celebrities: ((celebrityResult.data ?? []) as unknown as CelebritySummaryRow[]).map(mapCelebritySummary),
   };
+}
+
+export async function loadAdminCelebrity(id: string): Promise<AdminCelebrity | null> {
+  const { data, error } = await createSupabaseAdminClient()
+    .from("celebrity_profiles")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapCelebrity(data as unknown as CelebrityRow) : null;
+}
+
+async function updateOrderInBatches(rows: Array<{ id: string; position: number }>) {
+  const supabase = createSupabaseAdminClient();
+  const updatedAt = new Date().toISOString();
+  for (let start = 0; start < rows.length; start += 8) {
+    const batch = rows.slice(start, start + 8);
+    await Promise.all(batch.map(async (row) => {
+      const { error } = await supabase
+        .from("celebrity_profiles")
+        .update({ workspace_position: row.position, updated_at: updatedAt })
+        .eq("id", row.id);
+      if (error) throw error;
+    }));
+  }
 }
 
 export async function normalizeCelebrityOrder() {
@@ -88,14 +184,10 @@ export async function normalizeCelebrityOrder() {
     .order("workspace_position", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: true });
   if (error) throw error;
-  for (let index = 0; index < (data ?? []).length; index += 1) {
-    if (data?.[index]?.workspace_position === index + 1) continue;
-    const { error: updateError } = await supabase
-      .from("celebrity_profiles")
-      .update({ workspace_position: index + 1, updated_at: new Date().toISOString() })
-      .eq("id", data?.[index]?.id);
-    if (updateError) throw updateError;
-  }
+  const changed = (data ?? []).flatMap((row, index) => row.workspace_position === index + 1
+    ? []
+    : [{ id: row.id, position: index + 1 }]);
+  await updateOrderInBatches(changed);
 }
 
 export async function moveCelebrity(id: string, requestedPosition: number) {
@@ -111,13 +203,10 @@ export async function moveCelebrity(id: string, requestedPosition: number) {
   const ordered = (data ?? []).filter((row) => row.id !== id);
   const position = Math.max(1, Math.min(ordered.length + 1, requestedPosition || ordered.length + 1));
   ordered.splice(position - 1, 0, selected);
-  for (let index = 0; index < ordered.length; index += 1) {
-    const { error: updateError } = await supabase
-      .from("celebrity_profiles")
-      .update({ workspace_position: index + 1, updated_at: new Date().toISOString() })
-      .eq("id", ordered[index].id);
-    if (updateError) throw updateError;
-  }
+  const changed = ordered.flatMap((row, index) => row.workspace_position === index + 1
+    ? []
+    : [{ id: row.id, position: index + 1 }]);
+  await updateOrderInBatches(changed);
 }
 
 export function safeId(value: unknown) {

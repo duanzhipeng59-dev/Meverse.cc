@@ -288,15 +288,15 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.doesNotMatch(prompt, /star\.(?:name|role|threePillars|traits|description|relationshipStyle|focus)/u);
   assert.match(prompt, /约占 70% 定性参考/u);
   assert.match(prompt, /约占 30% 定性参考/u);
-  assert.match(prompt, /动态提炼 5–8 个专属关系互动维度/u);
+  assert.match(prompt, /不要输出逐题标题、专属维度、针对特点或考察意图/u);
   assert.doesNotMatch(prompt, /后台专属提示词|idolPrompt/u);
   assert.match(prompt, /correctIndex/u);
   assert.match(prompt, /每个选项.*explanation/u);
   assert.match(prompt, /最长与最短相差不得超过 8 个字符/u);
   assert.match(prompt, /正确项为四项最长的题不得超过 6 道/u);
   assert.match(prompt, /globalBasis/u);
-  assert.match(prompt, /35–65 个中文字符/u);
-  assert.match(prompt, /10,000 个中文字符以内/u);
+  assert.match(prompt, /28–48 个中文字符/u);
+  assert.match(prompt, /8,500 个中文字符以内/u);
   assert.match(prompt, /TA 当下更可能有什么感受/u);
   assert.match(prompt, /恰好 5 道 riskItem=true/u);
   assert.match(submitRoute, /evaluateGeneratedTest/u);

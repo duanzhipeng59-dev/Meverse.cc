@@ -19,7 +19,8 @@ type GeneratedResponse = {
   savedAnswers?: Array<{ question: string; answer: string }>;
 };
 
-const POLL_INTERVAL_MS = 2500;
+const FOREGROUND_POLL_INTERVAL_MS = 1500;
+const BACKGROUND_POLL_INTERVAL_MS = 5000;
 
 export default function MyfateGeneratedTest({ star, workspace = false }: { star: StarProfile; workspace?: boolean }) {
   const { status } = useAuth();
@@ -85,7 +86,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     while (active.current) {
       const response = await fetch(`/api/myfate/generated-tests?reportId=${encodeURIComponent(targetReportId)}`, { cache: "no-store" });
       if (response.status === 202) {
-        await new Promise((resolve) => window.setTimeout(resolve, POLL_INTERVAL_MS));
+        const delay = document.visibilityState === "visible" ? FOREGROUND_POLL_INTERVAL_MS : BACKGROUND_POLL_INTERVAL_MS;
+        await new Promise((resolve) => window.setTimeout(resolve, delay));
         continue;
       }
       if (response.status === 409) throw new Error("专属测试生成失败，请重新生成。");

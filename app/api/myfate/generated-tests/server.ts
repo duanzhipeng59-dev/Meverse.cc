@@ -26,12 +26,12 @@ const globalBasisSchema = z.object({
 
 const storedQuestionSchema = z.object({
   question: z.string().trim().min(8).max(500),
-  eyebrow: z.string().trim().min(2).max(80),
-  dimension: z.string().trim().min(2).max(80),
+  eyebrow: z.string().trim().min(2).max(80).optional().default("专属情境"),
+  dimension: z.string().trim().min(2).max(80).optional().default("关系回应"),
   testType: z.enum(["核心需求满足", "脆弱点承接", "长期磨合"]),
   riskItem: z.boolean(),
-  targetTrait: z.string().trim().min(2).max(500),
-  intent: z.string().trim().min(4).max(800),
+  targetTrait: z.string().trim().min(2).max(500).optional(),
+  intent: z.string().trim().min(4).max(800).optional(),
   designBasis: designBasisSchema.optional(),
   correctIndex: z.number().int().min(0).max(3),
   options: z.array(optionSchema).length(4),
