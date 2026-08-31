@@ -97,6 +97,25 @@ export function adminError(error: unknown, request: Request) {
       status: error.status,
     });
   }
+  const databaseError = error as { code?: string; message?: string; hint?: string } | null;
+  const knownErrors: Record<string, { error: string; status: number }> = {
+    "23505": { error: "duplicate_content", status: 409 },
+    "23514": { error: "invalid_field_value", status: 400 },
+    "22003": { error: "invalid_number", status: 400 },
+    "22007": { error: "invalid_birth_date", status: 400 },
+    PGRST204: { error: "content_schema_mismatch", status: 503 },
+  };
+  const known = databaseError?.code ? knownErrors[databaseError.code] : undefined;
+  if (known) {
+    console.error("Admin API validation failed", {
+      code: databaseError?.code,
+      message: databaseError?.message,
+      hint: databaseError?.hint,
+    });
+    return adminJson({ error: known.error }, request, undefined, {
+      status: known.status,
+    });
+  }
   console.error("Admin API failed", error);
   return adminJson({ error: "admin_service_unavailable" }, request, undefined, {
     status: 500,

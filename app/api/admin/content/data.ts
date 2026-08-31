@@ -200,6 +200,7 @@ export async function moveCelebrity(id: string, requestedPosition: number) {
   if (error) throw error;
   const selected = (data ?? []).find((row) => row.id === id);
   if (!selected) throw new Error("celebrity_not_found");
+  if (selected.workspace_position === requestedPosition) return;
   const ordered = (data ?? []).filter((row) => row.id !== id);
   const position = Math.max(1, Math.min(ordered.length + 1, requestedPosition || ordered.length + 1));
   ordered.splice(position - 1, 0, selected);

@@ -27,9 +27,13 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const admin = await requireAdmin(request);
     const { id } = await context.params;
     const payload = await request.json() as Record<string, unknown>;
+    if (payload.name !== undefined && !String(payload.name ?? "").trim()) return adminJson({ error: "missing_required_fields", fields: ["name"] }, request, admin, { status: 400 });
+    if (payload.name !== undefined && String(payload.name ?? "").trim().length > 80) return adminJson({ error: "invalid_field_value", fields: ["name"] }, request, admin, { status: 400 });
+    if (payload.mbti !== undefined && !/^(E|I)(N|S)(T|F)(J|P)$/u.test(String(payload.mbti ?? "").trim().toUpperCase())) return adminJson({ error: "invalid_mbti", fields: ["mbti"] }, request, admin, { status: 400 });
+    if (payload.birthDate !== undefined && !/^\d{4}-\d{2}-\d{2}$/u.test(String(payload.birthDate ?? "").trim())) return adminJson({ error: "invalid_birth_date", fields: ["birthDate"] }, request, admin, { status: 400 });
     const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
     const textFields: Array<[string, string, number]> = [
-      ["name", "name", 120], ["role", "role", 160], ["tagline", "tagline", 240],
+      ["name", "name", 80], ["role", "role", 120], ["tagline", "tagline", 240],
       ["nameEn", "name_en", 160], ["nameZh", "name_zh", 160], ["gender", "gender", 16],
       ["description", "description", 4000], ["relationshipStyle", "relationship_style", 2000],
       ["focus", "focus", 2000], ["mbti", "mbti", 8], ["birthDate", "birth_date", 40],
@@ -42,6 +46,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     for (const [input, column, limit] of textFields) {
       if (payload[input] !== undefined) updates[column] = String(payload[input] ?? "").trim().slice(0, limit);
     }
+    if (payload.role !== undefined && !String(payload.role ?? "").trim()) updates.role = "艺人 · 舞台创作者";
+    if (payload.portraitUrl !== undefined && !String(payload.portraitUrl ?? "").trim()) updates.portrait_url = "/historical-figure.svg";
     if (Array.isArray(payload.traits)) updates.traits = payload.traits.map(String).map((item) => item.trim()).filter(Boolean);
     if (Array.isArray(payload.categories)) updates.categories = payload.categories.map(String).map((item) => item.trim()).filter(Boolean);
     if (payload.deathDate !== undefined) updates.death_date = String(payload.deathDate ?? "").trim() || null;
@@ -57,7 +63,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const supabase = createSupabaseAdminClient();
     const { error } = await supabase.from("celebrity_profiles").update(updates).eq("id", id);
     if (error) throw error;
-    if (payload.workspacePosition !== undefined) await moveCelebrity(id, Number(payload.workspacePosition));
+    if (payload.workspacePosition !== undefined && payload.workspacePosition !== null) await moveCelebrity(id, Number(payload.workspacePosition));
     await writeAuditLog(admin, "celebrity_update", "celebrity_profile", id, { fields: Object.keys(payload) });
     paths(id);
     return adminJson({ ok: true }, request, admin);
