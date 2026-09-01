@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import type { AdminCelebrity, AdminCelebritySummary } from "../../../api/admin/content/data";
 import styles from "./studio.module.css";
 
@@ -60,6 +60,8 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [busy, setBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [draggedId, setDraggedId] = useState("");
+  const [dragTargetId, setDragTargetId] = useState("");
   const [notice, setNotice] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<RequiredField, string>>>({});
   const detailRequest = useRef(0);
@@ -257,10 +259,28 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
       : new Set(content.celebrities.map((item) => item.id)));
   }
 
-  async function moveCelebrityCard(id: string, direction: -1 | 1) {
+  function startCelebrityDrag(event: DragEvent<HTMLButtonElement>, id: string) {
+    if (busy) return;
+    event.stopPropagation();
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", id);
+    setDraggedId(id);
+    setDragTargetId(id);
+  }
+
+  function finishCelebrityDrag() {
+    setDraggedId("");
+    setDragTargetId("");
+  }
+
+  async function dropCelebrityCard(event: DragEvent<HTMLDivElement>, targetId: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    const id = draggedId || event.dataTransfer.getData("text/plain");
+    finishCelebrityDrag();
     const currentIndex = content.celebrities.findIndex((item) => item.id === id);
-    const targetIndex = currentIndex + direction;
-    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= content.celebrities.length) return;
+    const targetIndex = content.celebrities.findIndex((item) => item.id === targetId);
+    if (!id || currentIndex < 0 || targetIndex < 0 || currentIndex === targetIndex) return;
     await run(async () => {
       await api(`/api/admin/content/celebrities/${encodeURIComponent(id)}`, {
         method: "PATCH",
@@ -275,7 +295,7 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
           if (savedDraft.current) savedDraft.current = { ...savedDraft.current, workspacePosition: activePosition };
         }
       }
-      setNotice(`已将卡片${direction < 0 ? "上移" : "下移"}，线上顺序已更新`);
+      setNotice("卡片顺序已拖动调整并保存到线上");
     });
   }
 
@@ -326,21 +346,38 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
 
       <section className={styles.workspace}>
         <aside className={styles.sidebar}>
-          <div className={styles.sideHeading}><strong>{content.celebrities.length} 张卡片</strong><button onClick={createCelebrity}>＋ 添加</button></div>
+          <div className={styles.sideHeading}><div><strong>{content.celebrities.length} 张卡片</strong><small>按住 ⠿ 拖动排序</small></div><button onClick={createCelebrity}>＋ 添加</button></div>
           <div className={styles.bulkToolbar}>
             <label><input type="checkbox" checked={content.celebrities.length > 0 && selectedIds.size === content.celebrities.length} onChange={toggleAll} />全选</label>
             <span>{selectedIds.size ? `已选 ${selectedIds.size} 张` : "可多选卡片"}</span>
             {selectedIds.size > 0 && <div><button disabled={busy} onClick={() => runBulkAction("publish")}>一键上架</button><button className={styles.bulkDanger} disabled={busy} onClick={() => runBulkAction("delete")}>一键删除</button></div>}
           </div>
-          {content.celebrities.map((celebrity, index) => (
-            <div className={`${styles.starRow} ${activeId === celebrity.id ? styles.selected : ""}`} key={celebrity.id} role="button" tabIndex={0} onClick={() => void openCelebrity(celebrity)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") void openCelebrity(celebrity); }}>
+          {content.celebrities.map((celebrity) => (
+            <div
+              className={`${styles.starRow} ${activeId === celebrity.id ? styles.selected : ""} ${draggedId === celebrity.id ? styles.dragging : ""} ${dragTargetId === celebrity.id && draggedId !== celebrity.id ? styles.dragTarget : ""}`}
+              key={celebrity.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => void openCelebrity(celebrity)}
+              onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") void openCelebrity(celebrity); }}
+              onDragEnter={() => { if (draggedId && draggedId !== celebrity.id) setDragTargetId(celebrity.id); }}
+              onDragOver={(event) => { if (draggedId) { event.preventDefault(); event.dataTransfer.dropEffect = "move"; } }}
+              onDrop={(event) => void dropCelebrityCard(event, celebrity.id)}
+            >
               <input className={styles.selectBox} type="checkbox" aria-label={`选择 ${celebrity.name}`} checked={selectedIds.has(celebrity.id)} onChange={() => toggleSelected(celebrity.id)} onClick={(event) => event.stopPropagation()} />
               <Image src={celebrity.portraitUrl || "/historical-figure.svg"} alt="" loading="lazy" width={44} height={44} sizes="44px" unoptimized />
               <div className={styles.starInfo}><strong>{celebrity.name}</strong><small>{celebrity.published ? "已上架" : "未上架"} · 排序 {celebrity.workspacePosition ?? "—"}</small></div>
-              <div className={styles.starOrderActions} aria-label={`调整 ${celebrity.name} 的工作台顺序`}>
-                <button type="button" aria-label={`上移 ${celebrity.name}`} title="上移" disabled={busy || index === 0} onClick={(event) => { event.stopPropagation(); void moveCelebrityCard(celebrity.id, -1); }}>↑</button>
-                <button type="button" aria-label={`下移 ${celebrity.name}`} title="下移" disabled={busy || index === content.celebrities.length - 1} onClick={(event) => { event.stopPropagation(); void moveCelebrityCard(celebrity.id, 1); }}>↓</button>
-              </div>
+              <button
+                className={styles.dragHandle}
+                type="button"
+                draggable={!busy}
+                aria-label={`拖动 ${celebrity.name} 调整工作台顺序`}
+                title="按住拖动排序"
+                onClick={(event) => event.stopPropagation()}
+                onKeyDown={(event) => event.stopPropagation()}
+                onDragStart={(event) => startCelebrityDrag(event, celebrity.id)}
+                onDragEnd={finishCelebrityDrag}
+              >⠿</button>
             </div>
           ))}
         </aside>
