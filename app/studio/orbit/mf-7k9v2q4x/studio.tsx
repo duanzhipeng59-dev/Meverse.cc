@@ -17,10 +17,14 @@ const errorMessages: Record<string, string> = {
   duplicate_content: "这个英文 ID 已经存在",
   content_schema_mismatch: "线上数据结构需要更新，请联系管理员",
   admin_service_unavailable: "保存服务暂时不可用，请稍后重试",
+  invalid_generation_input: "请先补全正确的必填信息",
+  ai_not_configured: "生成服务尚未配置，请检查后台环境变量",
+  ai_generation_failed: "资料生成失败，请稍后重试",
+  ai_generation_invalid: "生成内容格式不完整，请重新生成",
 };
 
 const emptyCelebrity: AdminCelebrity = {
-  id: "", name: "", role: "艺人 · 舞台创作者", tagline: "", description: "",
+  id: "", name: "", role: "", tagline: "", description: "",
   nameEn: "", nameZh: "", gender: "unknown", deathDate: "",
   mbtiSourceType: "unknown", mbtiConfidence: "unknown", birthDateConfidence: "unknown",
   isHistoricalFigure: false, isDeceased: false, portraitRisk: "unknown", commercialDemoRisk: "unknown",
@@ -55,6 +59,7 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [busy, setBusy] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [notice, setNotice] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<RequiredField, string>>>({});
   const detailRequest = useRef(0);
@@ -161,6 +166,64 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
     });
   }
 
+  async function generateCelebrityProfile() {
+    if (!celebrityDraft) return;
+    const errors = validateCelebrity(celebrityDraft);
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      setNotice("请先补全标红的必填信息，再生成其他资料");
+      document.getElementById(`celebrity-${Object.keys(errors)[0]}`)?.focus();
+      return;
+    }
+    setFieldErrors({});
+    setGenerating(true);
+    setNotice("正在根据基本信息生成其他资料…");
+    try {
+      const result = await api<{ generated: Partial<AdminCelebrity> }>("/api/admin/content/generate", {
+        method: "POST",
+        body: JSON.stringify({
+          id: celebrityDraft.id,
+          name: celebrityDraft.name,
+          mbti: celebrityDraft.mbti,
+          birthDate: celebrityDraft.birthDate,
+          existing: {
+            nameEn: celebrityDraft.nameEn,
+            nameZh: celebrityDraft.nameZh,
+            role: celebrityDraft.role,
+            tagline: celebrityDraft.tagline,
+            description: celebrityDraft.description,
+            relationshipStyle: celebrityDraft.relationshipStyle,
+            focus: celebrityDraft.focus,
+            traits: celebrityDraft.traits,
+            categories: celebrityDraft.categories,
+          },
+        }),
+      });
+      const generatedFields = result.generated;
+      setCelebrityDraft((current) => {
+        if (!current) return current;
+        const next = { ...current };
+        (Object.keys(generatedFields) as Array<keyof AdminCelebrity>).forEach((key) => {
+          const existingValue = current[key];
+          const isBlank = Array.isArray(existingValue)
+            ? existingValue.length === 0
+            : typeof existingValue === "string"
+              ? existingValue.trim().length === 0
+              : existingValue == null;
+          if (isBlank && generatedFields[key] !== undefined) {
+            Object.assign(next, { [key]: generatedFields[key] });
+          }
+        });
+        return next;
+      });
+      setNotice("其他资料已生成并填入空白栏，请检查后保存卡片");
+    } catch (error) {
+      setNotice(error instanceof Error ? `生成失败：${error.message}` : "生成失败，请稍后重试");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   async function deleteCelebrity() {
     if (!celebrityDraft || !content.celebrities.some((item) => item.id === celebrityDraft.id)) return;
     if (!window.confirm(`确认删除 ${celebrityDraft.name}？`)) return;
@@ -258,7 +321,7 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
 
         <div className={styles.editor}>
           {loadingDetail ? <div className={styles.empty}><span className={styles.loader} />正在读取卡片资料</div> : !celebrityDraft ? <div className={styles.empty}>选择或添加一张明星卡片</div> : <>
-            <div className={styles.editorTitle}><div><p>CELEBRITY PROFILE</p><h2>{celebrityDraft.name || "新明星卡片"}</h2></div><div className={styles.actions}><button disabled={busy} onClick={saveCelebrity}>保存卡片</button>{content.celebrities.some((item) => item.id === celebrityDraft.id) && <button className={styles.danger} disabled={busy} onClick={deleteCelebrity}>删除</button>}</div></div>
+            <div className={styles.editorTitle}><div><p>CELEBRITY PROFILE</p><h2>{celebrityDraft.name || "新明星卡片"}</h2></div><div className={styles.actions}><button className={styles.generate} disabled={busy || generating} onClick={generateCelebrityProfile}>{generating ? "正在生成…" : "生成其他资料"}</button><button disabled={busy || generating} onClick={saveCelebrity}>保存卡片</button>{content.celebrities.some((item) => item.id === celebrityDraft.id) && <button className={styles.danger} disabled={busy || generating} onClick={deleteCelebrity}>删除</button>}</div></div>
             <div className={styles.formGrid}>
               <label className={fieldErrors.id ? styles.hasError : ""}>英文 ID <span className={styles.required}>必填</span><input id="celebrity-id" value={celebrityDraft.id} disabled={content.celebrities.some((item) => item.id === celebrityDraft.id)} onChange={(event) => { setCelebrityDraft({ ...celebrityDraft, id: event.target.value.toLowerCase() }); clearFieldError("id"); }} placeholder="例如 bang-chan" aria-invalid={Boolean(fieldErrors.id)} />{fieldErrors.id && <small className={styles.fieldError}>{fieldErrors.id}</small>}</label>
               <label className={fieldErrors.name ? styles.hasError : ""}>展示名称 <span className={styles.required}>必填</span><input id="celebrity-name" maxLength={80} value={celebrityDraft.name} onChange={(event) => { setCelebrityDraft({ ...celebrityDraft, name: event.target.value }); clearFieldError("name"); }} placeholder="例如 Bang Chan" aria-invalid={Boolean(fieldErrors.name)} />{fieldErrors.name && <small className={styles.fieldError}>{fieldErrors.name}</small>}</label>
@@ -285,6 +348,7 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
                   <label>展示排序<input type="number" min="1" value={celebrityDraft.workspacePosition ?? ""} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, workspacePosition: Number(event.target.value) || null })} /></label>
                   <label>首页排序<input type="number" min="1" value={celebrityDraft.homepagePosition ?? ""} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, homepagePosition: Number(event.target.value) || null })} /></label>
                   <label className={styles.full}>卡片标签<input value={csv(celebrityDraft.traits)} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, traits: splitList(event.target.value) })} placeholder="温柔、清醒、慢热" /></label>
+                  <label className={styles.full}>内容分类<input value={csv(celebrityDraft.categories)} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, categories: splitList(event.target.value) })} placeholder="例如 企业家、科技" /></label>
                   <label className={styles.full}>一句话标签<input value={celebrityDraft.tagline} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, tagline: event.target.value })} /></label>
                   <label className={styles.full}>人物描述<textarea value={celebrityDraft.description} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, description: event.target.value })} /></label>
                   <label className={styles.full}>情感人格<textarea value={celebrityDraft.relationshipStyle} onChange={(event) => setCelebrityDraft({ ...celebrityDraft, relationshipStyle: event.target.value })} /></label>

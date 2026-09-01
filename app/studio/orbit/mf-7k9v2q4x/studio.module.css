@@ -30,6 +30,7 @@
 .editorTitle h2 { font-size: 30px; }
 .actions { display: flex; gap: 8px; }
 .actions .danger { color: #a13d4d; background: #f9e8eb; }
+.actions .generate { color: #7f294f; border: 1px solid #ddb9c8; background: #fff7fa; }
 .actions button:disabled { opacity: .55; cursor: wait; }
 .formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .formGrid label { display: flex; flex-direction: column; gap: 7px; color: #76686f; font-size: 12px; font-weight: 700; }
