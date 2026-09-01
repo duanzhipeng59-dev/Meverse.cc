@@ -172,7 +172,7 @@ export default function LocalLogin() {
           </Link>
         </div>
         <span className="mf-login-kicker">WELCOME TO MYFATE</span>
-        <h1>登录后，继续探索心动</h1>
+        <h1>登录后，继续探索</h1>
         <p>使用邮箱验证码登录。首次使用的邮箱会自动创建账号。</p>
 
         <form className="mf-login-form" onSubmit={submit}>
