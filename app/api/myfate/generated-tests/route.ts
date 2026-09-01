@@ -4,7 +4,7 @@ import { createSupabaseAdminClient } from "../../auth/server";
 import { requireReportUser } from "../reports/server";
 import { generateReportText } from "../personalize/model-provider";
 import { buildGeneratedTestPrompt, GENERATED_TEST_SYSTEM_PROMPT } from "./prompt";
-import { parseGeneratedPayload, publicQuestions } from "./server";
+import { parseGeneratedPayload, parseStoredGeneratedPayload, publicQuestions } from "./server";
 
 const requestSchema = z.object({
   starId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(100),
@@ -45,15 +45,10 @@ async function generateAndStoreTest(starId: string, reportId: string, userId: st
     let payload = parseGeneratedPayload(generation.content);
     payload = {
       ...payload,
-      globalBasis: payload.globalBasis ? {
+      globalBasis: {
         ...payload.globalBasis,
         mbti: `${star.mbti}：${payload.globalBasis.mbti}`,
         threePillars: `${star.three_pillars}：${payload.globalBasis.threePillars}`,
-      } : {
-        mbti: `${star.mbti}：本套题围绕该类型更可能出现的亲密关系需求、沟通节奏与压力反应设计。`,
-        threePillars: `${star.three_pillars}：三柱仅作为传统关系意象的辅助观察，不构成确定预测。`,
-        coreConcerns: payload.relationshipNeeds.slice(0, 5),
-        summary: "整套题通过情绪回应、边界协商、冲突修复与长期磨合场景，观察测试者的自然相处方式能否被 TA 接收到。",
       },
     };
 
@@ -72,7 +67,7 @@ async function generateAndStoreTest(starId: string, reportId: string, userId: st
       .update({
         status: "initial",
         question_count: payload.questions.length,
-        initial_title: "专属测试已生成",
+        initial_title: "关系测试已生成",
         interpretation: { generatedTestId: data.id },
         updated_at: new Date().toISOString(),
       })
@@ -85,7 +80,7 @@ async function generateAndStoreTest(starId: string, reportId: string, userId: st
     await supabase
       .from("myfate_reports")
       .update({
-        initial_title: "专属测试生成失败",
+        initial_title: "关系测试生成失败",
         interpretation: { generationError: true },
         updated_at: new Date().toISOString(),
       })
@@ -129,7 +124,7 @@ export async function GET(request: Request) {
     if (new Date(test.expires_at).getTime() <= Date.now()) {
       return Response.json({ error: "TEST_EXPIRED" }, { status: 410, headers: session.headers });
     }
-    const payload = parseGeneratedPayload(JSON.stringify(test.payload));
+    const payload = parseStoredGeneratedPayload(test.payload);
     return Response.json({
       status: "ready",
       testId: test.id,
@@ -168,7 +163,7 @@ export async function POST(request: Request) {
     .from("myfate_reports")
     .update({
       status: "generating",
-      initial_title: "题目生成中",
+      initial_title: "关系题目生成中",
       interpretation: null,
       updated_at: new Date().toISOString(),
     })

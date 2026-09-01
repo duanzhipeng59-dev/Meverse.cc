@@ -26,53 +26,52 @@ test("server-renders the Myfate landing page with a workspace entry", async () =
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /Myfate/);
-  assert.match(html, /会是你的正缘吗/u);
-  assert.match(html, /选择心动对象/u);
+  assert.match(html, /你更适合成为 TA 的谁/u);
+  assert.match(html, /选择测试对象/u);
   assert.match(html, /href="\/#stars"/u);
-  assert.match(html, /缘分星图示例/u);
-  assert.doesNotMatch(html, /缘分预览/u);
-  assert.match(html, /\/home\/celebrity-match/);
+  assert.match(html, /关系身份图谱/u);
+  assert.match(html, /\/home\/relationship-test/);
   assert.match(html, /Bang Chan/u);
   assert.match(html, /Seonghyeon/u);
   assert.doesNotMatch(html, /href="\/celebrity\//);
   assert.doesNotMatch(html, /Gemini Pro|立即订阅/u);
 });
 
-test("server-renders celebrity discovery inside the workspace", async () => {
-  const response = await render("/home/celebrity-match");
+test("server-renders relationship-test discovery inside the workspace", async () => {
+  const response = await render("/home/relationship-test");
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /正缘测试/u);
+  assert.match(html, /关系测试/u);
   assert.match(html, /个人中心/u);
-  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match/u);
+  assert.match(html, /\/login\?next=%2Fhome%2Frelationship-test/u);
   assert.match(html, /Bang Chan/u);
   assert.match(html, /Seonghyeon/u);
-  assert.match(html, /\/home\/celebrity-match\/bang-chan/);
+  assert.match(html, /\/home\/relationship-test\/bang-chan/);
   assert.doesNotMatch(html, /按艺人类型筛选/u);
   assert.doesNotMatch(html, /24 道关系情境|约 6 分钟完成/u);
 });
 
 test("server-renders a celebrity detail inside the workspace", async () => {
-  const response = await render("/home/celebrity-match/hyunjin");
+  const response = await render("/home/relationship-test/hyunjin");
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Hyunjin/u);
-  assert.match(html, /正缘测试/u);
+  assert.match(html, /关系测试/u);
   assert.match(html, /返回工作区/u);
-  assert.match(html, /\/home\/celebrity-match/);
-  assert.doesNotMatch(html, /href="\/home\/celebrity-match\/hyunjin\/test"/);
-  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fhyunjin%2Ftest/);
+  assert.match(html, /\/home\/relationship-test/);
+  assert.doesNotMatch(html, /href="\/home\/relationship-test\/hyunjin\/test"/);
+  assert.match(html, /\/login\?next=%2Fhome%2Frelationship-test%2Fhyunjin%2Ftest/);
   assert.match(html, /mf-workspace-detail/u);
 });
 
 test("keeps the workspace around the question and report flow", async () => {
-  const response = await render("/home/celebrity-match/bang-chan/test");
+  const response = await render("/home/relationship-test/bang-chan/test");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /正缘测试/u);
-  assert.match(html, /专属正缘测试/u);
-  assert.match(html, /正在为你生成专属测试/u);
+  assert.match(html, /关系测试/u);
+  assert.match(html, /关系身份测试/u);
+  assert.match(html, /正在为你生成关系测试/u);
   assert.match(html, /仍会在后台生成/u);
   assert.doesNotMatch(html, /退出，稍后继续/u);
   assert.match(html, /个人中心/u);
@@ -140,8 +139,8 @@ test("server-renders the cloud-backed report history workspace", async () => {
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /我的报告/u);
-  assert.match(html, /每一次心动，都有迹可循/u);
-  assert.match(html, /正缘测试与关系行为画像/u);
+  assert.match(html, /每一种关系，都有自己的位置/u);
+  assert.match(html, /关系身份测试与行为画像/u);
   assert.match(html, /份历史报告/u);
 });
 
@@ -190,8 +189,8 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(reportDetail, /MyfateFormulaResult/u);
   assert.match(reportDetail, /parseFormulaResult/u);
   assert.match(reportDetail, /test\?restart=1/u);
-  assert.match(reportDetail, /返回明星工作台/u);
-  assert.match(reportDetail, /正在为你生成专属测试/u);
+  assert.match(reportDetail, /返回关系测试/u);
+  assert.match(reportDetail, /正在为你生成关系测试/u);
   assert.match(reportDetail, /去答题/u);
   assert.match(advancedReport, /mf-model-report-sections/u);
   assert.match(advancedReport, /mf-model-report-section/u);
@@ -202,7 +201,7 @@ test("saves, reuses, upgrades, and manually deletes report history", async () =>
   assert.match(reportAwareEntry, /查看关系报告/u);
   assert.match(reportAwareEntry, /去答题/u);
   assert.match(reportAwareEntry, /去测试/u);
-  assert.match(reportAwareEntry, /from=celebrity-match/u);
+  assert.match(reportAwareEntry, /from=relationship-test/u);
   assert.match(guardedTestEntry, /MyfateGeneratedTest/u);
   assert.doesNotMatch(guardedTestEntry, /questions=\{questions\}/u);
   assert.doesNotMatch(guardedTestEntry, /allowRetest|router\.replace/u);
@@ -259,8 +258,8 @@ test("server-renders a celebrity detail and its test entry", async () => {
   assert.match(html, /丁丑 · 己酉 · 戊寅/u);
   assert.match(html, /主动守护的共建型/u);
   assert.match(html, /真诚回应 · 共同成长 · 稳定承诺/u);
-  assert.match(html, /测试 TA 是否是你的正缘/u);
-  assert.match(html, /\/login\?next=%2Fhome%2Fcelebrity-match%2Fbang-chan%2Ftest/);
+  assert.match(html, /看看你更适合成为 TA 的谁/u);
+  assert.match(html, /\/login\?next=%2Fhome%2Frelationship-test%2Fbang-chan%2Ftest/);
 });
 
 test("generates a fresh sealed question set and evaluates it without a second model call", async () => {
@@ -276,7 +275,7 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   ]);
   assert.match(testPage, /MyfateGeneratedTest/u);
   assert.match(generatedTest, /fetch\("\/api\/myfate\/generated-tests"/u);
-  assert.match(generatedTest, /查看正缘结果/u);
+  assert.match(generatedTest, /查看关系身份/u);
   assert.doesNotMatch(generatedTest, /sessionStorage/u);
   assert.match(generatedTest, /serializeFormulaResult/u);
   assert.match(generateRoute, /generateReportText/u);
@@ -286,31 +285,31 @@ test("generates a fresh sealed question set and evaluates it without a second mo
   assert.match(prompt, /MBTI：\$\{star\.mbti\}/u);
   assert.match(prompt, /出生年月日：\$\{star\.birthDate\}/u);
   assert.doesNotMatch(prompt, /star\.(?:name|role|threePillars|traits|description|relationshipStyle|focus)/u);
-  assert.match(prompt, /约占 70% 定性参考/u);
-  assert.match(prompt, /约占 30% 定性参考/u);
-  assert.match(prompt, /不要输出逐题标题、专属维度、针对特点或考察意图/u);
+  assert.match(prompt, /约 70% 的定性参考/u);
+  assert.match(prompt, /约 30% 的传统文化意象辅助/u);
+  assert.match(prompt, /关系身份测试/u);
   assert.doesNotMatch(prompt, /后台专属提示词|idolPrompt/u);
-  assert.match(prompt, /correctIndex/u);
+  assert.match(prompt, /primaryRole/u);
+  assert.match(prompt, /secondaryRole/u);
+  assert.match(prompt, /relationshipRoleIds/u);
+  assert.match(prompt, /relationshipRoleDefinitions/u);
+  assert.doesNotMatch(prompt, /correctIndex|riskItem|正确答案/u);
   assert.match(prompt, /每个选项.*explanation/u);
-  assert.match(prompt, /最长与最短相差不得超过 8 个字符/u);
-  assert.match(prompt, /正确项为四项最长的题不得超过 6 道/u);
   assert.match(prompt, /globalBasis/u);
-  assert.match(prompt, /28–48 个中文字符/u);
-  assert.match(prompt, /8,500 个中文字符以内/u);
-  assert.match(prompt, /TA 当下更可能有什么感受/u);
-  assert.match(prompt, /恰好 5 道 riskItem=true/u);
+  assert.match(prompt, /情绪陪伴/u);
+  assert.match(prompt, /日常相处/u);
+  assert.match(prompt, /守护成长/u);
+  assert.match(prompt, /共同体验/u);
+  assert.match(prompt, /边界冲突/u);
   assert.match(submitRoute, /evaluateGeneratedTest/u);
   assert.doesNotMatch(submitRoute, /generateReportText|personalize/u);
-  assert.match(evaluation, /selectedExplanation: selected\.explanation/u);
-  assert.match(evaluation, /correctExplanation: correct\.explanation/u);
-  assert.match(evaluation, /riskWrongCount >= 3/u);
-  assert.match(formulaResult, /为什么适配|更适合 TA 的回答/u);
+  assert.match(evaluation, /scores\[selected\.primaryRole\] \+= 2/u);
+  assert.match(evaluation, /scores\[selected\.secondaryRole\] \+= 1/u);
+  assert.match(evaluation, /roleRanking/u);
+  assert.match(formulaResult, /你更适合成为 TA 的/u);
+  assert.match(formulaResult, /mf-identity-ranking/u);
+  assert.match(formulaResult, /primaryRole/u);
   assert.doesNotMatch(formulaResult, /为什么这是正确答案|为什么会错位/u);
-  assert.match(formulaResult, /fallbackCorrectExplanation/u);
-  assert.match(formulaResult, /HighlightedCopy/u);
-  assert.match(formulaResult, /mf-key-point/u);
-  assert.match(formulaResult, /result\.reviews\.map/u);
-  assert.doesNotMatch(formulaResult, /你容易误读 TA 的地方|你真正懂 TA 的地方|本次测试依据/u);
   assert.doesNotMatch(formulaResult, /generateReportText|personalize/u);
   assert.match(relationshipTest, /options: question\.options\.map/u);
   assert.match(relationshipTest, /answer: option\.label/u);

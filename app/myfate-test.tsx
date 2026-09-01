@@ -237,12 +237,12 @@ export default function MyfateTest({ star, workspace = false, questions }: { sta
     <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
       <header className="mf-test-header">
         {workspace ? (
-          <Link className="mf-back-link" href={`/home/celebrity-match/${star.id}`}>← 返回详情</Link>
+          <Link className="mf-back-link" href={`/home/relationship-test/${star.id}`}>← 返回详情</Link>
         ) : (
           <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
         )}
         <span>心动行为测试 · {currentQuestions.length} 题</span>
-        <Link href={workspace ? "/home/celebrity-match" : `/celebrity/${star.id}`}>退出</Link>
+        <Link href={workspace ? "/home/relationship-test" : `/celebrity/${star.id}`}>退出</Link>
       </header>
       <div className="mf-test-progress"><i style={{ width: `${progress}%` }} /></div>
       <main className="mf-question-main">
@@ -320,12 +320,12 @@ function ResultShell({
     <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}>
       <header className="mf-test-header">
         {workspace ? (
-          <Link className="mf-back-link" href={`/home/celebrity-match/${star.id}`}>← 返回详情</Link>
+          <Link className="mf-back-link" href={`/home/relationship-test/${star.id}`}>← 返回详情</Link>
         ) : (
           <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
         )}
         {label ? <span>{label}</span> : null}
-        <Link href={workspace ? "/home/celebrity-match" : `/celebrity/${star.id}`}>{workspace ? "退出" : "返回详情"}</Link>
+        <Link href={workspace ? "/home/relationship-test" : `/celebrity/${star.id}`}>{workspace ? "退出" : "返回详情"}</Link>
       </header>
       <main>{children}</main>
     </div>

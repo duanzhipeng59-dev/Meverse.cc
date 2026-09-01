@@ -9,17 +9,17 @@ export const metadata: Metadata = {
     default: "Myfate · 遇见你的心动答案",
     template: "%s · Myfate",
   },
-  description: "选择心动对象，通过两阶段人格测试，发现你们之间的吸引力与相处密码。",
+  description: "选择一位想了解的人，通过关系情境测试，看见你更适合成为 TA 的谁。",
   openGraph: {
     title: "Myfate · 遇见你的心动答案",
-    description: "两阶段人格测试与个性化缘分解读。",
+    description: "关系身份测试与个性化相处角色解读。",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
     title: "Myfate · 遇见你的心动答案",
-    description: "两阶段人格测试与个性化缘分解读。",
+    description: "关系身份测试与个性化相处角色解读。",
   },
 };
 

@@ -8,9 +8,12 @@ type BulkAction = "publish" | "delete";
 function refreshProductPages(ids: string[]) {
   revalidatePath("/");
   revalidatePath("/home/celebrity-match");
+  revalidatePath("/home/relationship-test");
   for (const id of ids) {
     revalidatePath(`/home/celebrity-match/${id}`);
     revalidatePath(`/home/celebrity-match/${id}/test`);
+    revalidatePath(`/home/relationship-test/${id}`);
+    revalidatePath(`/home/relationship-test/${id}/test`);
   }
 }
 

@@ -31,8 +31,8 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
 
   if (report) {
     const href = report.status === "advanced"
-      ? `/home/reports/${report.id}?from=celebrity-match`
-      : `/home/celebrity-match/${starId}/test?report=${encodeURIComponent(report.id)}`;
+      ? `/home/reports/${report.id}?from=relationship-test`
+      : `/home/relationship-test/${starId}/test?report=${encodeURIComponent(report.id)}`;
     return (
       <Link className="mf-primary-button mf-detail-cta" href={href}>
         {report.status === "advanced" ? "查看关系报告" : report.status === "generating" ? "去测试" : "去答题"} <span>→</span>
@@ -41,8 +41,8 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
   }
 
   return (
-    <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/celebrity-match/${starId}/test`}>
-      测试 TA 是否是你的正缘 <span>→</span>
+    <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${starId}/test`}>
+      看看你更适合成为 TA 的谁 <span>→</span>
     </AuthEntryLink>
   );
 }

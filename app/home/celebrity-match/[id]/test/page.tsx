@@ -1,19 +1,16 @@
-import { notFound } from "next/navigation";
-import { stars } from "../../../../myfate-data";
-import { getPublishedStar } from "../../../../myfate-stars-server";
-import WorkspaceTestEntry from "./workspace-test-entry";
+import { redirect } from "next/navigation";
 
-export function generateStaticParams() {
-  return stars.map((star) => ({ id: star.id }));
-}
-
-export default async function WorkspaceTestPage({
+export default async function LegacyCelebrityTestPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const star = await getPublishedStar((await params).id);
-  if (!star) notFound();
-
-  return <WorkspaceTestEntry star={star} />;
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(await searchParams)) {
+    if (typeof value === "string") query.set(key, value);
+  }
+  const suffix = query.size ? `?${query.toString()}` : "";
+  redirect(`/home/relationship-test/${(await params).id}/test${suffix}`);
 }

@@ -63,17 +63,17 @@ export default function ReportDetailWorkspace({
     name: report.starName,
     portraitSrc: report.starPortrait,
   };
-  const backHref = fromCelebrityWorkspace ? "/home/celebrity-match" : "/home/reports";
-  const backLabel = fromCelebrityWorkspace ? "返回明星工作台" : "返回我的报告";
-  const retestHref = `/home/celebrity-match/${report.starId}/test?restart=1`;
-  const continueTestHref = `/home/celebrity-match/${report.starId}/test?report=${encodeURIComponent(report.id)}`;
+  const backHref = fromCelebrityWorkspace ? "/home/relationship-test" : "/home/reports";
+  const backLabel = fromCelebrityWorkspace ? "返回关系测试工作台" : "返回我的报告";
+  const retestHref = `/home/relationship-test/${report.starId}/test?restart=1`;
+  const continueTestHref = `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`;
 
   if (report.status === "generating") {
     return (
       <div className="mf-saved-report-detail mf-unified-advanced-report">
-        <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>题目生成中</span></div>
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>关系题目生成中</span></div>
         <div className="mf-report-detail-state mf-ai-generation-state">
-          <span>✦</span><h1>正在为你生成专属测试</h1><p>可以随时进入测试页查看进度，生成完成后将自动进入答题。</p>
+          <span>✦</span><h1>正在为你生成关系测试</h1><p>可以随时进入测试页查看进度，生成完成后将自动进入答题。</p>
           <Link className="mf-primary-button" href={continueTestHref}>去测试</Link>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function ReportDetailWorkspace({
     if (formulaResult) {
       return (
         <div className="mf-saved-report-detail mf-unified-advanced-report">
-          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>正缘结果</span></div>
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{formulaResult.version === 2 ? "关系身份结果" : "历史正缘结果"}</span></div>
           <MyfateFormulaResult
             star={formulaStar}
             result={formulaResult}
@@ -118,8 +118,8 @@ export default function ReportDetailWorkspace({
     <div className="mf-saved-report-detail mf-unified-advanced-report">
       <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>关系报告</span></div>
       <div className="mf-report-detail-state mf-ai-generation-state">
-        <span>✦</span><h1>专属测试已经准备好</h1>
-        <p>完成全部题目后，就能查看这次正缘测试的完整结果。</p>
+        <span>✦</span><h1>关系测试已经准备好</h1>
+        <p>完成全部题目后，就能查看你更适合成为 TA 的谁。</p>
         <div className="mf-generation-actions">
           <Link className="mf-primary-button" href={continueTestHref}>去答题</Link>
           <Link className="mf-secondary-button" href={backHref}>{backLabel}</Link>

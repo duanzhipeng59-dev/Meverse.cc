@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createSupabaseAdminClient } from "../../../../auth/server";
 import { requireReportUser } from "../../../reports/server";
-import { evaluateGeneratedTest, generatedPayloadSchema } from "../../server";
+import { evaluateGeneratedTest, storedGeneratedPayloadSchema } from "../../server";
 
 const answerSchema = z.object({
   answers: z.array(z.number().int().min(0).max(3)).length(25),
@@ -38,7 +38,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (new Date(data.expires_at).getTime() <= Date.now()) {
       return Response.json({ error: "TEST_EXPIRED" }, { status: 410 });
     }
-    const payload = generatedPayloadSchema.parse(data.payload);
+    const payload = storedGeneratedPayloadSchema.parse(data.payload);
     const result = evaluateGeneratedTest(data.id, data.star_id, payload, parsed.data.answers);
     return Response.json({ result }, { headers: session.headers });
   } catch (error) {

@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         score: 0,
         behavior_scores: null,
         question_count: parsed.data.questionCount ?? null,
-        initial_title: parsed.data.initialTitle ?? "AI 报告",
+        initial_title: parsed.data.initialTitle ?? "关系测试",
         answers: parsed.data.answers,
       })
       .select("id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at")

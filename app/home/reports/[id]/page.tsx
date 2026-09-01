@@ -10,7 +10,7 @@ export default async function ReportDetailPage({
   return (
     <ReportDetailWorkspace
       reportId={(await params).id}
-      fromCelebrityWorkspace={(await searchParams).from === "celebrity-match"}
+      fromCelebrityWorkspace={["celebrity-match", "relationship-test"].includes((await searchParams).from ?? "")}
     />
   );
 }

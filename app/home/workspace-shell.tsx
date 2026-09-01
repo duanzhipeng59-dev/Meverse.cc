@@ -8,9 +8,9 @@ import { useAuth } from "../auth-context";
 const menuItems = [
   {
     icon: "heart",
-    label: "正缘测试",
-    description: "找到你和 TA 的相处密码",
-    href: "/home/celebrity-match",
+    label: "关系测试",
+    description: "看看你更适合成为 TA 的谁",
+    href: "/home/relationship-test",
   },
   {
     icon: "report",

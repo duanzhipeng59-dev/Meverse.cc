@@ -33,7 +33,7 @@ function routeParameter(name: string, fallback: string, homeOnly = false) {
 }
 
 function destination() {
-  return routeParameter("next", "/home/celebrity-match", true);
+  return routeParameter("next", "/home/relationship-test", true);
 }
 
 export default function LocalLogin() {

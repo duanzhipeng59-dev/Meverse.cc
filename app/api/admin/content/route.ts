@@ -10,9 +10,12 @@ import {
 function refreshProductPages(starId?: string) {
   revalidatePath("/");
   revalidatePath("/home/celebrity-match");
+  revalidatePath("/home/relationship-test");
   if (starId) {
     revalidatePath(`/home/celebrity-match/${starId}`);
     revalidatePath(`/home/celebrity-match/${starId}/test`);
+    revalidatePath(`/home/relationship-test/${starId}`);
+    revalidatePath(`/home/relationship-test/${starId}/test`);
   }
 }
 
@@ -52,7 +55,7 @@ export async function POST(request: Request) {
         name_zh: String(payload.nameZh ?? "").trim() || null,
         gender: String(payload.gender ?? "unknown"),
         role: (String(payload.role ?? "").trim() || "艺人 · 舞台创作者").slice(0, 120),
-        tagline: String(payload.tagline ?? "").trim() || "等待你靠近的心动对象",
+        tagline: String(payload.tagline ?? "").trim() || "等待你发现彼此的关系位置",
         description: String(payload.description ?? "").trim(),
         relationship_style: String(payload.relationshipStyle ?? "").trim(),
         focus: String(payload.focus ?? "").trim(),

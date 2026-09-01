@@ -6,7 +6,7 @@ import type { StarProfile } from "../../myfate-data";
 
 const PAGE_SIZE = 6;
 
-export default function CelebrityBrowser({ stars }: { stars: StarProfile[] }) {
+export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarProfile[]; basePath?: string }) {
   const [page, setPage] = useState(1);
   const gridRef = useRef<HTMLDivElement>(null);
   const totalPages = Math.max(1, Math.ceil(stars.length / PAGE_SIZE));
@@ -28,7 +28,7 @@ export default function CelebrityBrowser({ stars }: { stars: StarProfile[] }) {
         {pageStars.map((star, index) => (
           <Link
             className="mf-star-card"
-            href={`/home/celebrity-match/${star.id}`}
+            href={`${basePath}/${star.id}`}
             key={star.id}
           >
             <div

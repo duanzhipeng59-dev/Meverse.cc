@@ -4463,6 +4463,31 @@ select:focus-visible {
 .mf-formula-facts strong { display: block; color: #852d54; font: 500 28px/1.2 Georgia, "Songti SC", serif; }
 .mf-formula-facts span { display: block; margin-top: 7px; color: #806f77; font-size: 13px; }
 .mf-formula-cap-note { display: block; margin-top: 18px; color: #9a536b; }
+.mf-formula-verdict.is-relationship-identity {
+  background:
+    radial-gradient(circle at 8% 5%, rgb(255 241 227 / 86%) 0, transparent 34%),
+    radial-gradient(circle at 92% 88%, rgb(236 213 229 / 88%) 0, transparent 37%),
+    linear-gradient(145deg, #fff, #fffafb);
+}
+.mf-identity-lead { margin-bottom: 8px !important; color: #9a6b7f !important; font-size: 14px !important; font-weight: 750; letter-spacing: .12em; }
+.mf-identity-symbolic-note { display: block; max-width: 620px; margin: 20px auto 0; color: #998890; font-size: 11px; line-height: 1.6; }
+.mf-identity-ranking { margin-top: 28px; padding: clamp(28px, 5vw, 52px); border: 1px solid #eadfe3; border-radius: 28px; background: #fff; }
+.mf-identity-section-heading > span { color: #a34b6c; font-size: 11px; font-weight: 800; letter-spacing: .14em; }
+.mf-identity-section-heading h2 { margin: 8px 0 0; font: 500 clamp(30px, 4vw, 46px)/1.2 Georgia, "Songti SC", serif; }
+.mf-identity-section-heading p { margin: 10px 0 0; color: #8b7a82; font-size: 13px; }
+.mf-identity-ranking-grid { margin-top: 28px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.mf-identity-ranking-grid article { min-width: 0; padding: 24px; border: 1px solid #eadfe3; border-radius: 20px; background: #fdfafb; }
+.mf-identity-ranking-grid article.is-primary { border-color: #d8adbe; background: linear-gradient(145deg, #fff8fa, #f8e9ef); box-shadow: 0 16px 38px rgb(122 41 78 / 9%); }
+.mf-identity-ranking-grid article > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mf-identity-ranking-grid article > div span { color: #9b4668; font: 500 20px/1 Georgia, serif; }
+.mf-identity-ranking-grid article > div small { padding: 5px 8px; border-radius: 999px; color: #86556a; background: #f1e4e9; font-size: 10px; }
+.mf-identity-ranking-grid h3 { margin: 22px 0 10px; color: #442f39; font: 500 25px/1.25 Georgia, "Songti SC", serif; }
+.mf-identity-ranking-grid p { min-height: 72px; margin: 0; color: #76676e; font-size: 13px; line-height: 1.75; }
+.mf-identity-ranking-grid footer { margin-top: 20px; padding-top: 14px; border-top: 1px solid #eadfe3; color: #9a5871; font-size: 11px; font-weight: 750; }
+.mf-formula-review-list article.is-identity { background: linear-gradient(145deg, #fff, #fcf7f9); }
+.mf-formula-review-list article.is-identity .mf-formula-choice.is-user { background: #f8eef2; }
+.mf-identity-choice-roles { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 7px; }
+.mf-identity-choice-roles span { padding: 6px 9px; border: 1px solid #e4cdd6; border-radius: 999px; color: #84415e; background: rgb(255 255 255 / 72%); font-size: 10px; font-weight: 750; }
 
 .mf-formula-review-section {
   margin-top: 28px;
@@ -4537,4 +4562,7 @@ select:focus-visible {
   .mf-formula-global-basis { padding: 24px 18px; border-radius: 22px; }
   .mf-formula-basis-grid { grid-template-columns: 1fr; }
   .mf-formula-basis-concerns { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .mf-identity-ranking { padding: 24px 16px; border-radius: 22px; }
+  .mf-identity-ranking-grid { grid-template-columns: 1fr; }
+  .mf-identity-ranking-grid p { min-height: 0; }
 }

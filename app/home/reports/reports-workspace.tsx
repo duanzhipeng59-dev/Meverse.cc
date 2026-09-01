@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { useAuth } from "../../auth-context";
+import { parseFormulaResult } from "../../myfate-generated-test-types";
 import { readBasicProfile } from "../../myfate-progressive-profile";
 import { deleteSavedReport, readSavedReports, type SavedReport } from "../../myfate-report-storage";
 import { deleteRelationshipReport, readRelationshipReports, type RelationshipProfileReport } from "../../relationship-profile-storage";
@@ -27,13 +28,20 @@ function reportAction(report: SavedReport) {
   if (report.status === "generating") return { label: "生成中", href: "", disabled: true };
   return {
     label: "去答题",
-    href: `/home/celebrity-match/${report.starId}/test?report=${encodeURIComponent(report.id)}`,
+    href: `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`,
     disabled: false,
   };
 }
 
 function reportStatusLabel(report: SavedReport) {
   return report.status === "generating" ? "生成中" : "已完成";
+}
+
+function relationshipRoleLabel(report: SavedReport) {
+  const result = parseFormulaResult(report.reportText);
+  if (result?.version === 2) return result.primaryRole.shortLabel;
+  if (result?.version === 1) return "历史正缘结果";
+  return report.status === "generating" ? "生成中" : "待完成";
 }
 
 function starOrbitStyle(index: number, count: number) {
@@ -132,8 +140,8 @@ export default function ReportsWorkspace() {
       <header className="mf-reports-heading">
         <div>
           <span className="mf-kicker">我的报告</span>
-          <h1>每一次心动，都有迹可循</h1>
-          <p>这里保存你完成过的正缘测试与关系行为画像，每次测试都会形成一份独立记录。</p>
+          <h1>每一种关系，都有自己的位置</h1>
+          <p>这里保存你完成过的关系身份测试与行为画像，每次测试都会形成一份独立记录。</p>
         </div>
         <div className="mf-reports-count">
           <strong>{reports.length}</strong>
@@ -147,7 +155,7 @@ export default function ReportsWorkspace() {
         <section className="mf-reports-empty">
           <span aria-hidden="true">✦</span>
           <h2>你还没有完成任何测试</h2>
-          <p>可以从正缘测试开始探索。</p>
+          <p>可以从关系测试开始探索。</p>
         </section>
       ) : (
         <>
@@ -155,10 +163,10 @@ export default function ReportsWorkspace() {
             <section className="mf-fate-map" aria-labelledby="mf-fate-map-title">
               <div className="mf-fate-map-heading">
                 <div>
-                  <span>缘分星图</span>
-                  <h2 id="mf-fate-map-title">谁离你最近？</h2>
+                  <span>关系身份图谱</span>
+                  <h2 id="mf-fate-map-title">你在每位 TA 身边是谁？</h2>
                 </div>
-                <p>每位偶像展示最近一次测试，点击即可回看完整报告。</p>
+                <p>每位目标人物展示最近一次测试得到的关系身份，点击即可回看。</p>
               </div>
 
               <div className="mf-fate-map-stage">
@@ -179,7 +187,7 @@ export default function ReportsWorkspace() {
                     <Link
                       className={`mf-fate-map-star ${report.status}`}
                       href={reportAction(report).href || "/home/reports"}
-                      aria-label={`${report.starName}，${reportStatusLabel(report)}，${reportAction(report).label}`}
+                      aria-label={`${report.starName}，${relationshipRoleLabel(report)}，${reportAction(report).label}`}
                       aria-disabled={reportAction(report).disabled}
                       tabIndex={reportAction(report).disabled ? -1 : undefined}
                     >
@@ -190,7 +198,7 @@ export default function ReportsWorkspace() {
                         style={{ backgroundImage: `url("${report.starPortrait}")` }}
                       />
                       <strong>{report.starName}</strong>
-                      <small>{reportStatusLabel(report)}</small>
+                      <small>{relationshipRoleLabel(report)}</small>
                     </Link>
                   </div>
                 ))}
@@ -248,10 +256,10 @@ export default function ReportsWorkspace() {
                     <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                   </div>
                   <h2>{report.starName}</h2>
-                  <p>{report.status === "advanced" ? "测试已完成，完整结果可随时查看" : report.status === "generating" ? "正在为你生成这位偶像的专属题目" : "专属题目已经准备好，等待你完成测试"}</p>
+                  <p>{report.status === "advanced" ? `关系身份：${relationshipRoleLabel(report)}` : report.status === "generating" ? "正在为你生成这位目标人物的关系题目" : "关系题目已经准备好，等待你完成测试"}</p>
                 </div>
                 <div className="mf-report-card-result">
-                  <span>{report.status === "advanced" ? "查看完整解读" : report.status === "generating" ? "可以离开页面，完成后继续" : "继续完成专属测试"}</span>
+                  <span>{report.status === "advanced" ? "查看完整关系身份解读" : report.status === "generating" ? "可以离开页面，完成后继续" : "继续完成关系测试"}</span>
                   <div className="mf-report-card-actions">
                     {action.disabled
                       ? <button className="mf-report-generation-disabled" type="button" disabled>生成中</button>

@@ -49,7 +49,7 @@ function splitReport(reportText: string) {
   if (current) sections.push({ ...current, body: current.body.trim() });
 
   const introLines = intro.map((line) => cleanHeading(line)).filter(Boolean);
-  const title = introLines[0] || "目标人物亲密关系匹配与深度磨合分析报告";
+  const title = introLines[0] || "目标人物关系身份与相处方式分析报告";
   const meta = new Map<string, string>();
   const leadLines: string[] = [];
   for (const line of introLines.slice(1)) {

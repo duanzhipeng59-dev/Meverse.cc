@@ -6,8 +6,11 @@ import { loadAdminCelebrity, moveCelebrity, normalizeCelebrityOrder } from "../.
 function paths(id: string) {
   revalidatePath("/");
   revalidatePath("/home/celebrity-match");
+  revalidatePath("/home/relationship-test");
   revalidatePath(`/home/celebrity-match/${id}`);
   revalidatePath(`/home/celebrity-match/${id}/test`);
+  revalidatePath(`/home/relationship-test/${id}`);
+  revalidatePath(`/home/relationship-test/${id}/test`);
 }
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {

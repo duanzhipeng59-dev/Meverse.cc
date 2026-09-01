@@ -51,7 +51,7 @@ export default function WorkspaceProfile() {
       <section className="mf-profile-panel">
         <div className="mf-profile-purpose">
           <span>建议完整填写</span>
-          <h2>让每一次缘分报告真正属于你</h2>
+          <h2>让每一次关系报告真正属于你</h2>
           <p>你可以在这里保存个人资料；当前关系测试不会读取这些信息。</p>
         </div>
         <div className="mf-profile-form">

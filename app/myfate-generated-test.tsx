@@ -56,7 +56,9 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
         status: "advanced",
         reportText: serializeFormulaResult(generatedResult),
         interpretationSource: "deepseek",
-        score: generatedResult.correctCount,
+        score: generatedResult.version === 2
+          ? Math.min(25, Math.round(generatedResult.primaryRole.score / 2))
+          : generatedResult.correctCount,
         questionCount: resultQuestions.length,
         answers: snapshots,
       });
@@ -90,11 +92,11 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
         await new Promise((resolve) => window.setTimeout(resolve, delay));
         continue;
       }
-      if (response.status === 409) throw new Error("专属测试生成失败，请重新生成。");
+      if (response.status === 409) throw new Error("关系测试生成失败，请重新生成。");
       if (response.status === 410) throw new Error("本次测试已过期，请重新生成。");
-      if (!response.ok) throw new Error("暂时无法读取这套专属测试。");
+      if (!response.ok) throw new Error("暂时无法读取这套关系测试。");
       const body = await response.json() as GeneratedResponse;
-      if (!body.testId || !Array.isArray(body.questions)) throw new Error("专属测试数据不完整。");
+      if (!body.testId || !Array.isArray(body.questions)) throw new Error("关系测试数据不完整。");
       if (!active.current) return;
       const restoredAnswers = body.questions.reduce<Record<string, number>>((restored, question) => {
         const saved = body.savedAnswers?.find((answer) => answer.question === question.question);
@@ -120,7 +122,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
       const report = await createSavedReport({
         star,
         answers: [],
-        initialTitle: "题目生成中",
+        initialTitle: "关系题目生成中",
       });
       if (!report) throw new Error("暂时无法创建测试记录。");
       targetReportId = report.id;
@@ -136,11 +138,11 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
       body: JSON.stringify({ starId: star.id, reportId: targetReportId }),
     });
     if (response.status === 401) {
-      const next = `/home/celebrity-match/${star.id}/test`;
-      window.location.replace(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/celebrity-match/${star.id}`)}`);
+      const next = `/home/relationship-test/${star.id}/test`;
+      window.location.replace(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/relationship-test/${star.id}`)}`);
       return;
     }
-    if (!response.ok) throw new Error("专属题目生成失败，请稍后重试。");
+    if (!response.ok) throw new Error("关系题目生成失败，请稍后重试。");
     await loadGeneratedTest(targetReportId);
   }, [loadGeneratedTest, star]);
 
@@ -148,8 +150,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     if (status === "loading" || started.current) return;
     if (status === "anonymous") {
       started.current = true;
-      const next = `/home/celebrity-match/${star.id}/test`;
-      window.location.replace(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/celebrity-match/${star.id}`)}`);
+      const next = `/home/relationship-test/${star.id}/test`;
+      window.location.replace(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/relationship-test/${star.id}`)}`);
       return;
     }
     started.current = true;
@@ -172,8 +174,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
 
   function finish() {
     if (status !== "authenticated") {
-      const next = `/home/celebrity-match/${star.id}/test`;
-      window.location.assign(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/celebrity-match/${star.id}`)}`);
+      const next = `/home/relationship-test/${star.id}/test`;
+      window.location.assign(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/relationship-test/${star.id}`)}`);
       return;
     }
     void evaluate(testId, questions, answers).catch((cause) => {
@@ -199,7 +201,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   }
 
   if (phase === "loading" || phase === "evaluating") {
-    return <StateShell star={star} workspace={workspace} icon="✦" title={phase === "loading" ? "正在为你生成专属测试" : "正在核对你的每一次选择"} detail={phase === "loading" ? "退出此界面后，专属测试仍会在后台生成，可前往「我的报告」查看。" : "结果只按本次封存的正确答案计算，不会再次调用大模型改写结论。"} hideExit={phase === "loading"} />;
+    return <StateShell star={star} workspace={workspace} icon="✦" title={phase === "loading" ? "正在为你生成关系测试" : "正在整理你的关系身份"} detail={phase === "loading" ? "退出此界面后，测试仍会在后台生成，可前往「我的报告」查看。" : "系统正在汇总每次选择呈现的关系位置，没有正确或错误答案。"} hideExit={phase === "loading"} />;
   }
   if (phase === "error") {
     return <StateShell star={star} workspace={workspace} icon="!" title="这次测试暂时没有准备好" detail={error} action={<button className="mf-primary-button" type="button" onClick={() => { active.current = true; void generate(reportId || undefined).catch(() => setPhase("error")); }}>重新生成</button>} />;
@@ -207,8 +209,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   if (phase === "result" && result) {
     return (
       <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}>
-        <TestHeader star={star} workspace={workspace} label="正缘结果" />
-        <main><MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-secondary-button" href="/home/reports">查看历史记录</Link><button className="mf-primary-button" type="button" onClick={() => window.location.assign(`/home/celebrity-match/${star.id}/test?restart=${Date.now()}`)}>再测一次</button></>} /></main>
+        <TestHeader star={star} workspace={workspace} label="关系身份结果" />
+        <main><MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-secondary-button" href="/home/reports">查看历史记录</Link><button className="mf-primary-button" type="button" onClick={() => window.location.assign(`/home/relationship-test/${star.id}/test?restart=${Date.now()}`)}>再测一次</button></>} /></main>
       </div>
     );
   }
@@ -218,7 +220,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   const progress = ((index + 1) / questions.length) * 100;
   return (
     <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
-      <TestHeader star={star} workspace={workspace} label={`专属正缘测试 · ${questions.length} 题`} />
+      <TestHeader star={star} workspace={workspace} label={`关系身份测试 · ${questions.length} 题`} />
       <div className="mf-test-progress"><i style={{ width: `${progress}%` }} /></div>
       <main className="mf-question-main">
         <div className="mf-question-count">{String(index + 1).padStart(2, "0")} <span>/ {questions.length}</span></div>
@@ -232,7 +234,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
           </div>
           <div className="mf-question-nav">
             <button className="mf-text-button" type="button" disabled={index === 0} onClick={() => setIndex((value) => Math.max(0, value - 1))}>← 上一题</button>
-            <button className="mf-primary-button" type="button" disabled={answers[question.id] === undefined} onClick={() => index < questions.length - 1 ? setIndex((value) => value + 1) : finish()}>{index < questions.length - 1 ? "下一题" : "查看正缘结果"} <span>→</span></button>
+            <button className="mf-primary-button" type="button" disabled={answers[question.id] === undefined} onClick={() => index < questions.length - 1 ? setIndex((value) => value + 1) : finish()}>{index < questions.length - 1 ? "下一题" : "查看关系身份"} <span>→</span></button>
           </div>
         </section>
       </main>
@@ -241,11 +243,11 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
 }
 
 function TestHeader({ star, workspace, label, hideExit = false }: { star: StarProfile; workspace: boolean; label: string; hideExit?: boolean }) {
-  return <header className="mf-test-header">{workspace ? <Link className="mf-back-link" href={`/home/celebrity-match/${star.id}`}>← 返回详情</Link> : <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>}<span>{label}</span>{hideExit ? <span aria-hidden="true" /> : <Link href={workspace ? "/home/celebrity-match" : `/celebrity/${star.id}`}>退出</Link>}</header>;
+  return <header className="mf-test-header">{workspace ? <Link className="mf-back-link" href={`/home/relationship-test/${star.id}`}>← 返回详情</Link> : <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>}<span>{label}</span>{hideExit ? <span aria-hidden="true" /> : <Link href={workspace ? "/home/relationship-test" : `/celebrity/${star.id}`}>退出</Link>}</header>;
 }
 
 function StateShell({ star, workspace, icon, title, detail, action, hideExit = false }: { star: StarProfile; workspace: boolean; icon: string; title: string; detail: string; action?: React.ReactNode; hideExit?: boolean }) {
-  return <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}><TestHeader star={star} workspace={workspace} label="专属正缘测试" hideExit={hideExit} /><main><div className="mf-report-detail-state mf-ai-generation-state"><span>{icon}</span><h1>{title}</h1><p>{detail}</p>{phaseBar(icon)}{action}</div></main></div>;
+  return <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}><TestHeader star={star} workspace={workspace} label="关系身份测试" hideExit={hideExit} /><main><div className="mf-report-detail-state mf-ai-generation-state"><span>{icon}</span><h1>{title}</h1><p>{detail}</p>{phaseBar(icon)}{action}</div></main></div>;
 }
 
 function phaseBar(icon: string) {

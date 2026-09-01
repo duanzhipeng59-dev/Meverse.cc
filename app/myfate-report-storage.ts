@@ -172,7 +172,7 @@ export async function createSavedReport({
   }
   const email = currentLocalEmail();
   const now = new Date().toISOString();
-  const report: SavedReport = { id: crypto.randomUUID(), version: 1, type: "celebrity-match", starId: star.id, starName: star.name, starPortrait: star.portraitSrc, status: "generating", score: 0, questionCount, initialTitle: initialTitle ?? "AI 报告", answers, interpretation: null, reportText: null, createdAt: now, updatedAt: now };
+  const report: SavedReport = { id: crypto.randomUUID(), version: 1, type: "celebrity-match", starId: star.id, starName: star.name, starPortrait: star.portraitSrc, status: "generating", score: 0, questionCount, initialTitle: initialTitle ?? "关系测试", answers, interpretation: null, reportText: null, createdAt: now, updatedAt: now };
   writeLocalReports(email, [report, ...readLocalReports(email)]);
   return report;
 }

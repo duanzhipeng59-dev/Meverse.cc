@@ -5,7 +5,7 @@ import AuthEntryLink from "./auth-entry-link";
 
 export default async function MyfateHome() {
   const stars = await getHomepageStars();
-  const previewScores = [92, 88, 83, 77, 71, 65];
+  const previewRoles = ["灵魂知己", "搭档", "姐姐", "玩伴", "挚友", "恋人"];
   const previewOrbits = [
     { radius: "20%", angle: "-90deg", counterAngle: "90deg", duration: "48s", size: "56px", mobileSize: "48px" },
     { radius: "20%", angle: "30deg", counterAngle: "-30deg", duration: "48s", size: "52px", mobileSize: "46px" },
@@ -23,25 +23,25 @@ export default async function MyfateHome() {
           <span>Myfate</span>
         </Link>
         <nav className="mf-nav" aria-label="主导航">
-          <Link href="/#stars">心动对象</Link>
+          <Link href="/#stars">测试对象</Link>
           <a href="#how-it-works">测试说明</a>
         </nav>
-        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/celebrity-match" anonymousChildren="登录">工作台</AuthEntryLink>
+        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/relationship-test" anonymousChildren="登录">工作台</AuthEntryLink>
       </header>
 
       <main>
         <section className="mf-hero mf-home-hero">
           <div className="mf-hero-copy">
-            <div className="mf-home-eyebrow"><span>✦</span> 关系兼容性探索</div>
-            <h1><span>那个让你心动的人，</span><em>会是你的正缘吗？</em></h1>
+            <div className="mf-home-eyebrow"><span>✦</span> 关系身份探索</div>
+            <h1><span>如果走进 TA 的生活，</span><em>你更适合成为谁？</em></h1>
             <p>
-              选择一位心动对象，通过每次全新生成的 25 个关系情境，发现你们之间真正的吸引力与相处密码。
+              选择一位想了解的人，通过每次全新生成的 25 个关系情境，看见你更自然的陪伴位置。
             </p>
             <HomeProfileEntry />
           </div>
 
           <div className="mf-hero-visual">
-            <div className="mf-home-fate-map" aria-label="缘分星图示例：偶像距离中心越近，代表契合度越高">
+            <div className="mf-home-fate-map" aria-label="关系身份图谱示例">
               <div className="mf-home-fate-map-stage">
                 <i className="mf-home-map-ring near" aria-hidden="true" />
                 <i className="mf-home-map-ring middle" aria-hidden="true" />
@@ -67,7 +67,7 @@ export default async function MyfateHome() {
                         style={{ backgroundImage: `url("${star.portraitSrc}")` }}
                       />
                       <strong>{star.name}</strong>
-                      <small>{previewScores[index]}%</small>
+                      <small>{previewRoles[index]}</small>
                     </div>
                   </div>
                 ))}
@@ -79,8 +79,8 @@ export default async function MyfateHome() {
         <section className="mf-stars-section" id="stars">
           <div className="mf-section-heading">
             <div>
-              <span className="mf-kicker">心动对象预览</span>
-              <h2>这一刻，你想走近谁？</h2>
+              <span className="mf-kicker">测试对象预览</span>
+              <h2>这一刻，你想了解谁？</h2>
             </div>
             <p>进入工作台后选择对象并开始测试。人物画像为娱乐化设定，并非本人认证。</p>
           </div>
@@ -111,12 +111,12 @@ export default async function MyfateHome() {
 
         <section className="mf-how" id="how-it-works">
           <div className="mf-section-heading">
-            <div><span className="mf-kicker">测试说明</span><h2>从心动选择，到一份真正属于你的报告</h2></div>
+            <div><span className="mf-kicker">测试说明</span><h2>从选择对象，到看见你的关系位置</h2></div>
           </div>
           <div className="mf-how-grid">
             <article><span>01</span><h3>填写基础资料</h3><p>留下昵称、出生日期和地点，资料会自动保存在当前设备，后续无需重复填写。</p></article>
-            <article><span>02</span><h3>选择心动对象</h3><p>登录后进入正缘测试工作台，选择一位偶像，通过关系情境题记录你的真实选择。</p></article>
-            <article><span>03</span><h3>查看正缘结果</h3><p>按照本次全部选择得到正缘判定，并逐题查看适配与错位原因；每次结果都会独立保存。</p></article>
+            <article><span>02</span><h3>选择测试对象</h3><p>登录后进入关系测试工作台，选择一位目标人物，按直觉完成具体相处情境。</p></article>
+            <article><span>03</span><h3>查看关系身份</h3><p>系统会汇总你更像恋人、知己、家人、朋友或搭档等哪一种角色，没有正确答案。</p></article>
           </div>
         </section>
       </main>
