@@ -257,6 +257,28 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
       : new Set(content.celebrities.map((item) => item.id)));
   }
 
+  async function moveCelebrityCard(id: string, direction: -1 | 1) {
+    const currentIndex = content.celebrities.findIndex((item) => item.id === id);
+    const targetIndex = currentIndex + direction;
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= content.celebrities.length) return;
+    await run(async () => {
+      await api(`/api/admin/content/celebrities/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ workspacePosition: targetIndex + 1 }),
+      });
+      const latest = await api<Content>("/api/admin/content", { cache: "no-store" });
+      setContent(latest);
+      if (celebrityDraft) {
+        const activePosition = latest.celebrities.find((item) => item.id === celebrityDraft.id)?.workspacePosition;
+        if (activePosition != null) {
+          setCelebrityDraft((current) => current ? { ...current, workspacePosition: activePosition } : current);
+          if (savedDraft.current) savedDraft.current = { ...savedDraft.current, workspacePosition: activePosition };
+        }
+      }
+      setNotice(`已将卡片${direction < 0 ? "上移" : "下移"}，线上顺序已更新`);
+    });
+  }
+
   async function runBulkAction(action: "publish" | "delete") {
     const ids = [...selectedIds];
     if (!ids.length) return;
@@ -310,11 +332,15 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
             <span>{selectedIds.size ? `已选 ${selectedIds.size} 张` : "可多选卡片"}</span>
             {selectedIds.size > 0 && <div><button disabled={busy} onClick={() => runBulkAction("publish")}>一键上架</button><button className={styles.bulkDanger} disabled={busy} onClick={() => runBulkAction("delete")}>一键删除</button></div>}
           </div>
-          {content.celebrities.map((celebrity) => (
+          {content.celebrities.map((celebrity, index) => (
             <div className={`${styles.starRow} ${activeId === celebrity.id ? styles.selected : ""}`} key={celebrity.id} role="button" tabIndex={0} onClick={() => void openCelebrity(celebrity)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") void openCelebrity(celebrity); }}>
               <input className={styles.selectBox} type="checkbox" aria-label={`选择 ${celebrity.name}`} checked={selectedIds.has(celebrity.id)} onChange={() => toggleSelected(celebrity.id)} onClick={(event) => event.stopPropagation()} />
               <Image src={celebrity.portraitUrl || "/historical-figure.svg"} alt="" loading="lazy" width={44} height={44} sizes="44px" unoptimized />
-              <div><strong>{celebrity.name}</strong><small>{celebrity.published ? "已上架" : "未上架"} · 排序 {celebrity.workspacePosition ?? "—"}</small></div>
+              <div className={styles.starInfo}><strong>{celebrity.name}</strong><small>{celebrity.published ? "已上架" : "未上架"} · 排序 {celebrity.workspacePosition ?? "—"}</small></div>
+              <div className={styles.starOrderActions} aria-label={`调整 ${celebrity.name} 的工作台顺序`}>
+                <button type="button" aria-label={`上移 ${celebrity.name}`} title="上移" disabled={busy || index === 0} onClick={(event) => { event.stopPropagation(); void moveCelebrityCard(celebrity.id, -1); }}>↑</button>
+                <button type="button" aria-label={`下移 ${celebrity.name}`} title="下移" disabled={busy || index === content.celebrities.length - 1} onClick={(event) => { event.stopPropagation(); void moveCelebrityCard(celebrity.id, 1); }}>↓</button>
+              </div>
             </div>
           ))}
         </aside>

@@ -237,6 +237,9 @@ test("keeps celebrity content authoritative and protects the hidden studio", asy
   assert.match(adminPage, /notFound/u);
   assert.match(adminContentApi, /requireAdmin\(request\)/u);
   assert.doesNotMatch(adminStudio, /题库管理|AdminQuestion|questionDraft/u);
+  assert.match(adminStudio, /moveCelebrityCard/u);
+  assert.match(adminStudio, /调整 .* 的工作台顺序/u);
+  assert.match(adminStudio, /workspacePosition: targetIndex \+ 1/u);
   assert.doesNotMatch(adminContentApi, /myfate_question_bank|kind === "question"/u);
   assert.match(relationshipPage, /relationshipQuestions/u);
 

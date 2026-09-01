@@ -22,9 +22,13 @@
 .starRow:hover, .selected { border-color: #e2c9d3; background: white; box-shadow: 0 8px 20px #5725380b; }
 .starRow > img { flex: 0 0 44px; height: 44px; object-fit: cover; border-radius: 13px; background: #eee; }
 .starRow .selectBox { flex: 0 0 16px; align-self: center; }
-.starRow div { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.starInfo { min-width: 0; flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .starRow strong { overflow: hidden; text-overflow: ellipsis; }
 .starRow small { margin-top: 4px; color: #95888e; }
+.starOrderActions { flex: 0 0 auto; align-self: center; display: grid; grid-template-columns: repeat(2, 28px); gap: 4px; }
+.starOrderActions button { width: 28px; height: 28px; padding: 0; border: 1px solid #e2d4d9; border-radius: 8px; color: #7f294f; background: #fff; font-size: 15px; line-height: 1; cursor: pointer; }
+.starOrderActions button:hover:not(:disabled) { border-color: #c99aaa; background: #fff5f8; }
+.starOrderActions button:disabled { opacity: .3; cursor: default; }
 .editor { padding: 32px; overflow-y: auto; }
 .editorTitle { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
 .editorTitle h2 { font-size: 30px; }
