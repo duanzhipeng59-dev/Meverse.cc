@@ -13,6 +13,12 @@ const menuItems = [
     href: "/home/relationship-test",
   },
   {
+    icon: "bazi",
+    label: "个人解读",
+    description: "你的四柱八字与个人命盘解读",
+    href: "/home/personal-reading",
+  },
+  {
     icon: "report",
     label: "我的报告",
     description: "查看每一次合盘记录",
@@ -55,8 +61,18 @@ function UpgradeIcon() {
   );
 }
 
+function BaziIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 3.5v17M3.5 12h17" />
+    </svg>
+  );
+}
+
 function MenuIcon({ icon }: { icon: string }) {
   if (icon === "report") return <ReportIcon />;
+  if (icon === "bazi") return <BaziIcon />;
   return <HeartIcon />;
 }
 

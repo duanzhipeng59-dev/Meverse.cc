@@ -26,6 +26,9 @@ function formatDate(value: string) {
 function reportAction(report: SavedReport) {
   if (report.status === "advanced") return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
   if (report.status === "generating") return { label: "生成中", href: "", disabled: true };
+  if (report.starId === "personal-reading") {
+    return { label: "重新排盘", href: `/home/personal-reading?report=${encodeURIComponent(report.id)}`, disabled: false };
+  }
   return {
     label: "重新合盘",
     href: `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`,
@@ -242,6 +245,29 @@ export default function ReportsWorkspace() {
               );
             }
             const action = reportAction(report);
+            if (report.starId === "personal-reading") {
+              return (
+                <article className="mf-report-card mf-personal-reading-card" key={report.id}>
+                  <div className="mf-personal-reading-mark" aria-hidden="true">☰</div>
+                  <div className="mf-report-card-copy">
+                    <div className="mf-report-card-meta">
+                      <span className={report.status}>{reportStatusLabel(report)}</span>
+                      <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
+                    </div>
+                    <h2>个人八字解读</h2>
+                  </div>
+                  <div className="mf-report-card-result">
+                    <span>{report.status === "advanced" ? "查看四柱排盘与解读" : "解读生成中"}</span>
+                    <div className="mf-report-card-actions">
+                      {action.disabled
+                        ? <button className="mf-report-generation-disabled" type="button" disabled>生成中</button>
+                        : <Link href={action.href}>{action.label} <span>→</span></Link>}
+                      <button type="button" onClick={() => void confirmDelete(report)} aria-label="删除个人八字解读报告">删除</button>
+                    </div>
+                  </div>
+                </article>
+              );
+            }
             return (
               <article className="mf-report-card" key={report.id}>
                 <div

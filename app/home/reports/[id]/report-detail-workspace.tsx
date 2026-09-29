@@ -7,6 +7,8 @@ import { getStar } from "../../../myfate-data";
 import MyfateAdvancedReport from "../../../myfate-advanced-report";
 import MyfateFormulaResult from "../../../myfate-formula-result";
 import { parseFormulaResult } from "../../../myfate-generated-test-types";
+import { parseBaziResult } from "../../../myfate-bazi-types";
+import MyfateBaziResult from "../../../myfate-bazi-result";
 import { readSavedReports, type SavedReport } from "../../../myfate-report-storage";
 
 function legacyReportText(report: SavedReport) {
@@ -81,6 +83,18 @@ export default function ReportDetailWorkspace({
   }
 
   if (report.status === "advanced" && reportText) {
+    const baziResult = parseBaziResult(reportText);
+    if (baziResult) {
+      return (
+        <div className="mf-saved-report-detail mf-unified-advanced-report">
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>个人八字解读</span></div>
+          <MyfateBaziResult
+            result={baziResult}
+            actions={<Link className="mf-primary-button" href="/home/personal-reading">重新排盘</Link>}
+          />
+        </div>
+      );
+    }
     if (formulaResult) {
       return (
         <div className="mf-saved-report-detail mf-unified-advanced-report">

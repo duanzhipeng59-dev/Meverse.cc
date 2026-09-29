@@ -4629,3 +4629,45 @@ select:focus-visible {
   .mf-vedic-chart-grid { grid-template-columns: 1fr; }
 }
 
+
+/* ── 个人八字解读 (bazi) ─────────────────────────────────────────────── */
+.mf-bazi-result .mf-formula-facts { grid-template-columns: repeat(3, 1fr); }
+.mf-bazi-paipan, .mf-bazi-dayun, .mf-bazi-sections { margin-top: 28px; padding: clamp(26px, 5vw, 52px); border: 1px solid #eadfe3; border-radius: 28px; background: #fff; }
+.mf-bazi-pillars { margin-top: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.mf-bazi-pillars article { padding: 18px 16px; border: 1px solid #eadfe3; border-radius: 18px; background: #fdfafb; text-align: center; }
+.mf-bazi-pillars article:nth-child(3) { border-color: #d8adbe; background: linear-gradient(145deg, #fff8fa, #f8e9ef); }
+.mf-bazi-pillars span { color: #9a5871; font-size: 10.5px; font-weight: 750; letter-spacing: 0.08em; }
+.mf-bazi-pillars h3 { margin: 10px 0 12px; color: #442f39; font: 500 26px/1 Georgia, "Songti SC", serif; letter-spacing: 0.1em; }
+.mf-bazi-pillars dl { margin: 0; display: grid; gap: 6px; text-align: left; }
+.mf-bazi-pillars dl div { display: flex; justify-content: space-between; gap: 8px; }
+.mf-bazi-pillars dt { color: #9a8f94; font-size: 10.5px; flex-shrink: 0; }
+.mf-bazi-pillars dd { margin: 0; color: #5c3d4a; font-size: 11.5px; font-weight: 600; text-align: right; }
+.mf-bazi-wuxing { margin-top: 18px; display: grid; gap: 8px; }
+.mf-bazi-wuxing div { display: grid; grid-template-columns: 28px 1fr 24px; align-items: center; gap: 10px; }
+.mf-bazi-wuxing span { color: #5c3d4a; font-weight: 750; }
+.mf-bazi-wuxing i { display: block; height: 10px; border-radius: 999px; background: linear-gradient(90deg, #d8adbe, #9a5871); }
+.mf-bazi-wuxing b { color: #9a8f94; font-size: 12px; text-align: right; }
+.mf-bazi-dayun-steps { margin: 20px 0 0; padding: 0; list-style: none; display: flex; gap: 8px; overflow-x: auto; }
+.mf-bazi-dayun-steps li { flex-shrink: 0; min-width: 92px; padding: 14px 12px; border: 1px solid #eadfe3; border-radius: 16px; background: #fdfafb; text-align: center; display: grid; gap: 4px; }
+.mf-bazi-dayun-steps li.is-current { border-color: #9a5871; background: linear-gradient(145deg, #fff8fa, #f6e3ec); }
+.mf-bazi-dayun-steps b { color: #442f39; font: 500 20px/1 Georgia, "Songti SC", serif; letter-spacing: 0.08em; }
+.mf-bazi-dayun-steps span { color: #76676e; font-size: 11px; }
+.mf-bazi-dayun-steps small { color: #9a8f94; font-size: 10px; }
+.mf-bazi-section-list { margin-top: 20px; display: grid; gap: 14px; }
+.mf-bazi-section-list article { padding: 22px 24px; border: 1px solid #eadfe3; border-radius: 20px; background: #fdfafb; }
+.mf-bazi-section-list header { display: flex; align-items: baseline; gap: 12px; }
+.mf-bazi-section-list header span { color: #9b4668; font: 500 18px/1 Georgia, serif; }
+.mf-bazi-section-list h3 { margin: 0; color: #442f39; font: 500 19px/1.3 Georgia, "Songti SC", serif; }
+.mf-bazi-section-list p { margin: 12px 0 0; color: #76676e; font-size: 13px; line-height: 1.85; }
+.mf-bazi-verify { margin-top: 20px; padding: 18px 20px; border: 1px solid #e9dce1; border-radius: 18px; background: #fdfafb; }
+.mf-bazi-verify > span { display: block; margin-bottom: 8px; color: #9a5871; font-size: 10.5px; font-weight: 750; letter-spacing: 0.08em; }
+.mf-bazi-verify p { margin: 0 0 12px; color: #76676e; font-size: 12.5px; line-height: 1.7; }
+.mf-bazi-gender { display: flex; gap: 10px; }
+.mf-bazi-gender button { flex: 1; padding: 14px; border: 1px solid #eadfe3; border-radius: 14px; background: #fdfafb; color: #76676e; font-size: 14px; font-weight: 650; cursor: pointer; }
+.mf-bazi-gender button.is-active { border-color: #9a5871; color: #852d54; background: #f8e9ef; }
+.mf-personal-reading-card { grid-template-columns: 56px 1fr auto; }
+.mf-personal-reading-mark { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 1px solid #e4cdd6; background: #f8e9ef; color: #852d54; font-size: 20px; }
+@media (max-width: 720px) {
+  .mf-bazi-result .mf-formula-facts { grid-template-columns: 1fr; }
+  .mf-bazi-pillars { grid-template-columns: repeat(2, 1fr); }
+}
