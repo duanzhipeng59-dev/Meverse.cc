@@ -1,0 +1,482 @@
+{
+  "hyunjin": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "james": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "seonghyeon": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "juhoon": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "keonho": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "bang-chan": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "doh-kyung-soo": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "kai": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "minho": {
+    "time": "12:00",
+    "place": "Incheon",
+    "lat": 37.4563,
+    "lon": 126.7052,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "sehun": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "jin": {
+    "time": "12:00",
+    "place": "Gwacheon",
+    "lat": 37.4295,
+    "lon": 126.7131,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "suga": {
+    "time": "12:00",
+    "place": "Daegu",
+    "lat": 35.8714,
+    "lon": 128.6014,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "j-hope": {
+    "time": "12:00",
+    "place": "Gwangju",
+    "lat": 35.1595,
+    "lon": 126.8526,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "woozi": {
+    "time": "12:00",
+    "place": "Busan",
+    "lat": 35.1796,
+    "lon": 129.0756,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "v": {
+    "time": "12:00",
+    "place": "Daegu",
+    "lat": 35.8714,
+    "lon": 128.6014,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "jungkook": {
+    "time": "12:00",
+    "place": "Busan",
+    "lat": 35.1796,
+    "lon": 129.0756,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "baekhyun": {
+    "time": "12:00",
+    "place": "Bucheon",
+    "lat": 37.4989,
+    "lon": 126.783,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "s-coups": {
+    "time": "12:00",
+    "place": "Daegu",
+    "lat": 35.8714,
+    "lon": 128.6014,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "taemin": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "jeonghan": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "joshua": {
+    "time": "12:00",
+    "place": "洛杉矶",
+    "lat": 34.0522,
+    "lon": -118.2437,
+    "tz": "America/Los_Angeles",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "hongjoong": {
+    "time": "12:00",
+    "place": "Anyang",
+    "lat": 37.3925,
+    "lon": 126.926,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "jun": {
+    "time": "12:00",
+    "place": "深圳",
+    "lat": 22.5431,
+    "lon": 114.0579,
+    "tz": "Asia/Shanghai",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "hoshi": {
+    "time": "12:00",
+    "place": "Namyangju",
+    "lat": 37.6367,
+    "lon": 127.2165,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "wonwoo": {
+    "time": "12:00",
+    "place": "Busan",
+    "lat": 35.1796,
+    "lon": 129.0756,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "dk": {
+    "time": "12:00",
+    "place": "Yongin",
+    "lat": 37.2411,
+    "lon": 127.1776,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "mingyu": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "the8": {
+    "time": "12:00",
+    "place": "鞍山",
+    "lat": 41.1077,
+    "lon": 122.9855,
+    "tz": "Asia/Shanghai",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "seungkwan": {
+    "time": "12:00",
+    "place": "Jeju",
+    "lat": 33.4996,
+    "lon": 126.5312,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "vernon": {
+    "time": "12:00",
+    "place": "纽约",
+    "lat": 40.7128,
+    "lon": -74.006,
+    "tz": "America/New_York",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "dino": {
+    "time": "12:00",
+    "place": "Iksan",
+    "lat": 35.9436,
+    "lon": 126.9546,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "onew": {
+    "time": "12:00",
+    "place": "Gwangmyeong",
+    "lat": 37.4778,
+    "lon": 126.8645,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "key": {
+    "time": "12:00",
+    "place": "Daegu",
+    "lat": 35.8714,
+    "lon": 128.6014,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "taeyong": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "doyoung": {
+    "time": "12:00",
+    "place": "Guri",
+    "lat": 37.5976,
+    "lon": 127.1297,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "jaehyun": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "mark-lee": {
+    "time": "12:00",
+    "place": "多伦多",
+    "lat": 43.6532,
+    "lon": -79.3832,
+    "tz": "America/Toronto",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "haechan": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "seonghwa": {
+    "time": "12:00",
+    "place": "Jinju",
+    "lat": 35.1802,
+    "lon": 128.1072,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "yeosang": {
+    "time": "12:00",
+    "place": "Pohang",
+    "lat": 36.0194,
+    "lon": 129.3435,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "san": {
+    "time": "12:00",
+    "place": "Namhae",
+    "lat": 34.8409,
+    "lon": 127.9822,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "jongho": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "yeonjun": {
+    "time": "12:00",
+    "place": "Seongnam",
+    "lat": 37.42,
+    "lon": 127.1267,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "beomgyu": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "huening-kai": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "lee-min-ho": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "kim-soo-hyun": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "park-seo-joon": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "ji-chang-wook": {
+    "time": "12:00",
+    "place": "Anyang",
+    "lat": 37.3925,
+    "lon": 126.926,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "rowoon": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "park-bo-gum": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "lee-jong-suk": {
+    "time": "12:00",
+    "place": "Yongin",
+    "lat": 37.2411,
+    "lon": 127.1776,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "gong-yoo": {
+    "time": "12:00",
+    "place": "Busan",
+    "lat": 35.1796,
+    "lon": 129.0756,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "rm": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "song-kang": {
+    "time": "12:00",
+    "place": "Suwon",
+    "lat": 37.2636,
+    "lon": 127.0286,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "jimin": {
+    "time": "12:00",
+    "place": "Busan",
+    "lat": 35.1796,
+    "lon": 129.0756,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "suho": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "xiumin": {
+    "time": "12:00",
+    "place": "Guri",
+    "lat": 37.5976,
+    "lon": 127.1297,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "chen": {
+    "time": "12:00",
+    "place": "Siheung",
+    "lat": 37.4383,
+    "lon": 126.8021,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  },
+  "chanyeol": {
+    "time": "12:00",
+    "place": "Seoul",
+    "lat": 37.5665,
+    "lon": 126.978,
+    "tz": "Asia/Seoul",
+    "note": "正午近似,偶像出生时辰未公开"
+  }
+}

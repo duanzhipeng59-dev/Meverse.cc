@@ -19,6 +19,25 @@ type CelebrityRow = {
   portrait_url: string;
   ideal: StarProfile["ideal"] & { _reportPrompt?: string };
   report_prompt?: string | null;
+  birth_time?: string | null;
+  birth_place?: string | null;
+  birth_lat?: number | null;
+  birth_lon?: number | null;
+  birth_tz?: string | null;
+  vedic_chart?: { structuredMd: string; summary: Record<string, unknown> } | null;
+};
+
+export type CelebrityVedicBirth = {
+  starId: string;
+  name: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  lat: number;
+  lon: number;
+  tz: string;
+  cachedChartMd: string | null;
+  cachedChartSummary: Record<string, unknown> | null;
 };
 
 const profileSelection = "id,name,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal";
@@ -114,8 +133,7 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
   }
 }
 
-export async function getCelebrityReportPrompt(id: string): Promise<string | undefined> {
-  if (!hasCloudConfig()) {
+export async function getCelebrityReportPrompt(id: string): Promise<string | undefined> {  if (!hasCloudConfig()) {
     const star = getStar(id);
     return star ? star.reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star) : undefined;
   }
@@ -134,4 +152,39 @@ export async function getCelebrityReportPrompt(id: string): Promise<string | und
     const star = getStar(id);
     return star ? star.reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star) : undefined;
   }
+}
+
+const vedicSelection = "id,name,birth_date,birth_time,birth_place,birth_lat,birth_lon,birth_tz,vedic_chart";
+
+export async function getCelebrityVedicBirth(id: string): Promise<CelebrityVedicBirth | undefined> {
+  noStore();
+  const { data, error } = await createSupabaseAdminClient()
+    .from("celebrity_profiles")
+    .select(vedicSelection)
+    .eq("id", id)
+    .eq("published", true)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return undefined;
+  const row = data as CelebrityRow;
+  if (!row.birth_time || row.birth_lat == null || row.birth_lon == null || !row.birth_tz) return undefined;
+  return {
+    starId: row.id,
+    name: row.name,
+    birthDate: row.birth_date,
+    birthTime: row.birth_time,
+    birthPlace: row.birth_place ?? "",
+    lat: row.birth_lat,
+    lon: row.birth_lon,
+    tz: row.birth_tz,
+    cachedChartMd: row.vedic_chart?.structuredMd ?? null,
+    cachedChartSummary: row.vedic_chart?.summary ?? null,
+  };
+}
+
+export async function cacheCelebrityVedicChart(id: string, structuredMd: string, summary: Record<string, unknown>) {
+  await createSupabaseAdminClient()
+    .from("celebrity_profiles")
+    .update({ vedic_chart: { structuredMd, summary } })
+    .eq("id", id);
 }

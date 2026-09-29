@@ -7,6 +7,7 @@ import type {
   RelationshipIdentityResult,
   ThreePillarCompositeResult,
 } from "./myfate-generated-test-types";
+import VedicCompositeResultView from "./myfate-vedic-result";
 
 type HighlightTone = "neutral" | "positive" | "attention";
 
@@ -210,6 +211,7 @@ export default function MyfateFormulaResult({
   result: FormulaTestResult;
   actions?: React.ReactNode;
 }) {
+  if (result.version === 4) return <VedicCompositeResultView star={star} result={result} actions={actions} />;
   if (result.version === 3) return <ThreePillarCompositeView star={star} result={result} actions={actions} />;
   return result.version === 2
     ? <RelationshipIdentityView star={star} result={result} actions={actions} />

@@ -1,3 +1,5 @@
+import { parseVedicResult, serializeVedicResult, type VedicCompositeResult } from "./myfate-vedic-types";
+
 export const relationshipRoleIds = [
   "romantic_partner",
   "soulmate",
@@ -135,13 +137,14 @@ export type ThreePillarCompositeResult = {
   }>;
 };
 
-export type FormulaTestResult = LegacyFormulaTestResult | RelationshipIdentityResult | ThreePillarCompositeResult;
+export type FormulaTestResult = LegacyFormulaTestResult | RelationshipIdentityResult | ThreePillarCompositeResult | VedicCompositeResult;
 
 export const FORMULA_RESULT_PREFIX = "MYFATE_FORMULA_V1\n";
 export const RELATIONSHIP_RESULT_PREFIX = "MYFATE_RELATIONSHIP_V2\n";
 export const COMPOSITE_RESULT_PREFIX = "MYFATE_COMPOSITE_V3\n";
 
 export function serializeFormulaResult(result: FormulaTestResult) {
+  if (result.version === 4) return serializeVedicResult(result);
   const prefix = result.version === 3
     ? COMPOSITE_RESULT_PREFIX
     : result.version === 2
@@ -151,6 +154,8 @@ export function serializeFormulaResult(result: FormulaTestResult) {
 }
 
 export function parseFormulaResult(value: string | null | undefined): FormulaTestResult | null {
+  const vedic = parseVedicResult(value);
+  if (vedic) return vedic;
   const prefix = value?.startsWith(COMPOSITE_RESULT_PREFIX)
     ? COMPOSITE_RESULT_PREFIX
     : value?.startsWith(RELATIONSHIP_RESULT_PREFIX)

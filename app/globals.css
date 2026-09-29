@@ -4566,3 +4566,65 @@ select:focus-visible {
   .mf-identity-ranking-grid { grid-template-columns: 1fr; }
   .mf-identity-ranking-grid p { min-height: 0; }
 }
+
+/* ── Vedic composite result (version 4) ─────────────────────────────── */
+.mf-vedic-result .mf-vedic-headline { margin: 18px 0 0; color: #5c3d4a; font: 500 17px/1.6 Georgia, "Songti SC", serif; }
+.mf-vedic-result .mf-vedic-insight { margin: 10px 0 0; color: #76676e; font-size: 13px; line-height: 1.8; }
+.mf-vedic-result .mf-formula-facts { grid-template-columns: repeat(3, 1fr); }
+
+.mf-vedic-dimensions, .mf-vedic-interaction, .mf-vedic-charts, .mf-vedic-koota {
+  margin-top: 28px;
+  padding: clamp(26px, 5vw, 52px);
+  border: 1px solid #eadfe3;
+  border-radius: 28px;
+  background: #fff;
+}
+
+.mf-vedic-dimension-list { margin-top: 24px; display: grid; gap: 14px; }
+.mf-vedic-dimension { min-width: 0; padding: 22px 24px; border: 1px solid #eadfe3; border-radius: 20px; background: #fdfafb; }
+.mf-vedic-dimension.is-supportive { border-color: #cfe3d4; background: linear-gradient(145deg, #f8fcf9, #eef7f0); }
+.mf-vedic-dimension.is-strained { border-color: #e8cfd4; background: linear-gradient(145deg, #fff9fa, #fbeeF1); }
+.mf-vedic-dimension header { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.mf-vedic-dimension h3 { margin: 0; color: #442f39; font: 500 21px/1.3 Georgia, "Songti SC", serif; }
+.mf-vedic-tier { padding: 5px 10px; border-radius: 999px; color: #84415e; background: #f1e4e9; font-size: 11px; font-weight: 750; }
+.mf-vedic-dimension.is-supportive .mf-vedic-tier { color: #3d6b4c; background: #e2efe6; }
+.mf-vedic-dimension.is-strained .mf-vedic-tier { color: #9a3b3b; background: #f7e3e3; }
+.mf-vedic-confidence { margin-left: auto; color: #9a8f94; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; }
+.mf-vedic-evidence { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mf-vedic-evidence p { margin: 0; padding: 14px; border-radius: 14px; font-size: 12.5px; line-height: 1.75; }
+.mf-vedic-evidence p.is-supporting { background: #eef6f0; color: #41584a; }
+.mf-vedic-evidence p.is-limiting { background: #f9eef0; color: #6b4a50; }
+.mf-vedic-evidence small, .mf-vedic-direction small, .mf-vedic-dimension footer small {
+  display: block; margin-bottom: 6px; color: #9a8f94; font-size: 10px; font-weight: 750; letter-spacing: 0.08em;
+}
+.mf-vedic-direction { margin: 12px 0 0; color: #76676e; font-size: 12.5px; line-height: 1.7; }
+.mf-vedic-dimension footer { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #eadfe3; color: #76676e; font-size: 12.5px; line-height: 1.7; }
+
+.mf-vedic-overlay { margin-top: 20px; }
+.mf-vedic-overlay h4 { margin: 0 0 10px; color: #5c3d4a; font: 500 15px/1.4 Georgia, "Songti SC", serif; }
+.mf-vedic-overlay table, .mf-vedic-koota table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.mf-vedic-overlay th, .mf-vedic-overlay td, .mf-vedic-koota th, .mf-vedic-koota td {
+  padding: 9px 10px; border-bottom: 1px solid #f0e6ea; text-align: left; color: #76676e;
+}
+.mf-vedic-overlay th, .mf-vedic-koota th { color: #9a5871; font-size: 10.5px; font-weight: 750; letter-spacing: 0.05em; }
+.mf-vedic-overlay tbody tr:last-child td, .mf-vedic-koota tbody tr:last-child td { border-bottom: 0; }
+
+.mf-vedic-chart-grid { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mf-vedic-chart-card { padding: 22px 24px; border: 1px solid #eadfe3; border-radius: 20px; background: #fdfafb; }
+.mf-vedic-chart-card > span { color: #9a5871; font-size: 10.5px; font-weight: 750; letter-spacing: 0.08em; }
+.mf-vedic-chart-card h3 { margin: 12px 0 14px; color: #442f39; font: 500 23px/1.25 Georgia, "Songti SC", serif; }
+.mf-vedic-chart-card dl { margin: 0; display: grid; gap: 8px; }
+.mf-vedic-chart-card dl div { display: flex; justify-content: space-between; gap: 12px; }
+.mf-vedic-chart-card dt { color: #9a8f94; font-size: 12px; }
+.mf-vedic-chart-card dd { margin: 0; color: #5c3d4a; font-size: 12.5px; font-weight: 600; }
+
+.mf-vedic-timing { margin-top: 20px; padding: 18px 20px; border: 1px solid #e9dce1; border-radius: 18px; background: #fdfafb; }
+.mf-vedic-timing > span { display: block; margin-bottom: 10px; color: #9a5871; font-size: 10.5px; font-weight: 750; letter-spacing: 0.08em; }
+.mf-vedic-timing ul { margin: 0; padding-left: 18px; color: #76676e; font-size: 12.5px; line-height: 1.8; }
+.mf-vedic-koota table { margin-top: 20px; }
+
+@media (max-width: 720px) {
+  .mf-vedic-result .mf-formula-facts { grid-template-columns: 1fr; }
+  .mf-vedic-evidence { grid-template-columns: 1fr; }
+  .mf-vedic-chart-grid { grid-template-columns: 1fr; }
+}
