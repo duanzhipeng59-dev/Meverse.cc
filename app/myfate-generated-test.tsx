@@ -13,10 +13,9 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   const { status, email } = useAuth();
   const started = useRef(false);
   const [birthDate, setBirthDate] = useState("");
-  const [birthTime, setBirthTime] = useState("");
+  const [birthTime, setBirthTime] = useState("00:00");
   const [birthCityId, setBirthCityId] = useState("");
   const [result, setResult] = useState<FormulaTestResult | null>(null);
-  const [vedicAvailable, setVedicAvailable] = useState(false);
   const [phase, setPhase] = useState<"loading" | "profile" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
   const today = new Date().toISOString().slice(0, 10);
@@ -37,7 +36,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     }
     const profile = readBasicProfile(email);
     setBirthDate(profile.birthDate);
-    setBirthTime(profile.birthTime);
+    setBirthTime(profile.birthTime || "00:00");
     setBirthCityId(profile.birthCityId);
     setPhase("profile");
   }, [email, star.id, status]);
@@ -45,6 +44,14 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   async function createCompositeAnalysis() {
     if (!validBirthDate(birthDate) || birthDate < "1900-01-01") {
       setError("请选择有效的出生日期。");
+      return;
+    }
+    if (!/^\d{2}:\d{2}$/u.test(birthTime)) {
+      setError("请填写出生时间（不确定可保持 00:00）。");
+      return;
+    }
+    if (!birthCityId) {
+      setError("请选择出生城市，合盘需要地理位置确定上升星座。");
       return;
     }
     const profile = readBasicProfile(email);
@@ -55,7 +62,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
       const response = await fetch("/api/myfate/composite", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ starId: star.id, birthDate, ...(birthTime ? { birthTime } : {}), ...(birthTime && birthCityId ? { birthCityId } : {}) }),
+        body: JSON.stringify({ starId: star.id, birthDate, birthTime, birthCityId }),
       });
       if (response.status === 401) {
         const next = `/home/relationship-test/${star.id}/test`;
@@ -63,9 +70,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
         return;
       }
       if (!response.ok) throw new Error("暂时无法生成合盘分析，请稍后重试。");
-      const body = await response.json() as { report: { id: string }; result: FormulaTestResult; vedicAvailable?: boolean };
-      if (!body.report?.id || (body.result?.version !== 3 && body.result?.version !== 4)) throw new Error("合盘结果数据不完整。");
-      setVedicAvailable(body.vedicAvailable === true);
+      const body = await response.json() as { report: { id: string }; result: FormulaTestResult };
+      if (!body.report?.id || body.result?.version !== 4) throw new Error("合盘结果数据不完整。");
       const url = new URL(window.location.href);
       url.searchParams.set("report", body.report.id);
       window.history.replaceState(null, "", `${url.pathname}${url.search}`);
@@ -79,17 +85,17 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   }
 
   if (phase === "loading") {
-    return <StateShell star={star} workspace={workspace} title="正在读取你的资料" detail="马上为你准备三柱合盘。" />;
+    return <StateShell star={star} workspace={workspace} title="正在读取你的资料" detail="马上为你准备吠陀合盘。" />;
   }
   if (phase === "profile") {
     return (
       <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
-        <TestHeader star={star} workspace={workspace} label="三柱合盘资料" />
+        <TestHeader star={star} workspace={workspace} label="吠陀合盘资料" />
         <main className="mf-question-main">
           <section className="mf-question-card mf-profile-question-card">
             <span className="mf-question-eyebrow">开始合盘前</span>
             <h1>输入你的出生信息</h1>
-            <p><strong>填写出生时间与出生城市，解锁完整吠陀合盘报告（六维关系矩阵）。</strong>不填时辰将只做简化的三柱合盘。</p>
+            <p><strong>系统将使用吠陀占星（Jyotish）为你与 {star.name} 生成完整合盘报告（六维关系矩阵）。</strong>出生时间不确定时可保持默认 0:00，出生城市必填。</p>
             <div className="mf-profile-question-fields">
               <label className="mf-profile-field">
                 <span>出生日期</span>
@@ -97,12 +103,12 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
                 <small>日期会自动保存到这台设备的个人中心。</small>
               </label>
               <label className="mf-profile-field">
-                <span>出生时间（强烈建议填写）</span>
+                <span>出生时间</span>
                 <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
-                <small>尽量精确到分钟；留空将只做简化的三柱合盘，看不到完整吠陀报告。</small>
+                <small>默认 0:00；越精确上升星座越准，不确定可保持默认。</small>
               </label>
               <label className="mf-profile-field">
-                <span>出生城市（填写时间后生效）</span>
+                <span>出生城市（必填）</span>
                 <select value={birthCityId} onChange={(event) => { setBirthCityId(event.target.value); setError(""); }}>
                   <option value="">请选择出生城市</option>
                   {vedicCities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
@@ -129,17 +135,8 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   if (phase === "result" && result) {
     return (
       <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}>
-        <TestHeader star={star} workspace={workspace} label="三柱合盘分析" />
-        <main>
-          {result.version === 3 && vedicAvailable ? (
-            <div className="mf-vedic-upsell">
-              <strong>这是简化版三柱合盘</strong>
-              <span>你没有填写出生时间。填写出生时间与城市后重新合盘，可查看完整吠陀报告（六维关系矩阵、双向宫位互动、Ashtakoota）。</span>
-              <button className="mf-primary-button" type="button" onClick={() => setPhase("profile")}>填写时间重新合盘</button>
-            </div>
-          ) : null}
-          <MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-secondary-button" href="/home/reports">查看历史报告</Link><button className="mf-primary-button" type="button" onClick={() => setPhase("profile")}>重新合盘</button></>} />
-        </main>
+        <TestHeader star={star} workspace={workspace} label="吠陀合盘分析" />
+        <main><MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-secondary-button" href="/home/reports">查看历史报告</Link><button className="mf-primary-button" type="button" onClick={() => setPhase("profile")}>重新合盘</button></>} /></main>
       </div>
     );
   }
@@ -151,5 +148,5 @@ function TestHeader({ star, workspace, label }: { star: StarProfile; workspace: 
 }
 
 function StateShell({ star, workspace, title, detail, action, icon = "✦" }: { star: StarProfile; workspace: boolean; title: string; detail: string; action?: React.ReactNode; icon?: string }) {
-  return <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}><TestHeader star={star} workspace={workspace} label="三柱合盘分析" /><main><div className="mf-report-detail-state mf-ai-generation-state"><span>{icon}</span><h1>{title}</h1><p>{detail}</p>{icon === "✦" ? <div className="mf-report-generation-progress" role="progressbar" aria-label="分析中"><i /></div> : null}{action}</div></main></div>;
+  return <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}><TestHeader star={star} workspace={workspace} label="吠陀合盘分析" /><main><div className="mf-report-detail-state mf-ai-generation-state"><span>{icon}</span><h1>{title}</h1><p>{detail}</p>{icon === "✦" ? <div className="mf-report-generation-progress" role="progressbar" aria-label="分析中"><i /></div> : null}{action}</div></main></div>;
 }

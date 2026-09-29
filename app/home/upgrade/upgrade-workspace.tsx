@@ -4,15 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "../../auth-context";
 
-type PurchaseMode = "one-time" | "membership";
-type PackageId = "trial" | "explore" | "deep" | "monthly" | "annual";
+type PurchaseMode = "package" | "single";
+type PackageId = "trial" | "explore" | "deep" | "single";
 
 type UpgradePackage = {
   id: PackageId;
   mode: PurchaseMode;
   name: string;
   price: number;
-  priceSuffix?: string;
   uses: number;
   usesLabel: string;
   unitPrice: string;
@@ -23,7 +22,7 @@ type UpgradePackage = {
 const packages: readonly UpgradePackage[] = [
   {
     id: "trial",
-    mode: "one-time",
+    mode: "package",
     name: "体验版",
     price: 89,
     uses: 3,
@@ -33,7 +32,7 @@ const packages: readonly UpgradePackage[] = [
   },
   {
     id: "explore",
-    mode: "one-time",
+    mode: "package",
     name: "探索版",
     price: 239,
     uses: 10,
@@ -44,43 +43,30 @@ const packages: readonly UpgradePackage[] = [
   },
   {
     id: "deep",
-    mode: "one-time",
+    mode: "package",
     name: "深度版",
-    price: 599,
-    uses: 50,
-    usesLabel: "50 次关系合盘",
-    unitPrice: "11.98",
+    price: 499,
+    uses: 30,
+    usesLabel: "30 次关系合盘",
+    unitPrice: "16.63",
     description: "适合高频使用与长期探索",
     badge: "单次最省",
   },
   {
-    id: "monthly",
-    mode: "membership",
-    name: "月度会员",
-    price: 59,
-    priceSuffix: "/ 月",
-    uses: 3,
-    usesLabel: "每月发放 3 次",
-    unitPrice: "19.67",
-    description: "适合每月稳定探索，按月手动续费",
-  },
-  {
-    id: "annual",
-    mode: "membership",
-    name: "年度会员",
-    price: 499,
-    priceSuffix: "/ 年",
-    uses: 36,
-    usesLabel: "全年 36 次 · 每月发放 3 次",
-    unitPrice: "13.86",
-    description: "适合长期使用，比连续购买月度会员节省 ¥209",
-    badge: "年度推荐",
+    id: "single",
+    mode: "single",
+    name: "单次合盘",
+    price: 50,
+    uses: 1,
+    usesLabel: "1 次关系合盘",
+    unitPrice: "50.00",
+    description: "适合只想体验一次完整关系合盘",
   },
 ] as const;
 
 export default function UpgradeWorkspace() {
   const { status } = useAuth();
-  const [mode, setMode] = useState<PurchaseMode>("one-time");
+  const [mode, setMode] = useState<PurchaseMode>("package");
   const [selectedId, setSelectedId] = useState<PackageId>("explore");
   const [message, setMessage] = useState("");
   const visiblePackages = packages.filter((item) => item.mode === mode);
@@ -88,40 +74,40 @@ export default function UpgradeWorkspace() {
 
   function changeMode(nextMode: PurchaseMode) {
     setMode(nextMode);
-    setSelectedId(nextMode === "one-time" ? "explore" : "annual");
+    setSelectedId(nextMode === "package" ? "explore" : "single");
     setMessage("");
   }
 
   return (
     <div className="mf-upgrade-workspace">
       <header className="mf-upgrade-heading">
-        <span className="mf-kicker">MYFATE MEMBERSHIP</span>
+        <span className="mf-kicker">MYFATE PACKAGES</span>
         <h1>选择你的关系探索方式</h1>
-        <p>{mode === "one-time" ? "按需要购买关系合盘次数，购买后不会自动续费。" : "会员每月发放 3 次关系合盘，第一版采用手动续费，不会自动扣款。"}</p>
+        <p>{mode === "package" ? "购买多次关系合盘套餐，次数按需使用。" : "单次购买一份关系合盘，用完后可再次购买。"}</p>
       </header>
 
       <div className="mf-upgrade-tabs" role="tablist" aria-label="购买方式">
         <button
           type="button"
           role="tab"
-          aria-selected={mode === "one-time"}
-          className={mode === "one-time" ? "is-active" : undefined}
-          onClick={() => changeMode("one-time")}
+          aria-selected={mode === "package"}
+          className={mode === "package" ? "is-active" : undefined}
+          onClick={() => changeMode("package")}
         >
-          按次购买
+          套餐购买
         </button>
         <button
           type="button"
           role="tab"
-          aria-selected={mode === "membership"}
-          className={mode === "membership" ? "is-active" : undefined}
-          onClick={() => changeMode("membership")}
+          aria-selected={mode === "single"}
+          className={mode === "single" ? "is-active" : undefined}
+          onClick={() => changeMode("single")}
         >
-          会员购买
+          按次购买
         </button>
       </div>
 
-      <div className={mode === "membership" ? "mf-upgrade-plan-grid is-membership" : "mf-upgrade-plan-grid"} role="radiogroup" aria-label={mode === "one-time" ? "按次购买套餐" : "会员套餐"}>
+      <div className={mode === "single" ? "mf-upgrade-plan-grid is-single" : "mf-upgrade-plan-grid"} role="radiogroup" aria-label={mode === "package" ? "套餐购买选项" : "按次购买选项"}>
         {visiblePackages.map((item) => {
           const selected = item.id === selectedId;
           return (
@@ -140,7 +126,7 @@ export default function UpgradeWorkspace() {
                 <span className="mf-upgrade-plan-name">{item.name}</span>
                 {item.badge ? <span className="mf-upgrade-plan-badge">{item.badge}</span> : null}
               </span>
-              <span className="mf-upgrade-plan-price"><small>¥</small>{item.price}{item.priceSuffix ? <em>{item.priceSuffix}</em> : null}</span>
+              <span className="mf-upgrade-plan-price"><small>¥</small>{item.price}</span>
               <span className="mf-upgrade-plan-uses"><strong>{item.usesLabel}</strong></span>
               <span className="mf-upgrade-plan-unit">约 ¥{item.unitPrice} / 次</span>
               <span className="mf-upgrade-plan-description">{item.description}</span>
@@ -150,15 +136,11 @@ export default function UpgradeWorkspace() {
         })}
       </div>
 
-      {mode === "membership" ? (
-        <p className="mf-upgrade-membership-note">会员次数按月发放、当月有效；到期后可自行选择是否续费。</p>
-      ) : null}
-
       <section className="mf-upgrade-checkout" aria-label="已选套餐">
         <div>
           <span>已选择</span>
           <strong>{selectedPackage.name} · {selectedPackage.usesLabel}</strong>
-          <small>¥{selectedPackage.price}{selectedPackage.priceSuffix ? ` ${selectedPackage.priceSuffix}` : ""}，{selectedPackage.mode === "membership" ? "手动续费，不自动扣款" : "一次购买，不自动续费"}</small>
+          <small>¥{selectedPackage.price}，一次购买，不自动续费</small>
         </div>
         {status === "authenticated" ? (
           <button

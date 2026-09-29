@@ -1450,7 +1450,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-upgrade-tabs button.is-active { color: white; background: var(--mf-plum); box-shadow: 0 8px 20px rgba(122, 41, 78, .22); }
 .mf-upgrade-tabs button:focus-visible { outline: 3px solid rgba(122, 41, 78, .28); outline-offset: 2px; }
 .mf-upgrade-plan-grid { margin-top: 44px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-.mf-upgrade-plan-grid.is-membership { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mf-upgrade-plan-grid.is-single { grid-template-columns: minmax(0, 360px); }
 .mf-upgrade-plan {
   position: relative;
   min-width: 0;
@@ -1493,14 +1493,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-upgrade-plan-badge { padding: 7px 10px; border-radius: 999px; color: var(--mf-plum); background: rgba(122, 41, 78, .09); font-size: 11px; font-weight: 760; }
 .mf-upgrade-plan-price { margin-top: 35px; font: 500 58px/1 Georgia, serif; letter-spacing: -.05em; }
 .mf-upgrade-plan-price small { margin-right: 4px; font: 700 21px/1 inherit; letter-spacing: 0; vertical-align: 18px; }
-.mf-upgrade-plan-price em { margin-left: 8px; color: var(--mf-muted); font: 650 13px/1 inherit; letter-spacing: 0; }
 .mf-upgrade-plan-uses { margin-top: 18px; font-size: 15px; }
 .mf-upgrade-plan-uses strong { margin-right: 2px; color: var(--mf-plum); font-size: 18px; }
 .mf-upgrade-plan-unit { margin-top: 8px; color: var(--mf-muted); font-size: 13px; }
 .mf-upgrade-plan-description { margin-top: auto; padding-top: 30px; color: var(--mf-muted); font-size: 13px; line-height: 1.6; }
 .mf-upgrade-plan-check { position: absolute; right: 22px; bottom: 21px; width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid rgba(122, 41, 78, .18); border-radius: 50%; color: white; background: transparent; font-size: 14px; font-weight: 800; }
 .mf-upgrade-plan.is-selected .mf-upgrade-plan-check { border-color: var(--mf-plum); background: var(--mf-plum); }
-.mf-upgrade-membership-note { margin: 15px 4px 0; color: var(--mf-muted); font-size: 12px; line-height: 1.7; }
 .mf-upgrade-checkout {
   margin-top: 22px;
   padding: 21px 23px 21px 26px;
@@ -1529,7 +1527,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-upgrade-heading h1 { font-size: 39px; }
   .mf-upgrade-tabs { width: 100%; box-sizing: border-box; grid-template-columns: 1fr 1fr; }
   .mf-upgrade-plan-grid { margin-top: 30px; grid-template-columns: 1fr; gap: 13px; }
-  .mf-upgrade-plan-grid.is-membership { grid-template-columns: 1fr; }
+  .mf-upgrade-plan-grid.is-single { grid-template-columns: 1fr; }
   .mf-upgrade-plan { min-height: 0; padding: 22px 21px 21px; display: grid; grid-template-columns: minmax(0, 1fr) auto; }
   .mf-upgrade-plan-topline, .mf-upgrade-plan-description { grid-column: 1 / -1; }
   .mf-upgrade-plan-price { margin-top: 28px; }

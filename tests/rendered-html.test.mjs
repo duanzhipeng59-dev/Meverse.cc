@@ -131,29 +131,27 @@ test("server-renders the cloud-backed report history workspace", async () => {
   assert.match(html, /份历史报告/u);
 });
 
-test("renders one-time and membership relationship upgrade options", async () => {
+test("renders package and single relationship upgrade options", async () => {
   const response = await render("/home/upgrade");
   assert.equal(response.status, 200);
   const html = await response.text();
   const upgradeSource = await readFile(new URL("../app/home/upgrade/upgrade-workspace.tsx", import.meta.url), "utf8");
   assert.match(html, /订阅升级/u);
+  assert.match(html, /套餐购买/u);
   assert.match(html, /按次购买/u);
-  assert.match(html, /会员购买/u);
   assert.match(html, /体验版/u);
   assert.match(html, /探索版/u);
   assert.match(html, /深度版/u);
   assert.match(html, /mf-upgrade-plan-price"><small>¥<\/small>89/u);
   assert.match(html, /mf-upgrade-plan-price"><small>¥<\/small>239/u);
-  assert.match(html, /mf-upgrade-plan-price"><small>¥<\/small>599/u);
+  assert.match(html, /mf-upgrade-plan-price"><small>¥<\/small>499/u);
   assert.match(html, /<strong>3 次关系合盘<\/strong>/u);
   assert.match(html, /<strong>10 次关系合盘<\/strong>/u);
-  assert.match(html, /<strong>50 次关系合盘<\/strong>/u);
+  assert.match(html, /<strong>30 次关系合盘<\/strong>/u);
   assert.match(html, /登录后购买/u);
   assert.match(html, /一次购买，不自动续费/u);
-  assert.match(upgradeSource, /name: "月度会员"[\s\S]*?price: 59[\s\S]*?uses: 3/u);
-  assert.match(upgradeSource, /name: "年度会员"[\s\S]*?price: 499[\s\S]*?uses: 36/u);
-  assert.match(upgradeSource, /会员次数按月发放、当月有效/u);
-  assert.match(upgradeSource, /手动续费，不自动扣款/u);
+  assert.match(upgradeSource, /name: "单次合盘"[\s\S]*?price: 50[\s\S]*?uses: 1/u);
+  assert.doesNotMatch(upgradeSource, /会员|按月发放|月度会员|年度会员/u);
 });
 
 test("uses a mobile drawer menu and keeps the empty reports state minimal", async () => {

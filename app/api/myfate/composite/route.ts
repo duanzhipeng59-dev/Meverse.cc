@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { createSupabaseAdminClient } from "../../auth/server";
 import { requireReportUser } from "../reports/server";
-import { getPublishedStar, getCelebrityVedicBirth, cacheCelebrityVedicChart, hasCelebrityVedicData } from "../../../myfate-stars-server";
-import { analyzeThreePillars } from "../../../myfate-deep-analysis";
-import { serializeFormulaResult, type ThreePillarCompositeResult } from "../../../myfate-generated-test-types";
+import { getPublishedStar, getCelebrityVedicBirth, cacheCelebrityVedicChart } from "../../../myfate-stars-server";
 import { serializeVedicResult, type VedicCompositeResult, type VedicChartSummary } from "../../../myfate-vedic-types";
 import { computeVedicChart, computeVedicSynastry, vedicServiceConfigured, type VedicServiceChart } from "../../../myfate-vedic-client";
 import { interpretVedicSynastry } from "../../../myfate-vedic-interpretation";
@@ -16,16 +14,9 @@ const today = new Date().toISOString().slice(0, 10);
 const requestSchema = z.object({
   starId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(100),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u).refine((value) => value >= "1900-01-01" && value <= today),
-  birthTime: z.string().regex(/^\d{2}:\d{2}$/u).optional(),
-  birthCityId: z.string().max(60).optional(),
+  birthTime: z.string().regex(/^\d{2}:\d{2}$/u),
+  birthCityId: z.string().min(1).max(60),
 });
-
-function dimensionTendency(value: number, description: string) {
-  return {
-    tendency: (value >= 78 ? "自然协同" : value >= 63 ? "彼此互补" : "需要磨合") as "自然协同" | "彼此互补" | "需要磨合",
-    description,
-  };
-}
 
 function chartSummary(chart: VedicServiceChart, name: string): VedicChartSummary {
   const s = chart.summary;
@@ -101,59 +92,25 @@ export async function POST(request: Request) {
     if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
     const star = await getPublishedStar(parsed.data.starId);
     if (!star) return Response.json({ error: "CELEBRITY_NOT_FOUND" }, { status: 404 });
-
-    // Vedic flow requires: service configured + user time/city + celebrity vedic data.
-    let vedic: VedicCompositeResult | null = null;
-    if (vedicServiceConfigured() && parsed.data.birthTime && parsed.data.birthCityId) {
-      try {
-        vedic = await buildVedicResult({
-          starId: star.id,
-          starName: star.name,
-          birthDate: parsed.data.birthDate,
-          birthTime: parsed.data.birthTime,
-          cityId: parsed.data.birthCityId,
-        });
-      } catch (error) {
-        console.error("Vedic composite failed, falling back to three pillars", error);
-      }
+    if (!vedicServiceConfigured()) {
+      console.error("Vedic composite unavailable: VEDIC_SERVICE_URL not configured");
+      return Response.json({ error: "COMPOSITE_UNAVAILABLE" }, { status: 503 });
     }
 
-    if (vedic) {
-      const { data, error } = await createSupabaseAdminClient().from("myfate_reports").insert({
-        user_id: session.user.id,
-        star_id: star.id,
-        star_name: star.name,
-        star_portrait: star.portraitSrc,
-        status: "advanced",
-        score: 0,
-        behavior_scores: null,
-        question_count: null,
-        initial_title: "吠陀合盘分析",
-        answers: [],
-        interpretation: { reportText: serializeVedicResult(vedic) },
-        interpretation_source: "deepseek",
-      }).select("id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at").single();
-      if (error) throw error;
-      return Response.json({ report: mapReportRow(data as ReportRow), result: vedic, mode: "vedic" }, { status: 201, headers: session.headers });
+    let vedic: VedicCompositeResult;
+    try {
+      vedic = await buildVedicResult({
+        starId: star.id,
+        starName: star.name,
+        birthDate: parsed.data.birthDate,
+        birthTime: parsed.data.birthTime,
+        cityId: parsed.data.birthCityId,
+      });
+    } catch (error) {
+      console.error("Vedic composite failed", error);
+      return Response.json({ error: "COMPOSITE_UNAVAILABLE" }, { status: 503 });
     }
 
-    const analysis = analyzeThreePillars(parsed.data.birthDate, star.threePillars);
-    if (!analysis) return Response.json({ error: "COMPOSITE_FAILED" }, { status: 422 });
-    const result: ThreePillarCompositeResult = {
-      version: 3,
-      starId: star.id,
-      userThreePillars: analysis.userThreePillars,
-      starThreePillars: analysis.starThreePillars,
-      headline: analysis.headline,
-      insight: analysis.insight,
-      tension: analysis.tension,
-      dimensions: [
-        { label: "亲密回应", ...dimensionTendency(analysis.intimacyScore, "双方表达亲近与接住情绪的自然程度") },
-        { label: "日常节奏", ...dimensionTendency(analysis.dailyScore, "双方在生活安排与相处步调上的关系倾向") },
-        { label: "外在协作", ...dimensionTendency(analysis.externalScore, "双方共同面对外部任务时的配合方式") },
-        { label: "整体结构", ...dimensionTendency(analysis.structureScore, "双方三柱之间合、冲、刑、害形成的整体关系") },
-      ],
-    };
     const { data, error } = await createSupabaseAdminClient().from("myfate_reports").insert({
       user_id: session.user.id,
       star_id: star.id,
@@ -163,15 +120,15 @@ export async function POST(request: Request) {
       score: 0,
       behavior_scores: null,
       question_count: null,
-      initial_title: "三柱合盘分析",
+      initial_title: "吠陀合盘分析",
       answers: [],
-      interpretation: { reportText: serializeFormulaResult(result) },
+      interpretation: { reportText: serializeVedicResult(vedic) },
+      interpretation_source: "deepseek",
     }).select("id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at").single();
     if (error) throw error;
-    const vedicAvailable = await hasCelebrityVedicData(star.id).catch(() => false);
-    return Response.json({ report: mapReportRow(data as ReportRow), result, vedicAvailable }, { status: 201, headers: session.headers });
+    return Response.json({ report: mapReportRow(data as ReportRow), result: vedic, mode: "vedic" }, { status: 201, headers: session.headers });
   } catch (error) {
-    console.error("Failed to create composite analysis", error);
+    console.error("Failed to create vedic composite", error);
     return Response.json({ error: "COMPOSITE_UNAVAILABLE" }, { status: 503 });
   }
 }
