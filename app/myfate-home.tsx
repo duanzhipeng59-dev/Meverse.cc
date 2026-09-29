@@ -98,7 +98,6 @@ export default async function MyfateHome() {
                       {star.traits.slice(0, 2).map((trait) => <span key={trait}>{trait}</span>)}
                     </div>
                     <h3>{star.name}</h3>
-                    <p>{star.role}</p>
                   </div>
                 </div>
                 <div className="mf-star-card-bottom">

@@ -42,7 +42,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
                   {star.traits.slice(0, 2).map((trait) => <span key={trait}>{trait}</span>)}
                 </div>
                 <h2>{star.name}</h2>
-                <p>{star.role}</p>
               </div>
             </div>
             <div className="mf-star-card-bottom">
