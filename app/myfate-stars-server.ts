@@ -188,3 +188,17 @@ export async function cacheCelebrityVedicChart(id: string, structuredMd: string,
     .update({ vedic_chart: { structuredMd, summary } })
     .eq("id", id);
 }
+
+export async function hasCelebrityVedicData(id: string): Promise<boolean> {
+  noStore();
+  const { data } = await createSupabaseAdminClient()
+    .from("celebrity_profiles")
+    .select("id")
+    .eq("id", id)
+    .eq("published", true)
+    .not("birth_time", "is", null)
+    .not("birth_lat", "is", null)
+    .not("birth_tz", "is", null)
+    .maybeSingle();
+  return Boolean(data);
+}

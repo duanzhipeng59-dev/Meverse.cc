@@ -4628,3 +4628,8 @@ select:focus-visible {
   .mf-vedic-evidence { grid-template-columns: 1fr; }
   .mf-vedic-chart-grid { grid-template-columns: 1fr; }
 }
+
+.mf-vedic-upsell { margin: 0 0 18px; padding: 18px 20px; border: 1px solid #d8c9a8; border-radius: 18px; background: linear-gradient(145deg, #fffdf6, #faf4e4); display: grid; gap: 8px; }
+.mf-vedic-upsell strong { color: #7a5b1e; font-size: 14px; }
+.mf-vedic-upsell span { color: #8a7440; font-size: 12.5px; line-height: 1.7; }
+.mf-vedic-upsell .mf-primary-button { justify-self: start; margin-top: 4px; }

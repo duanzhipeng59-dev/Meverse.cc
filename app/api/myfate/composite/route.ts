@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createSupabaseAdminClient } from "../../auth/server";
 import { requireReportUser } from "../reports/server";
-import { getPublishedStar, getCelebrityVedicBirth, cacheCelebrityVedicChart } from "../../../myfate-stars-server";
+import { getPublishedStar, getCelebrityVedicBirth, cacheCelebrityVedicChart, hasCelebrityVedicData } from "../../../myfate-stars-server";
 import { analyzeThreePillars } from "../../../myfate-deep-analysis";
 import { serializeFormulaResult, type ThreePillarCompositeResult } from "../../../myfate-generated-test-types";
 import { serializeVedicResult, type VedicCompositeResult, type VedicChartSummary } from "../../../myfate-vedic-types";
@@ -9,6 +9,8 @@ import { computeVedicChart, computeVedicSynastry, vedicServiceConfigured, type V
 import { interpretVedicSynastry } from "../../../myfate-vedic-interpretation";
 import { findVedicCity } from "../../../myfate-cities";
 import { mapReportRow, type ReportRow } from "../reports/server";
+
+export const maxDuration = 300;
 
 const today = new Date().toISOString().slice(0, 10);
 const requestSchema = z.object({
@@ -166,7 +168,8 @@ export async function POST(request: Request) {
       interpretation: { reportText: serializeFormulaResult(result) },
     }).select("id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at").single();
     if (error) throw error;
-    return Response.json({ report: mapReportRow(data as ReportRow), result }, { status: 201, headers: session.headers });
+    const vedicAvailable = await hasCelebrityVedicData(star.id).catch(() => false);
+    return Response.json({ report: mapReportRow(data as ReportRow), result, vedicAvailable }, { status: 201, headers: session.headers });
   } catch (error) {
     console.error("Failed to create composite analysis", error);
     return Response.json({ error: "COMPOSITE_UNAVAILABLE" }, { status: 503 });

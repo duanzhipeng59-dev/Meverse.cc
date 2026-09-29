@@ -16,6 +16,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   const [birthTime, setBirthTime] = useState("");
   const [birthCityId, setBirthCityId] = useState("");
   const [result, setResult] = useState<FormulaTestResult | null>(null);
+  const [vedicAvailable, setVedicAvailable] = useState(false);
   const [phase, setPhase] = useState<"loading" | "profile" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
   const today = new Date().toISOString().slice(0, 10);
@@ -62,8 +63,9 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
         return;
       }
       if (!response.ok) throw new Error("暂时无法生成合盘分析，请稍后重试。");
-      const body = await response.json() as { report: { id: string }; result: FormulaTestResult };
+      const body = await response.json() as { report: { id: string }; result: FormulaTestResult; vedicAvailable?: boolean };
       if (!body.report?.id || (body.result?.version !== 3 && body.result?.version !== 4)) throw new Error("合盘结果数据不完整。");
+      setVedicAvailable(body.vedicAvailable === true);
       const url = new URL(window.location.href);
       url.searchParams.set("report", body.report.id);
       window.history.replaceState(null, "", `${url.pathname}${url.search}`);
@@ -87,7 +89,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
           <section className="mf-question-card mf-profile-question-card">
             <span className="mf-question-eyebrow">开始合盘前</span>
             <h1>输入你的出生信息</h1>
-            <p>填写出生时间与城市后，系统会用吠陀占星（Jyotish）星盘与 {star.name} 进行双人合盘；不填时辰则使用年、月、日三柱合盘。</p>
+            <p><strong>填写出生时间与出生城市，解锁完整吠陀合盘报告（六维关系矩阵）。</strong>不填时辰将只做简化的三柱合盘。</p>
             <div className="mf-profile-question-fields">
               <label className="mf-profile-field">
                 <span>出生日期</span>
@@ -95,9 +97,9 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
                 <small>日期会自动保存到这台设备的个人中心。</small>
               </label>
               <label className="mf-profile-field">
-                <span>出生时间（选填，用于吠陀合盘）</span>
+                <span>出生时间（强烈建议填写）</span>
                 <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
-                <small>尽量精确到分钟；不确定可留空，将改用三柱合盘。</small>
+                <small>尽量精确到分钟；留空将只做简化的三柱合盘，看不到完整吠陀报告。</small>
               </label>
               <label className="mf-profile-field">
                 <span>出生城市（填写时间后生效）</span>
@@ -128,7 +130,16 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     return (
       <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}>
         <TestHeader star={star} workspace={workspace} label="三柱合盘分析" />
-        <main><MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-secondary-button" href="/home/reports">查看历史报告</Link><button className="mf-primary-button" type="button" onClick={() => setPhase("profile")}>重新合盘</button></>} /></main>
+        <main>
+          {result.version === 3 && vedicAvailable ? (
+            <div className="mf-vedic-upsell">
+              <strong>这是简化版三柱合盘</strong>
+              <span>你没有填写出生时间。填写出生时间与城市后重新合盘，可查看完整吠陀报告（六维关系矩阵、双向宫位互动、Ashtakoota）。</span>
+              <button className="mf-primary-button" type="button" onClick={() => setPhase("profile")}>填写时间重新合盘</button>
+            </div>
+          ) : null}
+          <MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-secondary-button" href="/home/reports">查看历史报告</Link><button className="mf-primary-button" type="button" onClick={() => setPhase("profile")}>重新合盘</button></>} />
+        </main>
       </div>
     );
   }
