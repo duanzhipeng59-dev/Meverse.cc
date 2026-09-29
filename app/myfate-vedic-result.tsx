@@ -77,7 +77,6 @@ export default function VedicCompositeResultView({
         <div className="mf-formula-verdict-person"><i style={{ backgroundImage: `url("${star.portraitSrc}")` }} /><small>你与 {star.name}</small></div>
         <p className="mf-identity-lead">关系类型结论</p>
         <h1>{result.relationshipType}</h1>
-        <p>{result.relationshipSummary}</p>
         <p className="mf-vedic-headline">{result.headline}</p>
         <p className="mf-vedic-insight">{result.insight}</p>
         <div className="mf-formula-facts">

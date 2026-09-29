@@ -73,7 +73,7 @@ export default function ReportDetailWorkspace({
       <div className="mf-saved-report-detail mf-unified-advanced-report">
           <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>合盘分析生成中</span></div>
         <div className="mf-report-detail-state mf-ai-generation-state">
-          <span>✦</span><h1>正在生成三柱合盘</h1><p>可以返回工作台后重新进入，系统会继续保留这份记录。</p>
+          <span>✦</span><h1>正在生成吠陀合盘</h1><p>可以返回工作台后重新进入，系统会继续保留这份记录。</p>
           <Link className="mf-primary-button" href={continueTestHref}>重新生成合盘</Link>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function ReportDetailWorkspace({
     if (formulaResult) {
       return (
         <div className="mf-saved-report-detail mf-unified-advanced-report">
-          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{formulaResult.version === 3 ? "三柱合盘分析" : formulaResult.version === 2 ? "关系身份结果" : "历史正缘结果"}</span></div>
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{formulaResult.version === 4 ? "吠陀合盘分析" : formulaResult.version === 3 ? "三柱合盘分析" : formulaResult.version === 2 ? "关系身份结果" : "历史正缘结果"}</span></div>
           <MyfateFormulaResult
             star={formulaStar}
             result={formulaResult}
@@ -119,7 +119,7 @@ export default function ReportDetailWorkspace({
       <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>关系报告</span></div>
       <div className="mf-report-detail-state mf-ai-generation-state">
         <span>✦</span><h1>这份旧记录尚未完成</h1>
-        <p>现在无需答题，重新输入出生日期即可生成三柱合盘。</p>
+        <p>现在无需答题，输入出生信息即可生成吠陀合盘。</p>
         <div className="mf-generation-actions">
           <Link className="mf-primary-button" href={continueTestHref}>重新合盘</Link>
           <Link className="mf-secondary-button" href={backHref}>{backLabel}</Link>

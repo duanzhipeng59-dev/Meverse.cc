@@ -39,6 +39,7 @@ function reportStatusLabel(report: SavedReport) {
 
 function relationshipRoleLabel(report: SavedReport) {
   const result = parseFormulaResult(report.reportText);
+  if (result?.version === 4) return result.relationshipType;
   if (result?.version === 3) return "三柱合盘";
   if (result?.version === 2) return result.primaryRole.shortLabel;
   if (result?.version === 1) return "历史正缘结果";
@@ -257,10 +258,9 @@ export default function ReportsWorkspace() {
                     <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                   </div>
                   <h2>{report.starName}</h2>
-                  <p>{report.status === "advanced" ? `合盘结果：${relationshipRoleLabel(report)}` : report.status === "generating" ? "正在生成三柱合盘分析" : "等待重新生成合盘分析"}</p>
                 </div>
                 <div className="mf-report-card-result">
-                  <span>{report.status === "advanced" ? "查看完整三柱合盘分析" : report.status === "generating" ? "合盘分析生成中" : "重新生成合盘分析"}</span>
+                  <span>{report.status === "advanced" ? "查看完整吠陀合盘分析" : report.status === "generating" ? "合盘分析生成中" : "重新生成合盘分析"}</span>
                   <div className="mf-report-card-actions">
                     {action.disabled
                       ? <button className="mf-report-generation-disabled" type="button" disabled>生成中</button>
