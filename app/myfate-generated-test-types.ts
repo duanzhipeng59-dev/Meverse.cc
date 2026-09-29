@@ -120,25 +120,48 @@ export type RelationshipIdentityResult = {
   reviews: RelationshipIdentityReview[];
 };
 
-export type FormulaTestResult = LegacyFormulaTestResult | RelationshipIdentityResult;
+export type ThreePillarCompositeResult = {
+  version: 3;
+  starId: string;
+  userThreePillars: string;
+  starThreePillars: string;
+  headline: string;
+  insight: string;
+  tension: string;
+  dimensions: Array<{
+    label: string;
+    tendency: "自然协同" | "彼此互补" | "需要磨合";
+    description: string;
+  }>;
+};
+
+export type FormulaTestResult = LegacyFormulaTestResult | RelationshipIdentityResult | ThreePillarCompositeResult;
 
 export const FORMULA_RESULT_PREFIX = "MYFATE_FORMULA_V1\n";
 export const RELATIONSHIP_RESULT_PREFIX = "MYFATE_RELATIONSHIP_V2\n";
+export const COMPOSITE_RESULT_PREFIX = "MYFATE_COMPOSITE_V3\n";
 
 export function serializeFormulaResult(result: FormulaTestResult) {
-  const prefix = result.version === 2 ? RELATIONSHIP_RESULT_PREFIX : FORMULA_RESULT_PREFIX;
+  const prefix = result.version === 3
+    ? COMPOSITE_RESULT_PREFIX
+    : result.version === 2
+      ? RELATIONSHIP_RESULT_PREFIX
+      : FORMULA_RESULT_PREFIX;
   return `${prefix}${JSON.stringify(result)}`;
 }
 
 export function parseFormulaResult(value: string | null | undefined): FormulaTestResult | null {
-  const prefix = value?.startsWith(RELATIONSHIP_RESULT_PREFIX)
-    ? RELATIONSHIP_RESULT_PREFIX
-    : value?.startsWith(FORMULA_RESULT_PREFIX)
-      ? FORMULA_RESULT_PREFIX
-      : null;
+  const prefix = value?.startsWith(COMPOSITE_RESULT_PREFIX)
+    ? COMPOSITE_RESULT_PREFIX
+    : value?.startsWith(RELATIONSHIP_RESULT_PREFIX)
+      ? RELATIONSHIP_RESULT_PREFIX
+      : value?.startsWith(FORMULA_RESULT_PREFIX)
+        ? FORMULA_RESULT_PREFIX
+        : null;
   if (!value || !prefix) return null;
   try {
     const parsed = JSON.parse(value.slice(prefix.length)) as FormulaTestResult;
+    if (parsed?.version === 3 && Array.isArray(parsed.dimensions) && typeof parsed.headline === "string") return parsed;
     if (parsed?.version === 2 && Array.isArray(parsed.roleRanking) && Array.isArray(parsed.reviews)) return parsed;
     if (parsed?.version === 1 && Array.isArray(parsed.reviews)) return parsed;
     return null;

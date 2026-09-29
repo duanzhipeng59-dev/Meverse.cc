@@ -1,13 +1,5 @@
-import SubscriptionPage from "../subscription-page";
-import { chatGPTSignInPath } from "../chatgpt-auth";
-
-export const dynamic = "force-static";
+import { redirect } from "next/navigation";
 
 export default function SubscribePage() {
-  return (
-    <SubscriptionPage
-      chatGPTUser={null}
-      chatGPTSignInPath={chatGPTSignInPath("/subscribe?chatgpt_flow=1")}
-    />
-  );
+  redirect("/home/upgrade");
 }

@@ -5,6 +5,7 @@ import type {
   FormulaTestResult,
   LegacyFormulaTestResult,
   RelationshipIdentityResult,
+  ThreePillarCompositeResult,
 } from "./myfate-generated-test-types";
 
 type HighlightTone = "neutral" | "positive" | "attention";
@@ -33,6 +34,41 @@ function HighlightedCopy({ text, tone = "neutral" }: { text: string; tone?: High
   return <>{parts.map((part, index) => index === highlightIndex
     ? <mark className={`mf-key-point is-${tone}`} key={`${part}-${index}`}>{part}</mark>
     : part)}</>;
+}
+
+function ThreePillarCompositeView({
+  star,
+  result,
+  actions,
+}: {
+  star: Pick<StarProfile, "id" | "name" | "portraitSrc">;
+  result: ThreePillarCompositeResult;
+  actions?: React.ReactNode;
+}) {
+  return (
+    <div className="mf-formula-result mf-composite-result">
+      <section className="mf-formula-verdict is-relationship-identity">
+        <span>MYFATE · 三柱合盘分析</span>
+        <div className="mf-formula-verdict-person"><i style={{ backgroundImage: `url("${star.portraitSrc}")` }} /><small>你与 {star.name}</small></div>
+        <p className="mf-identity-lead">合盘关系主轴</p>
+        <h1>{result.headline}</h1>
+        <p><HighlightedCopy text={result.insight} tone="positive" /></p>
+        <div className="mf-formula-facts"><div><strong>三柱合盘</strong><small>年 · 月 · 日</small></div><div><strong>不含时柱</strong><small>不补算出生时辰</small></div></div>
+      </section>
+
+      <section className="mf-identity-ranking" aria-labelledby="mf-composite-dimensions-title">
+        <div className="mf-identity-section-heading"><span>合盘结构</span><h2 id="mf-composite-dimensions-title">四个关系维度</h2><p>用于观察双方的互动方式，不进行分数、排名或好坏判定。</p></div>
+        <div className="mf-identity-ranking-grid">{result.dimensions.map((dimension) => <article key={dimension.label}><div><span>✦</span><small>{dimension.tendency}</small></div><h3>{dimension.label}</h3><p>{dimension.description}</p><footer>{dimension.tendency}</footer></article>)}</div>
+      </section>
+
+      <section className="mf-formula-global-basis">
+        <p className="mf-formula-basis-summary"><HighlightedCopy text={result.tension} tone="attention" /></p>
+        <div className="mf-formula-basis-grid"><article><span>你的三柱</span><p>{result.userThreePillars}</p></article><article><span>{star.name} 的三柱</span><p>{result.starThreePillars}</p></article></div>
+        <p className="mf-report-generation-note">本分析只使用年、月、日三柱，不含时柱，仅供传统文化娱乐与关系观察参考，不构成现实关系预测。</p>
+      </section>
+      <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/relationship-test">返回合盘工作台</Link>}</div>
+    </div>
+  );
 }
 
 function RelationshipIdentityView({
@@ -174,6 +210,7 @@ export default function MyfateFormulaResult({
   result: FormulaTestResult;
   actions?: React.ReactNode;
 }) {
+  if (result.version === 3) return <ThreePillarCompositeView star={star} result={result} actions={actions} />;
   return result.version === 2
     ? <RelationshipIdentityView star={star} result={result} actions={actions} />
     : <LegacyResultView star={star} result={result} actions={actions} />;

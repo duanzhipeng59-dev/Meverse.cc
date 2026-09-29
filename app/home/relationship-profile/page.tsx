@@ -1,31 +1,5 @@
-import Link from "next/link";
-import { relationshipDimensions } from "../../relationship-profile-data";
+import { redirect } from "next/navigation";
 
-export default function RelationshipProfilePage() {
-  return (
-    <div className="mf-workspace-content mf-profile-intro">
-      <header className="mf-workspace-heading">
-        <div>
-          <span className="mf-kicker">行为画像分析</span>
-          <h1>看见你在关系里的自然反应</h1>
-          <p>通过具体的相处情境，了解你如何确认安全感、表达情绪、面对冲突与建立亲密边界。</p>
-        </div>
-      </header>
-
-      <section className="mf-profile-intro-card">
-        <div className="mf-profile-intro-copy">
-          <span>不是好坏判断，而是行为偏好</span>
-          <h2>没有标准答案，选择最像你的反应</h2>
-          <p>完成后，大模型会从你本次的全部选择中找到最值得解读的信号，写成一份结构不设限的关系行为报告。</p>
-          <Link className="mf-primary-button" href="/home/relationship-profile/test">开始测试 <span>→</span></Link>
-        </div>
-        <div className="mf-profile-dimension-preview">
-          {Object.values(relationshipDimensions).map((dimension, index) => (
-            <div key={dimension.label}><i>{String(index + 1).padStart(2, "0")}</i><span>{dimension.label}</span><small>{dimension.low} ↔ {dimension.high}</small></div>
-          ))}
-        </div>
-      </section>
-      <p className="mf-workspace-disclaimer">本测试用于自我观察与娱乐，不构成心理诊断或专业建议。</p>
-    </div>
-  );
+export default function LegacyRelationshipProfilePage() {
+  redirect("/home/relationship-test");
 }

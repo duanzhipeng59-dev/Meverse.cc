@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useRef, useState } from "react";
+import AuthEntryLink from "../../auth-entry-link";
 import type { StarProfile } from "../../myfate-data";
 
 const PAGE_SIZE = 6;
@@ -26,9 +26,10 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     <>
       <div className="mf-workspace-card-grid" ref={gridRef}>
         {pageStars.map((star, index) => (
-          <Link
+          <AuthEntryLink
             className="mf-star-card"
             href={`${basePath}/${star.id}`}
+            anonymousNext={basePath}
             key={star.id}
           >
             <div
@@ -48,7 +49,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
               <span>{star.tagline}</span>
               <b aria-hidden="true">↗</b>
             </div>
-          </Link>
+          </AuthEntryLink>
         ))}
       </div>
 

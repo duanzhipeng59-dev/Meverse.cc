@@ -35,14 +35,14 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
       : `/home/relationship-test/${starId}/test?report=${encodeURIComponent(report.id)}`;
     return (
       <Link className="mf-primary-button mf-detail-cta" href={href}>
-        {report.status === "advanced" ? "查看关系报告" : report.status === "generating" ? "去测试" : "去答题"} <span>→</span>
+        {report.status === "advanced" ? "查看合盘报告" : "重新生成合盘"} <span>→</span>
       </Link>
     );
   }
 
   return (
     <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${starId}/test`}>
-      看看你更适合成为 TA 的谁 <span>→</span>
+      查看你与 TA 的合盘分析 <span>→</span>
     </AuthEntryLink>
   );
 }

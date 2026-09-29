@@ -35,7 +35,7 @@ export default async function MyfateHome() {
             <div className="mf-home-eyebrow"><span>✦</span> 关系身份探索</div>
             <h1><span>如果走进 TA 的生活，</span><em>你更适合成为谁？</em></h1>
             <p>
-              选择一位想了解的人，通过每次全新生成的 25 个关系情境，看见你更自然的陪伴位置。
+              选择一位想了解的人，输入你的出生日期，直接查看双方三柱的关系结构。
             </p>
             <HomeProfileEntry />
           </div>
@@ -82,7 +82,7 @@ export default async function MyfateHome() {
               <span className="mf-kicker">测试对象预览</span>
               <h2>这一刻，你想了解谁？</h2>
             </div>
-            <p>进入工作台后选择对象并开始测试。人物画像为娱乐化设定，并非本人认证。</p>
+            <p>进入工作台后选择对象并查看三柱合盘。人物资料来自公开信息，并非本人认证。</p>
           </div>
 
           <div className="mf-star-grid">
@@ -111,19 +111,19 @@ export default async function MyfateHome() {
 
         <section className="mf-how" id="how-it-works">
           <div className="mf-section-heading">
-            <div><span className="mf-kicker">测试说明</span><h2>从选择对象，到看见你的关系位置</h2></div>
+            <div><span className="mf-kicker">合盘说明</span><h2>从选择对象，到看见双方关系结构</h2></div>
           </div>
           <div className="mf-how-grid">
             <article><span>01</span><h3>填写基础资料</h3><p>留下昵称、出生日期和地点，资料会自动保存在当前设备，后续无需重复填写。</p></article>
-            <article><span>02</span><h3>选择测试对象</h3><p>登录后进入关系测试工作台，选择一位目标人物，按直觉完成具体相处情境。</p></article>
-            <article><span>03</span><h3>查看关系身份</h3><p>系统会汇总你更像恋人、知己、家人、朋友或搭档等哪一种角色，没有正确答案。</p></article>
+            <article><span>02</span><h3>选择合盘对象</h3><p>登录后进入明星合盘工作台，选择一位目标人物并确认你的出生日期。</p></article>
+            <article><span>03</span><h3>查看合盘分析</h3><p>系统直接呈现双方三柱的关系主轴、互动张力与四项关系倾向，无需答题。</p></article>
           </div>
         </section>
       </main>
 
       <footer className="mf-footer">
         <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
-        <p>结果仅用于娱乐与自我探索，不构成心理诊断或现实关系预测。</p>
+        <p>分析内容基于传统文化典籍与固定规则生成，仅供娱乐与自我观察参考，不构成科学结论、现实关系判断或专业建议。</p>
       </footer>
     </div>
   );

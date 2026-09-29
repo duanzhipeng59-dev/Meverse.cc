@@ -8,14 +8,14 @@ import { useAuth } from "../auth-context";
 const menuItems = [
   {
     icon: "heart",
-    label: "关系测试",
-    description: "看看你更适合成为 TA 的谁",
+    label: "明星合盘",
+    description: "查看你与 TA 的三柱关系结构",
     href: "/home/relationship-test",
   },
   {
     icon: "report",
     label: "我的报告",
-    description: "查看每一次测试记录",
+    description: "查看每一次合盘记录",
     href: "/home/reports",
   },
 ];
@@ -44,6 +44,20 @@ function ReportIcon() {
       <path d="M14 3.75v3h3M10 11h4M10 14.5h4" />
     </svg>
   );
+}
+
+function UpgradeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4.5 8.25h15v10.5h-15z" />
+      <path d="M4.5 11.25h15M8 8.25c-1.9 0-3-1-3-2.15 0-1.05.75-1.85 1.85-1.85C8.55 4.25 10 6.1 12 8.25M16 8.25c1.9 0 3-1 3-2.15 0-1.05-.75-1.85-1.85-1.85C15.45 4.25 14 6.1 12 8.25M12 8.25v10.5" />
+    </svg>
+  );
+}
+
+function MenuIcon({ icon }: { icon: string }) {
+  if (icon === "report") return <ReportIcon />;
+  return <HeartIcon />;
 }
 
 function LogoutIcon() {
@@ -131,7 +145,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 key={item.href}
               >
-                <span className="mf-workspace-nav-icon">{item.icon === "report" ? <ReportIcon /> : <HeartIcon />}</span>
+                <span className="mf-workspace-nav-icon"><MenuIcon icon={item.icon} /></span>
                 <span>
                   <strong>{item.label}</strong>
                   <small>{item.description}</small>
@@ -142,6 +156,14 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="mf-workspace-account" aria-label="账户选项">
+          <Link
+            className={pathname === "/home/upgrade" ? "active" : undefined}
+            href="/home/upgrade"
+            aria-current={pathname === "/home/upgrade" ? "page" : undefined}
+          >
+            <span className="mf-workspace-nav-icon"><UpgradeIcon /></span>
+            <span>订阅升级</span>
+          </Link>
           <Link
             className={pathname === "/home/profile" ? "active" : undefined}
             href="/home/profile"
@@ -207,7 +229,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
                   onClick={() => mobileMenuRef.current?.close()}
                   key={item.href}
                 >
-                  <span className="mf-workspace-nav-icon">{item.icon === "report" ? <ReportIcon /> : <HeartIcon />}</span>
+                  <span className="mf-workspace-nav-icon"><MenuIcon icon={item.icon} /></span>
                   <span><strong>{item.label}</strong><small>{item.description}</small></span>
                 </Link>
               );
@@ -215,6 +237,15 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="mf-mobile-menu-account">
+            <Link
+              className={pathname === "/home/upgrade" ? "active" : undefined}
+              href="/home/upgrade"
+              aria-current={pathname === "/home/upgrade" ? "page" : undefined}
+              onClick={() => mobileMenuRef.current?.close()}
+            >
+              <span className="mf-workspace-nav-icon"><UpgradeIcon /></span>
+              <span>订阅升级</span>
+            </Link>
             <Link
               className={pathname === "/home/profile" ? "active" : undefined}
               href="/home/profile"

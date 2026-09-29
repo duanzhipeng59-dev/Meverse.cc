@@ -27,7 +27,7 @@ function reportAction(report: SavedReport) {
   if (report.status === "advanced") return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
   if (report.status === "generating") return { label: "生成中", href: "", disabled: true };
   return {
-    label: "去答题",
+    label: "重新合盘",
     href: `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`,
     disabled: false,
   };
@@ -39,6 +39,7 @@ function reportStatusLabel(report: SavedReport) {
 
 function relationshipRoleLabel(report: SavedReport) {
   const result = parseFormulaResult(report.reportText);
+  if (result?.version === 3) return "三柱合盘";
   if (result?.version === 2) return result.primaryRole.shortLabel;
   if (result?.version === 1) return "历史正缘结果";
   return report.status === "generating" ? "生成中" : "待完成";
@@ -141,7 +142,7 @@ export default function ReportsWorkspace() {
         <div>
           <span className="mf-kicker">我的报告</span>
           <h1>每一种关系，都有自己的位置</h1>
-          <p>这里保存你完成过的关系身份测试与行为画像，每次测试都会形成一份独立记录。</p>
+          <p>这里保存你完成过的明星三柱合盘与历史画像，每次合盘都会形成一份独立记录。</p>
         </div>
         <div className="mf-reports-count">
           <strong>{reports.length}</strong>
@@ -154,8 +155,8 @@ export default function ReportsWorkspace() {
       ) : reports.length === 0 ? (
         <section className="mf-reports-empty">
           <span aria-hidden="true">✦</span>
-          <h2>你还没有完成任何测试</h2>
-          <p>可以从关系测试开始探索。</p>
+          <h2>你还没有生成任何报告</h2>
+          <p>可以从明星合盘开始探索。</p>
         </section>
       ) : (
         <>
@@ -216,7 +217,7 @@ export default function ReportsWorkspace() {
               <span>历史记录</span>
               <h2>全部报告</h2>
             </div>
-            <p>同一偶像的每次测试都会单独保留。</p>
+            <p>同一明星的每次合盘都会单独保留。</p>
           </div>
 
           <div className="mf-report-list">
@@ -256,10 +257,10 @@ export default function ReportsWorkspace() {
                     <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                   </div>
                   <h2>{report.starName}</h2>
-                  <p>{report.status === "advanced" ? `关系身份：${relationshipRoleLabel(report)}` : report.status === "generating" ? "正在为你生成这位目标人物的关系题目" : "关系题目已经准备好，等待你完成测试"}</p>
+                  <p>{report.status === "advanced" ? `合盘结果：${relationshipRoleLabel(report)}` : report.status === "generating" ? "正在生成三柱合盘分析" : "等待重新生成合盘分析"}</p>
                 </div>
                 <div className="mf-report-card-result">
-                  <span>{report.status === "advanced" ? "查看完整关系身份解读" : report.status === "generating" ? "可以离开页面，完成后继续" : "继续完成关系测试"}</span>
+                  <span>{report.status === "advanced" ? "查看完整三柱合盘分析" : report.status === "generating" ? "合盘分析生成中" : "重新生成合盘分析"}</span>
                   <div className="mf-report-card-actions">
                     {action.disabled
                       ? <button className="mf-report-generation-disabled" type="button" disabled>生成中</button>
@@ -274,7 +275,7 @@ export default function ReportsWorkspace() {
         </>
       )}
 
-      <p className="mf-reports-storage-note">报告目前仅保存在当前浏览器，清除浏览器数据或更换设备后将无法查看。</p>
+      <p className="mf-reports-storage-note">登录状态下生成的明星合盘报告会保存到你的账户。</p>
     </div>
   );
 }

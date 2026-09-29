@@ -10,18 +10,20 @@ export default function AuthEntryLink({
   className,
   children,
   anonymousChildren,
+  anonymousNext,
 }: {
   href: string;
   className?: string;
   children: ReactNode;
   anonymousChildren?: ReactNode;
+  anonymousNext?: string;
 }) {
   const { status } = useAuth();
   const pathname = usePathname();
   const authenticated = status === "authenticated";
   const target = authenticated
     ? href
-    : `/login?next=${encodeURIComponent(href)}&from=${encodeURIComponent(pathname)}`;
+    : `/login?next=${encodeURIComponent(anonymousNext ?? href)}&from=${encodeURIComponent(pathname)}`;
 
   return (
     <Link className={className} href={target}>

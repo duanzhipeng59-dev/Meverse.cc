@@ -1,6 +1,5 @@
-import RelationshipProfileTest from "./relationship-profile-test";
-import { relationshipQuestions } from "../../../relationship-profile-data";
+import { redirect } from "next/navigation";
 
-export default function RelationshipProfileTestPage() {
-  return <RelationshipProfileTest questions={relationshipQuestions} />;
+export default function LegacyRelationshipProfileTestPage() {
+  redirect("/home/relationship-test");
 }

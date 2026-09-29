@@ -20,7 +20,7 @@ export default function CelebrityDetail({
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
             <span>返回工作区</span>
           </Link>
-          <span>关系测试</span>
+          <span>三柱合盘</span>
         </div>
       ) : (
         <header className="mf-header">
@@ -45,7 +45,7 @@ export default function CelebrityDetail({
           <h1>{star.name}</h1>
           <p className="mf-detail-tagline">“{star.tagline}”</p>
           <p className="mf-profile-basis">
-            {star.mbti} · {star.birthDate} · 三柱 {star.threePillars}
+            三柱 {star.threePillars}
           </p>
           <div className="mf-detail-traits">{star.traits.map((trait) => <span key={trait}>{trait}</span>)}</div>
           <div className="mf-detail-description">
@@ -60,11 +60,11 @@ export default function CelebrityDetail({
             <ReportAwareEntry starId={star.id} />
           ) : (
             <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
-              看看你更适合成为 TA 的谁 <span>→</span>
+              查看你与 TA 的合盘分析 <span>→</span>
             </AuthEntryLink>
           )}
-          <p className="mf-detail-hint">每次生成 25 道全新关系情境题 · 没有正确或错误答案</p>
-          <p className="mf-bazi-note">人格画像由 MBTI 与出生日期三柱倾向交叉生成；缺少出生时辰，不构成完整八字排盘。</p>
+          <p className="mf-detail-hint">输入出生日期即可直接查看三柱合盘分析</p>
+          <p className="mf-bazi-note">三柱仅作为传统文化层面的辅助观察；缺少出生时辰，不构成完整八字排盘。</p>
         </section>
       </div>
     </div>

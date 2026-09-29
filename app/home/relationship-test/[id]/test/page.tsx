@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
-import { stars } from "../../../../myfate-data";
 import MyfateGeneratedTest from "../../../../myfate-generated-test";
 import { getPublishedStar } from "../../../../myfate-stars-server";
+import { requirePageUser } from "../../../../require-page-user";
 
-export function generateStaticParams() {
-  return stars.map((star) => ({ id: star.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function RelationshipTestPage({ params }: { params: Promise<{ id: string }> }) {
-  const star = await getPublishedStar((await params).id);
+  const { id } = await params;
+  await requirePageUser(`/home/relationship-test/${id}/test`);
+  const star = await getPublishedStar(id);
   if (!star) notFound();
   return <MyfateGeneratedTest star={star} workspace />;
 }

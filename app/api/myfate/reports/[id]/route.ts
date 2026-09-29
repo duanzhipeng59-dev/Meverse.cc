@@ -4,7 +4,7 @@ import { mapReportRow, requireReportUser, type ReportRow } from "../server";
 
 const updateSchema = z.object({
   status: z.enum(["initial", "generating", "advanced"]).optional(),
-  score: z.number().int().min(0).max(25).optional(),
+  score: z.number().int().min(0).max(100).optional(),
   reportText: z.string().min(1).max(100000).nullable().optional(),
   interpretation: z.record(z.string(), z.unknown()).nullable().optional(),
   interpretationSource: z.enum(["deepseek", "gemini"]).nullable().optional(),
