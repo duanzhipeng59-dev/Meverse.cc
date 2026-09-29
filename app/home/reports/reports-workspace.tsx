@@ -40,7 +40,7 @@ function reportStatusLabel(report: SavedReport) {
 function relationshipRoleLabel(report: SavedReport) {
   const result = parseFormulaResult(report.reportText);
   if (result?.version === 4) return result.relationshipType;
-  if (result?.version === 3) return "三柱合盘";
+  if (result?.version === 3) return "合盘分析";
   if (result?.version === 2) return result.primaryRole.shortLabel;
   if (result?.version === 1) return "历史正缘结果";
   return report.status === "generating" ? "生成中" : "待完成";
@@ -143,7 +143,7 @@ export default function ReportsWorkspace() {
         <div>
           <span className="mf-kicker">我的报告</span>
           <h1>每一种关系，都有自己的位置</h1>
-          <p>这里保存你完成过的明星三柱合盘与历史画像，每次合盘都会形成一份独立记录。</p>
+          <p>这里保存你完成过的明星合盘分析与历史画像，每次合盘都会形成一份独立记录。</p>
         </div>
         <div className="mf-reports-count">
           <strong>{reports.length}</strong>

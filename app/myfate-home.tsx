@@ -82,7 +82,7 @@ export default async function MyfateHome() {
               <span className="mf-kicker">测试对象预览</span>
               <h2>这一刻，你想了解谁？</h2>
             </div>
-            <p>进入工作台后选择对象并查看三柱合盘。人物资料来自公开信息，并非本人认证。</p>
+            <p>进入工作台后选择对象并查看合盘分析。人物资料来自公开信息，并非本人认证。</p>
           </div>
 
           <div className="mf-star-grid">

@@ -49,12 +49,12 @@ function ThreePillarCompositeView({
   return (
     <div className="mf-formula-result mf-composite-result">
       <section className="mf-formula-verdict is-relationship-identity">
-        <span>MYFATE · 三柱合盘分析</span>
+        <span>MYFATE · 合盘分析</span>
         <div className="mf-formula-verdict-person"><i style={{ backgroundImage: `url("${star.portraitSrc}")` }} /><small>你与 {star.name}</small></div>
         <p className="mf-identity-lead">合盘关系主轴</p>
         <h1>{result.headline}</h1>
         <p><HighlightedCopy text={result.insight} tone="positive" /></p>
-        <div className="mf-formula-facts"><div><strong>三柱合盘</strong><small>年 · 月 · 日</small></div><div><strong>不含时柱</strong><small>不补算出生时辰</small></div></div>
+        <div className="mf-formula-facts"><div><strong>合盘分析</strong><small>年 · 月 · 日</small></div><div><strong>不含时柱</strong><small>不补算出生时辰</small></div></div>
       </section>
 
       <section className="mf-identity-ranking" aria-labelledby="mf-composite-dimensions-title">

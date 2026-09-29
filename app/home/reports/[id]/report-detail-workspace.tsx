@@ -84,7 +84,7 @@ export default function ReportDetailWorkspace({
     if (formulaResult) {
       return (
         <div className="mf-saved-report-detail mf-unified-advanced-report">
-          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{formulaResult.version === 4 ? "吠陀合盘分析" : formulaResult.version === 3 ? "三柱合盘分析" : formulaResult.version === 2 ? "关系身份结果" : "历史正缘结果"}</span></div>
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{formulaResult.version === 4 ? "吠陀合盘分析" : formulaResult.version === 3 ? "合盘分析" : formulaResult.version === 2 ? "关系身份结果" : "历史正缘结果"}</span></div>
           <MyfateFormulaResult
             star={formulaStar}
             result={formulaResult}

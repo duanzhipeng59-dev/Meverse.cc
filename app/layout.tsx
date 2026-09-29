@@ -12,14 +12,14 @@ export const metadata: Metadata = {
   description: "选择一位想了解的人，通过关系情境测试，看见你更适合成为 TA 的谁。",
   openGraph: {
     title: "Myfate · 遇见你的心动答案",
-    description: "明星三柱合盘与关系结构分析。",
+    description: "明星合盘分析与关系结构分析。",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
     title: "Myfate · 遇见你的心动答案",
-    description: "明星三柱合盘与关系结构分析。",
+    description: "明星合盘分析与关系结构分析。",
   },
 };
 

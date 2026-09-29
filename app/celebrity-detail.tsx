@@ -20,7 +20,7 @@ export default function CelebrityDetail({
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
             <span>返回工作区</span>
           </Link>
-          <span>三柱合盘</span>
+          <span>合盘分析</span>
         </div>
       ) : (
         <header className="mf-header">
@@ -63,7 +63,7 @@ export default function CelebrityDetail({
               查看你与 TA 的合盘分析 <span>→</span>
             </AuthEntryLink>
           )}
-          <p className="mf-detail-hint">输入出生日期即可直接查看三柱合盘分析</p>
+          <p className="mf-detail-hint">输入出生日期即可直接查看合盘分析</p>
           <p className="mf-bazi-note">三柱仅作为传统文化层面的辅助观察；缺少出生时辰，不构成完整八字排盘。</p>
         </section>
       </div>
