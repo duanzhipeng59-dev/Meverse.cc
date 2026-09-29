@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       user_id: session.user.id,
       star_id: "personal-reading",
       star_name: "个人八字解读",
-      star_portrait: null,
+      star_portrait: "",
       status: "advanced",
       score: 0,
       behavior_scores: null,

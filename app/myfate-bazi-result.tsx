@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziReadingResult } from "./myfate-bazi-types";
 
 const WENZHEN_URL = "https://pcbz.iwzwh.com";
@@ -18,23 +19,9 @@ function WuXingBars({ wuXing }: { wuXing: Record<string, number> }) {
   );
 }
 
-export default function MyfateBaziResult({ result, actions }: { result: BaziReadingResult; actions?: React.ReactNode }) {
-  const chart = result.chart;
+export function BaziChartSections({ chart }: { chart: BaziChart }) {
   return (
-    <div className="mf-formula-result mf-bazi-result">
-      <section className="mf-formula-verdict is-relationship-identity">
-        <span>MYFATE · 个人八字解读</span>
-        <div className="mf-formula-verdict-person"><small>{result.gender === "male" ? "乾造" : "坤造"} · {chart.trueSolar.city}</small></div>
-        <p className="mf-identity-lead">你的命盘主轴</p>
-        <h1>{result.headline}</h1>
-        <p>{result.summary}</p>
-        <div className="mf-formula-facts">
-          <div><strong>真太阳时</strong><small>{chart.trueSolar.adjustedTime}</small></div>
-          <div><strong>起运</strong><small>{chart.daYun.startText}</small></div>
-          <div><strong>当前大运</strong><small>{chart.currentDaYunGanZhi || "尚未起运"}</small></div>
-        </div>
-      </section>
-
+    <>
       <section className="mf-bazi-paipan" aria-labelledby="mf-bazi-paipan-title">
         <div className="mf-identity-section-heading">
           <span>排盘结果</span>
@@ -73,6 +60,28 @@ export default function MyfateBaziResult({ result, actions }: { result: BaziRead
           ))}
         </ol>
       </section>
+    </>
+  );
+}
+
+export default function MyfateBaziResult({ result, actions }: { result: BaziReadingResult; actions?: React.ReactNode }) {
+  const chart = result.chart;
+  return (
+    <div className="mf-formula-result mf-bazi-result">
+      <section className="mf-formula-verdict is-relationship-identity">
+        <span>MYFATE · 个人八字解读</span>
+        <div className="mf-formula-verdict-person"><small>{result.gender === "male" ? "乾造" : "坤造"} · {chart.trueSolar.city}</small></div>
+        <p className="mf-identity-lead">你的命盘主轴</p>
+        <h1>{result.headline}</h1>
+        <p>{result.summary}</p>
+        <div className="mf-formula-facts">
+          <div><strong>真太阳时</strong><small>{chart.trueSolar.adjustedTime}</small></div>
+          <div><strong>起运</strong><small>{chart.daYun.startText}</small></div>
+          <div><strong>当前大运</strong><small>{chart.currentDaYunGanZhi || "尚未起运"}</small></div>
+        </div>
+      </section>
+
+      <BaziChartSections chart={chart} />
 
       <section className="mf-bazi-sections" aria-labelledby="mf-bazi-sections-title">
         <div className="mf-identity-section-heading">
