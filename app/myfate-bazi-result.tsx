@@ -2,8 +2,6 @@ import Link from "next/link";
 import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziReadingResult } from "./myfate-bazi-types";
 
-const WENZHEN_URL = "https://pcbz.iwzwh.com";
-
 function WuXingBars({ wuXing }: { wuXing: Record<string, number> }) {
   const max = Math.max(...Object.values(wuXing), 1);
   return (
@@ -100,11 +98,6 @@ export default function MyfateBaziResult({ result, actions }: { result: BaziRead
       </section>
 
       <section className="mf-formula-global-basis">
-        <div className="mf-bazi-verify">
-          <span>排盘核对</span>
-          <p>想自行核对排盘,可把同样的出生时间与地点放到问真八字验证(注意选择真太阳时选项):</p>
-          <a className="mf-secondary-button" href={WENZHEN_URL} target="_blank" rel="noreferrer noopener">去问真八字核对排盘 →</a>
-        </div>
         <p className="mf-report-generation-note">本解读基于子平八字体系,由排盘计算数据结合 AI 生成,仅供传统文化娱乐与自我观察参考,不构成医疗、财务或人生决策依据。</p>
       </section>
       <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/personal-reading">返回个人解读</Link>}</div>
