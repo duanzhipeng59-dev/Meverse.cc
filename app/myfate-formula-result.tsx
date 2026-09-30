@@ -67,7 +67,7 @@ function ThreePillarCompositeView({
         <div className="mf-formula-basis-grid"><article><span>你的三柱</span><p>{result.userThreePillars}</p></article><article><span>{star.name} 的三柱</span><p>{result.starThreePillars}</p></article></div>
         <p className="mf-report-generation-note">本分析只使用年、月、日三柱，不含时柱，仅供传统文化娱乐与关系观察参考，不构成现实关系预测。</p>
       </section>
-      <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/relationship-test">返回合盘工作台</Link>}</div>
+      <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/reports">返回我的报告</Link>}</div>
     </div>
   );
 }
@@ -147,7 +147,7 @@ function RelationshipIdentityView({
       </section>
 
       <div className="mf-result-actions">
-        {actions ?? <Link className="mf-secondary-button" href="/home/relationship-test">返回合盘工作台</Link>}
+        {actions ?? <Link className="mf-secondary-button" href="/home/reports">返回我的报告</Link>}
       </div>
     </div>
   );

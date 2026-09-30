@@ -7,12 +7,6 @@ import { useAuth } from "../auth-context";
 
 const menuItems = [
   {
-    icon: "heart",
-    label: "明星解读",
-    description: "查看你与 TA 的吠陀合盘报告",
-    href: "/home/relationship-test",
-  },
-  {
     icon: "bazi",
     label: "个人解读",
     description: "你的四柱八字与个人命盘解读",
