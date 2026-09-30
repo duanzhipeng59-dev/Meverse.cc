@@ -103,20 +103,8 @@ export default function ReportDetailWorkspace({
   };
   const backHref = section === "personal-reading" ? "/home/personal-reading" : section === "relationship-test" || fromCelebrityWorkspace ? "/home/relationship-test" : "/home/reports";
   const backLabel = section === "personal-reading" ? "返回个人解读" : section === "relationship-test" || fromCelebrityWorkspace ? "返回明星合盘工作台" : "返回我的报告";
-  const retestHref = `/home/relationship-test/${report.starId}/test?restart=1`;
-  const continueTestHref = `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`;
-
-  if (report.status === "generating") {
-    return (
-      <div className="mf-saved-report-detail mf-unified-advanced-report">
-          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>合盘分析生成中</span></div>
-        <div className="mf-report-detail-state mf-ai-generation-state">
-          <span>✦</span><h1>正在生成吠陀合盘</h1><p>可以返回工作台后重新进入，系统会继续保留这份记录。</p>
-          <Link className="mf-primary-button" href={continueTestHref}>重新生成合盘</Link>
-        </div>
-      </div>
-    );
-  }
+  const retestHref = report.starId === "personal-reading" ? "/home/personal-reading" : `/home/relationship-test/${report.starId}/test?restart=1`;
+  const continueTestHref = report.starId === "personal-reading" ? `/home/personal-reading/${report.id}` : `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`;
 
   if (report.starId === "personal-reading") {
     const baziDraft = parseBaziResult(reportText);
@@ -134,6 +122,18 @@ export default function ReportDetailWorkspace({
         </div>
       );
     }
+  }
+
+  if (report.status === "generating") {
+    return (
+      <div className="mf-saved-report-detail mf-unified-advanced-report">
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>合盘分析生成中</span></div>
+        <div className="mf-report-detail-state mf-ai-generation-state">
+          <span>✦</span><h1>正在生成吠陀合盘</h1><p>可以返回工作台后重新进入，系统会继续保留这份记录。</p>
+          <Link className="mf-primary-button" href={continueTestHref}>重新生成合盘</Link>
+        </div>
+      </div>
+    );
   }
 
   if (report.status === "advanced" && reportText) {
