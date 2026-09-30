@@ -1,0 +1,14 @@
+import { notFound } from "next/navigation";
+import { stars } from "../../myfate-data";
+import { getPublishedStar } from "../../myfate-stars-server";
+import MyfateGeneratedTest from "../../myfate-generated-test";
+
+export function generateStaticParams() {
+  return stars.map((star) => ({ id: star.id }));
+}
+
+export default async function TestPage({ params }: { params: Promise<{ id: string }> }) {
+  const star = await getPublishedStar((await params).id);
+  if (!star) notFound();
+  return <MyfateGeneratedTest star={star} />;
+}

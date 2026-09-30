@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { StarProfile } from "./myfate-data";
+import AuthEntryLink from "./auth-entry-link";
+import ReportAwareEntry from "./home/celebrity-match/report-aware-entry";
 
 export default function CelebrityDetail({
   star,
@@ -48,7 +50,15 @@ export default function CelebrityDetail({
           <div className="mf-detail-description">
             <p>{star.description}</p>
           </div>
-          <p className="mf-bazi-note">内容以公开身份信息为基础，仅供文化娱乐参考。</p>
+          {workspace ? (
+            <ReportAwareEntry starId={star.id} />
+          ) : (
+            <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
+              查看他的正缘分析报告 <span>→</span>
+            </AuthEntryLink>
+          )}
+          <p className="mf-detail-hint">输入出生日期、时间与城市，即可生成正缘分析报告</p>
+          <p className="mf-bazi-note">分析基于吠陀占星（Jyotish），出生时间与城市用于确定上升星座；仅供文化娱乐参考。</p>
         </section>
       </div>
 
@@ -57,7 +67,7 @@ export default function CelebrityDetail({
           <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
           <div className="mf-detail-others-row">
             {others.map((item) => (
-              <Link className="mf-detail-others-card" href={`/celebrity/${item.id}`} key={item.id}>
+              <Link className="mf-detail-others-card" href={workspace ? `/home/relationship-test/${item.id}` : `/celebrity/${item.id}`} key={item.id}>
                 <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${item.portraitSrc}")` }} role="img" aria-label={item.name} />
                 <b>{item.name}</b>
               </Link>
