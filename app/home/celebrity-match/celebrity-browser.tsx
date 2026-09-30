@@ -60,9 +60,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
           <h1>遇见让你心动的人</h1>
           <p>选择一位偶像，生成你与 TA 的吠陀合盘报告。</p>
         </div>
-        <aside aria-hidden="true">
-          <p>星光不问赶路人<br />星盘自有答案</p>
-        </aside>
       </header>
 
       <div className="mf-bz-discover-toolbar">
