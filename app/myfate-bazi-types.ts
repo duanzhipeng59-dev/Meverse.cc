@@ -10,6 +10,7 @@ export type BaziSection = {
 
 export type BaziReadingResult = {
   version: 5;
+  name: string;
   headline: string;
   summary: string;
   chart: BaziChart;

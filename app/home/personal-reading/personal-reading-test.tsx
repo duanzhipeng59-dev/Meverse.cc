@@ -18,7 +18,10 @@ export default function PersonalReadingTest() {
   const { status, email } = useAuth();
   const started = useRef(false);
   const [gender, setGender] = useState<"male" | "female" | "">("");
-  const [birthDate, setBirthDate] = useState("");
+  const [personName, setPersonName] = useState("");
+  const [birthYear, setBirthYear] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthDay, setBirthDay] = useState("");
   const [birthTime, setBirthTime] = useState("00:00");
   const [birthProvinceCode, setBirthProvinceCode] = useState("");
   const [birthCityCode, setBirthCityCode] = useState("");
@@ -30,7 +33,6 @@ export default function PersonalReadingTest() {
   const [result, setResult] = useState<BaziReadingResult | null>(null);
   const [phase, setPhase] = useState<"loading" | "form" | "paipan" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
-  const today = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     if (status === "loading" || started.current) return;
@@ -48,7 +50,11 @@ export default function PersonalReadingTest() {
     if (!profile.birthDate || !profile.birthCityId) {
       profile = { ...profile, ...readBasicProfile(null), ...(profile.birthDate ? { birthDate: profile.birthDate } : {}) };
     }
-    setBirthDate(profile.birthDate);
+    setPersonName(profile.nickname || "");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(profile.birthDate)) {
+      const [y, m, d] = profile.birthDate.split("-");
+      setBirthYear(y); setBirthMonth(m); setBirthDay(d);
+    }
     setBirthTime(profile.birthTime || "00:00");
     const province = profile.birthProvinceCode;
     const city = profile.birthCityCode;
@@ -94,6 +100,25 @@ export default function PersonalReadingTest() {
     if (!districts.length) setBirthDistrictCode(code); // municipality leaf: city is the finest level
   }
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: currentYear - 1900 + 1 }, (_, index) => String(currentYear - index)).reverse();
+  const monthOptions = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
+  const daysInMonth = birthYear && birthMonth ? new Date(Number(birthYear), Number(birthMonth), 0).getDate() : 31;
+  const dayOptions = Array.from({ length: daysInMonth }, (_, index) => String(index + 1).padStart(2, "0"));
+  const birthDate = birthYear && birthMonth && birthDay ? `${birthYear}-${birthMonth}-${birthDay}` : "";
+
+  function chooseYear(value: string) {
+    setBirthYear(value); setError("");
+    const dim = value && birthMonth ? new Date(Number(value), Number(birthMonth), 0).getDate() : 31;
+    if (birthDay && Number(birthDay) > dim) setBirthDay(String(dim).padStart(2, "0"));
+  }
+
+  function chooseMonth(value: string) {
+    setBirthMonth(value); setError("");
+    const dim = birthYear && value ? new Date(Number(birthYear), Number(value), 0).getDate() : 31;
+    if (birthDay && Number(birthDay) > dim) setBirthDay(String(dim).padStart(2, "0"));
+  }
+
   function validateForm() {
     if (!gender) { setError("请选择性别（影响大运顺逆）。"); return null; }
     if (!validBirthDate(birthDate) || birthDate < "1900-01-01") { setError("请选择有效的出生日期。"); return null; }
@@ -114,7 +139,7 @@ export default function PersonalReadingTest() {
     if (!area?.name || typeof area.lon !== "number") { setError("出生地点无效，请重新选择。"); return; }
     const city = { id: area.code ?? birthDistrictCode, name: area.name!, lat: area.lat!, lon: area.lon!, tz: "Asia/Shanghai" };
     const profile = readBasicProfile(email);
-    writeBasicProfile(email, { ...profile, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
+    writeBasicProfile(email, { ...profile, nickname: personName.trim() || profile.nickname, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
     setChart(buildBaziChart({ gender: gender as "male" | "female", birthDate, birthTime, city }));
     setPhase("paipan");
   }
@@ -131,7 +156,7 @@ export default function PersonalReadingTest() {
       const response = await fetch("/api/myfate/personal-reading", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ gender, birthDate, birthTime, birthDistrictCode }),
+        body: JSON.stringify({ gender, birthDate, birthTime, birthDistrictCode, name: personName.trim() || undefined }),
       });
       if (response.status === 401) {
         window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
@@ -197,9 +222,26 @@ export default function PersonalReadingTest() {
       <div className="mf-bz-form-grid">
         <section className="mf-bz-form-card">
           <label className="mf-bz-field">
-            <span>出生日期</span>
-            <input type="date" min="1900-01-01" max={today} value={birthDate} onChange={(event) => { setBirthDate(event.target.value); setError(""); }} />
+            <span>名称（可选）</span>
+            <input type="text" maxLength={20} placeholder="如：我的命盘" value={personName} onChange={(event) => { setPersonName(event.target.value); setError(""); }} />
           </label>
+          <div className="mf-bz-field">
+            <span>出生日期</span>
+            <div className="mf-bz-area">
+              <select value={birthYear} onChange={(event) => chooseYear(event.target.value)}>
+                <option value="">年</option>
+                {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
+              </select>
+              <select value={birthMonth} onChange={(event) => chooseMonth(event.target.value)} disabled={!birthYear}>
+                <option value="">月</option>
+                {monthOptions.map((month) => <option key={month} value={month}>{month}</option>)}
+              </select>
+              <select value={birthDay} onChange={(event) => { setBirthDay(event.target.value); setError(""); }} disabled={!birthYear || !birthMonth}>
+                <option value="">日</option>
+                {dayOptions.map((day) => <option key={day} value={day}>{day}</option>)}
+              </select>
+            </div>
+          </div>
           <label className="mf-bz-field">
             <span>出生时间（可选）</span>
             <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />

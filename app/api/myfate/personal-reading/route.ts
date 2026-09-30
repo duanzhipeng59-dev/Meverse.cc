@@ -13,6 +13,7 @@ export const maxDuration = 120;
 const today = new Date().toISOString().slice(0, 10);
 const requestSchema = z.object({
   gender: z.enum(["male", "female"]),
+  name: z.string().trim().max(20).optional(),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u).refine((value) => value >= "1900-01-01" && value <= today),
   birthTime: z.string().regex(/^\d{2}:\d{2}$/u),
   birthDistrictCode: z.string().regex(/^\d{6}$/u),
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
     const interpretation = await interpretBaziChart(chart, parsed.data.gender);
     const result: BaziReadingResult = {
       version: 5,
+      name: parsed.data.name ?? "",
       headline: interpretation.headline,
       summary: interpretation.summary,
       chart,
