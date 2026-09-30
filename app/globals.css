@@ -5193,7 +5193,7 @@ select:focus-visible {
 /* ── 明星详情 · 手机端杂志式改版(仅 ≤860px,桌面不动)───────────────── */
 @media (max-width: 860px) {
   .mf-workspace-detail .mf-detail-main,
-  .mf-detail-page .mf-detail-main { width: 100%; padding: 0 0 118px; grid-template-columns: 1fr; gap: 0; align-items: start; }
+  .mf-detail-page .mf-detail-main { width: 100%; padding: 0 0 48px; grid-template-columns: 1fr; gap: 0; align-items: start; }
   /* 全幅人像 hero */
   .mf-workspace-detail .mf-detail-portrait-wrap,
   .mf-detail-page .mf-detail-portrait-wrap { width: 100%; margin: 0; }
@@ -5214,12 +5214,16 @@ select:focus-visible {
   .mf-detail-born, .mf-profile-basis { font-size: 12px; }
   .mf-detail-description { margin-top: 18px; }
   .mf-detail-description > p, .mf-detail-description dl { font-size: 13px; }
-  /* CTA 吸底 */
-  .mf-workspace-detail .mf-detail-cta,
-  .mf-detail-page .mf-detail-cta { position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; width: 100%; min-height: 58px; padding: 14px 20px; border-radius: 0; justify-content: center; box-shadow: 0 -8px 30px rgb(36 23 25 / 14%); }
-  .mf-detail-hint, .mf-bazi-note { margin-bottom: 0; }
-  .mf-workspace-detail .mf-detail-copy .mf-bazi-note { margin-bottom: 0; }
-  .mf-detail-description { padding-bottom: 14px; }
+  /* CTA 内联在描述之后(提示语位置),提示语隐藏 */
+  .mf-workspace-detail .mf-detail-copy,
+  .mf-detail-page .mf-detail-copy { display: flex; flex-direction: column; }
+  .mf-workspace-detail .mf-detail-copy > .mf-detail-description { order: 1; padding-bottom: 16px; }
+  .mf-workspace-detail .mf-detail-copy > .mf-detail-cta,
+  .mf-detail-page .mf-detail-copy > .mf-detail-cta { order: 2; width: 100%; min-height: 56px; margin-top: 0; border-radius: 10px; justify-content: center; position: static; }
+  .mf-workspace-detail .mf-detail-copy > .mf-detail-hint,
+  .mf-detail-page .mf-detail-copy > .mf-detail-hint { display: none; }
+  .mf-workspace-detail .mf-detail-copy > .mf-bazi-note,
+  .mf-detail-page .mf-detail-copy > .mf-bazi-note { order: 3; margin-top: 14px; }
 }
 
 /* 平板:双栏反转,人像更大(861-1180px),桌面 >1180 不动 */
