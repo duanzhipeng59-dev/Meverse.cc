@@ -47,7 +47,6 @@ export default function CelebrityDetail({
           <p className="mf-profile-basis">
             出生日期 {star.birthDate}
           </p>
-          <div className="mf-detail-traits">{star.traits.map((trait) => <span key={trait}>{trait}</span>)}</div>
           <div className="mf-detail-description">
             <h2>TA 的情感人格</h2>
             <p>{star.description}</p>
