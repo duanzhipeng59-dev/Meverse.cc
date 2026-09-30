@@ -5189,3 +5189,41 @@ select:focus-visible {
 
 .mf-bz-duo-info .mf-bz-field input { padding: 12px 14px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: var(--bz-paper-warm); color: var(--bz-ink); font-size: 14px; }
 .mf-bz-duo-info .mf-bz-field input:focus { outline: none; border-color: var(--bz-red); background: var(--bz-card); }
+
+/* ── 明星详情 · 手机端杂志式改版(仅 ≤860px,桌面不动)───────────────── */
+@media (max-width: 860px) {
+  .mf-workspace-detail .mf-detail-main,
+  .mf-detail-page .mf-detail-main { width: 100%; padding: 0 0 118px; grid-template-columns: 1fr; gap: 0; align-items: start; }
+  /* 全幅人像 hero */
+  .mf-workspace-detail .mf-detail-portrait-wrap,
+  .mf-detail-page .mf-detail-portrait-wrap { width: 100%; margin: 0; }
+  .mf-workspace-detail .mf-detail-portrait,
+  .mf-detail-page .mf-detail-portrait { width: 100%; aspect-ratio: 4 / 4.4; border-radius: 0; box-shadow: none; }
+  .mf-detail-portrait-wrap::after { content: ""; position: absolute; inset: auto 0 0; height: 34%; background: linear-gradient(transparent, rgb(20 10 14 / 55%)); pointer-events: none; }
+  /* 喜欢数:右上小徽章 */
+  .mf-workspace-detail .mf-floating-note,
+  .mf-detail-page .mf-floating-note { top: 14px; right: 14px; bottom: auto; left: auto; min-width: 0; padding: 8px 13px; display: inline-flex; align-items: baseline; gap: 7px; border-radius: 999px; background: rgb(255 254 252 / 82%); backdrop-filter: blur(10px); box-shadow: 0 8px 22px rgb(36 23 25 / 16%); }
+  .mf-workspace-detail .mf-floating-note strong, .mf-detail-page .mf-floating-note strong { font: 700 13.5px/1 Georgia, serif; }
+  .mf-workspace-detail .mf-floating-note small, .mf-detail-page .mf-floating-note small { font-size: 9.5px; }
+  .mf-workspace-detail .mf-floating-note > span, .mf-detail-page .mf-floating-note > span { font-size: 11px; }
+  /* 信息卡上浮压住照片底边 */
+  .mf-workspace-detail .mf-detail-copy,
+  .mf-detail-page .mf-detail-copy { position: relative; z-index: 2; margin: -56px 14px 0; padding: 24px 20px 26px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); box-shadow: 0 18px 44px rgb(36 23 25 / 10%); }
+  .mf-workspace-detail .mf-detail-copy h1, .mf-detail-page .mf-detail-copy h1 { margin: 8px 0 10px; font: 700 40px/1.1 var(--font-serif-display); letter-spacing: 0.02em; }
+  .mf-detail-tagline { font-size: 15px; line-height: 1.75; }
+  .mf-detail-born, .mf-profile-basis { font-size: 12px; }
+  .mf-detail-description { margin-top: 18px; }
+  .mf-detail-description > p, .mf-detail-description dl { font-size: 13px; }
+  /* CTA 吸底 */
+  .mf-workspace-detail .mf-detail-cta,
+  .mf-detail-page .mf-detail-cta { position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; width: 100%; min-height: 58px; padding: 14px 20px; border-radius: 0; justify-content: center; box-shadow: 0 -8px 30px rgb(36 23 25 / 14%); }
+  .mf-detail-hint, .mf-bazi-note { margin-bottom: 0; }
+  .mf-workspace-detail .mf-detail-copy .mf-bazi-note { margin-bottom: 0; }
+  .mf-detail-description { padding-bottom: 14px; }
+}
+
+/* 平板:双栏反转,人像更大(861-1180px),桌面 >1180 不动 */
+@media (min-width: 861px) and (max-width: 1180px) {
+  .mf-workspace-detail .mf-detail-main { grid-template-columns: 1.1fr 0.9fr; gap: 44px; align-items: start; }
+  .mf-detail-portrait { border-radius: 18px; }
+}
