@@ -4790,7 +4790,7 @@ select:focus-visible {
 @media (max-width: 860px) { .mf-bz-profile-grid { grid-template-columns: 1fr; } }
 
 /* ── 个人中心 · Figma 版单列布局 ─────────────────────────────────────── */
-.mf-bz-profile { display: flex; flex-direction: column; gap: 36px; padding: clamp(18px, 4vw, 44px) 0; }
+.mf-bz-profile { display: flex; flex-direction: column; gap: 36px; padding: clamp(24px, 4vw, 44px) clamp(18px, 4vw, 54px); }
 .mf-bz-profile-loading { color: #7d7473; font-size: 14px; }
 .mf-bz-profile-head { display: grid; gap: 12px; }
 .mf-bz-profile-head h1 { margin: 0; color: #241719; font: 700 clamp(30px, 4vw, 49px)/1.18 "Noto Serif SC", "Songti SC", Georgia, serif; }
