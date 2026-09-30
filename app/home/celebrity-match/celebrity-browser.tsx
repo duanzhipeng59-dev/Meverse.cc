@@ -25,6 +25,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const [tab, setTab] = useState<TabId>("all");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const gridRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
@@ -43,6 +44,12 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const currentPage = Math.min(page, totalPages);
   const pageStars = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+  function toggleFavorite(event: React.MouseEvent, starId: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    setFavorites(prev => prev.includes(starId) ? prev.filter(id => id !== starId) : [...prev, starId]);
+  }
+
   function goToPage(nextPage: number) {
     setPage(Math.min(totalPages, Math.max(1, nextPage)));
     window.requestAnimationFrame(() => {
@@ -56,10 +63,8 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   return (
     <div className="mf-bz-discover">
       <header className="mf-bz-discover-head">
-        <div>
-          <h1>遇见让你心动的人</h1>
-          <p>选择一位偶像，生成你与 TA 的吠陀合盘报告。</p>
-        </div>
+        <h1>遇见让你心动的人<i className="mf-bz-sparkle" aria-hidden="true">✦</i></h1>
+        <p>选择一位偶像，生成你与 TA 的合盘报告</p>
       </header>
 
       <div className="mf-bz-discover-toolbar">
@@ -81,7 +86,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
           <input
             type="search"
-            placeholder="搜索名字"
+            placeholder="搜索你喜欢的明星..."
             value={query}
             onChange={(event) => { setQuery(event.target.value); setPage(1); }}
             aria-label="搜索明星"
@@ -92,15 +97,26 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
       <div className="mf-bz-discover-grid" ref={gridRef}>
         {pageStars.map((star) => (
           <AuthEntryLink
-            className="mf-bz-star-card"
+            className="mf-bz-star-cover"
             href={`${basePath}/${star.id}`}
             anonymousNext={basePath}
             key={star.id}
           >
-            <div className="mf-bz-star-portrait" style={{ backgroundImage: `url("${star.portraitSrc}")` }} role="img" aria-label={`${star.name}的人物肖像`} />
-            <div className="mf-bz-star-info">
-              <strong>{star.name}</strong>
-              <span>{star.role}</span>
+            <div className="mf-bz-cover-img" style={{ backgroundImage: `url("${star.portraitSrc}")` }} role="img" aria-label={`${star.name}的人物肖像`} />
+            <button
+              type="button"
+              className={`mf-bz-cover-heart ${favorites.includes(star.id) ? "is-fav" : ""}`}
+              aria-label={favorites.includes(star.id) ? `取消喜欢 ${star.name}` : `喜欢 ${star.name}`}
+              onClick={(event) => toggleFavorite(event, star.id)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 9.1c0 4.7-8.5 9.4-8.5 9.4S3.5 13.8 3.5 9.1A4.6 4.6 0 0 1 12 6.7a4.6 4.6 0 0 1 8.5 2.4Z" /></svg>
+            </button>
+            <div className="mf-bz-cover-overlay">
+              <div className="mf-bz-cover-copy">
+                <strong>{star.name}</strong>
+                <span>{star.role}</span>
+              </div>
+              <span className="mf-bz-cover-go" aria-hidden="true">→</span>
             </div>
           </AuthEntryLink>
         ))}
