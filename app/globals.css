@@ -4792,9 +4792,12 @@ select:focus-visible {
 .mf-bz-profile { display: grid; gap: 24px; padding: clamp(18px, 4vw, 40px); border-radius: 18px; background: #faf8f4; }
 .mf-bz-profile-head h1 { margin: 0 0 8px; color: #1c1917; font: 700 28px/1.2 "Songti SC", Georgia, serif; letter-spacing: 0.03em; }
 .mf-bz-profile-head p { margin: 0; color: #78716c; font-size: 13px; }
-.mf-bz-profile-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: start; }
+.mf-bz-profile-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: stretch; }
 .mf-bz-profile-main { display: grid; gap: 22px; }
 .mf-bz-profile-card { padding: 26px 28px; border: 1px solid #ebe5da; border-radius: 12px; background: #fff; }
+.mf-bz-profile-side { display: grid; }
+.mf-bz-profile-side .mf-bz-profile-card { display: flex; flex-direction: column; height: 100%; }
+.mf-bz-profile-side .mf-bz-profile-account { flex: 1; }
 .mf-bz-profile-card header { margin-bottom: 18px; }
 .mf-bz-profile-card header span { display: block; color: #a92434; font-size: 11px; font-weight: 800; letter-spacing: 0.16em; }
 .mf-bz-profile-card header h2 { margin: 7px 0 0; color: #1c1917; font: 700 17px/1.3 "Songti SC", Georgia, serif; }
@@ -4813,6 +4816,6 @@ select:focus-visible {
 .mf-bz-profile-account div { display: grid; gap: 5px; padding-bottom: 14px; border-bottom: 1px solid #f0eadf; }
 .mf-bz-profile-account dt { color: #a8a29e; font-size: 11px; letter-spacing: 0.08em; }
 .mf-bz-profile-account dd { margin: 0; color: #1c1917; font-size: 14px; font-weight: 650; word-break: break-all; }
-.mf-bz-profile-logout { display: block; width: 100%; margin-top: 18px; padding: 12px; border: 1px solid #e5ddcd; border-radius: 10px; background: #fdfbf7; color: #57534e; font-size: 13.5px; font-weight: 700; text-align: center; cursor: pointer; }
+.mf-bz-profile-logout { display: block; width: 100%; margin-top: auto; padding: 12px; padding: 12px; border: 1px solid #e5ddcd; border-radius: 10px; background: #fdfbf7; color: #57534e; font-size: 13.5px; font-weight: 700; text-align: center; cursor: pointer; }
 .mf-bz-profile-logout:hover { border-color: #8b1e2d; color: #8b1e2d; }
 @media (max-width: 860px) { .mf-bz-profile-grid { grid-template-columns: 1fr; } }
