@@ -35,7 +35,8 @@ export default function PersonalReadingTest() {
   const [birthYear, setBirthYear] = useState("");
   const [birthMonth, setBirthMonth] = useState("");
   const [birthDay, setBirthDay] = useState("");
-  const [birthTime, setBirthTime] = useState("00:00");
+  const [birthHour, setBirthHour] = useState("00");
+  const [birthMinute, setBirthMinute] = useState("00");
   const [birthProvinceCode, setBirthProvinceCode] = useState("");
   const [birthCityCode, setBirthCityCode] = useState("");
   const [birthDistrictCode, setBirthDistrictCode] = useState("");
@@ -69,7 +70,10 @@ export default function PersonalReadingTest() {
       setBirthYear(pending.birthYear);
       setBirthMonth(pending.birthMonth);
       setBirthDay(pending.birthDay);
-      setBirthTime(pending.birthTime || "00:00");
+      if (/^\d{2}:\d{2}$/.test(pending.birthTime || "")) {
+        setBirthHour(pending.birthTime.slice(0, 2));
+        setBirthMinute(pending.birthTime.slice(3));
+      }
     }
     const province = pending?.birthProvinceCode ?? "";
     const city = pending?.birthCityCode ?? "";
@@ -121,6 +125,9 @@ export default function PersonalReadingTest() {
   const daysInMonth = birthYear && birthMonth ? new Date(Number(birthYear), Number(birthMonth), 0).getDate() : 31;
   const dayOptions = Array.from({ length: daysInMonth }, (_, index) => String(index + 1).padStart(2, "0"));
   const birthDate = birthYear && birthMonth && birthDay ? `${birthYear}-${birthMonth}-${birthDay}` : "";
+  const hourOptions = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"));
+  const minuteOptions = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
+  const birthTime = `${birthHour || "00"}:${birthMinute || "00"}`;
 
   function chooseYear(value: string) {
     setBirthYear(value); setError("");
@@ -269,10 +276,17 @@ export default function PersonalReadingTest() {
               </select>
             </div>
           </div>
-          <label className="mf-bz-field">
-            <span>出生时间（可选）</span>
-            <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
-          </label>
+          <div className="mf-bz-field">
+            <span>出生时间</span>
+            <div className="mf-bz-area">
+              <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setError(""); }}>
+                {hourOptions.map((hour) => <option key={hour} value={hour}>{hour} 时</option>)}
+              </select>
+              <select value={birthMinute} onChange={(event) => { setBirthMinute(event.target.value); setError(""); }}>
+                {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute} 分</option>)}
+              </select>
+            </div>
+          </div>
           <div className="mf-bz-field">
             <span>出生地点</span>
             <div className="mf-bz-area">
@@ -297,7 +311,7 @@ export default function PersonalReadingTest() {
               <button type="button" className={gender === "female" ? "is-active" : ""} onClick={() => { setGender("female"); setError(""); }}><i aria-hidden="true" />女</button>
             </div>
           </fieldset>
-          <small className="mf-bz-hint">出生时间不确定可保持默认 0:00，出生地点需选到区/县（用于真太阳时校准）。</small>
+          <small className="mf-bz-hint">出生时间不确定可保持默认 00:00，出生地点需选到区/县（用于真太阳时校准）。</small>
           <div className="mf-report-login-error" role="alert">{error}</div>
           <button className="mf-bz-submit" type="button" onClick={() => void paipan()}>开始排盘 <span aria-hidden="true">→</span></button>
         </section>
