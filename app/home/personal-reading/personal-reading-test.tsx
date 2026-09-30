@@ -35,8 +35,8 @@ export default function PersonalReadingTest() {
   const [birthYear, setBirthYear] = useState("");
   const [birthMonth, setBirthMonth] = useState("");
   const [birthDay, setBirthDay] = useState("");
-  const [birthHour, setBirthHour] = useState("00");
-  const [birthMinute, setBirthMinute] = useState("00");
+  const [birthHour, setBirthHour] = useState("");
+  const [birthMinute, setBirthMinute] = useState("");
   const [birthProvinceCode, setBirthProvinceCode] = useState("");
   const [birthCityCode, setBirthCityCode] = useState("");
   const [birthDistrictCode, setBirthDistrictCode] = useState("");
@@ -128,6 +128,7 @@ export default function PersonalReadingTest() {
   const hourOptions = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"));
   const minuteOptions = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
   const birthTime = `${birthHour || "00"}:${birthMinute || "00"}`;
+  const timeTouched = birthHour !== "" || birthMinute !== "";
 
   function chooseYear(value: string) {
     setBirthYear(value); setError("");
@@ -274,12 +275,14 @@ export default function PersonalReadingTest() {
           </div>
           <div className="mf-bz-field">
             <span>出生时间</span>
-            <div className="mf-bz-area">
-              <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setError(""); }}>
-                {hourOptions.map((hour) => <option key={hour} value={hour}>{hour} 时</option>)}
+            <div className="mf-bz-time">
+              <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setBirthMinute(event.target.value ? birthMinute || "00" : birthMinute); setError(""); }}>
+                <option value="">时</option>
+                {hourOptions.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
               </select>
-              <select value={birthMinute} onChange={(event) => { setBirthMinute(event.target.value); setError(""); }}>
-                {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute} 分</option>)}
+              <select value={birthMinute} onChange={(event) => { setBirthMinute(event.target.value); setError(""); }} disabled={!timeTouched}>
+                <option value="">分</option>
+                {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute}</option>)}
               </select>
             </div>
           </div>
