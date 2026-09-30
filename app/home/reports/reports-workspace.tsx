@@ -251,10 +251,11 @@ export default function ReportsWorkspace() {
                   <div className="mf-personal-reading-mark" aria-hidden="true">☰</div>
                   <div className="mf-report-card-copy">
                     <div className="mf-report-card-meta">
+                      <span className="profile">个人解读</span>
                       <span className={report.status}>{reportStatusLabel(report)}</span>
                       <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                     </div>
-                    <h2>个人八字解读</h2>
+                    <h2>{report.starName}</h2>
                   </div>
                   <div className="mf-report-card-result">
                     <span>{report.status === "advanced" ? "查看四柱排盘与解读" : "解读生成中"}</span>
