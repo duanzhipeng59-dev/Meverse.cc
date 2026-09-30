@@ -5263,3 +5263,33 @@ select:focus-visible {
 .mf-bz-starreport-placeholder p { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
 .mf-bz-starreport-note { margin: 0; padding: 12px 16px; border-radius: 10px; background: #f3eee4; color: #a8a29e; font-size: 11.5px; }
 @media (max-width: 760px) { .mf-bz-starreport-hero { flex-direction: column; align-items: flex-start; } .mf-bz-starreport-sections { grid-template-columns: 1fr; } }
+
+
+/* ── 个人中心 · 组件尺寸/UI 重设计(覆盖旧版)────────────────────────── */
+.mf-bz-profile { gap: 26px; padding: clamp(20px, 4vw, 44px) clamp(20px, 4vw, 54px); }
+.mf-bz-profile-head { gap: 6px; }
+.mf-bz-profile-head h1 { font-size: clamp(26px, 3.2vw, 34px); }
+.mf-bz-profile-head p { font-size: 14px; }
+.mf-bz-profile-head span { font-size: 12.5px; }
+
+/* 账号卡:更紧凑,头像带酒红环 */
+.mf-bz-account-card { min-height: 0; padding: 22px 28px; gap: 24px; border-radius: 14px; }
+.mf-bz-avatar { width: 92px; height: 92px; background: linear-gradient(150deg, #efd9d6, #e9cfcc); border: 3px solid #fffefc; box-shadow: 0 0 0 1px var(--bz-line-strong), 0 10px 24px rgb(116 18 37 / 12%); }
+.mf-bz-avatar svg { width: 42px; height: 42px; }
+.mf-bz-account-details { gap: 14px; }
+.mf-bz-account-details input { width: min(300px, 100%); font: 700 24px/34px "Noto Serif SC", "Songti SC", Georgia, serif; }
+.mf-bz-account-details b { font-size: 15px; }
+.mf-bz-account-button { width: 108px; height: 46px; font-size: 15px; border-radius: 8px; }
+
+/* 出生信息卡:输入更大更软,标签上移 */
+.mf-bz-birth-card { padding: 26px 28px 24px; gap: 20px; border-radius: 14px; }
+.mf-bz-birth-heading h2 { font-size: 22px; }
+.mf-bz-birth-row { gap: 20px; }
+.mf-bz-birth-field { flex: 1 1 340px; gap: 9px; }
+.mf-bz-birth-field > span { font-size: 13px; color: #57534e; }
+.mf-bz-birth-input { min-height: 52px; gap: 12px; border-radius: 8px; background: var(--bz-paper-warm); transition: border-color .2s ease, background .2s ease, box-shadow .2s ease; }
+.mf-bz-birth-input:focus-within { border-color: var(--bz-red); background: #fff; box-shadow: 0 0 0 3px rgb(139 30 45 / 8%); }
+.mf-bz-birth-input svg { width: 18px; height: 18px; }
+.mf-bz-birth-input select { font-size: 15px; }
+.mf-bz-privacy-note { margin-top: 2px; }
+.mf-bz-save-status i { box-shadow: 0 0 0 3px rgb(58 138 89 / 15%); }
