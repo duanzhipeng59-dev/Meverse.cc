@@ -175,10 +175,8 @@ export default function PersonalReadingTest() {
       if (!response.ok) throw new Error("暂时无法排盘，请稍后重试。");
       const body = await response.json() as { reportId?: string; result?: BaziReadingResult };
       if (!body.reportId || body.result?.version !== 5) throw new Error("排盘结果数据不完整。");
-      setReportId(body.reportId);
-      setChart(body.result.chart);
       window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
-      setPhase("paipan");
+      window.location.replace(`/home/reports/${body.reportId}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "暂时无法排盘。");
       setPhase("error");

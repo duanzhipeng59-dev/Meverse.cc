@@ -26,7 +26,7 @@ function formatDate(value: string) {
 function reportAction(report: SavedReport) {
   if (report.starId === "personal-reading") {
     if (report.status === "generating") return { label: "继续解读", href: `/home/reports/${report.id}`, disabled: false };
-    return { label: "重新排盘", href: `/home/personal-reading`, disabled: false };
+    return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
   }
   if (report.status === "advanced") return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
   if (report.status === "generating") return { label: "生成中", href: "", disabled: true };
@@ -249,7 +249,6 @@ export default function ReportsWorkspace() {
             if (report.starId === "personal-reading") {
               return (
                 <article className="mf-report-card mf-personal-reading-card" key={report.id}>
-                  <div className="mf-personal-reading-mark" aria-hidden="true">☰</div>
                   <div className="mf-report-card-copy">
                     <div className="mf-report-card-meta">
                       <span className="profile">个人解读</span>
@@ -272,12 +271,6 @@ export default function ReportsWorkspace() {
             }
             return (
               <article className="mf-report-card" key={report.id}>
-                <div
-                  className="mf-report-card-avatar"
-                  role="img"
-                  aria-label={report.starName}
-                  style={{ backgroundImage: `url("${report.starPortrait}")` }}
-                />
                 <div className="mf-report-card-copy">
                   <div className="mf-report-card-meta">
                     <span className={report.status}>

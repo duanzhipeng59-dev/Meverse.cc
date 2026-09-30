@@ -736,7 +736,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-fate-map-orbit, .mf-fate-map-star-orbit, .mf-fate-map-star { animation: none; }
   .mf-home-map-ring, .mf-home-map-star-orbit, .mf-home-map-star { animation: none !important; }
 }
-.mf-report-card { min-height: 132px; padding: 16px 20px 16px 16px; display: grid; grid-template-columns: 98px minmax(0, 1fr) auto; align-items: center; gap: 22px; border: 1px solid var(--mf-line); border-radius: 20px; background: rgba(255,255,255,.68); box-shadow: 0 14px 38px rgba(82,35,58,.05); }
+.mf-report-card { min-height: 132px; padding: 18px 20px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 22px; border: 1px solid var(--mf-line); border-radius: 20px; background: rgba(255,255,255,.68); box-shadow: 0 14px 38px rgba(82,35,58,.05); }
 .mf-report-card-avatar { width: 98px; height: 112px; border-radius: 15px; background-position: center; background-size: cover; box-shadow: 0 8px 22px rgba(55,35,43,.13); }
 .mf-report-card-copy { min-width: 0; }
 .mf-report-card-meta { display: flex; align-items: center; gap: 10px; }
