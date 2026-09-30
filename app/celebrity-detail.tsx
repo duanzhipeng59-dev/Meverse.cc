@@ -7,10 +7,12 @@ export default function CelebrityDetail({
   star,
   backHref,
   workspace = false,
+  others = [],
 }: {
   star: StarProfile;
   backHref: string;
   workspace?: boolean;
+  others?: StarProfile[];
 }) {
   return (
     <div className={workspace ? "mf-workspace-detail" : "mf-page mf-detail-page"}>
@@ -44,16 +46,9 @@ export default function CelebrityDetail({
           <span className="mf-kicker">{star.role}</span>
           <h1>{star.name}</h1>
           <p className="mf-detail-tagline">“{star.tagline}”</p>
-          <p className="mf-profile-basis">
-            出生日期 {star.birthDate}
-          </p>
+          <p className="mf-profile-basis">出生日期 {star.birthDate}</p>
           <div className="mf-detail-description">
-            <h2>TA 的情感人格</h2>
             <p>{star.description}</p>
-            <dl>
-              <div><dt>关系模式</dt><dd>{star.relationshipStyle}</dd></div>
-              <div><dt>看重的事</dt><dd>{star.focus}</dd></div>
-            </dl>
           </div>
           {workspace ? (
             <ReportAwareEntry starId={star.id} />
@@ -66,6 +61,20 @@ export default function CelebrityDetail({
           <p className="mf-bazi-note">合盘基于吠陀占星（Jyotish），出生时间与城市用于确定上升星座；仅供文化娱乐参考。</p>
         </section>
       </div>
+
+      {others.length ? (
+        <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">
+          <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
+          <div className="mf-detail-others-row">
+            {others.map((item) => (
+              <Link className="mf-detail-others-card" href={workspace ? `/home/relationship-test/${item.id}` : `/celebrity/${item.id}`} key={item.id}>
+                <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${item.portraitSrc}")` }} role="img" aria-label={item.name} />
+                <b>{item.name}</b>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }
