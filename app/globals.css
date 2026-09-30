@@ -4990,8 +4990,9 @@ select:focus-visible {
 .mf-footer p { color: #a8a29e; }
 
 /* ── 明星合盘发现页 (mf-bz-discover) ─────────────────────────────────── */
-.mf-bz-discover { display: grid; gap: 28px; padding: clamp(18px, 4vw, 40px) clamp(18px, 4vw, 54px); background: var(--bz-paper); border-radius: 18px; }
-.mf-bz-discover-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; }
+.mf-bz-discover { display: flex; flex-direction: column; align-items: stretch; gap: 22px; padding: 26px 38px 22px 60px; background: var(--bz-paper); border-radius: 18px; }
+@media (max-width: 900px) { .mf-bz-discover { padding: 20px 18px 18px; } }
+.mf-bz-discover-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; }
 .mf-bz-discover-head span { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.22em; }
 .mf-bz-discover-head h1 { margin: 10px 0 10px; color: var(--bz-ink); font: 700 clamp(26px, 3.6vw, 40px)/1.2 var(--font-serif-display); }
 .mf-bz-discover-head p { margin: 0; color: var(--bz-muted); font-size: 13.5px; }
@@ -5020,8 +5021,26 @@ select:focus-visible {
 .mf-bz-discover-pagination button { padding: 9px 16px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: var(--bz-card); color: var(--bz-ink); font-size: 12.5px; font-weight: 650; cursor: pointer; }
 .mf-bz-discover-pagination button:disabled { opacity: 0.45; cursor: default; }
 .mf-bz-discover-pagination span { color: var(--bz-muted); font-size: 12px; }
-@media (max-width: 980px) { .mf-bz-discover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mf-bz-discover-head aside { display: none; } }
-@media (max-width: 560px) { .mf-bz-discover-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1080px) { .mf-bz-discover-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 980px) {
+  .mf-bz-discover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .mf-bz-discover-head aside { display: none; }
+  .mf-bz-discover-head h1 { font-size: clamp(24px, 5.6vw, 30px); }
+  .mf-bz-discover-toolbar { flex-direction: column; align-items: stretch; }
+  .mf-bz-discover-tabs { overflow-x: auto; scrollbar-width: none; }
+  .mf-bz-discover-tabs::-webkit-scrollbar { display: none; }
+  .mf-bz-discover-search { min-width: 0; width: 100%; }
+}
+@media (max-width: 560px) {
+  .mf-bz-discover { gap: 16px; }
+  .mf-bz-discover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .mf-bz-star-card { padding: 10px; }
+  .mf-bz-star-info strong { font-size: 14px; }
+  .mf-bz-star-info span { font-size: 10px; }
+  .mf-bz-star-traits i { font-size: 9.5px; padding: 3px 7px; }
+  .mf-bz-star-cta { font-size: 11.5px; margin-top: 10px; padding-top: 9px; }
+  .mf-bz-discover-pagination { flex-wrap: wrap; gap: 10px; }
+}
 
 /* ── 明星合盘内容页 · bz 重排(间距/字号/层级自然化)──────────────────── */
 .mf-workspace-detail { background: var(--bz-paper); }
