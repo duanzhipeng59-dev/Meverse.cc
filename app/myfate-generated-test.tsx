@@ -235,20 +235,6 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
             <p>TA 的信息已自动就绪；你的出生信息如已保存会自动填入，也可手动修改。</p>
           </header>
           <div className="mf-bz-duo-form">
-            <section className="mf-bz-duo-info">
-              <header><span>TA · 明星（已自动就绪）</span></header>
-              <img src={star.portraitSrc} alt="" />
-              <h2>{star.name}</h2>
-              <p className="mf-bz-duo-role">{star.role}</p>
-              <small>出生日期 {star.birthDate}</small>
-              {vedicSummary ? (
-                <dl>
-                  <div><dt>上升</dt><dd>{vedicSignZh[vedicSummary.lagna] ?? vedicSummary.lagna} · {vedicSummary.lagnaNakshatra}</dd></div>
-                  <div><dt>月亮</dt><dd>{vedicSignZh[vedicSummary.moonSign] ?? vedicSummary.moonSign} · {vedicSummary.moonNakshatra}</dd></div>
-                  <div><dt>太阳</dt><dd>{vedicSignZh[vedicSummary.sunSign] ?? vedicSummary.sunSign}</dd></div>
-                </dl>
-              ) : null}
-            </section>
             <section className="mf-bz-duo-info is-you">
               <header><span>你 · 出生信息{hasSavedProfile ? "（已自动填入）" : "（请手动填写）"}</span></header>
               <label className="mf-bz-field">
@@ -305,6 +291,20 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
               <small className="mf-bz-hint">出生时间不确定可保持默认 00:00。</small>
               <div className="mf-report-login-error" role="alert">{error}</div>
               <button className="mf-bz-btn" type="button" onClick={() => { if (!validateBirth()) return; void createCompositeAnalysis(); }}>生成合盘分析 <span aria-hidden="true">→</span></button>
+            </section>
+            <section className="mf-bz-duo-info">
+              <header><span>TA · 明星（已自动就绪）</span></header>
+              <img src={star.portraitSrc} alt="" />
+              <h2>{star.name}</h2>
+              <p className="mf-bz-duo-role">{star.role}</p>
+              <small>出生日期 {star.birthDate}</small>
+              {vedicSummary ? (
+                <dl>
+                  <div><dt>上升</dt><dd>{vedicSignZh[vedicSummary.lagna] ?? vedicSummary.lagna} · {vedicSummary.lagnaNakshatra}</dd></div>
+                  <div><dt>月亮</dt><dd>{vedicSignZh[vedicSummary.moonSign] ?? vedicSummary.moonSign} · {vedicSummary.moonNakshatra}</dd></div>
+                  <div><dt>太阳</dt><dd>{vedicSignZh[vedicSummary.sunSign] ?? vedicSummary.sunSign}</dd></div>
+                </dl>
+              ) : null}
             </section>
           </div>
           <div className="mf-bz-form-grid" hidden>

@@ -5231,3 +5231,12 @@ select:focus-visible {
   .mf-workspace-detail .mf-detail-main { grid-template-columns: 1.1fr 0.9fr; gap: 44px; align-items: start; }
   .mf-detail-portrait { border-radius: 18px; }
 }
+
+/* 桌面:TA 卡在左(源顺序为你卡在前,这里用 order 反转);手机:你卡在上 */
+.mf-bz-duo-form { display: grid; }
+.mf-bz-duo-form .mf-bz-duo-info.is-you { order: 1; }
+.mf-bz-duo-form .mf-bz-duo-info:not(.is-you) { order: 0; }
+@media (max-width: 860px) {
+  .mf-bz-duo-form .mf-bz-duo-info.is-you { order: 0; }
+  .mf-bz-duo-form .mf-bz-duo-info:not(.is-you) { order: 1; }
+}
