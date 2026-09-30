@@ -145,7 +145,7 @@ export async function createProviderCheckout({
   device,
 }: {
   orderNo: string;
-  product: Product;
+  product: { name: string; amount: string | number };
   notifyUrl: string;
   clientIp: string;
   device: "mobile" | "pc";

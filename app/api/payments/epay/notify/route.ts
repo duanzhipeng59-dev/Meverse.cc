@@ -4,6 +4,7 @@ import {
   isSuccessfulPayment,
   verifyCallback,
 } from "../server";
+import { acceptCreditPayment, isCreditOrderNo } from "../credits/server";
 
 async function handle(request: Request) {
   try {
@@ -15,7 +16,11 @@ async function handle(request: Request) {
     if (!verifyCallback(payload) || !isSuccessfulPayment(payload)) {
       return new Response("error", { status: 400 });
     }
-    await acceptProviderPayment(payload);
+    if (isCreditOrderNo(payload.out_trade_no ?? "")) {
+      await acceptCreditPayment(payload);
+    } else {
+      await acceptProviderPayment(payload);
+    }
     return new Response("success", {
       headers: { "content-type": "text/plain; charset=utf-8" },
     });

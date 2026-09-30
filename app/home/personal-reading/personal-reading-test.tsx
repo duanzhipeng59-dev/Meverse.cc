@@ -75,6 +75,11 @@ export default function PersonalReadingTest() {
         window.location.replace(`/login?next=${encodeURIComponent(PAGE_PATH)}&from=${encodeURIComponent(PAGE_PATH)}`);
         return;
       }
+      if (response.status === 402) {
+        setError("报告额度不足：请先在订阅升级页购买报告次数（合盘与个人解读通用）。");
+        setTimeout(() => { window.location.href = "/home/upgrade"; }, 1800);
+        return;
+      }
       if (!response.ok) throw new Error("暂时无法生成个人解读，请稍后重试。");
       const body = await response.json() as { report: { id: string }; result: BaziReadingResult };
       if (!body.report?.id || body.result?.version !== 5) throw new Error("解读结果数据不完整。");

@@ -69,6 +69,11 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
         window.location.replace(`/login?next=${encodeURIComponent(next)}&from=${encodeURIComponent(`/home/relationship-test/${star.id}`)}`);
         return;
       }
+      if (response.status === 402) {
+        setError("报告额度不足：请先在订阅升级页购买报告次数（合盘与个人解读通用）。");
+        setTimeout(() => { window.location.href = "/home/upgrade"; }, 1800);
+        return;
+      }
       if (!response.ok) throw new Error("暂时无法生成合盘分析，请稍后重试。");
       const body = await response.json() as { report: { id: string }; result: FormulaTestResult };
       if (!body.report?.id || body.result?.version !== 4) throw new Error("合盘结果数据不完整。");

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
 
 type PurchaseMode = "package" | "single";
@@ -64,13 +64,112 @@ const packages: readonly UpgradePackage[] = [
   },
 ] as const;
 
+type CreditCheckout = {
+  checkoutUrl: string;
+  qrContent: string;
+  orderNo: string;
+  accessToken: string;
+};
+
 export default function UpgradeWorkspace() {
   const { status } = useAuth();
   const [mode, setMode] = useState<PurchaseMode>("package");
   const [selectedId, setSelectedId] = useState<PackageId>("explore");
   const [message, setMessage] = useState("");
+  const [balance, setBalance] = useState<number | null>(null);
+  const [checkout, setCheckout] = useState<CreditCheckout | null>(null);
+  const [payState, setPayState] = useState<"idle" | "creating" | "pending" | "paid">("idle");
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const visiblePackages = packages.filter((item) => item.mode === mode);
   const selectedPackage = packages.find((item) => item.id === selectedId) ?? packages[1];
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    let active = true;
+    fetch("/api/myfate/credits").then((response) => response.json() as Promise<{ balance?: number }>).then((data) => {
+      if (active && typeof data.balance === "number") setBalance(data.balance);
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [status]);
+
+  useEffect(() => {
+    if (!checkout?.qrContent) return;
+    let active = true;
+    import("qrcode-generator").then(({ default: qrcode }) => {
+      if (!active) return;
+      const code = qrcode(0, "M");
+      code.addData(checkout.qrContent);
+      code.make();
+      setQrDataUrl(code.createDataURL(6, 4));
+    });
+    return () => { active = false; };
+  }, [checkout?.qrContent]);
+
+  useEffect(() => {
+    if (!checkout || payState !== "pending") return;
+    const payment = checkout;
+    let active = true;
+    let timer: number | undefined;
+    let attempts = 0;
+    async function check() {
+      try {
+        const params = new URLSearchParams({ order: payment.orderNo, token: payment.accessToken });
+        const response = await fetch(`/api/payments/epay/credits/status?${params.toString()}`);
+        const data = await response.json() as { status?: string; balance?: number };
+        if (!active) return;
+        if (data.status === "paid") {
+          setPayState("paid");
+          if (typeof data.balance === "number") setBalance(data.balance);
+          window.dispatchEvent(new CustomEvent("myfate-credits-updated"));
+          return;
+        }
+        if (data.status === "cancelled") {
+          setPayState("idle");
+          setCheckout(null);
+          setMessage("订单已取消，可重新选择套餐购买。");
+          return;
+        }
+      } catch { /* keep polling */ }
+      if (!active) return;
+      attempts += 1;
+      if (attempts >= 60) {
+        setPayState("idle");
+        setCheckout(null);
+        setMessage("支付等待超时，未完成支付可重新下单。");
+        return;
+      }
+      timer = window.setTimeout(() => void check(), 3000);
+    }
+    void check();
+    return () => {
+      active = false;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [checkout, payState]);
+
+  async function startPayment() {
+    setPayState("creating");
+    setMessage("");
+    try {
+      const response = await fetch("/api/payments/epay/credits/create", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ packageId: selectedPackage.id }),
+      });
+      const data = await response.json() as Partial<CreditCheckout> & { error?: string };
+      if (!response.ok || !data.checkoutUrl || !data.qrContent || !data.orderNo || !data.accessToken) {
+        setPayState("idle");
+        setMessage(data.error === "login_required" ? "请先登录后再购买。" : "暂时无法创建订单，请稍后重试。");
+        return;
+      }
+      setQrDataUrl(null);
+      setCheckout({ checkoutUrl: data.checkoutUrl, qrContent: data.qrContent, orderNo: data.orderNo, accessToken: data.accessToken });
+      setPayState("pending");
+    } catch {
+      setPayState("idle");
+      setMessage("网络异常，请稍后重试。");
+    }
+  }
 
   function changeMode(nextMode: PurchaseMode) {
     setMode(nextMode);
@@ -84,6 +183,7 @@ export default function UpgradeWorkspace() {
         <span className="mf-kicker">MYFATE PACKAGES</span>
         <h1>选择你的关系探索方式</h1>
         <p>{mode === "package" ? "购买多次报告套餐，次数按需使用，合盘与个人解读通用。" : "单次购买一份报告，用完后可再次购买。"}</p>
+        {typeof balance === "number" ? <p className="mf-upgrade-balance">当前剩余报告额度：<strong>{balance}</strong> 次</p> : null}
       </header>
 
       <div className="mf-upgrade-tabs" role="tablist" aria-label="购买方式">
@@ -146,9 +246,10 @@ export default function UpgradeWorkspace() {
           <button
             className="mf-primary-button"
             type="button"
-            onClick={() => setMessage("套餐已选好，支付与次数到账功能将在下一步接入。")}
+            disabled={payState === "creating" || payState === "pending"}
+            onClick={() => void startPayment()}
           >
-            继续购买 <span aria-hidden="true">→</span>
+            {payState === "creating" ? "正在创建订单…" : payState === "pending" ? "等待支付…" : "继续购买"} <span aria-hidden="true">→</span>
           </button>
         ) : (
           <Link
@@ -159,6 +260,32 @@ export default function UpgradeWorkspace() {
           </Link>
         )}
       </section>
+
+      {checkout && payState !== "idle" ? (
+        <section className="mf-upgrade-paypanel" aria-label="支付面板">
+          {payState === "paid" ? (
+            <div className="mf-upgrade-paypanel-paid">
+              <span>✓</span>
+              <div>
+                <h2>支付成功，次数已到账</h2>
+                <p>当前剩余报告额度 <strong>{balance ?? "—"}</strong> 次，可以直接生成合盘或个人解读。</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mf-upgrade-paypanel-qr">
+              <div className="mf-upgrade-paypanel-qrimg">
+                {qrDataUrl ? <img src={qrDataUrl} alt="支付宝收款二维码" width={168} height={168} /> : <span>二维码生成中…</span>}
+              </div>
+              <div className="mf-upgrade-paypanel-copy">
+                <h2>使用支付宝扫码支付</h2>
+                <p>套餐：{selectedPackage.name} · {selectedPackage.usesLabel} · ¥{selectedPackage.price}</p>
+                <p>支付完成后本页会自动刷新，次数实时到账。</p>
+                <a href={checkout.checkoutUrl} target="_blank" rel="noreferrer noopener">在浏览器中打开支付页面 →</a>
+              </div>
+            </div>
+          )}
+        </section>
+      ) : null}
 
       <p className="mf-upgrade-feedback" aria-live="polite">{message}</p>
 

@@ -5,6 +5,7 @@ import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { interpretBaziChart } from "../../../myfate-bazi-interpretation";
 import { serializeBaziResult, type BaziReadingResult } from "../../../myfate-bazi-types";
 import { findVedicCity } from "../../../myfate-cities";
+import { consumeReportCredit, getReportCredits } from "../../payments/epay/credits/server";
 import { mapReportRow, type ReportRow } from "../reports/server";
 
 export const maxDuration = 120;
@@ -27,6 +28,9 @@ export async function POST(request: Request) {
     if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
     const city = findVedicCity(parsed.data.birthCityId);
     if (!city) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
+    if (await getReportCredits(session.user.id).catch(() => 0) < 1) {
+      return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+    }
 
     const chart = buildBaziChart({ ...parsed.data, city });
     const interpretation = await interpretBaziChart(chart, parsed.data.gender);
@@ -55,6 +59,10 @@ export async function POST(request: Request) {
       interpretation_source: "deepseek",
     }).select(REPORT_SELECT).single();
     if (error) throw error;
+    if (await consumeReportCredit(session.user.id) < 0) {
+      await createSupabaseAdminClient().from("myfate_reports").delete().eq("id", data.id);
+      return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+    }
     return Response.json({ report: mapReportRow(data as ReportRow), result }, { status: 201, headers: session.headers });
   } catch (error) {
     console.error("Failed to create personal reading", error);

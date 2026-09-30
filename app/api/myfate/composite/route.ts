@@ -6,6 +6,7 @@ import { serializeVedicResult, type VedicCompositeResult, type VedicChartSummary
 import { computeVedicChart, computeVedicSynastry, vedicServiceConfigured, type VedicServiceChart } from "../../../myfate-vedic-client";
 import { interpretVedicSynastry } from "../../../myfate-vedic-interpretation";
 import { findVedicCity } from "../../../myfate-cities";
+import { consumeReportCredit, getReportCredits } from "../../payments/epay/credits/server";
 import { mapReportRow, type ReportRow } from "../reports/server";
 
 export const maxDuration = 300;
@@ -96,6 +97,9 @@ export async function POST(request: Request) {
       console.error("Vedic composite unavailable: VEDIC_SERVICE_URL not configured");
       return Response.json({ error: "COMPOSITE_UNAVAILABLE" }, { status: 503 });
     }
+    if (await getReportCredits(session.user.id).catch(() => 0) < 1) {
+      return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+    }
 
     let vedic: VedicCompositeResult;
     try {
@@ -126,6 +130,10 @@ export async function POST(request: Request) {
       interpretation_source: "deepseek",
     }).select("id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at").single();
     if (error) throw error;
+    if (await consumeReportCredit(session.user.id) < 0) {
+      await createSupabaseAdminClient().from("myfate_reports").delete().eq("id", data.id);
+      return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+    }
     return Response.json({ report: mapReportRow(data as ReportRow), result: vedic, mode: "vedic" }, { status: 201, headers: session.headers });
   } catch (error) {
     console.error("Failed to create vedic composite", error);
