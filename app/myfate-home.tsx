@@ -26,7 +26,7 @@ export default async function MyfateHome() {
           <Link href="/#stars">解读对象</Link>
           <a href="#how-it-works">解读说明</a>
         </nav>
-        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/personal-reading" anonymousChildren="登录">工作台</AuthEntryLink>
+        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/relationship-test" anonymousChildren="登录">工作台</AuthEntryLink>
       </header>
 
       <main>

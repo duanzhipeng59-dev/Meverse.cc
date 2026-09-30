@@ -12,7 +12,7 @@ export async function requirePageUser(pathname: string) {
   const { user } = await getSessionUser(request);
 
   if (!user) {
-    const cardList = "/home/personal-reading";
+    const cardList = "/home/relationship-test";
     redirect(`/login?next=${encodeURIComponent(cardList)}&from=${encodeURIComponent(cardList)}`);
   }
 

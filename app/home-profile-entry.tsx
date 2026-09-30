@@ -92,7 +92,7 @@ export default function HomeProfileEntry() {
             }}
           />
         </label>
-        <Link className="mf-primary-button mf-home-profile-submit" href="/home/personal-reading">
+        <Link className="mf-primary-button mf-home-profile-submit" href="/home/relationship-test">
           <span>开始个人解读</span><b aria-hidden="true">→</b>
         </Link>
       </div>
