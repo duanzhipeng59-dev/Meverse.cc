@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRef } from "react";
 import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziReadingResult } from "./myfate-bazi-types";
 
@@ -77,16 +78,27 @@ function WuXingBars({ wuXing }: { wuXing: Record<string, number> }) {
 }
 
 function DaYunTimeline({ chart }: { chart: BaziChart }) {
+  const scroller = useRef<HTMLOListElement | null>(null);
+  const slide = (direction: 1 | -1) => {
+    const el = scroller.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * Math.max(el.clientWidth * 0.8, 200), behavior: "smooth" });
+  };
   return (
-    <ol className="mf-bz-dayun">
-      {chart.daYun.steps.map((step) => (
-        <li key={step.ganzhi + step.startYear} className={step.current ? "is-current" : ""}>
-          <b>{step.ganzhi}</b>
-          <span>{step.startYear}–{step.endYear}</span>
-          <small>{step.startAge}–{step.endAge} 岁</small>
-        </li>
-      ))}
-    </ol>
+    <div className="mf-bz-dayun-slider">
+      <button type="button" className="mf-bz-dayun-arrow is-prev" onClick={() => slide(-1)} aria-label="向左查看更早大运">‹</button>
+      <ol className="mf-bz-dayun" ref={scroller}>
+        {chart.daYun.steps.map((step) => (
+          <li key={step.ganzhi + step.startYear} className={step.current ? "is-current" : ""}>
+            <b>{step.ganzhi}</b>
+            <span>{step.startYear}–{step.endYear}</span>
+            <small>{step.startAge}–{step.endAge} 岁</small>
+            {step.current ? <em>当前大运</em> : null}
+          </li>
+        ))}
+      </ol>
+      <button type="button" className="mf-bz-dayun-arrow is-next" onClick={() => slide(1)} aria-label="向右查看更晚大运">›</button>
+    </div>
   );
 }
 
