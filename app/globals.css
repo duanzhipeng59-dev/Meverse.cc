@@ -5022,3 +5022,30 @@ select:focus-visible {
 .mf-bz-discover-pagination span { color: var(--bz-muted); font-size: 12px; }
 @media (max-width: 980px) { .mf-bz-discover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mf-bz-discover-head aside { display: none; } }
 @media (max-width: 560px) { .mf-bz-discover-grid { grid-template-columns: 1fr; } }
+
+/* ── 明星合盘内容页 · bz 重排(间距/字号/层级自然化)──────────────────── */
+.mf-workspace-detail { background: var(--bz-paper); }
+.mf-workspace-detail-topbar { border-bottom-color: var(--bz-line); width: min(1080px, calc(100% - 48px)); }
+.mf-workspace-detail-topbar > span { color: var(--bz-red); letter-spacing: 0.16em; }
+.mf-workspace-detail .mf-detail-main { width: min(1080px, calc(100% - 48px)); padding: 44px 0 70px; grid-template-columns: 0.92fr 1.08fr; gap: 64px; align-items: start; }
+.mf-workspace-detail .mf-detail-portrait { border-radius: 14px; box-shadow: none; border: 1px solid var(--bz-line); }
+.mf-floating-note { right: -16px; bottom: 24px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); box-shadow: 0 10px 26px rgb(36 23 25 / 8%); backdrop-filter: none; }
+.mf-floating-note > span { color: var(--bz-red); }
+.mf-floating-note strong { color: var(--bz-ink); }
+.mf-detail-copy .mf-kicker { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.2em; }
+.mf-detail-copy h1 { margin: 12px 0 8px; font: 700 clamp(40px, 5vw, 56px)/1.15 var(--font-serif-display); letter-spacing: 0.02em; color: var(--bz-ink); }
+.mf-detail-tagline { color: var(--bz-muted); font: 400 16px/1.7 var(--font-serif-display); font-style: normal; }
+.mf-profile-basis { margin: 10px 0 0; color: var(--bz-muted); font-size: 12.5px; }
+.mf-detail-traits { margin: 20px 0 0; gap: 8px; }
+.mf-detail-traits span { border: 1px solid #f0e6d8; border-radius: 999px; background: #faf5ec; color: #8a6d2f; font-size: 12px; padding: 6px 12px; }
+.mf-detail-description { margin-top: 24px; padding: 24px 0; border-color: var(--bz-line); }
+.mf-detail-description h2 { color: var(--bz-ink); font: 700 16px/1.4 var(--font-serif-display); }
+.mf-detail-description > p { color: #57534e; font-size: 13.5px; }
+.mf-detail-description dl { margin: 18px 0 0; display: grid; gap: 10px; }
+.mf-detail-description dl div { display: grid; grid-template-columns: 76px 1fr; gap: 12px; }
+.mf-detail-description dt { color: #a8a29e; font-size: 12.5px; }
+.mf-detail-description dd { margin: 0; color: var(--bz-ink); font-size: 13px; font-weight: 600; }
+.mf-workspace-detail .mf-detail-copy .mf-detail-cta,
+.mf-detail-page .mf-detail-cta { margin-top: 26px; border-radius: 10px; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); box-shadow: none; }
+.mf-detail-hint { margin: 14px 0 0; color: var(--bz-muted); font-size: 12px; }
+.mf-bazi-note { margin: 8px 0 0; padding: 12px 14px; border-radius: 10px; background: #f3eee4; color: #a8a29e; font-size: 11px; line-height: 1.7; }
