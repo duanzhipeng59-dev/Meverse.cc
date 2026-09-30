@@ -224,18 +224,18 @@ export default function PersonalReadingTest() {
   if (phase === "result" && result) {
     return (
       <main className="mf-result-main">
-        <MyfateBaziResult result={result} actions={<button className="mf-primary-button" type="button" onClick={() => { setResult(null); setChart(null); setReportId(""); setPhase("form"); }}>重新排盘</button>} />
+        <MyfateBaziResult result={result} actions={<button className="mf-bz-btn" type="button" onClick={() => { setResult(null); setChart(null); setReportId(""); setPhase("form"); }}>重新排盘</button>} />
       </main>
     );
   }
   if (phase === "paipan" && chart) {
     return (
       <main className="mf-result-main">
-        <div className="mf-formula-result mf-bazi-result">
+        <div className="mf-bz-result">
           <BaziChartSections chart={chart} />
           <div className="mf-result-actions">
-            <button className="mf-secondary-button" type="button" onClick={() => { setChart(null); setReportId(""); setPhase("form"); }}>← 修改信息</button>
-            <button className="mf-primary-button" type="button" onClick={() => void createReading()}>生成解读 <span>→</span></button>
+            <button className="mf-bz-btn-ghost" type="button" onClick={() => { setChart(null); setReportId(""); setPhase("form"); }}>← 修改信息</button>
+            <button className="mf-bz-btn" type="button" onClick={() => void createReading()}>生成解读 <span aria-hidden="true">→</span></button>
           </div>
         </div>
       </main>

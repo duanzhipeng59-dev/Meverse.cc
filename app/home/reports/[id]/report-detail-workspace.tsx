@@ -38,7 +38,7 @@ function InterpretButton({ reportId }: { reportId: string }) {
   return (
     <div className="mf-bz-interpret-cta">
       {error ? <p className="mf-report-login-error" role="alert">{error}</p> : null}
-      <button className="mf-primary-button" type="button" disabled={busy} onClick={() => void interpret()}>
+      <button className="mf-bz-btn" type="button" disabled={busy} onClick={() => void interpret()}>
         {busy ? "正在生成解读…" : "生成解读（消耗 1 次额度）"}
       </button>
     </div>
@@ -129,7 +129,7 @@ export default function ReportDetailWorkspace({
             result={baziDraft}
             actions={needsInterpret
               ? <InterpretButton reportId={report.id} />
-              : <Link className="mf-primary-button" href="/home/personal-reading">重新排盘</Link>}
+              : <Link className="mf-bz-btn" href="/home/personal-reading">重新排盘</Link>}
           />
         </div>
       );

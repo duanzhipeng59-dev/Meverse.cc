@@ -1,6 +1,21 @@
 @import "tailwindcss";
 
 :root {
+  /* mf-bz 新中式设计 token(全站统一基准) */
+  --bz-red: #8b1e2d;
+  --bz-red-deep: #741225;
+  --bz-red-bright: #a92434;
+  --bz-paper: #faf8f4;
+  --bz-paper-warm: #fdfbf7;
+  --bz-card: #fffefc;
+  --bz-line: #ebe5da;
+  --bz-line-strong: #d7c9c3;
+  --bz-ink: #241719;
+  --bz-muted: #7d7473;
+  --bz-gold: #c9a15a;
+  --bz-green: #3a8a59;
+  --font-serif-display: "Noto Serif SC", "Songti SC", Georgia, serif;
+
   --blue: #3189ef;
   --blue-dark: #1f75da;
   --blue-soft: #eef6ff;
@@ -4825,3 +4840,10 @@ select:focus-visible {
 .mf-bz-privacy-note { margin: 4px 0 0; display: flex; align-items: center; gap: 10px; color: #7d7473; font: 400 14px/17px Inter, system-ui, sans-serif; }
 .mf-bz-privacy-note svg { flex-shrink: 0; width: 19px; height: 19px; stroke: #7d7473; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 720px) { .mf-bz-account-card { padding: 24px; } .mf-bz-avatar { width: 96px; height: 96px; } .mf-bz-avatar svg { width: 46px; height: 46px; } }
+
+/* ── mf-bz 统一按钮两件套(替代旧 mf-primary/secondary-button)──────── */
+.mf-bz-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 26px; border: 0; border-radius: 10px; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); color: #fff; font: 750 14.5px/1.2 var(--font-serif-display); letter-spacing: 0.06em; cursor: pointer; text-decoration: none; }
+.mf-bz-btn:hover { filter: brightness(1.08); }
+.mf-bz-btn:disabled { opacity: 0.55; cursor: default; }
+.mf-bz-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: var(--bz-paper-warm); color: var(--bz-ink); font: 650 13.5px/1.2 var(--font-serif-display); cursor: pointer; text-decoration: none; }
+.mf-bz-btn-ghost:hover { border-color: var(--bz-red); color: var(--bz-red); }

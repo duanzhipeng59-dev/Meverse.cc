@@ -170,7 +170,7 @@ export default function MyfateBaziResult({ result, actions }: { result: BaziRead
       </section>
 
       <p className="mf-bz-disclaimer">本解读基于子平八字体系，由排盘计算数据结合 AI 生成，仅供传统文化娱乐与自我观察参考，不构成医疗、财务或人生决策依据。</p>
-      <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/personal-reading">返回个人解读</Link>}</div>
+      <div className="mf-result-actions">{actions ?? <Link className="mf-bz-btn-ghost" href="/home/personal-reading">返回个人解读</Link>}</div>
     </div>
   );
 }

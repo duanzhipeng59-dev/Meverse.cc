@@ -96,37 +96,44 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     return (
       <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
         <TestHeader star={star} workspace={workspace} label="吠陀合盘资料" />
-        <main className="mf-question-main">
-          <section className="mf-question-card mf-profile-question-card">
-            <span className="mf-question-eyebrow">开始合盘前</span>
+        <main className="mf-bz-form">
+          <header className="mf-bz-form-head">
+            <span>明星合盘</span>
             <h1>输入你的出生信息</h1>
-            <p><strong>系统将使用吠陀占星（Jyotish）为你与 {star.name} 生成完整合盘报告（六维关系矩阵）。</strong>出生时间不确定时可保持默认 0:00，出生城市必填。</p>
-            <div className="mf-profile-question-fields">
-              <label className="mf-profile-field">
+            <p>系统将使用吠陀占星（Jyotish）为你与 {star.name} 生成完整合盘报告（六维关系矩阵）。</p>
+          </header>
+          <div className="mf-bz-form-grid">
+            <section className="mf-bz-form-card">
+              <label className="mf-bz-field">
                 <span>出生日期</span>
                 <input type="date" min="1900-01-01" max={today} value={birthDate} onChange={(event) => { setBirthDate(event.target.value); setError(""); }} />
-                <small>日期会自动保存到这台设备的个人中心。</small>
               </label>
-              <label className="mf-profile-field">
+              <label className="mf-bz-field">
                 <span>出生时间</span>
                 <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
-                <small>默认 0:00；越精确上升星座越准，不确定可保持默认。</small>
               </label>
-              <label className="mf-profile-field">
-                <span>出生城市（必填）</span>
+              <label className="mf-bz-field">
+                <span>出生城市</span>
                 <select value={birthCityId} onChange={(event) => { setBirthCityId(event.target.value); setError(""); }}>
-                  <option value="">请选择出生城市</option>
+                  <option value="">请选择城市</option>
                   {vedicCities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
                 </select>
-                <small>用于确定地理坐标与时区，列表未收录的城市请选择临近城市。</small>
               </label>
-            </div>
-            <div className="mf-report-login-error" role="alert">{error}</div>
-            <div className="mf-question-nav">
-              <Link className="mf-text-button" href={workspace ? `/home/relationship-test/${star.id}` : `/celebrity/${star.id}`}>← 返回详情</Link>
-              <button className="mf-primary-button" type="button" onClick={() => void createCompositeAnalysis()}>查看合盘分析 <span>→</span></button>
-            </div>
-          </section>
+              <small className="mf-bz-hint">出生时间不确定可保持默认 00:00；出生城市必填（确定地理坐标与时区）。</small>
+              <div className="mf-report-login-error" role="alert">{error}</div>
+              <button className="mf-bz-btn" type="button" onClick={() => void createCompositeAnalysis()}>查看合盘分析 <span aria-hidden="true">→</span></button>
+            </section>
+            <aside className="mf-bz-include">
+              <h2>这份合盘包含</h2>
+              <ul>
+                <li><i aria-hidden="true">盘</i><div><b>六维关系矩阵</b><p>情绪安全、吸引亲密、沟通修复等六个维度，档位判断附证据与置信度。</p></div></li>
+                <li><i aria-hidden="true">宫</i><div><b>双向宫位互动</b><p>双方行星分别落入对方宫位的结构，是互动方式的主要证据。</p></div></li>
+                <li><i aria-hidden="true">宿</i><div><b>Ashtakoota 月宿筛查</b><p>传统月宿配对八项参考，结合关系类型结论呈现。</p></div></li>
+                <li><i aria-hidden="true">时</i><div><b>时机观察</b><p>双方 Dasha 序列的共振窗口提示。</p></div></li>
+              </ul>
+            </aside>
+          </div>
+          <Link className="mf-bz-btn-ghost" style={{ justifySelf: "start" }} href={workspace ? `/home/relationship-test/${star.id}` : `/celebrity/${star.id}`}>← 返回详情</Link>
         </main>
       </div>
     );
