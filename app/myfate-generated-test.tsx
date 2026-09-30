@@ -23,7 +23,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   const [cityOptions, setCityOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [districtOptions, setDistrictOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [result, setResult] = useState<FormulaTestResult | null>(null);
-  const [phase, setPhase] = useState<"loading" | "profile" | "confirm" | "analyzing" | "result" | "error">("loading");
+  const [phase, setPhase] = useState<"loading" | "profile" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
   const MUNICIPALITIES = new Set(["110000", "120000", "310000", "500000"]);
   const DEFAULT_PROVINCE = "110000";
@@ -270,59 +270,22 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
               </div>
               <small className="mf-bz-hint">出生时间不确定可保持默认 00:00；出生地点需选到区/县（用于真太阳时与上升星座校准）。</small>
               <div className="mf-report-login-error" role="alert">{error}</div>
-              <button className="mf-bz-btn" type="button" onClick={() => { if (!validateBirth()) return; setPhase("confirm"); }}>下一步：确认双方信息 <span aria-hidden="true">→</span></button>
+              <button className="mf-bz-btn" type="button" onClick={() => { if (!validateBirth()) return; void createCompositeAnalysis(); }}>生成合盘分析 <span aria-hidden="true">→</span></button>
             </section>
-            <aside className="mf-bz-include">
-              <h2>这份合盘包含</h2>
-              <ul>
-                <li><i aria-hidden="true">盘</i><div><b>六维关系矩阵</b><p>情绪安全、吸引亲密、沟通修复等六个维度，档位判断附证据与置信度。</p></div></li>
-                <li><i aria-hidden="true">宫</i><div><b>双向宫位互动</b><p>双方行星分别落入对方宫位的结构，是互动方式的主要证据。</p></div></li>
-                <li><i aria-hidden="true">宿</i><div><b>Ashtakoota 月宿筛查</b><p>传统月宿配对八项参考，结合关系类型结论呈现。</p></div></li>
-                <li><i aria-hidden="true">时</i><div><b>时机观察</b><p>双方 Dasha 序列的共振窗口提示。</p></div></li>
-              </ul>
+            <aside className="mf-bz-duo-side">
+              <section className="mf-bz-duo-card">
+                <img src={star.portraitSrc} alt="" />
+                <div>
+                  <span>TA · 明星</span>
+                  <h2>{star.name}</h2>
+                  <p>{star.role}</p>
+                  <small>出生日期 {star.birthDate}</small>
+                </div>
+              </section>
+              <p className="mf-bz-duo-side-note">确认信息后，系统将计算你们两人的星盘关系，生成六维矩阵报告。</p>
             </aside>
           </div>
           <Link className="mf-bz-btn-ghost" style={{ justifySelf: "start" }} href={workspace ? `/home/relationship-test/${star.id}` : `/celebrity/${star.id}`}>← 返回详情</Link>
-        </main>
-      </div>
-    );
-  }
-  if (phase === "confirm") {
-    const districtName = [provinceOptions.find(p => p.code === birthProvinceCode)?.name, cityOptions.find(c => c.code === birthCityCode)?.name, districtOptions.find(d => d.code === birthDistrictCode)?.name].filter(Boolean).join(" · ");
-    return (
-      <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
-        <TestHeader star={star} workspace={workspace} label="吠陀合盘资料" />
-        <main className="mf-bz-form">
-          <header className="mf-bz-form-head">
-            <span>确认合盘</span>
-            <h1>双方基础信息</h1>
-            <p>确认无误后开始计算你们两人的星盘关系。</p>
-          </header>
-          <div className="mf-bz-duo">
-            <section className="mf-bz-duo-card">
-              <img src={star.portraitSrc} alt="" />
-              <div>
-                <span>TA · 明星</span>
-                <h2>{star.name}</h2>
-                <p>{star.role}</p>
-                <small>出生日期 {star.birthDate}</small>
-              </div>
-            </section>
-            <div className="mf-bz-duo-x" aria-hidden="true">×</div>
-            <section className="mf-bz-duo-card">
-              <div className="mf-bz-duo-you">你</div>
-              <div>
-                <span>你 · 出生信息</span>
-                <h2>{birthDate}</h2>
-                <p>{birthTime} · {districtName || "—"}</p>
-                <small>{districtName ? "已按区县校准上升星座" : "出生地点待确认"}</small>
-              </div>
-            </section>
-          </div>
-          <div className="mf-bz-duo-actions">
-            <button className="mf-bz-btn-ghost" type="button" onClick={() => setPhase("profile")}>← 修改信息</button>
-            <button className="mf-bz-btn" type="button" onClick={() => void createCompositeAnalysis()}>确认，开始合盘 <span aria-hidden="true">→</span></button>
-          </div>
         </main>
       </div>
     );
