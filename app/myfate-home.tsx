@@ -23,8 +23,8 @@ export default async function MyfateHome() {
           <span>Myfate</span>
         </Link>
         <nav className="mf-nav" aria-label="主导航">
-          <Link href="/#stars">测试对象</Link>
-          <a href="#how-it-works">测试说明</a>
+          <Link href="/#stars">合盘对象</Link>
+          <a href="#how-it-works">合盘说明</a>
         </nav>
         <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/relationship-test" anonymousChildren="登录">工作台</AuthEntryLink>
       </header>
@@ -32,10 +32,10 @@ export default async function MyfateHome() {
       <main>
         <section className="mf-hero mf-home-hero">
           <div className="mf-hero-copy">
-            <div className="mf-home-eyebrow"><span>✦</span> 关系身份探索</div>
-            <h1><span>如果走进 TA 的生活，</span><em>你更适合成为谁？</em></h1>
+            <div className="mf-home-eyebrow"><span>✦</span> 关系合盘探索</div>
+            <h1><span>输入出生信息，</span><em>看见你与 TA 的星盘结构</em></h1>
             <p>
-              选择一位想了解的人，输入你的出生日期，直接查看双方三柱的关系结构。
+              选择一位想了解的人，输入出生信息，直接生成你与 TA 的吠陀合盘报告。
             </p>
             <HomeProfileEntry />
           </div>
@@ -79,7 +79,7 @@ export default async function MyfateHome() {
         <section className="mf-stars-section" id="stars">
           <div className="mf-section-heading">
             <div>
-              <span className="mf-kicker">测试对象预览</span>
+              <span className="mf-kicker">合盘对象预览</span>
               <h2>这一刻，你想了解谁？</h2>
             </div>
             <p>进入工作台后选择对象并查看合盘分析。人物资料来自公开信息，并非本人认证。</p>
@@ -113,9 +113,9 @@ export default async function MyfateHome() {
             <div><span className="mf-kicker">合盘说明</span><h2>从选择对象，到看见双方关系结构</h2></div>
           </div>
           <div className="mf-how-grid">
-            <article><span>01</span><h3>填写基础资料</h3><p>留下昵称、出生日期和地点，资料会自动保存在当前设备，后续无需重复填写。</p></article>
-            <article><span>02</span><h3>选择合盘对象</h3><p>登录后进入明星合盘工作台，选择一位目标人物并确认你的出生日期。</p></article>
-            <article><span>03</span><h3>查看合盘分析</h3><p>系统直接呈现双方三柱的关系主轴、互动张力与四项关系倾向，无需答题。</p></article>
+            <article><span>01</span><h3>填写基础资料</h3><p>留下昵称与出生信息（日期、时间、城市），资料会自动保存在当前设备，后续无需重复填写。</p></article>
+            <article><span>02</span><h3>选择合盘对象</h3><p>登录后进入明星合盘工作台，选择一位目标人物并确认你的出生信息。</p></article>
+            <article><span>03</span><h3>查看合盘分析</h3><p>系统直接呈现双方星盘的六维关系矩阵与互动张力，无需答题。</p></article>
           </div>
         </section>
       </main>

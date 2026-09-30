@@ -52,7 +52,7 @@ export default function WorkspaceProfile() {
         <div className="mf-profile-purpose">
           <span>建议完整填写</span>
           <h2>让每一次关系报告真正属于你</h2>
-          <p>你可以在这里保存个人资料；明星合盘会读取出生日期，并在修改后自动保存。</p>
+          <p>你可以在这里保存个人资料；明星合盘与个人解读会读取出生日期、时间与城市，并在修改后自动保存。</p>
         </div>
         <div className="mf-profile-form">
           <div className="mf-profile-identity-grid">

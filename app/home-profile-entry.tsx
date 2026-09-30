@@ -37,7 +37,7 @@ export default function HomeProfileEntry() {
   }
 
   return (
-    <section className="mf-home-profile-entry" aria-label="个人测试资料入口">
+    <section className="mf-home-profile-entry" aria-label="个人资料入口">
       <div className="mf-home-profile-fields">
         <label>
           <span>昵称</span>
@@ -93,7 +93,7 @@ export default function HomeProfileEntry() {
           />
         </label>
         <Link className="mf-primary-button mf-home-profile-submit" href="/home/relationship-test">
-          <span>选择测试对象</span><b aria-hidden="true">→</b>
+          <span>选择合盘对象</span><b aria-hidden="true">→</b>
         </Link>
       </div>
 

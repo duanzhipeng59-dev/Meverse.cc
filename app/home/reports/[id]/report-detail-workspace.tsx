@@ -102,7 +102,7 @@ export default function ReportDetailWorkspace({
           <MyfateFormulaResult
             star={formulaStar}
             result={formulaResult}
-            actions={<Link className="mf-primary-button" href={retestHref}>{formulaResult.version === 3 ? "重新合盘" : "再测一次"}</Link>}
+            actions={<Link className="mf-primary-button" href={retestHref}>"重新合盘"</Link>}
           />
         </div>
       );
@@ -122,7 +122,7 @@ export default function ReportDetailWorkspace({
           star={star}
           reportText={reportText}
           questionCount={report.questionCount ?? report.answers.length}
-          actions={<Link className="mf-secondary-button" href={retestHref}>重新测试</Link>}
+          actions={<Link className="mf-secondary-button" href={retestHref}>重新生成报告</Link>}
         />
       </div>
     );

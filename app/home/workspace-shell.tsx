@@ -9,7 +9,7 @@ const menuItems = [
   {
     icon: "heart",
     label: "明星合盘",
-    description: "查看你与 TA 的三柱关系结构",
+    description: "查看你与 TA 的吠陀合盘报告",
     href: "/home/relationship-test",
   },
   {
@@ -21,7 +21,7 @@ const menuItems = [
   {
     icon: "report",
     label: "我的报告",
-    description: "查看每一次合盘记录",
+    description: "查看合盘与个人解读的全部记录",
     href: "/home/reports",
   },
 ];

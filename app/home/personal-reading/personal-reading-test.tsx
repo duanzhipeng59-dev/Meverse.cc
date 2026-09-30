@@ -44,10 +44,10 @@ export default function PersonalReadingTest() {
   }, [email, status]);
 
   function validateForm() {
-    if (!gender) { setError("请选择性别(影响大运顺逆)。"); return null; }
+    if (!gender) { setError("请选择性别（影响大运顺逆）。"); return null; }
     if (!validBirthDate(birthDate) || birthDate < "1900-01-01") { setError("请选择有效的出生日期。"); return null; }
-    if (!/^\d{2}:\d{2}$/u.test(birthTime)) { setError("请填写出生时间(不确定可保持 0:00)。"); return null; }
-    if (!birthCityId) { setError("请选择出生城市,排盘需要经度做真太阳时校准。"); return null; }
+    if (!/^\d{2}:\d{2}$/u.test(birthTime)) { setError("请填写出生时间（不确定可保持 00:00）。"); return null; }
+    if (!birthCityId) { setError("请选择出生城市，排盘需要经度做真太阳时校准。"); return null; }
     setError("");
     return true;
   }
@@ -75,7 +75,7 @@ export default function PersonalReadingTest() {
         window.location.replace(`/login?next=${encodeURIComponent(PAGE_PATH)}&from=${encodeURIComponent(PAGE_PATH)}`);
         return;
       }
-      if (!response.ok) throw new Error("暂时无法生成个人解读,请稍后重试。");
+      if (!response.ok) throw new Error("暂时无法生成个人解读，请稍后重试。");
       const body = await response.json() as { report: { id: string }; result: BaziReadingResult };
       if (!body.report?.id || body.result?.version !== 5) throw new Error("解读结果数据不完整。");
       const url = new URL(window.location.href);
@@ -137,7 +137,7 @@ export default function PersonalReadingTest() {
           <label className="mf-profile-field">
             <span>出生时间</span>
             <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
-            <small>默认 0:00;越精确时柱越准,不确定可保持默认。</small>
+            <small>默认 00:00；越精确时柱越准，不确定可保持默认。</small>
           </label>
           <label className="mf-profile-field">
             <span>出生城市(必填)</span>
@@ -145,7 +145,7 @@ export default function PersonalReadingTest() {
               <option value="">请选择出生城市</option>
               {vedicCities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
             </select>
-            <small>用于经度修正换算真太阳时,列表未收录的城市请选择临近城市。</small>
+            <small>用于经度修正换算真太阳时，列表未收录的城市请选择临近城市。</small>
           </label>
         </div>
         <div className="mf-report-login-error" role="alert">{error}</div>

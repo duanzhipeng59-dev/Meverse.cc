@@ -168,10 +168,10 @@ export default function ReportsWorkspace() {
             <section className="mf-fate-map" aria-labelledby="mf-fate-map-title">
               <div className="mf-fate-map-heading">
                 <div>
-                  <span>关系身份图谱</span>
-                  <h2 id="mf-fate-map-title">你在每位 TA 身边是谁？</h2>
+                  <span>关系图谱</span>
+                  <h2 id="mf-fate-map-title">你与每位 TA 的合盘结构</h2>
                 </div>
-                <p>每位目标人物展示最近一次测试得到的关系身份，点击即可回看。</p>
+                <p>每位对象展示最近一次合盘的关系结构，点击即可回看。</p>
               </div>
 
               <div className="mf-fate-map-stage">
@@ -301,7 +301,7 @@ export default function ReportsWorkspace() {
         </>
       )}
 
-      <p className="mf-reports-storage-note">登录状态下生成的明星合盘报告会保存到你的账户。</p>
+      <p className="mf-reports-storage-note">登录状态下生成的报告（合盘与个人解读）会保存到你的账户。</p>
     </div>
   );
 }

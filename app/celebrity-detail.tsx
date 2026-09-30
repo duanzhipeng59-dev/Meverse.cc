@@ -37,7 +37,7 @@ export default function CelebrityDetail({
             role="img"
             aria-label={`${star.name}的人物肖像`}
           />
-          <div className="mf-floating-note"><span>✦</span><strong>{star.matchCount}</strong><small>人已测试</small></div>
+          <div className="mf-floating-note"><span>✦</span><strong>{star.matchCount}</strong><small>人已合盘</small></div>
         </section>
 
         <section className="mf-detail-copy">
@@ -45,7 +45,7 @@ export default function CelebrityDetail({
           <h1>{star.name}</h1>
           <p className="mf-detail-tagline">“{star.tagline}”</p>
           <p className="mf-profile-basis">
-            三柱 {star.threePillars}
+            出生日期 {star.birthDate}
           </p>
           <div className="mf-detail-traits">{star.traits.map((trait) => <span key={trait}>{trait}</span>)}</div>
           <div className="mf-detail-description">
@@ -63,8 +63,8 @@ export default function CelebrityDetail({
               查看你与 TA 的合盘分析 <span>→</span>
             </AuthEntryLink>
           )}
-          <p className="mf-detail-hint">输入出生日期即可直接查看合盘分析</p>
-          <p className="mf-bazi-note">三柱仅作为传统文化层面的辅助观察；缺少出生时辰，不构成完整八字排盘。</p>
+          <p className="mf-detail-hint">输入出生日期、时间与城市，即可生成吠陀合盘报告</p>
+          <p className="mf-bazi-note">合盘基于吠陀占星（Jyotish），出生时间与城市用于确定上升星座；仅供文化娱乐参考。</p>
         </section>
       </div>
     </div>

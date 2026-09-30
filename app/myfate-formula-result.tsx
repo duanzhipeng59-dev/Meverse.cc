@@ -147,7 +147,7 @@ function RelationshipIdentityView({
       </section>
 
       <div className="mf-result-actions">
-        {actions ?? <Link className="mf-secondary-button" href="/home/relationship-test">返回关系测试工作台</Link>}
+        {actions ?? <Link className="mf-secondary-button" href="/home/relationship-test">返回合盘工作台</Link>}
       </div>
     </div>
   );
