@@ -6,19 +6,89 @@ import { useAuth } from "./auth-context";
 import type { StarProfile } from "./myfate-data";
 import MyfateFormulaResult from "./myfate-formula-result";
 import { readBasicProfile, validBirthDate, writeBasicProfile } from "./myfate-progressive-profile";
-import { vedicCities } from "./myfate-cities";
 import type { FormulaTestResult } from "./myfate-generated-test-types";
 
 export default function MyfateGeneratedTest({ star, workspace = false }: { star: StarProfile; workspace?: boolean }) {
   const { status, email } = useAuth();
   const started = useRef(false);
-  const [birthDate, setBirthDate] = useState("");
-  const [birthTime, setBirthTime] = useState("00:00");
-  const [birthCityId, setBirthCityId] = useState("");
+  const [birthYear, setBirthYear] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthDay, setBirthDay] = useState("");
+  const [birthHour, setBirthHour] = useState("");
+  const [birthMinute, setBirthMinute] = useState("");
+  const [birthProvinceCode, setBirthProvinceCode] = useState("");
+  const [birthCityCode, setBirthCityCode] = useState("");
+  const [birthDistrictCode, setBirthDistrictCode] = useState("");
+  const [provinceOptions, setProvinceOptions] = useState<Array<{ code: string; name: string }>>([]);
+  const [cityOptions, setCityOptions] = useState<Array<{ code: string; name: string }>>([]);
+  const [districtOptions, setDistrictOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [result, setResult] = useState<FormulaTestResult | null>(null);
   const [phase, setPhase] = useState<"loading" | "profile" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
-  const today = new Date().toISOString().slice(0, 10);
+  const MUNICIPALITIES = new Set(["110000", "120000", "310000", "500000"]);
+  const DEFAULT_PROVINCE = "110000";
+  const DEFAULT_DISTRICT = "110101";
+
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: currentYear - 1900 + 1 }, (_, index) => String(currentYear - index)).reverse();
+  const monthOptions = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, "0"));
+  const daysInMonth = birthYear && birthMonth ? new Date(Number(birthYear), Number(birthMonth), 0).getDate() : 31;
+  const dayOptions = Array.from({ length: daysInMonth }, (_, index) => String(index + 1).padStart(2, "0"));
+  const hourOptions = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"));
+  const minuteOptions = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
+  const birthDate = birthYear && birthMonth && birthDay ? `${birthYear}-${birthMonth}-${birthDay}` : "";
+  const birthTime = `${birthHour || "00"}:${birthMinute || "00"}`;
+
+  async function fetchChildren(code: string) {
+    return fetch(`/api/myfate/china-areas?code=${code}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+  }
+
+  async function chooseProvince(code: string) {
+    setBirthProvinceCode(code);
+    setBirthCityCode("");
+    setBirthDistrictCode("");
+    setCityOptions([]);
+    setDistrictOptions([]);
+    setError("");
+    if (!code) return;
+    const children = await fetchChildren(code);
+    if (MUNICIPALITIES.has(code)) {
+      const provName = provinceOptions.find(p => p.code === code)?.name ?? "";
+      setCityOptions([{ code, name: provName }]);
+      setBirthCityCode(code);
+      setDistrictOptions(children);
+      setBirthDistrictCode(children[0]?.code ?? "");
+    } else {
+      setCityOptions(children);
+    }
+  }
+
+  async function chooseCity(code: string) {
+    setBirthCityCode(code);
+    setBirthDistrictCode("");
+    setDistrictOptions([]);
+    setError("");
+    if (!code) return;
+    if (MUNICIPALITIES.has(code) || code === birthProvinceCode) {
+      setBirthDistrictCode(districtOptions[0]?.code ?? "");
+      return;
+    }
+    const districts = await fetchChildren(code);
+    setDistrictOptions(districts);
+    if (!districts.length) setBirthDistrictCode(code);
+  }
+
+  function chooseYear(value: string) {
+    setBirthYear(value); setError("");
+    const dim = value && birthMonth ? new Date(Number(value), Number(birthMonth), 0).getDate() : 31;
+    if (birthDay && Number(birthDay) > dim) setBirthDay(String(dim).padStart(2, "0"));
+  }
+
+  function chooseMonth(value: string) {
+    setBirthMonth(value); setError("");
+    const dim = birthYear && value ? new Date(Number(birthYear), Number(value), 0).getDate() : 31;
+    if (birthDay && Number(birthDay) > dim) setBirthDay(String(dim).padStart(2, "0"));
+  }
 
   useEffect(() => {
     if (status === "loading" || started.current) return;
@@ -37,17 +107,49 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     const params = new URLSearchParams(window.location.search);
     const birth = params.get("birth");
     const city = params.get("city");
-    const profile = readBasicProfile(email);
-    if (birth && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(birth) && city) {
-      setBirthDate(birth.slice(0, 10));
-      setBirthTime(birth.slice(11));
-      setBirthCityId(city);
-    } else {
-      setBirthDate(profile.birthDate);
-      setBirthTime(profile.birthTime || "00:00");
-      setBirthCityId(profile.birthCityId);
+    if (birth && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(birth)) {
+      const [y, m, d] = birth.slice(0, 10).split("-");
+      setBirthYear(y); setBirthMonth(m); setBirthDay(d);
+      setBirthHour(birth.slice(11, 13));
+      setBirthMinute(birth.slice(14));
+    }
+    if (city && /^\d{6}$/u.test(city)) {
+      setBirthProvinceCode(""); // loaded below via area chain
     }
     setPhase("profile");
+    // area chain: default Beijing or restore profile/param codes
+    const district = city && /^\d{6}$/u.test(city) ? city : readBasicProfile(email).birthDistrictCode || "110101";
+    (async () => {
+      const provinces = await fetch("/api/myfate/china-areas").then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+      setProvinceOptions(provinces);
+      // find province containing district
+      let found: { province: string; city: string; district: string } | undefined;
+      for (const prov of provinces) {
+        const children = await fetchChildren(prov.code);
+        if (MUNICIPALITIES.has(prov.code)) {
+          if (children.some(item => item.code === district)) { found = { province: prov.code, city: prov.code, district }; setCityOptions([{ code: prov.code, name: prov.name }]); setDistrictOptions(children); break; }
+          continue;
+        }
+        for (const c of children) {
+          const subs = await fetchChildren(c.code);
+          if (subs.some(item => item.code === district)) { found = { province: prov.code, city: c.code, district }; setCityOptions(children); setDistrictOptions(subs); break; }
+        }
+        if (found) break;
+      }
+      if (found) {
+        setBirthProvinceCode(found.province);
+        setBirthCityCode(found.city);
+        setBirthDistrictCode(found.district);
+      } else {
+        // fallback Beijing/Dongcheng
+        setBirthProvinceCode(DEFAULT_PROVINCE);
+        const children = await fetchChildren(DEFAULT_PROVINCE);
+        setCityOptions([{ code: DEFAULT_PROVINCE, name: "北京市" }]);
+        setBirthCityCode(DEFAULT_PROVINCE);
+        setDistrictOptions(children);
+        setBirthDistrictCode(DEFAULT_DISTRICT);
+      }
+    })();
   }, [email, star.id, status]);
 
   async function createCompositeAnalysis() {
@@ -59,19 +161,19 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
       setError("请填写出生时间（不确定可保持 00:00）。");
       return;
     }
-    if (!birthCityId) {
-      setError("请选择出生城市，合盘需要地理位置确定上升星座。");
+    if (!birthDistrictCode) {
+      setError("请选择出生地点（省/市/区），合盘需要地理位置确定上升星座。");
       return;
     }
     const profile = readBasicProfile(email);
-    writeBasicProfile(email, { ...profile, birthDate, birthTime, birthCityId });
+    writeBasicProfile(email, { ...profile, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
     setError("");
     setPhase("analyzing");
     try {
       const response = await fetch("/api/myfate/composite", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ starId: star.id, birthDate, birthTime, birthCityId }),
+        body: JSON.stringify({ starId: star.id, birthDate, birthTime, birthCityId: birthDistrictCode }),
       });
       if (response.status === 401) {
         const next = `/home/relationship-test/${star.id}/test`;
@@ -113,22 +215,54 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
           </header>
           <div className="mf-bz-form-grid">
             <section className="mf-bz-form-card">
-              <label className="mf-bz-field">
+              <div className="mf-bz-field">
                 <span>出生日期</span>
-                <input type="date" min="1900-01-01" max={today} value={birthDate} onChange={(event) => { setBirthDate(event.target.value); setError(""); }} />
-              </label>
-              <label className="mf-bz-field">
+                <div className="mf-bz-area">
+                  <select value={birthYear} onChange={(event) => chooseYear(event.target.value)}>
+                    <option value="">年</option>
+                    {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
+                  </select>
+                  <select value={birthMonth} onChange={(event) => chooseMonth(event.target.value)}>
+                    <option value="">月</option>
+                    {monthOptions.map((month) => <option key={month} value={month}>{month}</option>)}
+                  </select>
+                  <select value={birthDay} onChange={(event) => { setBirthDay(event.target.value); setError(""); }}>
+                    <option value="">日</option>
+                    {dayOptions.map((day) => <option key={day} value={day}>{day}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="mf-bz-field">
                 <span>出生时间</span>
-                <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
-              </label>
-              <label className="mf-bz-field">
-                <span>出生城市</span>
-                <select value={birthCityId} onChange={(event) => { setBirthCityId(event.target.value); setError(""); }}>
-                  <option value="">请选择城市</option>
-                  {vedicCities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
-                </select>
-              </label>
-              <small className="mf-bz-hint">出生时间不确定可保持默认 00:00；出生城市必填（确定地理坐标与时区）。</small>
+                <div className="mf-bz-area">
+                  <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setError(""); }}>
+                    <option value="">时</option>
+                    {hourOptions.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
+                  </select>
+                  <select value={birthMinute} onChange={(event) => { setBirthMinute(event.target.value); setError(""); }}>
+                    <option value="">分</option>
+                    {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="mf-bz-field">
+                <span>出生地点</span>
+                <div className="mf-bz-area">
+                  <select value={birthProvinceCode} onChange={(event) => void chooseProvince(event.target.value)}>
+                    <option value="">省</option>
+                    {provinceOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+                  </select>
+                  <select value={birthCityCode} onChange={(event) => void chooseCity(event.target.value)} disabled={!birthProvinceCode}>
+                    <option value="">市</option>
+                    {cityOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+                  </select>
+                  <select value={birthDistrictCode} onChange={(event) => { setBirthDistrictCode(event.target.value); setError(""); }} disabled={!birthCityCode}>
+                    <option value="">区/县</option>
+                    {districtOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+                  </select>
+                </div>
+              </div>
+              <small className="mf-bz-hint">出生时间不确定可保持默认 00:00；出生地点需选到区/县（用于真太阳时与上升星座校准）。</small>
               <div className="mf-report-login-error" role="alert">{error}</div>
               <button className="mf-bz-btn" type="button" onClick={() => void createCompositeAnalysis()}>查看合盘分析 <span aria-hidden="true">→</span></button>
             </section>
@@ -161,7 +295,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
           <div className="mf-bz-next-cta">
             <span>想知道和谁最配？</span>
             <div>
-              <Link className="mf-bz-btn" href={`/home/relationship-test/rank?birth=${encodeURIComponent(`${birthDate} ${birthTime}`)}&city=${encodeURIComponent(birthCityId)}`}>查看我的偶像适配榜</Link>
+              <Link className="mf-bz-btn" href={`/home/relationship-test/rank?birth=${encodeURIComponent(`${birthDate} ${birthTime}`)}&city=${encodeURIComponent(birthDistrictCode)}`}>查看我的偶像适配榜</Link>
               <Link className="mf-bz-btn-ghost" href="/home/relationship-test">换个偶像再测（出生信息已记住）</Link>
             </div>
           </div>
