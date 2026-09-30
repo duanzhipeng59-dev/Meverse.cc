@@ -61,6 +61,11 @@ export default function PersonalReadingTest() {
 
   function paipan() {
     if (!validateForm()) return;
+    if (status === "anonymous") {
+      window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
+      redirectToLogin();
+      return;
+    }
     const city = vedicCities.find((item) => item.id === birthCityId);
     if (!city) { setError("出生城市无效。"); return; }
     const profile = readBasicProfile(email);
