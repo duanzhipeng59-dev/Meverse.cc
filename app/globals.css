@@ -4969,3 +4969,22 @@ select:focus-visible {
 .mf-hero-copy h1, .mf-hero-copy h1 em, .mf-how h2, .mf-how h3 { font-family: var(--font-serif-display); }
 .mf-how h3 { font-weight: 700; }
 .mf-hero-copy h1 em { font-style: normal; }
+
+/* ── 首页 · 颜色统一到酒红体系(保留玻璃门面版式)────────────────────── */
+.mf-home-header-cta { background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); box-shadow: 0 8px 18px rgb(139 30 45 / 22%); }
+.mf-home-header .mf-nav a:hover { background: rgb(139 30 45 / 7%); }
+.mf-home-eyebrow { color: var(--bz-red); border-color: rgb(139 30 45 / 14%); }
+.mf-home-eyebrow span { color: var(--bz-red); }
+.mf-home-hero h1 em { color: var(--bz-red); font-style: normal; }
+.mf-home-hero .mf-primary-button { background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)) !important; box-shadow: 0 14px 30px rgb(139 30 45 / 22%) !important; }
+.mf-home-fate-map-heading > span { color: var(--bz-red); }
+.mf-home-map-user { background: linear-gradient(145deg, var(--bz-red-bright), var(--bz-red-deep)); box-shadow: 0 11px 27px rgb(139 30 45 / 28%); }
+.mf-home-map-star > span { outline-color: rgb(139 30 45 / 48%); }
+.mf-home-map-star > small { color: var(--bz-red); }
+.mf-section-heading h2 { font-family: var(--font-serif-display); font-weight: 700; letter-spacing: 0.01em; }
+.mf-how-grid span { color: var(--bz-red); font: 700 20px/1 var(--font-serif-display); font-style: normal; }
+.mf-star-card-bottom b { color: var(--bz-red); }
+.mf-star-card-bottom span { color: var(--bz-muted); }
+.mf-header-cta { border-color: var(--bz-line-strong); color: var(--bz-ink); }
+.mf-header, .mf-test-header { background: rgb(255 254 252 / 78%); }
+.mf-footer p { color: #a8a29e; }
