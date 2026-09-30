@@ -81,7 +81,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
           <input
             type="search"
-            placeholder="搜索名字 / MBTI / 分组"
+            placeholder="搜索名字"
             value={query}
             onChange={(event) => { setQuery(event.target.value); setPage(1); }}
             aria-label="搜索明星"
