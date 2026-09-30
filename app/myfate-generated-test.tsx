@@ -389,7 +389,6 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
               <p className="mf-bz-duo-side-note">基于 Swiss Ephemeris 天文历表与真实跨盘计算生成，非随机结论。</p>
             </aside>
           </div>
-          <Link className="mf-bz-btn-ghost" style={{ justifySelf: "start" }} href={workspace ? `/home/relationship-test/${star.id}` : `/celebrity/${star.id}`}>← 返回详情</Link>
         </main>
       </div>
     );
