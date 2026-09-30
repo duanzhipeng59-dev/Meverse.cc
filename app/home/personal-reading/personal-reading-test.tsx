@@ -143,39 +143,50 @@ export default function PersonalReadingTest() {
     );
   }
   return (
-    <main className="mf-question-main">
-      <section className="mf-question-card mf-profile-question-card">
-        <span className="mf-question-eyebrow">开始解读前</span>
+    <main className="mf-bz-form">
+      <header className="mf-bz-form-head">
+        <span>个人解读</span>
         <h1>输入你的出生信息</h1>
-        <p><strong>系统将按真太阳时为你排四柱八字,再生成八大板块个人解读。</strong>出生时间不确定可保持默认 0:00,出生城市必填。</p>
-        <div className="mf-profile-question-fields">
-          <div className="mf-bazi-gender" role="radiogroup" aria-label="性别">
-            <button type="button" className={gender === "male" ? "is-active" : ""} onClick={() => { setGender("male"); setError(""); }}>男(乾造)</button>
-            <button type="button" className={gender === "female" ? "is-active" : ""} onClick={() => { setGender("female"); setError(""); }}>女(坤造)</button>
-          </div>
-          <label className="mf-profile-field">
+        <p>系统将按真太阳时排出四柱八字，并生成八大板块个人解读。</p>
+      </header>
+      <div className="mf-bz-form-grid">
+        <section className="mf-bz-form-card">
+          <label className="mf-bz-field">
             <span>出生日期</span>
             <input type="date" min="1900-01-01" max={today} value={birthDate} onChange={(event) => { setBirthDate(event.target.value); setError(""); }} />
           </label>
-          <label className="mf-profile-field">
-            <span>出生时间</span>
+          <label className="mf-bz-field">
+            <span>出生时间（可选）</span>
             <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
-            <small>默认 00:00；越精确时柱越准，不确定可保持默认。</small>
           </label>
-          <label className="mf-profile-field">
-            <span>出生城市(必填)</span>
+          <label className="mf-bz-field">
+            <span>出生城市</span>
             <select value={birthCityId} onChange={(event) => { setBirthCityId(event.target.value); setError(""); }}>
-              <option value="">请选择出生城市</option>
+              <option value="">请选择城市</option>
               {vedicCities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
             </select>
-            <small>用于经度修正换算真太阳时，列表未收录的城市请选择临近城市。</small>
           </label>
-        </div>
-        <div className="mf-report-login-error" role="alert">{error}</div>
-        <div className="mf-question-nav">
-          <button className="mf-primary-button" type="button" onClick={paipan}>排盘 <span>→</span></button>
-        </div>
-      </section>
+          <fieldset className="mf-bz-field">
+            <span>性别</span>
+            <div className="mf-bz-gender" role="radiogroup" aria-label="性别">
+              <button type="button" className={gender === "male" ? "is-active" : ""} onClick={() => { setGender("male"); setError(""); }}><i aria-hidden="true" />男</button>
+              <button type="button" className={gender === "female" ? "is-active" : ""} onClick={() => { setGender("female"); setError(""); }}><i aria-hidden="true" />女</button>
+            </div>
+          </fieldset>
+          <small className="mf-bz-hint">出生时间不确定可保持默认 0:00，出生城市必须选择。</small>
+          <div className="mf-report-login-error" role="alert">{error}</div>
+          <button className="mf-bz-submit" type="button" onClick={paipan}>开始排盘 <span aria-hidden="true">→</span></button>
+        </section>
+        <aside className="mf-bz-include">
+          <h2>这份解读包含</h2>
+          <ul>
+            <li><i aria-hidden="true">卦</i><div><b>四柱八字</b><p>按真太阳时排盘，呈现你的八字命盘与基础格局。</p></div></li>
+            <li><i aria-hidden="true">行</i><div><b>五行结构</b><p>分析五行旺衰与生克关系，了解你的先天能量结构。</p></div></li>
+            <li><i aria-hidden="true">运</i><div><b>大运时间轴</b><p>呈现你一生的大运走势，把握不同阶段的关键主题。</p></div></li>
+            <li><i aria-hidden="true">解</i><div><b>八大板块解读</b><p>从多个维度深入解析你的性格、优势、机遇与人生方向。</p></div></li>
+          </ul>
+        </aside>
+      </div>
     </main>
   );
 }
