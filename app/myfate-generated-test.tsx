@@ -253,7 +253,7 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
               <header><span>你 · 出生信息{hasSavedProfile ? "（已自动填入）" : "（请手动填写）"}</span></header>
               <label className="mf-bz-field">
                 <span>姓名（可选）</span>
-                <input type="text" maxLength={20} placeholder="用于报告展示" value={personName} onChange={(event) => { setPersonName(event.target.value); setError(""); }} />
+                <input type="text" maxLength={20} placeholder="" value={personName} onChange={(event) => { setPersonName(event.target.value); setError(""); }} />
               </label>
               <div className="mf-bz-field">
                 <span>出生日期</span>
