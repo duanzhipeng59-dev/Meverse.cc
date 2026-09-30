@@ -2,62 +2,108 @@ import Link from "next/link";
 import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziReadingResult } from "./myfate-bazi-types";
 
-function WuXingBars({ wuXing }: { wuXing: Record<string, number> }) {
-  const max = Math.max(...Object.values(wuXing), 1);
+const GAN_WUXING: Record<string, string> = {
+  甲: "木", 乙: "木", 丙: "火", 丁: "火", 戊: "土",
+  己: "土", 庚: "金", 辛: "金", 壬: "水", 癸: "水",
+};
+const ZHI_WUXING: Record<string, string> = {
+  子: "水", 丑: "土", 寅: "木", 卯: "木", 辰: "土", 巳: "火",
+  午: "火", 未: "土", 申: "金", 酉: "金", 戌: "土", 亥: "水",
+};
+const WUXING_COLOR: Record<string, string> = {
+  木: "#4E7C59", 火: "#C0392B", 土: "#C9A15A", 金: "#9FB3C8", 水: "#2C4A5E",
+};
+const PALACE: Record<string, string> = {
+  年柱: "祖上 · 早年",
+  月柱: "父母 · 青年",
+  日柱: "自我 · 中年",
+  时柱: "子女 · 晚年",
+};
+
+function PaipanTable({ chart }: { chart: BaziChart }) {
   return (
-    <div className="mf-bazi-wuxing">
+    <section className="mf-bz-paipan">
+      <header className="mf-bz-paipan-head">
+        <h2>四柱八字</h2>
+        <span>{chart.trueSolar.city} · 公历 {chart.trueSolar.birthTime}</span>
+      </header>
+      <div className="mf-bz-paipan-table">
+        {chart.pillars.map((pillar) => (
+          <article className={`mf-bz-pillar ${pillar.label === "日柱" ? "is-daymaster" : ""}`} key={pillar.label}>
+            <header>
+              <b>{pillar.label}</b>
+              <small>{PALACE[pillar.label]}</small>
+            </header>
+            <div className="mf-bz-gan">
+              <strong style={{ color: WUXING_COLOR[GAN_WUXING[pillar.ganzhi[0]]] }}>{pillar.ganzhi[0]}</strong>
+              <em>{GAN_WUXING[pillar.ganzhi[0]]}</em>
+              <small>{pillar.shiShenGan}</small>
+            </div>
+            <div className="mf-bz-zhi">
+              <strong style={{ color: WUXING_COLOR[ZHI_WUXING[pillar.ganzhi[1]]] }}>{pillar.ganzhi[1]}</strong>
+              <em>{ZHI_WUXING[pillar.ganzhi[1]]}</em>
+            </div>
+            <div className="mf-bz-hidegan">
+              <small>藏干</small>
+              <b>{pillar.hideGan.join(" ")}</b>
+              <span>{pillar.hideShiShen.join(" · ")}</span>
+            </div>
+            <footer>{pillar.naYin}</footer>
+          </article>
+        ))}
+      </div>
+      <div className="mf-bz-paipan-foot">
+        <span>真太阳时 {chart.trueSolar.adjustedTime}(校正 {chart.trueSolar.totalCorrectionMin} 分钟)</span>
+        <span>起运 {chart.daYun.startText}</span>
+        <span>当前大运 <b>{chart.currentDaYunGanZhi || "尚未起运"}</b> · 流年 {chart.currentYearGanZhi}</span>
+      </div>
+    </section>
+  );
+}
+
+function WuXingBars({ wuXing }: { wuXing: Record<string, number> }) {
+  const total = Math.max(Object.values(wuXing).reduce((a, b) => a + b, 0), 1);
+  return (
+    <div className="mf-bz-wuxing">
       {Object.entries(wuXing).map(([element, count]) => (
         <div key={element}>
-          <span>{element}</span>
-          <i style={{ width: `${(count / max) * 100}%` }} />
-          <b>{count}</b>
+          <i style={{ color: WUXING_COLOR[element], borderColor: WUXING_COLOR[element] }}>{element}</i>
+          <div className="mf-bz-wuxing-bar"><span style={{ width: `${(count / total) * 100}%`, background: WUXING_COLOR[element] }} /></div>
+          <b>{Math.round((count / total) * 100)}%</b>
         </div>
       ))}
     </div>
   );
 }
 
+function DaYunTimeline({ chart }: { chart: BaziChart }) {
+  return (
+    <ol className="mf-bz-dayun">
+      {chart.daYun.steps.map((step) => (
+        <li key={step.ganzhi + step.startYear} className={step.current ? "is-current" : ""}>
+          <b>{step.ganzhi}</b>
+          <span>{step.startYear}–{step.endYear}</span>
+          <small>{step.startAge}–{step.endAge} 岁</small>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function BaziChartSections({ chart }: { chart: BaziChart }) {
   return (
     <>
-      <section className="mf-bazi-paipan" aria-labelledby="mf-bazi-paipan-title">
-        <div className="mf-identity-section-heading">
-          <span>排盘结果</span>
-          <h2 id="mf-bazi-paipan-title">四柱八字</h2>
-          <p>已按真太阳时校准:北京时间 {chart.trueSolar.birthTime} → 真太阳时 {chart.trueSolar.adjustedTime}(经度修正 {chart.trueSolar.longitudeCorrectionMin} 分钟,均时差 {chart.trueSolar.equationOfTimeMin} 分钟)。</p>
-        </div>
-        <div className="mf-bazi-pillars">
-          {chart.pillars.map((pillar) => (
-            <article key={pillar.label}>
-              <span>{pillar.label}</span>
-              <h3>{pillar.ganzhi}</h3>
-              <dl>
-                <div><dt>天干十神</dt><dd>{pillar.shiShenGan}</dd></div>
-                <div><dt>藏干</dt><dd>{pillar.hideGan.map((gan, index) => `${gan}(${pillar.hideShiShen[index] ?? "—"})`).join(" ")}</dd></div>
-                <div><dt>纳音</dt><dd>{pillar.naYin}</dd></div>
-              </dl>
-            </article>
-          ))}
-        </div>
-        <WuXingBars wuXing={chart.wuXing} />
-      </section>
-
-      <section className="mf-bazi-dayun" aria-labelledby="mf-bazi-dayun-title">
-        <div className="mf-identity-section-heading">
-          <span>大运时间轴</span>
-          <h2 id="mf-bazi-dayun-title">起运 {chart.daYun.startText}</h2>
-          <p>每步大运十年,高亮为当前大运;今年流年 {chart.currentYearGanZhi}。</p>
-        </div>
-        <ol className="mf-bazi-dayun-steps">
-          {chart.daYun.steps.map((step) => (
-            <li key={step.ganzhi + step.startYear} className={step.current ? "is-current" : ""}>
-              <b>{step.ganzhi}</b>
-              <span>{step.startYear}–{step.endYear}</span>
-              <small>{step.startAge}–{step.endAge} 岁</small>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <PaipanTable chart={chart} />
+      <div className="mf-bz-two-col">
+        <section className="mf-bz-panel">
+          <h3>五行结构</h3>
+          <WuXingBars wuXing={chart.wuXing} />
+        </section>
+        <section className="mf-bz-panel">
+          <h3>大运时间轴</h3>
+          <DaYunTimeline chart={chart} />
+        </section>
+      </div>
     </>
   );
 }
@@ -65,41 +111,43 @@ export function BaziChartSections({ chart }: { chart: BaziChart }) {
 export default function MyfateBaziResult({ result, actions }: { result: BaziReadingResult; actions?: React.ReactNode }) {
   const chart = result.chart;
   return (
-    <div className="mf-formula-result mf-bazi-result">
-      <section className="mf-formula-verdict is-relationship-identity">
-        <span>MYFATE · 个人八字解读</span>
-        <div className="mf-formula-verdict-person"><small>{result.gender === "male" ? "乾造" : "坤造"} · {chart.trueSolar.city}</small></div>
-        <p className="mf-identity-lead">你的命盘主轴</p>
-        <h1>{result.headline}</h1>
-        <p>{result.summary}</p>
-        <div className="mf-formula-facts">
-          <div><strong>真太阳时</strong><small>{chart.trueSolar.adjustedTime}</small></div>
-          <div><strong>起运</strong><small>{chart.daYun.startText}</small></div>
-          <div><strong>当前大运</strong><small>{chart.currentDaYunGanZhi || "尚未起运"}</small></div>
+    <div className="mf-bz-result">
+      <header className="mf-bz-pagehead">
+        <div>
+          <span>MYFATE · 个人八字解读</span>
+          <h1>命盘解读报告</h1>
+          <p>{result.gender === "male" ? "乾造" : "坤造"} · {chart.trueSolar.city} · 公历 {chart.trueSolar.birthTime} · 生成于 {new Date().toLocaleDateString("zh-CN")}</p>
         </div>
+        <button type="button" className="mf-bz-export" onClick={() => window.print()}>导出报告</button>
+      </header>
+
+      <section className="mf-bz-hero">
+        <div className="mf-bz-hero-copy">
+          <h2>{result.headline}</h2>
+          <p>{result.summary}</p>
+        </div>
+        <dl className="mf-bz-hero-meta">
+          <div><dt>真太阳时</dt><dd>{chart.trueSolar.adjustedTime}</dd></div>
+          <div><dt>起运</dt><dd>{chart.daYun.startText}</dd></div>
+          <div><dt>当前大运</dt><dd>{chart.currentDaYunGanZhi || "尚未起运"}</dd></div>
+        </dl>
       </section>
 
       <BaziChartSections chart={chart} />
 
-      <section className="mf-bazi-sections" aria-labelledby="mf-bazi-sections-title">
-        <div className="mf-identity-section-heading">
-          <span>个人解读</span>
-          <h2 id="mf-bazi-sections-title">八大板块解读</h2>
-          <p>基于排盘数据的子平八字分析,仅供参考。</p>
-        </div>
-        <div className="mf-bazi-section-list">
+      <section className="mf-bz-sections">
+        <h3>八大板块解读</h3>
+        <div className="mf-bz-section-grid">
           {result.sections.map((section, index) => (
             <article key={section.id}>
-              <header><span>{String(index + 1).padStart(2, "0")}</span><h3>{section.title}</h3></header>
+              <header><span>{String(index + 1).padStart(2, "0")}</span><h4>{section.title}</h4></header>
               <p>{section.body}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="mf-formula-global-basis">
-        <p className="mf-report-generation-note">本解读基于子平八字体系,由排盘计算数据结合 AI 生成,仅供传统文化娱乐与自我观察参考,不构成医疗、财务或人生决策依据。</p>
-      </section>
+      <p className="mf-bz-disclaimer">本解读基于子平八字体系，由排盘计算数据结合 AI 生成，仅供传统文化娱乐与自我观察参考，不构成医疗、财务或人生决策依据。</p>
       <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/personal-reading">返回个人解读</Link>}</div>
     </div>
   );

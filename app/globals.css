@@ -4630,48 +4630,6 @@ select:focus-visible {
 }
 
 
-/* ── 个人八字解读 (bazi) ─────────────────────────────────────────────── */
-.mf-bazi-result .mf-formula-facts { grid-template-columns: repeat(3, 1fr); }
-.mf-bazi-paipan, .mf-bazi-dayun, .mf-bazi-sections { margin-top: 28px; padding: clamp(26px, 5vw, 52px); border: 1px solid #eadfe3; border-radius: 28px; background: #fff; }
-.mf-bazi-pillars { margin-top: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.mf-bazi-pillars article { padding: 18px 16px; border: 1px solid #eadfe3; border-radius: 18px; background: #fdfafb; text-align: center; }
-.mf-bazi-pillars article:nth-child(3) { border-color: #d8adbe; background: linear-gradient(145deg, #fff8fa, #f8e9ef); }
-.mf-bazi-pillars span { color: #9a5871; font-size: 10.5px; font-weight: 750; letter-spacing: 0.08em; }
-.mf-bazi-pillars h3 { margin: 10px 0 12px; color: #442f39; font: 500 26px/1 Georgia, "Songti SC", serif; letter-spacing: 0.1em; }
-.mf-bazi-pillars dl { margin: 0; display: grid; gap: 6px; text-align: left; }
-.mf-bazi-pillars dl div { display: flex; justify-content: space-between; gap: 8px; }
-.mf-bazi-pillars dt { color: #9a8f94; font-size: 10.5px; flex-shrink: 0; }
-.mf-bazi-pillars dd { margin: 0; color: #5c3d4a; font-size: 11.5px; font-weight: 600; text-align: right; }
-.mf-bazi-wuxing { margin-top: 18px; display: grid; gap: 8px; }
-.mf-bazi-wuxing div { display: grid; grid-template-columns: 28px 1fr 24px; align-items: center; gap: 10px; }
-.mf-bazi-wuxing span { color: #5c3d4a; font-weight: 750; }
-.mf-bazi-wuxing i { display: block; height: 10px; border-radius: 999px; background: linear-gradient(90deg, #d8adbe, #9a5871); }
-.mf-bazi-wuxing b { color: #9a8f94; font-size: 12px; text-align: right; }
-.mf-bazi-dayun-steps { margin: 20px 0 0; padding: 0; list-style: none; display: flex; gap: 8px; overflow-x: auto; }
-.mf-bazi-dayun-steps li { flex-shrink: 0; min-width: 92px; padding: 14px 12px; border: 1px solid #eadfe3; border-radius: 16px; background: #fdfafb; text-align: center; display: grid; gap: 4px; }
-.mf-bazi-dayun-steps li.is-current { border-color: #9a5871; background: linear-gradient(145deg, #fff8fa, #f6e3ec); }
-.mf-bazi-dayun-steps b { color: #442f39; font: 500 20px/1 Georgia, "Songti SC", serif; letter-spacing: 0.08em; }
-.mf-bazi-dayun-steps span { color: #76676e; font-size: 11px; }
-.mf-bazi-dayun-steps small { color: #9a8f94; font-size: 10px; }
-.mf-bazi-section-list { margin-top: 20px; display: grid; gap: 14px; }
-.mf-bazi-section-list article { padding: 22px 24px; border: 1px solid #eadfe3; border-radius: 20px; background: #fdfafb; }
-.mf-bazi-section-list header { display: flex; align-items: baseline; gap: 12px; }
-.mf-bazi-section-list header span { color: #9b4668; font: 500 18px/1 Georgia, serif; }
-.mf-bazi-section-list h3 { margin: 0; color: #442f39; font: 500 19px/1.3 Georgia, "Songti SC", serif; }
-.mf-bazi-section-list p { margin: 12px 0 0; color: #76676e; font-size: 13px; line-height: 1.85; }
-.mf-bazi-verify { margin-top: 20px; padding: 18px 20px; border: 1px solid #e9dce1; border-radius: 18px; background: #fdfafb; }
-.mf-bazi-verify > span { display: block; margin-bottom: 8px; color: #9a5871; font-size: 10.5px; font-weight: 750; letter-spacing: 0.08em; }
-.mf-bazi-verify p { margin: 0 0 12px; color: #76676e; font-size: 12.5px; line-height: 1.7; }
-.mf-bazi-gender { display: flex; gap: 10px; }
-.mf-bazi-gender button { flex: 1; padding: 14px; border: 1px solid #eadfe3; border-radius: 14px; background: #fdfafb; color: #76676e; font-size: 14px; font-weight: 650; cursor: pointer; }
-.mf-bazi-gender button.is-active { border-color: #9a5871; color: #852d54; background: #f8e9ef; }
-.mf-personal-reading-card { grid-template-columns: 56px 1fr auto; }
-.mf-personal-reading-mark { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 1px solid #e4cdd6; background: #f8e9ef; color: #852d54; font-size: 20px; }
-@media (max-width: 720px) {
-  .mf-bazi-result .mf-formula-facts { grid-template-columns: 1fr; }
-  .mf-bazi-pillars { grid-template-columns: repeat(2, 1fr); }
-}
-
 /* ── upgrade pay panel ──────────────────────────────────────────────── */
 .mf-upgrade-balance { margin: 10px 0 0; color: #852d54; font-size: 13px; font-weight: 650; }
 .mf-upgrade-paypanel { margin-top: 22px; padding: 26px; border: 1px solid #e4cdd6; border-radius: 24px; background: linear-gradient(145deg, #fff8fa, #fdf4f7); }
@@ -4705,3 +4663,79 @@ select:focus-visible {
 .mf-skeleton-card.is-plan { height: 230px; border-radius: 22px; }
 @media (max-width: 900px) { .mf-skeleton-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mf-skeleton-grid.is-plans { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .mf-skeleton::after { animation: none; } }
+
+/* ── 个人八字解读 · 新中式结果页 (mf-bz) ──────────────────────────────── */
+.mf-bz-result { display: grid; gap: 22px; padding: clamp(18px, 4vw, 40px); border-radius: 18px; background: #faf8f4; }
+.mf-bz-pagehead { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.mf-bz-pagehead span { color: #a92434; font-size: 11px; font-weight: 800; letter-spacing: 0.18em; }
+.mf-bz-pagehead h1 { margin: 8px 0 6px; color: #1c1917; font: 700 28px/1.2 "Songti SC", Georgia, serif; letter-spacing: 0.04em; }
+.mf-bz-pagehead p { margin: 0; color: #78716c; font-size: 12px; }
+.mf-bz-export { padding: 10px 18px; border: 1px solid #d6cdbd; border-radius: 999px; background: #fff; color: #8b1e2d; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.mf-bz-export:hover { background: #8b1e2d; color: #fff; }
+
+.mf-bz-hero { display: grid; grid-template-columns: 1fr 220px; gap: 26px; padding: 28px; border: 1px solid #ebe5da; border-radius: 12px; background: linear-gradient(160deg, #f7f1e6, #f1e9d9); }
+.mf-bz-hero-copy h2 { margin: 0 0 12px; color: #8b1e2d; font: 700 24px/1.35 "Songti SC", Georgia, serif; }
+.mf-bz-hero-copy p { margin: 0; color: #57534e; font-size: 13.5px; line-height: 1.9; }
+.mf-bz-hero-meta { margin: 0; display: grid; gap: 14px; align-content: start; }
+.mf-bz-hero-meta div { padding: 12px 14px; border-left: 3px solid #8b1e2d; background: rgb(255 255 255 / 70%); border-radius: 0 10px 10px 0; }
+.mf-bz-hero-meta dt { color: #a8a29e; font-size: 10.5px; letter-spacing: 0.1em; }
+.mf-bz-hero-meta dd { margin: 5px 0 0; color: #1c1917; font-size: 14px; font-weight: 700; }
+
+.mf-bz-paipan { padding: 24px; border: 1px solid #ebe5da; border-radius: 12px; background: #fff; }
+.mf-bz-paipan-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.mf-bz-paipan-head h2 { margin: 0; color: #8b1e2d; font: 700 19px/1 "Songti SC", Georgia, serif; letter-spacing: 0.14em; }
+.mf-bz-paipan-head span { color: #a8a29e; font-size: 11.5px; }
+.mf-bz-paipan-table { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.mf-bz-pillar { display: grid; justify-items: center; gap: 8px; padding: 16px 10px 12px; border: 1px solid #ece6da; border-radius: 10px; background: #fdfbf7; }
+.mf-bz-pillar.is-daymaster { border-color: #c9a15a; background: linear-gradient(180deg, #fdf8ee, #faf3e3); }
+.mf-bz-pillar header { display: grid; justify-items: center; gap: 2px; }
+.mf-bz-pillar header b { color: #1c1917; font-size: 13px; letter-spacing: 0.2em; }
+.mf-bz-pillar header small { color: #b8b0a2; font-size: 9.5px; }
+.mf-bz-gan, .mf-bz-zhi { display: grid; justify-items: center; gap: 1px; }
+.mf-bz-gan strong, .mf-bz-zhi strong { font: 700 52px/1.1 "Songti SC", Georgia, serif; }
+.mf-bz-gan em, .mf-bz-zhi em { font-style: normal; color: #b8b0a2; font-size: 10px; }
+.mf-bz-gan small { margin-top: 4px; padding: 2px 8px; border-radius: 999px; background: #f3ece0; color: #8b1e2d; font-size: 10.5px; font-weight: 700; }
+.mf-bz-hidegan { display: grid; justify-items: center; gap: 2px; padding-top: 6px; border-top: 1px dashed #e5ddcd; width: 100%; }
+.mf-bz-hidegan small { color: #b8b0a2; font-size: 9px; letter-spacing: 0.15em; }
+.mf-bz-hidegan b { color: #44403c; font-size: 14px; letter-spacing: 0.2em; }
+.mf-bz-hidegan span { color: #a8a29e; font-size: 9.5px; }
+.mf-bz-pillar footer { color: #b8b0a2; font-size: 10px; }
+.mf-bz-paipan-foot { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0eadf; color: #78716c; font-size: 12px; }
+.mf-bz-paipan-foot b { color: #8b1e2d; }
+
+.mf-bz-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.mf-bz-panel { padding: 22px 24px; border: 1px solid #ebe5da; border-radius: 12px; background: #fff; }
+.mf-bz-panel h3 { margin: 0 0 16px; color: #1c1917; font: 700 15px/1 "Songti SC", Georgia, serif; letter-spacing: 0.12em; }
+.mf-bz-wuxing { display: grid; gap: 12px; }
+.mf-bz-wuxing > div { display: grid; grid-template-columns: 26px 1fr 44px; align-items: center; gap: 12px; }
+.mf-bz-wuxing i { display: grid; place-items: center; width: 26px; height: 26px; border: 1.5px solid; border-radius: 50%; font-style: normal; font-size: 12px; font-weight: 800; }
+.mf-bz-wuxing-bar { height: 10px; border-radius: 999px; background: #f3eee4; overflow: hidden; }
+.mf-bz-wuxing-bar span { display: block; height: 100%; border-radius: 999px; }
+.mf-bz-wuxing b { color: #78716c; font-size: 11.5px; text-align: right; }
+.mf-bz-dayun { margin: 0; padding: 0; list-style: none; display: flex; gap: 8px; overflow-x: auto; }
+.mf-bz-dayun li { flex-shrink: 0; min-width: 86px; display: grid; justify-items: center; gap: 3px; padding: 12px 8px; border: 1px solid #ece6da; border-radius: 10px; background: #fdfbf7; }
+.mf-bz-dayun li.is-current { border-color: #8b1e2d; background: #fdf2f3; box-shadow: 0 0 0 1px #8b1e2d; }
+.mf-bz-dayun b { color: #1c1917; font: 700 18px/1 "Songti SC", Georgia, serif; letter-spacing: 0.08em; }
+.mf-bz-dayun li.is-current b { color: #8b1e2d; }
+.mf-bz-dayun span { color: #78716c; font-size: 10.5px; }
+.mf-bz-dayun small { color: #b8b0a2; font-size: 9.5px; }
+
+.mf-bz-sections { padding: 24px; border: 1px solid #ebe5da; border-radius: 12px; background: #fff; }
+.mf-bz-sections h3 { margin: 0 0 16px; color: #1c1917; font: 700 15px/1 "Songti SC", Georgia, serif; letter-spacing: 0.12em; }
+.mf-bz-section-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.mf-bz-section-grid article { padding: 18px 20px; border: 1px solid #ece6da; border-radius: 10px; background: #fdfbf7; }
+.mf-bz-section-grid header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.mf-bz-section-grid header span { color: #c9a15a; font: 700 16px/1 Georgia, serif; }
+.mf-bz-section-grid h4 { margin: 0; color: #1c1917; font: 700 15px/1.3 "Songti SC", Georgia, serif; }
+.mf-bz-section-grid p { margin: 0; color: #57534e; font-size: 12.5px; line-height: 1.9; }
+.mf-bz-disclaimer { margin: 0; padding: 12px 16px; border-radius: 10px; background: #f3eee4; color: #a8a29e; font-size: 11px; line-height: 1.7; }
+@media (max-width: 860px) {
+  .mf-bz-hero { grid-template-columns: 1fr; }
+  .mf-bz-two-col { grid-template-columns: 1fr; }
+  .mf-bz-paipan-table { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mf-bz-section-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  .mf-bz-export, .mf-result-actions { display: none; }
+  .mf-bz-result { background: #fff; }
+}
