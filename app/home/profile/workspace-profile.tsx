@@ -1,45 +1,42 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
 import { readBasicProfile, writeBasicProfile } from "../../myfate-progressive-profile";
 
 export default function WorkspaceProfile() {
-  const { status, email } = useAuth();
+  const { status, email, markSignedOut } = useAuth();
+  const router = useRouter();
   const [nickname, setNickname] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [location, setLocation] = useState("");
   const [ready, setReady] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
-  const today = new Date().toISOString().slice(0, 10);
+  const [compositeCount, setCompositeCount] = useState<number | null>(null);
+  const [readingCount, setReadingCount] = useState<number | null>(null);
+  const [credits, setCredits] = useState<number | null>(null);
 
   useEffect(() => {
-    if (status === "loading") return;
-    let active = true;
-    queueMicrotask(() => {
-      if (!active) return;
-      try {
-        const profile = readBasicProfile(email);
-        setNickname(profile.nickname);
-        setBirthDate(profile.birthDate);
-        setLocation(profile.location);
-        setSaveState("idle");
-      } catch {
-        setSaveState("error");
-      } finally {
-        setReady(true);
-      }
-    });
-    return () => {
-      active = false;
-    };
+    if (status !== "authenticated") return;
+    try {
+      setNickname(readBasicProfile(email).nickname);
+    } catch { /* defaults */ }
+    setReady(true);
+    fetch("/api/myfate/reports").then(r => r.json() as Promise<{ reports?: Array<{ starId?: string }> }>).then(data => {
+      const rows = data.reports ?? [];
+      setCompositeCount(rows.filter(row => row.starId !== "personal-reading" && row.starId !== "relationship-profile").length);
+      setReadingCount(rows.filter(row => row.starId === "personal-reading").length);
+    }).catch(() => undefined);
+    fetch("/api/myfate/credits").then(r => r.json() as Promise<{ balance?: number }>).then(data => {
+      if (typeof data.balance === "number") setCredits(data.balance);
+    }).catch(() => undefined);
   }, [status, email]);
 
-  function saveProfile(nextNickname: string, nextBirthDate: string, nextLocation: string) {
+  function saveNickname(value: string) {
+    setNickname(value);
     try {
-      const { mbti, birthTime, birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode } = readBasicProfile(email);
-      writeBasicProfile(email, { nickname: nextNickname, birthDate: nextBirthDate, mbti, location: nextLocation, birthTime, birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
+      const profile = readBasicProfile(email);
+      writeBasicProfile(email, { ...profile, nickname: value });
       setSaveState("saved");
     } catch {
       setSaveState("error");
@@ -47,97 +44,65 @@ export default function WorkspaceProfile() {
   }
 
   return (
-    <div className="mf-profile-workspace">
-      <section className="mf-profile-panel">
-        <div className="mf-profile-purpose">
-          <span>建议完整填写</span>
-          <h2>让每一次关系报告真正属于你</h2>
-          <p>你可以在这里保存个人资料；明星合盘与个人解读会读取出生日期、时间与城市，并在修改后自动保存。</p>
-        </div>
-        <div className="mf-profile-form">
-          <div className="mf-profile-identity-grid">
-            <label className="mf-profile-field">
-              <span>昵称</span>
+    <div className="mf-bz-profile">
+      <header className="mf-bz-profile-head">
+        <h1>个人中心</h1>
+        <p>管理你的账号信息</p>
+      </header>
+      <div className="mf-bz-profile-grid">
+        <div className="mf-bz-profile-main">
+          <section className="mf-bz-profile-card">
+            <header>
+              <span>基本信息</span>
+              <h2>你的昵称</h2>
+            </header>
+            <div className="mf-bz-profile-nick">
               <input
                 type="text"
                 value={nickname}
                 maxLength={20}
-                autoComplete="nickname"
                 placeholder="输入你的昵称"
                 disabled={!ready}
-                onChange={(event) => {
-                  const nextNickname = event.target.value;
-                  setNickname(nextNickname);
-                  saveProfile(nextNickname, birthDate, location);
-                }}
+                onChange={(event) => saveNickname(event.target.value)}
               />
-            </label>
+              <button className="mf-bz-profile-save" type="button" onClick={() => saveNickname(nickname)}>保存</button>
+            </div>
+            <p className="mf-bz-profile-note" aria-live="polite">
+              {saveState === "saved" ? "✓ 已自动保存" : saveState === "error" ? "暂时无法保存，请稍后重试" : "昵称仅保存在这台设备上，用于报告展示。"}
+            </p>
+          </section>
 
-            <label className="mf-profile-field">
-              <span>登录邮箱</span>
-              {status === "anonymous" ? (
-                <Link className="mf-profile-login-email" href="/login?next=%2Fhome%2Fprofile&from=%2Fhome%2Fprofile">
-                  <span>尚未登录</span><strong>登录 <i aria-hidden="true">→</i></strong>
-                </Link>
-              ) : (
-                <div className="mf-profile-readonly">
-                  <input
-                    type="email"
-                    value={status === "loading" ? "正在读取…" : email ?? "尚未登录"}
-                    readOnly
-                    aria-readonly="true"
-                  />
-                  <span aria-hidden="true">锁定</span>
-                </div>
-              )}
-            </label>
-          </div>
-
-          <div className="mf-profile-editable-grid">
-            <label className="mf-profile-field">
-              <span className="mf-profile-birth-label-desktop">出生年月日</span>
-              <span className="mf-profile-birth-label-mobile">出生日期</span>
-              <input
-                type="date"
-                value={birthDate}
-                max={today}
-                disabled={!ready}
-                onChange={(event) => {
-                  const nextBirthDate = event.target.value;
-                  setBirthDate(nextBirthDate);
-                  saveProfile(nickname, nextBirthDate, location);
-                }}
-              />
-            </label>
-
-            <label className="mf-profile-field">
-              <span>地点</span>
-              <input
-                type="text"
-                value={location}
-                maxLength={40}
-                autoComplete="address-level2"
-                placeholder="城市或地区"
-                disabled={!ready}
-                onChange={(event) => {
-                  const nextLocation = event.target.value;
-                  setLocation(nextLocation);
-                  saveProfile(nickname, birthDate, nextLocation);
-                }}
-              />
-            </label>
-          </div>
-
-          <div className="mf-profile-autosave-status" aria-live="polite">
-            {saveState === "saved" ? <span className="success">✓ 已自动保存</span> : null}
-            {saveState === "error" ? <span className="error">暂时无法保存，请稍后重试</span> : null}
-          </div>
+          <section className="mf-bz-profile-card">
+            <header>
+              <span>报告统计</span>
+              <h2>你的使用情况</h2>
+            </header>
+            <div className="mf-bz-profile-stats">
+              <div><b>{compositeCount ?? "—"}</b><span>合盘报告</span></div>
+              <div><b>{readingCount ?? "—"}</b><span>个人解读</span></div>
+              <div><b>{credits ?? "—"}</b><span>剩余额度</span></div>
+            </div>
+            <Link className="mf-bz-profile-stats-link" href="/home/upgrade">额度用完？前往订阅升级 →</Link>
+          </section>
         </div>
-      </section>
 
-      <p className="mf-profile-storage-note">
-        当前资料仅保存在这台设备的浏览器中。
-      </p>
+        <aside className="mf-bz-profile-side">
+          <section className="mf-bz-profile-card">
+            <header>
+              <span>账号信息</span>
+            </header>
+            <dl className="mf-bz-profile-account">
+              <div><dt>账号邮箱</dt><dd>{status === "authenticated" ? email : status === "loading" ? "正在读取…" : "尚未登录"}</dd></div>
+              <div><dt>登录方式</dt><dd>邮箱验证码</dd></div>
+            </dl>
+            {status === "anonymous" ? (
+              <Link className="mf-bz-profile-logout" href="/login?next=%2Fhome%2Fprofile&from=%2Fhome%2Fprofile">登录</Link>
+            ) : (
+              <button className="mf-bz-profile-logout" type="button" onClick={() => { markSignedOut(); router.replace("/"); }}>退出登录</button>
+            )}
+          </section>
+        </aside>
+      </div>
     </div>
   );
 }
