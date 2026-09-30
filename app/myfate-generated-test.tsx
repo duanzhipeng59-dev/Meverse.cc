@@ -27,6 +27,7 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
   const [result, setResult] = useState<FormulaTestResult | null>(null);
   const [phase, setPhase] = useState<"loading" | "profile" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
+  const [hasSavedProfile, setHasSavedProfile] = useState(false);
   const MUNICIPALITIES = new Set(["110000", "120000", "310000", "500000"]);
   const DEFAULT_PROVINCE = "110000";
   const DEFAULT_DISTRICT = "110101";
@@ -109,12 +110,22 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
     const params = new URLSearchParams(window.location.search);
     const birth = params.get("birth");
     const city = params.get("city");
+    const profile = readBasicProfile(email);
+    let prefilled = false;
     if (birth && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(birth)) {
       const [y, m, d] = birth.slice(0, 10).split("-");
       setBirthYear(y); setBirthMonth(m); setBirthDay(d);
       setBirthHour(birth.slice(11, 13));
       setBirthMinute(birth.slice(14));
+      prefilled = true;
+    } else if (profile.birthDate) {
+      const [y, m, d] = profile.birthDate.split("-");
+      setBirthYear(y); setBirthMonth(m); setBirthDay(d);
+      setBirthHour((profile.birthTime || "00:00").slice(0, 2));
+      setBirthMinute((profile.birthTime || "00:00").slice(3));
+      prefilled = true;
     }
+    setHasSavedProfile(prefilled);
     if (city && /^\d{6}$/u.test(city)) {
       setBirthProvinceCode(""); // loaded below via area chain
     }
@@ -218,10 +229,79 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
         <main className="mf-bz-form">
           <header className="mf-bz-form-head">
             <span>明星合盘</span>
-            <h1>输入你的出生信息</h1>
-            <p>系统将使用吠陀占星（Jyotish）为你与 {star.name} 生成完整合盘报告（六维关系矩阵）。</p>
+            <h1>确认你们的出生信息</h1>
+            <p>TA 的信息已自动就绪；你的出生信息如已保存会自动填入，也可手动修改。</p>
           </header>
-          <div className="mf-bz-form-grid">
+          <div className="mf-bz-duo-form">
+            <section className="mf-bz-duo-info">
+              <header><span>TA · 明星（已自动就绪）</span></header>
+              <img src={star.portraitSrc} alt="" />
+              <h2>{star.name}</h2>
+              <p className="mf-bz-duo-role">{star.role}</p>
+              <small>出生日期 {star.birthDate}</small>
+              {vedicSummary ? (
+                <dl>
+                  <div><dt>上升</dt><dd>{vedicSignZh[vedicSummary.lagna] ?? vedicSummary.lagna} · {vedicSummary.lagnaNakshatra}</dd></div>
+                  <div><dt>月亮</dt><dd>{vedicSignZh[vedicSummary.moonSign] ?? vedicSummary.moonSign} · {vedicSummary.moonNakshatra}</dd></div>
+                  <div><dt>太阳</dt><dd>{vedicSignZh[vedicSummary.sunSign] ?? vedicSummary.sunSign}</dd></div>
+                </dl>
+              ) : null}
+            </section>
+            <section className="mf-bz-duo-info is-you">
+              <header><span>你 · 出生信息{hasSavedProfile ? "（已自动填入）" : "（请手动填写）"}</span></header>
+              <div className="mf-bz-field">
+                <span>出生日期</span>
+                <div className="mf-bz-area">
+                  <select value={birthYear} onChange={(event) => chooseYear(event.target.value)}>
+                    <option value="">年</option>
+                    {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
+                  </select>
+                  <select value={birthMonth} onChange={(event) => chooseMonth(event.target.value)}>
+                    <option value="">月</option>
+                    {monthOptions.map((month) => <option key={month} value={month}>{month}</option>)}
+                  </select>
+                  <select value={birthDay} onChange={(event) => { setBirthDay(event.target.value); setError(""); }}>
+                    <option value="">日</option>
+                    {dayOptions.map((day) => <option key={day} value={day}>{day}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="mf-bz-field">
+                <span>出生时间</span>
+                <div className="mf-bz-area">
+                  <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setError(""); }}>
+                    <option value="">时</option>
+                    {hourOptions.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
+                  </select>
+                  <select value={birthMinute} onChange={(event) => { setBirthMinute(event.target.value); setError(""); }}>
+                    <option value="">分</option>
+                    {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="mf-bz-field">
+                <span>出生地点</span>
+                <div className="mf-bz-area">
+                  <select value={birthProvinceCode} onChange={(event) => void chooseProvince(event.target.value)}>
+                    <option value="">省</option>
+                    {provinceOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+                  </select>
+                  <select value={birthCityCode} onChange={(event) => void chooseCity(event.target.value)} disabled={!birthProvinceCode}>
+                    <option value="">市</option>
+                    {cityOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+                  </select>
+                  <select value={birthDistrictCode} onChange={(event) => { setBirthDistrictCode(event.target.value); setError(""); }} disabled={!birthCityCode}>
+                    <option value="">区/县</option>
+                    {districtOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+                  </select>
+                </div>
+              </div>
+              <small className="mf-bz-hint">出生时间不确定可保持默认 00:00。</small>
+              <div className="mf-report-login-error" role="alert">{error}</div>
+              <button className="mf-bz-btn" type="button" onClick={() => { if (!validateBirth()) return; void createCompositeAnalysis(); }}>生成合盘分析 <span aria-hidden="true">→</span></button>
+            </section>
+          </div>
+          <div className="mf-bz-form-grid" hidden>
             <section className="mf-bz-form-card">
               <div className="mf-bz-field">
                 <span>出生日期</span>
@@ -270,11 +350,8 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
                   </select>
                 </div>
               </div>
-              <small className="mf-bz-hint">出生时间不确定可保持默认 00:00；出生地点需选到区/县（用于真太阳时与上升星座校准）。</small>
-              <div className="mf-report-login-error" role="alert">{error}</div>
-              <button className="mf-bz-btn" type="button" onClick={() => { if (!validateBirth()) return; void createCompositeAnalysis(); }}>生成合盘分析 <span aria-hidden="true">→</span></button>
             </section>
-            <aside className="mf-bz-duo-side">
+            <aside className="mf-bz-duo-side" hidden>
               <section className="mf-bz-duo-card">
                 <img src={star.portraitSrc} alt="" />
                 <div>
