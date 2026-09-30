@@ -75,7 +75,7 @@ export async function POST(request: Request) {
         three_pillars: String(payload.threePillars ?? "").trim(),
         traits,
         categories,
-        match_count: 0,
+        match_count: 8000 + Math.floor(Math.random() * 12000),
         portrait_url: String(payload.portraitUrl ?? "").trim() || "/historical-figure.svg",
         ideal: { security: 50, expression: 50, independence: 50, conflict: 50, novelty: 50, _reportPrompt: reportPrompt },
         report_prompt: reportPrompt || null,

@@ -189,6 +189,16 @@ export async function cacheCelebrityVedicChart(id: string, structuredMd: string,
     .eq("id", id);
 }
 
+export async function incrementStarMatchCount(id: string) {
+  const client = createSupabaseAdminClient();
+  const { data, error } = await client.from("celebrity_profiles").select("match_count").eq("id", id).maybeSingle();
+  if (error || !data) return;
+  await client
+    .from("celebrity_profiles")
+    .update({ match_count: ((data as { match_count: number }).match_count ?? 0) + 1 })
+    .eq("id", id);
+}
+
 export async function hasCelebrityVedicData(id: string): Promise<boolean> {
   noStore();
   const { data } = await createSupabaseAdminClient()

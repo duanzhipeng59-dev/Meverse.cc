@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createSupabaseAdminClient } from "../../auth/server";
 import { requireReportUser } from "../reports/server";
-import { getPublishedStar, getCelebrityVedicBirth, cacheCelebrityVedicChart } from "../../../myfate-stars-server";
+import { getPublishedStar, getCelebrityVedicBirth, cacheCelebrityVedicChart, incrementStarMatchCount } from "../../../myfate-stars-server";
 import { serializeVedicResult, type VedicCompositeResult, type VedicChartSummary } from "../../../myfate-vedic-types";
 import { computeVedicChart, computeVedicSynastry, vedicServiceConfigured, type VedicServiceChart } from "../../../myfate-vedic-client";
 import { interpretVedicSynastry } from "../../../myfate-vedic-interpretation";
@@ -134,6 +134,7 @@ export async function POST(request: Request) {
       await createSupabaseAdminClient().from("myfate_reports").delete().eq("id", data.id);
       return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
     }
+    await incrementStarMatchCount(star.id).catch(() => undefined);
     return Response.json({ report: mapReportRow(data as ReportRow), result: vedic, mode: "vedic" }, { status: 201, headers: session.headers });
   } catch (error) {
     console.error("Failed to create vedic composite", error);
