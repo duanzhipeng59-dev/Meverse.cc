@@ -94,9 +94,6 @@ export default async function MyfateHome() {
                 >
                   <span className="mf-star-number">0{index + 1}</span>
                   <div className="mf-star-overlay">
-                    <div className="mf-star-tags">
-                      {star.traits.slice(0, 2).map((trait) => <span key={trait}>{trait}</span>)}
-                    </div>
                     <h3>{star.name}</h3>
                   </div>
                 </div>

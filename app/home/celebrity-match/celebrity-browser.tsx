@@ -102,9 +102,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
               <strong>{star.name}</strong>
               <span>{star.role}</span>
             </div>
-            <div className="mf-bz-star-traits">
-              {star.traits.slice(0, 3).map((trait) => <i key={trait}>{trait}</i>)}
-            </div>
           </AuthEntryLink>
         ))}
         {pageStars.length === 0 ? (
