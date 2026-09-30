@@ -1,4 +1,45 @@
-import type { BaziChart } from "./myfate-bazi-engine";
+// 排盘数据结构(历史报告渲染所需;排盘引擎本身已下线)。
+
+export type BaziPillar = {
+  label: string;
+  ganzhi: string;
+  shiShenGan: string;
+  hideGan: string[];
+  hideShiShen: string[];
+  naYin: string;
+};
+
+export type BaziDaYunStep = {
+  ganzhi: string;
+  startYear: number;
+  endYear: number;
+  startAge: number;
+  endAge: number;
+  current: boolean;
+};
+
+export type BaziTrueSolar = {
+  city: string;
+  birthTime: string;
+  adjustedTime: string;
+  longitudeCorrectionMin: number;
+  equationOfTimeMin: number;
+  totalCorrectionMin: number;
+  changedDay: boolean;
+};
+
+export type BaziChart = {
+  pillars: BaziPillar[];
+  dayMaster: string;
+  wuXing: Record<string, number>;
+  trueSolar: BaziTrueSolar;
+  daYun: {
+    startText: string;
+    steps: BaziDaYunStep[];
+  };
+  currentDaYunGanZhi: string;
+  currentYearGanZhi: string;
+};
 
 // ── 个人八字解读 (version 5) ────────────────────────────────────────────────
 

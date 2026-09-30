@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRef } from "react";
-import type { BaziChart } from "./myfate-bazi-engine";
+import type { BaziChart } from "./myfate-bazi-types";
 import type { BaziReadingResult } from "./myfate-bazi-types";
 
 const GAN_WUXING: Record<string, string> = {

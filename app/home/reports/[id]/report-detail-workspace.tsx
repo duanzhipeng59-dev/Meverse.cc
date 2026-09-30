@@ -8,42 +8,8 @@ import MyfateAdvancedReport from "../../../myfate-advanced-report";
 import MyfateFormulaResult from "../../../myfate-formula-result";
 import { parseFormulaResult } from "../../../myfate-generated-test-types";
 import { parseBaziResult } from "../../../myfate-bazi-types";
-import MyfateBaziResult, { PaipanTable } from "../../../myfate-bazi-result";
+import MyfateBaziResult from "../../../myfate-bazi-result";
 import { readSavedReports, type SavedReport } from "../../../myfate-report-storage";
-
-function InterpretButton({ reportId }: { reportId: string }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  async function interpret() {
-    setBusy(true);
-    setError("");
-    try {
-      const response = await fetch("/api/myfate/personal-reading", {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ reportId }),
-      });
-      if (response.status === 402) {
-        window.location.href = "/home/upgrade";
-        return;
-      }
-      if (!response.ok) throw new Error("failed");
-      window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
-    } catch {
-      setError("生成失败，请稍后重试。");
-      setBusy(false);
-      return;
-    }
-  }
-  return (
-    <div className="mf-bz-interpret-cta">
-      {error ? <p className="mf-report-login-error" role="alert">{error}</p> : null}
-      <button className="mf-bz-btn" type="button" disabled={busy} onClick={() => void interpret()}>
-        {busy ? "正在生成解读…" : "生成解读（消耗 1 次额度）"}
-      </button>
-    </div>
-  );
-}
 
 function legacyReportText(report: SavedReport) {
   if (report.reportText) return report.reportText;
@@ -121,14 +87,11 @@ export default function ReportDetailWorkspace({
           </div>
         );
       }
-      // 排盘结果页:仅四柱八字
+      // 排盘结果页已下线:待解读的历史记录只显示提示
       return (
         <div className="mf-bz-result">
-          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>个人解读 · 已排盘</span></div>
-          <PaipanTable chart={baziDraft.chart} />
-          <div className="mf-result-actions">
-            <InterpretButton reportId={report.id} />
-          </div>
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>个人解读</span></div>
+          <div className="mf-bz-starreport-placeholder"><span>✦</span><p>这份记录尚未生成解读，排盘功能已下线；完整内容将以新版形式呈现。</p></div>
         </div>
       );
     }

@@ -5293,3 +5293,5 @@ select:focus-visible {
 .mf-bz-birth-input select { font-size: 15px; }
 .mf-bz-privacy-note { margin-top: 2px; }
 .mf-bz-save-status i { box-shadow: 0 0 0 3px rgb(58 138 89 / 15%); }
+
+.mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #f7f1e6, #efe5d2); border: 1px solid var(--bz-line); color: var(--bz-red); font: 700 44px/1 var(--font-serif-display); }
