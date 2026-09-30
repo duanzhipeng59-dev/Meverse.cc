@@ -205,12 +205,8 @@ export default function PersonalReadingTest() {
       if (!response.ok) throw new Error("暂时无法生成解读，请稍后重试。");
       const body = await response.json() as { reportId?: string; result?: BaziReadingResult };
       if (!body.reportId || body.result?.version !== 5) throw new Error("解读结果数据不完整。");
-      const url = new URL(window.location.href);
-      url.searchParams.set("report", body.reportId);
-      window.history.replaceState(null, "", `${url.pathname}${url.search}`);
       window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
-      setResult(body.result);
-      setPhase("result");
+      window.location.replace(`/home/reports/${body.reportId}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "暂时无法生成解读。");
       setPhase("error");
