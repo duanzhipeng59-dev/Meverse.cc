@@ -93,7 +93,7 @@ export default function HomeProfileEntry() {
           />
         </label>
         <Link className="mf-primary-button mf-home-profile-submit" href="/home/personal-reading">
-          <span>选择合盘对象</span><b aria-hidden="true">→</b>
+          <span>开始个人解读</span><b aria-hidden="true">→</b>
         </Link>
       </div>
 

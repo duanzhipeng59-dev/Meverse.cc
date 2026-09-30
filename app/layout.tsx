@@ -9,17 +9,17 @@ export const metadata: Metadata = {
     default: "Myfate · 遇见你的心动答案",
     template: "%s · Myfate",
   },
-  description: "输入出生信息，直接生成吠陀合盘报告与八字个人解读。",
+  description: "输入出生信息，生成你的八字命盘与个人解读报告。",
   openGraph: {
     title: "Myfate · 遇见你的心动答案",
-    description: "吠陀明星合盘与八字个人解读。",
+    description: "八字排盘与个人解读。",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
     title: "Myfate · 遇见你的心动答案",
-    description: "吠陀明星合盘与八字个人解读。",
+    description: "八字排盘与个人解读。",
   },
 };
 
