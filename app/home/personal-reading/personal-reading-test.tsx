@@ -9,6 +9,11 @@ import { buildBaziChart, type BaziChart } from "../../myfate-bazi-engine";
 import type { BaziReadingResult } from "../../myfate-bazi-types";
 
 const PAGE_PATH = "/home/personal-reading";
+const PENDING_GENDER_KEY = "myfate-bazi-pending-gender";
+
+function redirectToLogin() {
+  window.location.replace(`/login?next=${encodeURIComponent(PAGE_PATH)}&from=${encodeURIComponent(PAGE_PATH)}`);
+}
 
 export default function PersonalReadingTest() {
   const { status, email } = useAuth();
@@ -25,18 +30,20 @@ export default function PersonalReadingTest() {
 
   useEffect(() => {
     if (status === "loading" || started.current) return;
-    if (status === "anonymous") {
-      started.current = true;
-      window.location.replace(`/login?next=${encodeURIComponent(PAGE_PATH)}&from=${encodeURIComponent(PAGE_PATH)}`);
-      return;
-    }
     started.current = true;
     const existingReportId = new URLSearchParams(window.location.search).get("report");
     if (existingReportId) {
-      window.location.replace(`/home/reports/${encodeURIComponent(existingReportId)}`);
+      redirectToLogin();
       return;
     }
-    const profile = readBasicProfile(email);
+    // Login is only required to generate the AI reading; the chart itself
+    // (排盘) is computed locally and open to anonymous visitors.
+    const savedGender = window.sessionStorage.getItem(PENDING_GENDER_KEY);
+    if (savedGender === "male" || savedGender === "female") setGender(savedGender);
+    let profile = readBasicProfile(email);
+    if (!profile.birthDate || !profile.birthCityId) {
+      profile = { ...profile, ...readBasicProfile(null), ...(profile.birthDate ? { birthDate: profile.birthDate } : {}) };
+    }
     setBirthDate(profile.birthDate);
     setBirthTime(profile.birthTime || "00:00");
     setBirthCityId(profile.birthCityId);
@@ -64,6 +71,11 @@ export default function PersonalReadingTest() {
 
   async function createReading() {
     if (!chart || !validateForm()) return;
+    if (status === "anonymous") {
+      window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
+      redirectToLogin();
+      return;
+    }
     setPhase("analyzing");
     try {
       const response = await fetch("/api/myfate/personal-reading", {
@@ -72,7 +84,8 @@ export default function PersonalReadingTest() {
         body: JSON.stringify({ gender, birthDate, birthTime, birthCityId }),
       });
       if (response.status === 401) {
-        window.location.replace(`/login?next=${encodeURIComponent(PAGE_PATH)}&from=${encodeURIComponent(PAGE_PATH)}`);
+        window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
+        redirectToLogin();
         return;
       }
       if (response.status === 402) {
