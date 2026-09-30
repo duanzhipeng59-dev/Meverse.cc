@@ -8,7 +8,7 @@ import MyfateAdvancedReport from "../../../myfate-advanced-report";
 import MyfateFormulaResult from "../../../myfate-formula-result";
 import { parseFormulaResult } from "../../../myfate-generated-test-types";
 import { parseBaziResult } from "../../../myfate-bazi-types";
-import MyfateBaziResult from "../../../myfate-bazi-result";
+import MyfateBaziResult, { PaipanTable } from "../../../myfate-bazi-result";
 import { readSavedReports, type SavedReport } from "../../../myfate-report-storage";
 
 function InterpretButton({ reportId }: { reportId: string }) {
@@ -110,15 +110,25 @@ export default function ReportDetailWorkspace({
     const baziDraft = parseBaziResult(reportText);
     if (baziDraft) {
       const needsInterpret = baziDraft.sections.length === 0;
+      if (!needsInterpret) {
+        return (
+          <div className="mf-saved-report-detail mf-unified-advanced-report">
+            <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>个人八字解读</span></div>
+            <MyfateBaziResult
+              result={baziDraft}
+              actions={<Link className="mf-bz-btn" href="/home/personal-reading">重新排盘</Link>}
+            />
+          </div>
+        );
+      }
+      // 排盘结果页:仅四柱八字
       return (
-        <div className="mf-saved-report-detail mf-unified-advanced-report">
-          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{needsInterpret ? "个人解读 · 已排盘" : "个人八字解读"}</span></div>
-          <MyfateBaziResult
-            result={baziDraft}
-            actions={needsInterpret
-              ? <InterpretButton reportId={report.id} />
-              : <Link className="mf-bz-btn" href="/home/personal-reading">重新排盘</Link>}
-          />
+        <div className="mf-bz-result">
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>个人解读 · 已排盘</span></div>
+          <PaipanTable chart={baziDraft.chart} />
+          <div className="mf-result-actions">
+            <InterpretButton reportId={report.id} />
+          </div>
         </div>
       );
     }

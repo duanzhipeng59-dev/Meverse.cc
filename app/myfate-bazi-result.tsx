@@ -21,7 +21,7 @@ const PALACE: Record<string, string> = {
   时柱: "子女 · 晚年",
 };
 
-function PaipanTable({ chart }: { chart: BaziChart }) {
+export function PaipanTable({ chart }: { chart: BaziChart }) {
   return (
     <section className="mf-bz-paipan">
       <header className="mf-bz-paipan-head">
