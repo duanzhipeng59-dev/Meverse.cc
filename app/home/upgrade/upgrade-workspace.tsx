@@ -26,9 +26,9 @@ const packages: readonly UpgradePackage[] = [
     name: "体验版",
     price: 89,
     uses: 3,
-    usesLabel: "3 次关系合盘",
+    usesLabel: "3 次报告",
     unitPrice: "29.67",
-    description: "适合先体验几次关系合盘",
+    description: "适合先体验几次解读分析",
   },
   {
     id: "explore",
@@ -36,7 +36,7 @@ const packages: readonly UpgradePackage[] = [
     name: "探索版",
     price: 239,
     uses: 10,
-    usesLabel: "10 次关系合盘",
+    usesLabel: "10 次报告",
     unitPrice: "23.90",
     description: "适合持续探索不同关系",
     badge: "推荐",
@@ -47,7 +47,7 @@ const packages: readonly UpgradePackage[] = [
     name: "深度版",
     price: 499,
     uses: 30,
-    usesLabel: "30 次关系合盘",
+    usesLabel: "30 次报告",
     unitPrice: "16.63",
     description: "适合高频使用与长期探索",
     badge: "单次最省",
@@ -55,12 +55,12 @@ const packages: readonly UpgradePackage[] = [
   {
     id: "single",
     mode: "single",
-    name: "单次合盘",
+    name: "单次报告",
     price: 50,
     uses: 1,
-    usesLabel: "1 次关系合盘",
+    usesLabel: "1 次报告",
     unitPrice: "50.00",
-    description: "适合只想体验一次完整关系合盘",
+    description: "适合只想体验一次完整解读",
   },
 ] as const;
 
@@ -83,7 +83,7 @@ export default function UpgradeWorkspace() {
       <header className="mf-upgrade-heading">
         <span className="mf-kicker">MYFATE PACKAGES</span>
         <h1>选择你的关系探索方式</h1>
-        <p>{mode === "package" ? "购买多次关系合盘套餐，次数按需使用。" : "单次购买一份关系合盘，用完后可再次购买。"}</p>
+        <p>{mode === "package" ? "购买多次报告套餐，次数按需使用，合盘与个人解读通用。" : "单次购买一份报告，用完后可再次购买。"}</p>
       </header>
 
       <div className="mf-upgrade-tabs" role="tablist" aria-label="购买方式">
@@ -165,8 +165,8 @@ export default function UpgradeWorkspace() {
       <section className="mf-upgrade-includes">
         <span>每个套餐均包含</span>
         <div>
-          <p><i aria-hidden="true">✓</i> 三柱关系合盘</p>
-          <p><i aria-hidden="true">✓</i> 完整关系结构分析</p>
+          <p><i aria-hidden="true">✓</i> 明星合盘分析</p>
+          <p><i aria-hidden="true">✓</i> 个人八字解读</p>
           <p><i aria-hidden="true">✓</i> 报告保存至个人账户</p>
         </div>
       </section>
