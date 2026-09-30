@@ -202,3 +202,39 @@ export async function hasCelebrityVedicData(id: string): Promise<boolean> {
     .maybeSingle();
   return Boolean(data);
 }
+
+export type StarVedicSummary = {
+  lagna: string;
+  lagnaNakshatra: string;
+  moonSign: string;
+  moonNakshatra: string;
+  moonPada: number;
+  sunSign: string;
+};
+
+export async function getStarVedicSummary(id: string): Promise<StarVedicSummary | null> {
+  try {
+    const { data, error } = await createSupabaseAdminClient()
+      .from("celebrity_profiles")
+      .select("vedic_chart")
+      .eq("id", id)
+      .maybeSingle();
+    if (error || !data) return null;
+    const summary = (data as { vedic_chart?: { summary?: Record<string, unknown> } | null }).vedic_chart?.summary;
+    if (!summary) return null;
+    const pick = (key: string) => (typeof summary[key] === "string" ? (summary[key] as string) : "");
+    const lagna = pick("lagna");
+    const moonSign = pick("moonSign");
+    if (!lagna || !moonSign) return null;
+    return {
+      lagna,
+      lagnaNakshatra: pick("lagnaNakshatra"),
+      moonSign,
+      moonNakshatra: pick("moonNakshatra"),
+      moonPada: typeof summary.moonPada === "number" ? summary.moonPada : 1,
+      sunSign: pick("sunSign"),
+    };
+  } catch {
+    return null;
+  }
+}

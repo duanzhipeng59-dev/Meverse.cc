@@ -5122,3 +5122,13 @@ select:focus-visible {
 .mf-bz-duo-side .mf-bz-duo-card { align-items: center; }
 .mf-bz-duo-side-note { margin: 0; padding: 14px 16px; border-radius: 10px; background: #f3eee4; color: #a8a29e; font-size: 11.5px; line-height: 1.8; }
 @media (max-width: 900px) { .mf-bz-duo-side { position: static; } }
+
+.mf-bz-side-block { padding: 16px 18px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-bz-side-block > span { display: block; margin-bottom: 10px; color: var(--bz-red-bright); font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; }
+.mf-bz-side-block dl { margin: 0; display: grid; gap: 8px; }
+.mf-bz-side-block dl div { display: flex; justify-content: space-between; gap: 10px; }
+.mf-bz-side-block dt { color: #a8a29e; font-size: 12px; }
+.mf-bz-side-block dd { margin: 0; color: var(--bz-ink); font-size: 12.5px; font-weight: 650; text-align: right; }
+.mf-bz-side-block ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.mf-bz-side-block li { position: relative; padding-left: 16px; color: #57534e; font-size: 12px; line-height: 1.6; }
+.mf-bz-side-block li::before { content: "✦"; position: absolute; left: 0; color: var(--bz-red); font-size: 9px; top: 3px; }

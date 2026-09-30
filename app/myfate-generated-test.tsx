@@ -7,8 +7,10 @@ import type { StarProfile } from "./myfate-data";
 import MyfateFormulaResult from "./myfate-formula-result";
 import { readBasicProfile, validBirthDate, writeBasicProfile } from "./myfate-progressive-profile";
 import type { FormulaTestResult } from "./myfate-generated-test-types";
+import type { StarVedicSummary } from "./myfate-stars-server";
+import { vedicSignZh } from "./myfate-vedic-types";
 
-export default function MyfateGeneratedTest({ star, workspace = false }: { star: StarProfile; workspace?: boolean }) {
+export default function MyfateGeneratedTest({ star, workspace = false, vedicSummary = null }: { star: StarProfile; workspace?: boolean; vedicSummary?: StarVedicSummary | null }) {
   const { status, email } = useAuth();
   const started = useRef(false);
   const [birthYear, setBirthYear] = useState("");
@@ -279,10 +281,29 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
                   <span>TA · 明星</span>
                   <h2>{star.name}</h2>
                   <p>{star.role}</p>
-                  <small>出生日期 {star.birthDate}</small>
+                  <small>出生日期 {star.birthDate} · {star.matchCount} 人已合盘</small>
                 </div>
               </section>
-              <p className="mf-bz-duo-side-note">确认信息后，系统将计算你们两人的星盘关系，生成六维矩阵报告。</p>
+              {vedicSummary ? (
+                <section className="mf-bz-side-block">
+                  <span>TA 的本命星盘（已排盘）</span>
+                  <dl>
+                    <div><dt>上升</dt><dd>{vedicSignZh[vedicSummary.lagna] ?? vedicSummary.lagna} · {vedicSummary.lagnaNakshatra}</dd></div>
+                    <div><dt>月亮</dt><dd>{vedicSignZh[vedicSummary.moonSign] ?? vedicSummary.moonSign} · {vedicSummary.moonNakshatra} p{vedicSummary.moonPada}</dd></div>
+                    <div><dt>太阳</dt><dd>{vedicSignZh[vedicSummary.sunSign] ?? vedicSummary.sunSign}</dd></div>
+                  </dl>
+                </section>
+              ) : null}
+              <section className="mf-bz-side-block">
+                <span>报告将包含</span>
+                <ul>
+                  <li>六维关系矩阵（附证据与置信度）</li>
+                  <li>双向宫位互动表</li>
+                  <li>Ashtakoota 月宿八项筛查</li>
+                  <li>Dasha 时机观察</li>
+                </ul>
+              </section>
+              <p className="mf-bz-duo-side-note">基于 Swiss Ephemeris 天文历表与真实跨盘计算生成，非随机结论。</p>
             </aside>
           </div>
           <Link className="mf-bz-btn-ghost" style={{ justifySelf: "start" }} href={workspace ? `/home/relationship-test/${star.id}` : `/celebrity/${star.id}`}>← 返回详情</Link>
