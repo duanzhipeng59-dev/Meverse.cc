@@ -54,7 +54,7 @@ export default function CelebrityDetail({
             <ReportAwareEntry starId={star.id} />
           ) : (
             <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
-              查看你与 TA 的合盘分析 <span>→</span>
+              查看他的正缘分析报告 <span>→</span>
             </AuthEntryLink>
           )}
           <p className="mf-detail-hint">输入出生日期、时间与城市，即可生成吠陀合盘报告</p>

@@ -42,7 +42,7 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
 
   return (
     <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${starId}/test`}>
-      查看你与 TA 的合盘分析 <span>→</span>
+      查看他的正缘分析报告 <span>→</span>
     </AuthEntryLink>
   );
 }
