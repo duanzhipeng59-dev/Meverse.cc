@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../auth-context";
-import { vedicCities } from "../../myfate-cities";
 import { readBasicProfile, validBirthDate, writeBasicProfile } from "../../myfate-progressive-profile";
 import MyfateBaziResult, { BaziChartSections } from "../../myfate-bazi-result";
 import { buildBaziChart, type BaziChart } from "../../myfate-bazi-engine";
@@ -21,7 +20,12 @@ export default function PersonalReadingTest() {
   const [gender, setGender] = useState<"male" | "female" | "">("");
   const [birthDate, setBirthDate] = useState("");
   const [birthTime, setBirthTime] = useState("00:00");
-  const [birthCityId, setBirthCityId] = useState("");
+  const [birthProvinceCode, setBirthProvinceCode] = useState("");
+  const [birthCityCode, setBirthCityCode] = useState("");
+  const [birthDistrictCode, setBirthDistrictCode] = useState("");
+  const [provinceOptions, setProvinceOptions] = useState<Array<{ code: string; name: string }>>([]);
+  const [cityOptions, setCityOptions] = useState<Array<{ code: string; name: string }>>([]);
+  const [districtOptions, setDistrictOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [chart, setChart] = useState<BaziChart | null>(null);
   const [result, setResult] = useState<BaziReadingResult | null>(null);
   const [phase, setPhase] = useState<"loading" | "form" | "paipan" | "analyzing" | "result" | "error">("loading");
@@ -46,30 +50,71 @@ export default function PersonalReadingTest() {
     }
     setBirthDate(profile.birthDate);
     setBirthTime(profile.birthTime || "00:00");
-    setBirthCityId(profile.birthCityId);
+    const province = profile.birthProvinceCode;
+    const city = profile.birthCityCode;
+    const district = profile.birthDistrictCode;
+    (async () => {
+      const provinces = await fetch("/api/myfate/china-areas").then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+      setProvinceOptions(provinces);
+      if (province && provinces.some(p => p.code === province)) {
+        setBirthProvinceCode(province);
+        const cities = await fetch(`/api/myfate/china-areas?code=${province}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+        setCityOptions(cities);
+        if (city && cities.some(c => c.code === city)) {
+          setBirthCityCode(city);
+          const districts = await fetch(`/api/myfate/china-areas?code=${city}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+          setDistrictOptions(districts);
+          if (district && districts.some(d => d.code === district)) setBirthDistrictCode(district);
+        }
+      }
+    })();
     setPhase("form");
   }, [email, status]);
+
+  async function chooseProvince(code: string) {
+    setBirthProvinceCode(code);
+    setBirthCityCode("");
+    setBirthDistrictCode("");
+    setCityOptions([]);
+    setDistrictOptions([]);
+    setError("");
+    if (!code) return;
+    const cities = await fetch(`/api/myfate/china-areas?code=${code}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+    setCityOptions(cities);
+  }
+
+  async function chooseCity(code: string) {
+    setBirthCityCode(code);
+    setBirthDistrictCode("");
+    setDistrictOptions([]);
+    setError("");
+    if (!code) return;
+    const districts = await fetch(`/api/myfate/china-areas?code=${code}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+    setDistrictOptions(districts);
+    if (!districts.length) setBirthDistrictCode(code); // municipality leaf: city is the finest level
+  }
 
   function validateForm() {
     if (!gender) { setError("请选择性别（影响大运顺逆）。"); return null; }
     if (!validBirthDate(birthDate) || birthDate < "1900-01-01") { setError("请选择有效的出生日期。"); return null; }
     if (!/^\d{2}:\d{2}$/u.test(birthTime)) { setError("请填写出生时间（不确定可保持 00:00）。"); return null; }
-    if (!birthCityId) { setError("请选择出生城市，排盘需要经度做真太阳时校准。"); return null; }
+    if (!birthDistrictCode) { setError("请选择出生地点（省/市/区）。"); return null; }
     setError("");
     return true;
   }
 
-  function paipan() {
+  async function paipan() {
     if (!validateForm()) return;
     if (status === "anonymous") {
       window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
       redirectToLogin();
       return;
     }
-    const city = vedicCities.find((item) => item.id === birthCityId);
-    if (!city) { setError("出生城市无效。"); return; }
+    const area = await fetch(`/api/myfate/china-areas?resolve=${birthDistrictCode}`).then(r => r.json() as Promise<{ code?: string; name?: string; lat?: number; lon?: number }>).catch(() => null);
+    if (!area?.name || typeof area.lon !== "number") { setError("出生地点无效，请重新选择。"); return; }
+    const city = { id: area.code ?? birthDistrictCode, name: area.name!, lat: area.lat!, lon: area.lon!, tz: "Asia/Shanghai" };
     const profile = readBasicProfile(email);
-    writeBasicProfile(email, { ...profile, birthDate, birthTime, birthCityId });
+    writeBasicProfile(email, { ...profile, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
     setChart(buildBaziChart({ gender: gender as "male" | "female", birthDate, birthTime, city }));
     setPhase("paipan");
   }
@@ -86,7 +131,7 @@ export default function PersonalReadingTest() {
       const response = await fetch("/api/myfate/personal-reading", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ gender, birthDate, birthTime, birthCityId }),
+        body: JSON.stringify({ gender, birthDate, birthTime, birthDistrictCode }),
       });
       if (response.status === 401) {
         window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
@@ -159,13 +204,23 @@ export default function PersonalReadingTest() {
             <span>出生时间（可选）</span>
             <input type="time" value={birthTime} onChange={(event) => { setBirthTime(event.target.value); setError(""); }} />
           </label>
-          <label className="mf-bz-field">
-            <span>出生城市</span>
-            <select value={birthCityId} onChange={(event) => { setBirthCityId(event.target.value); setError(""); }}>
-              <option value="">请选择城市</option>
-              {vedicCities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
-            </select>
-          </label>
+          <div className="mf-bz-field">
+            <span>出生地点</span>
+            <div className="mf-bz-area">
+              <select value={birthProvinceCode} onChange={(event) => void chooseProvince(event.target.value)}>
+                <option value="">省</option>
+                {provinceOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+              </select>
+              <select value={birthCityCode} onChange={(event) => void chooseCity(event.target.value)} disabled={!birthProvinceCode}>
+                <option value="">市</option>
+                {cityOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+              </select>
+              <select value={birthDistrictCode} onChange={(event) => { setBirthDistrictCode(event.target.value); setError(""); }} disabled={!birthCityCode}>
+                <option value="">区/县</option>
+                {districtOptions.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+              </select>
+            </div>
+          </div>
           <fieldset className="mf-bz-field">
             <span>性别</span>
             <div className="mf-bz-gender" role="radiogroup" aria-label="性别">
@@ -173,9 +228,9 @@ export default function PersonalReadingTest() {
               <button type="button" className={gender === "female" ? "is-active" : ""} onClick={() => { setGender("female"); setError(""); }}><i aria-hidden="true" />女</button>
             </div>
           </fieldset>
-          <small className="mf-bz-hint">出生时间不确定可保持默认 0:00，出生城市必须选择。</small>
+          <small className="mf-bz-hint">出生时间不确定可保持默认 0:00，出生地点需选到区/县（用于真太阳时校准）。</small>
           <div className="mf-report-login-error" role="alert">{error}</div>
-          <button className="mf-bz-submit" type="button" onClick={paipan}>开始排盘 <span aria-hidden="true">→</span></button>
+          <button className="mf-bz-submit" type="button" onClick={() => void paipan()}>开始排盘 <span aria-hidden="true">→</span></button>
         </section>
         <aside className="mf-bz-include">
           <h2>这份解读包含</h2>

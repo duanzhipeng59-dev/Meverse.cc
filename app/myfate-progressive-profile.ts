@@ -25,6 +25,9 @@ export type LocalBasicProfile = {
   location: string;
   birthTime: string;
   birthCityId: string;
+  birthProvinceCode: string;
+  birthCityCode: string;
+  birthDistrictCode: string;
 };
 
 export type ProgressiveDimension = {
@@ -86,9 +89,12 @@ export function readBasicProfile(email: string | null): LocalBasicProfile {
       location: typeof parsed.location === "string" ? parsed.location.slice(0, 40) : "",
       birthTime: typeof parsed.birthTime === "string" && /^\d{2}:\d{2}$/u.test(parsed.birthTime) ? parsed.birthTime : "",
       birthCityId: typeof parsed.birthCityId === "string" ? parsed.birthCityId.slice(0, 60) : "",
+      birthProvinceCode: typeof parsed.birthProvinceCode === "string" ? parsed.birthProvinceCode.slice(0, 6) : "",
+      birthCityCode: typeof parsed.birthCityCode === "string" ? parsed.birthCityCode.slice(0, 6) : "",
+      birthDistrictCode: typeof parsed.birthDistrictCode === "string" ? parsed.birthDistrictCode.slice(0, 6) : "",
     };
   } catch {
-    return { nickname: "", birthDate: "", mbti: "", location: "", birthTime: "", birthCityId: "" };
+    return { nickname: "", birthDate: "", mbti: "", location: "", birthTime: "", birthCityId: "", birthProvinceCode: "", birthCityCode: "", birthDistrictCode: "" };
   }
 }
 

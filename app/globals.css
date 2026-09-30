@@ -4767,3 +4767,7 @@ select:focus-visible {
 .mf-bz-include b { display: block; margin-bottom: 4px; color: #1c1917; font-size: 13.5px; }
 .mf-bz-include p { margin: 0; color: #78716c; font-size: 12px; line-height: 1.7; }
 @media (max-width: 860px) { .mf-bz-form-grid { grid-template-columns: 1fr; } }
+
+.mf-bz-area { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mf-bz-area select:disabled { opacity: 0.5; }
+@media (max-width: 560px) { .mf-bz-area { grid-template-columns: 1fr; } }

@@ -4,7 +4,7 @@ import { requireReportUser } from "../reports/server";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { interpretBaziChart } from "../../../myfate-bazi-interpretation";
 import { serializeBaziResult, type BaziReadingResult } from "../../../myfate-bazi-types";
-import { findVedicCity } from "../../../myfate-cities";
+import { resolveArea } from "../../../myfate-china-areas";
 import { consumeReportCredit, getReportCredits } from "../../payments/epay/credits/server";
 import { mapReportRow, type ReportRow } from "../reports/server";
 
@@ -15,7 +15,7 @@ const requestSchema = z.object({
   gender: z.enum(["male", "female"]),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u).refine((value) => value >= "1900-01-01" && value <= today),
   birthTime: z.string().regex(/^\d{2}:\d{2}$/u),
-  birthCityId: z.string().min(1).max(60),
+  birthDistrictCode: z.string().regex(/^\d{6}$/u),
 });
 
 const REPORT_SELECT = "id, star_id, star_name, star_portrait, status, score, behavior_scores, question_count, initial_title, answers, interpretation, interpretation_source, created_at, updated_at";
@@ -26,8 +26,9 @@ export async function POST(request: Request) {
     if (!session) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
     const parsed = requestSchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
-    const city = findVedicCity(parsed.data.birthCityId);
-    if (!city) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
+    const area = resolveArea(parsed.data.birthDistrictCode);
+    if (!area) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
+    const city = { id: area.code, name: area.path.join(" "), lat: area.lat, lon: area.lon, tz: "Asia/Shanghai" };
     if (await getReportCredits(session.user.id).catch(() => 0) < 1) {
       return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
     }

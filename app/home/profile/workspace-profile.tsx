@@ -38,8 +38,8 @@ export default function WorkspaceProfile() {
 
   function saveProfile(nextNickname: string, nextBirthDate: string, nextLocation: string) {
     try {
-      const { mbti, birthTime, birthCityId } = readBasicProfile(email);
-      writeBasicProfile(email, { nickname: nextNickname, birthDate: nextBirthDate, mbti, location: nextLocation, birthTime, birthCityId });
+      const { mbti, birthTime, birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode } = readBasicProfile(email);
+      writeBasicProfile(email, { nickname: nextNickname, birthDate: nextBirthDate, mbti, location: nextLocation, birthTime, birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
       setSaveState("saved");
     } catch {
       setSaveState("error");
