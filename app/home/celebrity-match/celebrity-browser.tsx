@@ -3,21 +3,22 @@
 import { useMemo, useRef, useState } from "react";
 import AuthEntryLink from "../../auth-entry-link";
 import type { StarProfile } from "../../myfate-data";
+import { starGeneration } from "../../myfate-star-generations";
 
 const PAGE_SIZE = 12;
 
 const TABS = [
   { id: "all", label: "全部" },
-  { id: "singer", label: "歌手" },
-  { id: "actor", label: "演员" },
+  { id: "2", label: "二代" },
+  { id: "3", label: "三代" },
+  { id: "4", label: "四代" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
 function matchesTab(star: StarProfile, tab: TabId) {
   if (tab === "all") return true;
-  const keyword = tab === "singer" ? "歌手" : "演员";
-  return (star.categories ?? []).includes(keyword) || star.role.includes(keyword);
+  return starGeneration(star.id) === tab;
 }
 
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarProfile[]; basePath?: string }) {
@@ -56,9 +57,8 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     <div className="mf-bz-discover">
       <header className="mf-bz-discover-head">
         <div>
-          <span>DISCOVER</span>
           <h1>遇见让你心动的人</h1>
-          <p>选择一位想了解的人，生成你与 TA 的吠陀合盘报告。</p>
+          <p>选择一位偶像，生成你与 TA 的吠陀合盘报告。</p>
         </div>
         <aside aria-hidden="true">
           <p>星光不问赶路人<br />星盘自有答案</p>
@@ -108,7 +108,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
             <div className="mf-bz-star-traits">
               {star.traits.slice(0, 3).map((trait) => <i key={trait}>{trait}</i>)}
             </div>
-            <span className="mf-bz-star-cta">查看详情 <b aria-hidden="true">→</b></span>
           </AuthEntryLink>
         ))}
         {pageStars.length === 0 ? (
