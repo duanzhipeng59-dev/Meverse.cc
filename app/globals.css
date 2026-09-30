@@ -5073,3 +5073,33 @@ select:focus-visible {
 .mf-detail-page .mf-detail-cta { margin-top: 26px; border-radius: 10px; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); box-shadow: none; }
 .mf-detail-hint { margin: 14px 0 0; color: var(--bz-muted); font-size: 12px; }
 .mf-bazi-note { margin: 8px 0 0; padding: 12px 14px; border-radius: 10px; background: #f3eee4; color: #a8a29e; font-size: 11px; line-height: 1.7; }
+
+/* ── 偶像适配榜 (mf-bz-rank) ─────────────────────────────────────────── */
+.mf-bz-rank { display: flex; flex-direction: column; gap: 24px; padding: clamp(18px, 4vw, 40px); background: var(--bz-paper); border-radius: 18px; }
+.mf-bz-rank-head span { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.22em; }
+.mf-bz-rank-head h1 { margin: 10px 0 8px; color: var(--bz-ink); font: 700 clamp(24px, 3.6vw, 34px)/1.2 var(--font-serif-display); }
+.mf-bz-rank-head p { margin: 0; color: var(--bz-muted); font-size: 13px; max-width: 640px; }
+.mf-bz-rank-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 14px; align-items: end; }
+.mf-bz-rank-form .mf-bz-btn { height: 47px; white-space: nowrap; }
+.mf-bz-rank-podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.mf-bz-rank-top { display: grid; justify-items: center; gap: 6px; padding: 22px 16px 18px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); color: inherit; text-decoration: none; }
+.mf-bz-rank-top.is-first { border-color: var(--bz-gold); background: linear-gradient(170deg, #fdf9ef, #faf3e0); }
+.mf-bz-rank-medal { font-size: 24px; }
+.mf-bz-rank-top img { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 2px solid var(--bz-line-strong); }
+.mf-bz-rank-top.is-first img { border-color: var(--bz-gold); }
+.mf-bz-rank-top b { color: var(--bz-ink); font: 700 17px/1.3 var(--font-serif-display); }
+.mf-bz-rank-top > span { color: var(--bz-muted); font-size: 11px; }
+.mf-bz-rank-top strong { margin-top: 4px; color: var(--bz-red); font: 700 30px/1 Georgia, serif; }
+.mf-bz-rank-top small { color: var(--bz-muted); font-size: 10.5px; }
+.mf-bz-rank-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.mf-bz-rank-list a { display: grid; grid-template-columns: 40px 46px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 9px 16px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); color: inherit; text-decoration: none; }
+.mf-bz-rank-list a:hover { border-color: var(--bz-red); }
+.mf-bz-rank-list b { color: var(--bz-muted); font: 700 15px/1 Georgia, serif; }
+.mf-bz-rank-list img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+.mf-bz-rank-list strong { display: block; color: var(--bz-ink); font-size: 14px; }
+.mf-bz-rank-list span { color: var(--bz-muted); font-size: 11px; }
+.mf-bz-rank-list i { color: var(--bz-red); font: 700 17px/1 Georgia, serif; font-style: normal; }
+.mf-bz-next-cta { display: grid; gap: 12px; margin-bottom: 18px; padding: 20px 22px; border: 1px dashed var(--bz-line-strong); border-radius: 14px; background: var(--bz-paper-warm); }
+.mf-bz-next-cta > span { color: var(--bz-ink); font: 700 15px/1.3 var(--font-serif-display); }
+.mf-bz-next-cta > div { display: flex; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 860px) { .mf-bz-rank-form { grid-template-columns: 1fr 1fr; } .mf-bz-rank-form .mf-bz-btn { grid-column: 1 / -1; } .mf-bz-rank-podium { grid-template-columns: 1fr; } }

@@ -34,10 +34,19 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
       window.location.replace(`/home/relationship-test/${encodeURIComponent(existingReportId)}`);
       return;
     }
+    const params = new URLSearchParams(window.location.search);
+    const birth = params.get("birth");
+    const city = params.get("city");
     const profile = readBasicProfile(email);
-    setBirthDate(profile.birthDate);
-    setBirthTime(profile.birthTime || "00:00");
-    setBirthCityId(profile.birthCityId);
+    if (birth && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(birth) && city) {
+      setBirthDate(birth.slice(0, 10));
+      setBirthTime(birth.slice(11));
+      setBirthCityId(city);
+    } else {
+      setBirthDate(profile.birthDate);
+      setBirthTime(profile.birthTime || "00:00");
+      setBirthCityId(profile.birthCityId);
+    }
     setPhase("profile");
   }, [email, star.id, status]);
 
@@ -148,7 +157,16 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     return (
       <div className={workspace ? "mf-result-page mf-workspace-test" : "mf-result-page"}>
         <TestHeader star={star} workspace={workspace} label="吠陀合盘分析" />
-        <main><MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-secondary-button" href="/home/reports">查看历史报告</Link><button className="mf-primary-button" type="button" onClick={() => setPhase("profile")}>重新合盘</button></>} /></main>
+        <main>
+          <div className="mf-bz-next-cta">
+            <span>想知道和谁最配？</span>
+            <div>
+              <Link className="mf-bz-btn" href={`/home/relationship-test/rank?birth=${encodeURIComponent(`${birthDate} ${birthTime}`)}&city=${encodeURIComponent(birthCityId)}`}>查看我的偶像适配榜</Link>
+              <Link className="mf-bz-btn-ghost" href="/home/relationship-test">换个偶像再测（出生信息已记住）</Link>
+            </div>
+          </div>
+          <MyfateFormulaResult star={star} result={result} actions={<><Link className="mf-bz-btn-ghost" href="/home/reports">查看历史报告</Link><button className="mf-bz-btn" type="button" onClick={() => setPhase("profile")}>重新合盘</button></>} />
+        </main>
       </div>
     );
   }
