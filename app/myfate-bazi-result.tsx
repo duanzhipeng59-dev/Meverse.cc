@@ -149,6 +149,15 @@ export default function MyfateBaziResult({ result, actions }: { result: BaziRead
 
       <section className="mf-bz-sections">
         <h3>八大板块解读</h3>
+        {result.sections.length === 0 ? (
+          <div className="mf-bz-draft-note">
+            <span>✦</span>
+            <div>
+              <b>已完成排盘，尚未生成解读</b>
+              <p>点击下方"生成解读"消耗 1 次报告额度，生成八大板块完整解读。</p>
+            </div>
+          </div>
+        ) : (
         <div className="mf-bz-section-grid">
           {result.sections.map((section, index) => (
             <article key={section.id}>
@@ -157,6 +166,7 @@ export default function MyfateBaziResult({ result, actions }: { result: BaziRead
             </article>
           ))}
         </div>
+        )}
       </section>
 
       <p className="mf-bz-disclaimer">本解读基于子平八字体系，由排盘计算数据结合 AI 生成，仅供传统文化娱乐与自我观察参考，不构成医疗、财务或人生决策依据。</p>

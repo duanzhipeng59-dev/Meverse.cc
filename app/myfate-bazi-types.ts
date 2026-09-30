@@ -16,7 +16,7 @@ export type BaziReadingResult = {
   chart: BaziChart;
   gender: "male" | "female";
   sections: BaziSection[];
-  interpretationSource: "deepseek" | "template";
+  interpretationSource: "none" | "deepseek" | "template";
 };
 
 export const BAZI_RESULT_PREFIX = "MYFATE_BAZI_V1\n";

@@ -2,15 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../auth-context";
-import { readBasicProfile, validBirthDate, writeBasicProfile } from "../../myfate-progressive-profile";
+import { validBirthDate } from "../../myfate-progressive-profile";
 import MyfateBaziResult, { BaziChartSections } from "../../myfate-bazi-result";
-import { buildBaziChart, type BaziChart } from "../../myfate-bazi-engine";
+
 import type { BaziReadingResult } from "../../myfate-bazi-types";
 
 const PAGE_PATH = "/home/personal-reading";
-const PENDING_GENDER_KEY = "myfate-bazi-pending-gender";
+const PENDING_DRAFT_KEY = "myfate-bazi-pending-draft";
 
-function redirectToLogin() {
+type Draft = {
+  gender: "male" | "female" | "";
+  personName: string;
+  birthYear: string;
+  birthMonth: string;
+  birthDay: string;
+  birthTime: string;
+  birthProvinceCode: string;
+  birthCityCode: string;
+  birthDistrictCode: string;
+};
+
+function redirectToLogin(draft?: Draft) {
+  if (draft) window.sessionStorage.setItem(PENDING_DRAFT_KEY, JSON.stringify(draft));
   window.location.replace(`/login?next=${encodeURIComponent(PAGE_PATH)}&from=${encodeURIComponent(PAGE_PATH)}`);
 }
 
@@ -29,7 +42,8 @@ export default function PersonalReadingTest() {
   const [provinceOptions, setProvinceOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [cityOptions, setCityOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [districtOptions, setDistrictOptions] = useState<Array<{ code: string; name: string }>>([]);
-  const [chart, setChart] = useState<BaziChart | null>(null);
+  const [chart, setChart] = useState<BaziReadingResult["chart"] | null>(null);
+  const [reportId, setReportId] = useState("");
   const [result, setResult] = useState<BaziReadingResult | null>(null);
   const [phase, setPhase] = useState<"loading" | "form" | "paipan" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
@@ -42,23 +56,24 @@ export default function PersonalReadingTest() {
       redirectToLogin();
       return;
     }
-    // Login is only required to generate the AI reading; the chart itself
-    // (排盘) is computed locally and open to anonymous visitors.
-    const savedGender = window.sessionStorage.getItem(PENDING_GENDER_KEY);
-    if (savedGender === "male" || savedGender === "female") setGender(savedGender);
-    let profile = readBasicProfile(email);
-    if (!profile.birthDate || !profile.birthCityId) {
-      profile = { ...profile, ...readBasicProfile(null), ...(profile.birthDate ? { birthDate: profile.birthDate } : {}) };
+    // 每次进入页面输入全部重置;仅在登录回跳时恢复暂存草稿
+    const draft = window.sessionStorage.getItem(PENDING_DRAFT_KEY);
+    let pending: Draft | null = null;
+    if (draft) {
+      window.sessionStorage.removeItem(PENDING_DRAFT_KEY);
+      try { pending = JSON.parse(draft) as Draft; } catch { pending = null; }
     }
-    setPersonName(profile.nickname || "");
-    if (/^\d{4}-\d{2}-\d{2}$/.test(profile.birthDate)) {
-      const [y, m, d] = profile.birthDate.split("-");
-      setBirthYear(y); setBirthMonth(m); setBirthDay(d);
+    if (pending) {
+      setGender(pending.gender);
+      setPersonName(pending.personName);
+      setBirthYear(pending.birthYear);
+      setBirthMonth(pending.birthMonth);
+      setBirthDay(pending.birthDay);
+      setBirthTime(pending.birthTime || "00:00");
     }
-    setBirthTime(profile.birthTime || "00:00");
-    const province = profile.birthProvinceCode;
-    const city = profile.birthCityCode;
-    const district = profile.birthDistrictCode;
+    const province = pending?.birthProvinceCode ?? "";
+    const city = pending?.birthCityCode ?? "";
+    const district = pending?.birthDistrictCode ?? "";
     (async () => {
       const provinces = await fetch("/api/myfate/china-areas").then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
       setProvinceOptions(provinces);
@@ -128,27 +143,14 @@ export default function PersonalReadingTest() {
     return true;
   }
 
+  function currentDraft(): Draft {
+    return { gender, personName, birthYear, birthMonth, birthDay, birthTime, birthProvinceCode, birthCityCode, birthDistrictCode };
+  }
+
   async function paipan() {
     if (!validateForm()) return;
     if (status === "anonymous") {
-      window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
-      redirectToLogin();
-      return;
-    }
-    const area = await fetch(`/api/myfate/china-areas?resolve=${birthDistrictCode}`).then(r => r.json() as Promise<{ code?: string; name?: string; lat?: number; lon?: number }>).catch(() => null);
-    if (!area?.name || typeof area.lon !== "number") { setError("出生地点无效，请重新选择。"); return; }
-    const city = { id: area.code ?? birthDistrictCode, name: area.name!, lat: area.lat!, lon: area.lon!, tz: "Asia/Shanghai" };
-    const profile = readBasicProfile(email);
-    writeBasicProfile(email, { ...profile, nickname: personName.trim() || profile.nickname, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
-    setChart(buildBaziChart({ gender: gender as "male" | "female", birthDate, birthTime, city }));
-    setPhase("paipan");
-  }
-
-  async function createReading() {
-    if (!chart || !validateForm()) return;
-    if (status === "anonymous") {
-      window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
-      redirectToLogin();
+      redirectToLogin(currentDraft());
       return;
     }
     setPhase("analyzing");
@@ -159,8 +161,33 @@ export default function PersonalReadingTest() {
         body: JSON.stringify({ gender, birthDate, birthTime, birthDistrictCode, name: personName.trim() || undefined }),
       });
       if (response.status === 401) {
-        window.sessionStorage.setItem(PENDING_GENDER_KEY, gender);
-        redirectToLogin();
+        redirectToLogin(currentDraft());
+        return;
+      }
+      if (!response.ok) throw new Error("暂时无法排盘，请稍后重试。");
+      const body = await response.json() as { reportId?: string; result?: BaziReadingResult };
+      if (!body.reportId || body.result?.version !== 5) throw new Error("排盘结果数据不完整。");
+      setReportId(body.reportId);
+      setChart(body.result.chart);
+      window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
+      setPhase("paipan");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "暂时无法排盘。");
+      setPhase("error");
+    }
+  }
+
+  async function createReading() {
+    if (!chart || !reportId) return;
+    setPhase("analyzing");
+    try {
+      const response = await fetch("/api/myfate/personal-reading", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ reportId }),
+      });
+      if (response.status === 401) {
+        redirectToLogin(currentDraft());
         return;
       }
       if (response.status === 402) {
@@ -168,17 +195,17 @@ export default function PersonalReadingTest() {
         setTimeout(() => { window.location.href = "/home/upgrade"; }, 1800);
         return;
       }
-      if (!response.ok) throw new Error("暂时无法生成个人解读，请稍后重试。");
-      const body = await response.json() as { report: { id: string }; result: BaziReadingResult };
-      if (!body.report?.id || body.result?.version !== 5) throw new Error("解读结果数据不完整。");
+      if (!response.ok) throw new Error("暂时无法生成解读，请稍后重试。");
+      const body = await response.json() as { reportId?: string; result?: BaziReadingResult };
+      if (!body.reportId || body.result?.version !== 5) throw new Error("解读结果数据不完整。");
       const url = new URL(window.location.href);
-      url.searchParams.set("report", body.report.id);
+      url.searchParams.set("report", body.reportId);
       window.history.replaceState(null, "", `${url.pathname}${url.search}`);
       window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
       setResult(body.result);
       setPhase("result");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "暂时无法生成个人解读。");
+      setError(cause instanceof Error ? cause.message : "暂时无法生成解读。");
       setPhase("error");
     }
   }
@@ -187,7 +214,7 @@ export default function PersonalReadingTest() {
     return <StateShell title="正在读取你的资料" detail="马上为你准备个人解读。" />;
   }
   if (phase === "analyzing") {
-    return <StateShell title="正在生成解读" detail="排盘已完成,系统正在撰写八大板块解读,大约需要一分钟。" />;
+    return <StateShell title="正在处理" detail="系统正在排盘或撰写解读，大约需要一分钟。" />;
   }
   if (phase === "error") {
     return <StateShell icon="!" title="这次解读暂时没有完成" detail={error} action={<button className="mf-primary-button" type="button" onClick={() => setPhase(chart ? "paipan" : "form")}>重试</button>} />;
@@ -195,7 +222,7 @@ export default function PersonalReadingTest() {
   if (phase === "result" && result) {
     return (
       <main className="mf-result-main">
-        <MyfateBaziResult result={result} actions={<button className="mf-primary-button" type="button" onClick={() => { setResult(null); setChart(null); setPhase("form"); }}>重新排盘</button>} />
+        <MyfateBaziResult result={result} actions={<button className="mf-primary-button" type="button" onClick={() => { setResult(null); setChart(null); setReportId(""); setPhase("form"); }}>重新排盘</button>} />
       </main>
     );
   }
@@ -205,7 +232,7 @@ export default function PersonalReadingTest() {
         <div className="mf-formula-result mf-bazi-result">
           <BaziChartSections chart={chart} />
           <div className="mf-result-actions">
-            <button className="mf-secondary-button" type="button" onClick={() => setPhase("form")}>← 修改信息</button>
+            <button className="mf-secondary-button" type="button" onClick={() => { setChart(null); setReportId(""); setPhase("form"); }}>← 修改信息</button>
             <button className="mf-primary-button" type="button" onClick={() => void createReading()}>生成解读 <span>→</span></button>
           </div>
         </div>

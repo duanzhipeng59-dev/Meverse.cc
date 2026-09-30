@@ -4776,3 +4776,9 @@ select:focus-visible {
 .mf-bz-area { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .mf-bz-area select:disabled { opacity: 0.5; }
 @media (max-width: 560px) { .mf-bz-area { grid-template-columns: 1fr; } }
+
+.mf-bz-draft-note { display: flex; gap: 14px; align-items: center; padding: 18px 20px; border: 1px dashed #d6cdbd; border-radius: 10px; background: #fdf8ee; }
+.mf-bz-draft-note span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #fff; color: #8b1e2d; }
+.mf-bz-draft-note b { display: block; margin-bottom: 4px; color: #1c1917; font-size: 13.5px; }
+.mf-bz-draft-note p { margin: 0; color: #78716c; font-size: 12px; }
+.mf-bz-interpret-cta { display: grid; gap: 10px; justify-items: start; }

@@ -11,6 +11,40 @@ import { parseBaziResult } from "../../../myfate-bazi-types";
 import MyfateBaziResult from "../../../myfate-bazi-result";
 import { readSavedReports, type SavedReport } from "../../../myfate-report-storage";
 
+function InterpretButton({ reportId }: { reportId: string }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function interpret() {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/myfate/personal-reading", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ reportId }),
+      });
+      if (response.status === 402) {
+        window.location.href = "/home/upgrade";
+        return;
+      }
+      if (!response.ok) throw new Error("failed");
+      window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
+    } catch {
+      setError("生成失败，请稍后重试。");
+      setBusy(false);
+      return;
+    }
+  }
+  return (
+    <div className="mf-bz-interpret-cta">
+      {error ? <p className="mf-report-login-error" role="alert">{error}</p> : null}
+      <button className="mf-primary-button" type="button" disabled={busy} onClick={() => void interpret()}>
+        {busy ? "正在生成解读…" : "生成解读（消耗 1 次额度）"}
+      </button>
+    </div>
+  );
+}
+
 function legacyReportText(report: SavedReport) {
   if (report.reportText) return report.reportText;
   const old = report.interpretation;
@@ -80,6 +114,24 @@ export default function ReportDetailWorkspace({
         </div>
       </div>
     );
+  }
+
+  if (report.starId === "personal-reading") {
+    const baziDraft = parseBaziResult(reportText);
+    if (baziDraft) {
+      const needsInterpret = baziDraft.sections.length === 0;
+      return (
+        <div className="mf-saved-report-detail mf-unified-advanced-report">
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{needsInterpret ? "个人解读 · 已排盘" : "个人八字解读"}</span></div>
+          <MyfateBaziResult
+            result={baziDraft}
+            actions={needsInterpret
+              ? <InterpretButton reportId={report.id} />
+              : <Link className="mf-primary-button" href="/home/personal-reading">重新排盘</Link>}
+          />
+        </div>
+      );
+    }
   }
 
   if (report.status === "advanced" && reportText) {

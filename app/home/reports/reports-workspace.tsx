@@ -24,11 +24,12 @@ function formatDate(value: string) {
 }
 
 function reportAction(report: SavedReport) {
+  if (report.starId === "personal-reading") {
+    if (report.status === "generating") return { label: "继续解读", href: `/home/reports/${report.id}`, disabled: false };
+    return { label: "重新排盘", href: `/home/personal-reading`, disabled: false };
+  }
   if (report.status === "advanced") return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
   if (report.status === "generating") return { label: "生成中", href: "", disabled: true };
-  if (report.starId === "personal-reading") {
-    return { label: "重新排盘", href: `/home/personal-reading?report=${encodeURIComponent(report.id)}`, disabled: false };
-  }
   return {
     label: "重新合盘",
     href: `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`,
@@ -252,13 +253,13 @@ export default function ReportsWorkspace() {
                   <div className="mf-report-card-copy">
                     <div className="mf-report-card-meta">
                       <span className="profile">个人解读</span>
-                      <span className={report.status}>{reportStatusLabel(report)}</span>
+                      <span className={report.status}>{report.status === "generating" ? "已排盘 · 待解读" : "解读完成"}</span>
                       <time dateTime={report.createdAt}>{formatDate(report.createdAt)}</time>
                     </div>
                     <h2>{report.starName}</h2>
                   </div>
                   <div className="mf-report-card-result">
-                    <span>{report.status === "advanced" ? "查看四柱排盘与解读" : "解读生成中"}</span>
+                    <span>{report.status === "advanced" ? "查看排盘与八大板块解读" : "已排盘，点击继续生成解读"}</span>
                     <div className="mf-report-card-actions">
                       {action.disabled
                         ? <button className="mf-report-generation-disabled" type="button" disabled>生成中</button>
