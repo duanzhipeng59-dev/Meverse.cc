@@ -274,7 +274,7 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
               </div>
               <div className="mf-bz-field">
                 <span>出生时间</span>
-                <div className="mf-bz-area">
+                <div className="mf-bz-time">
                   <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setError(""); }}>
                     <option value="">时</option>
                     {hourOptions.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
@@ -328,7 +328,7 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
               </div>
               <div className="mf-bz-field">
                 <span>出生时间</span>
-                <div className="mf-bz-area">
+                <div className="mf-bz-time">
                   <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setError(""); }}>
                     <option value="">时</option>
                     {hourOptions.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
