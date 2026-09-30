@@ -4661,7 +4661,7 @@ select:focus-visible {
 
 /* ── route transition skeletons ─────────────────────────────────────── */
 .mf-workspace-skeleton { padding: 28px 0; display: grid; gap: 18px; }
-.mf-skeleton { position: relative; overflow: hidden; border-radius: 14px; background: #efe9ec; }
+.mf-skeleton { position: relative; overflow: hidden; border-radius: 14px; background: #efeae3; }
 .mf-skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgb(255 255 255 / 65%), transparent); animation: mf-skeleton-shimmer 1.4s infinite; }
 @keyframes mf-skeleton-shimmer { 100% { transform: translateX(100%); } }
 .mf-skeleton-heading { width: 40%; height: 30px; }
@@ -4847,3 +4847,125 @@ select:focus-visible {
 .mf-bz-btn:disabled { opacity: 0.55; cursor: default; }
 .mf-bz-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: var(--bz-paper-warm); color: var(--bz-ink); font: 650 13.5px/1.2 var(--font-serif-display); cursor: pointer; text-decoration: none; }
 .mf-bz-btn-ghost:hover { border-color: var(--bz-red); color: var(--bz-red); }
+
+/* ── 吠陀结果页 · 统一到 mf-bz 新中式(覆盖粉系,类名保留)────────────── */
+.mf-vedic-result { background: var(--bz-paper); border-radius: 18px; padding: clamp(18px, 4vw, 40px); display: grid; gap: 22px; }
+.mf-vedic-result .mf-formula-verdict { border: 1px solid var(--bz-line); border-radius: 12px; background: linear-gradient(160deg, #f7f1e6, #f1e9d9); }
+.mf-vedic-result .mf-formula-verdict > span { color: var(--bz-red-bright); letter-spacing: 0.16em; }
+.mf-vedic-result .mf-formula-verdict .mf-formula-verdict-person { border-color: var(--bz-line-strong); }
+.mf-vedic-result .mf-formula-verdict .mf-identity-lead { color: var(--bz-muted); }
+.mf-vedic-result .mf-formula-verdict h1 { color: var(--bz-red); font: 700 clamp(24px, 4vw, 30px)/1.3 var(--font-serif-display); }
+.mf-vedic-result .mf-formula-verdict p { color: #57534e; }
+.mf-vedic-result .mf-vedic-headline { color: var(--bz-ink); font: 500 16px/1.7 var(--font-serif-display); }
+.mf-vedic-result .mf-formula-facts { border-color: var(--bz-line); background: rgb(255 255 255 / 70%); max-width: none; }
+.mf-vedic-result .mf-formula-facts strong { color: var(--bz-ink); font: 700 16px/1.4 var(--font-serif-display); }
+.mf-vedic-result .mf-formula-facts small { color: var(--bz-muted); }
+.mf-vedic-dimensions, .mf-vedic-interaction, .mf-vedic-charts, .mf-vedic-koota { border-color: var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-vedic-dimensions .mf-identity-section-heading span, .mf-vedic-interaction .mf-identity-section-heading span,
+.mf-vedic-charts .mf-identity-section-heading span, .mf-vedic-koota .mf-identity-section-heading span { color: var(--bz-red-bright); letter-spacing: 0.14em; }
+.mf-vedic-dimensions .mf-identity-section-heading h2, .mf-vedic-interaction .mf-identity-section-heading h2,
+.mf-vedic-charts .mf-identity-section-heading h2, .mf-vedic-koota .mf-identity-section-heading h2 { color: var(--bz-ink); font: 700 19px/1.4 var(--font-serif-display); }
+.mf-vedic-dimensions .mf-identity-section-heading p, .mf-vedic-interaction .mf-identity-section-heading p,
+.mf-vedic-charts .mf-identity-section-heading p, .mf-vedic-koota .mf-identity-section-heading p { color: var(--bz-muted); }
+.mf-vedic-dimension { border-color: var(--bz-line); border-radius: 10px; background: var(--bz-paper-warm); }
+.mf-vedic-dimension.is-supportive { border-color: #cfe0d3; background: linear-gradient(145deg, #f6faf7, #edf5ef); }
+.mf-vedic-dimension.is-strained { border-color: #ecd2d2; background: linear-gradient(145deg, #fdf5f4, #faecea); }
+.mf-vedic-dimension h3 { color: var(--bz-ink); font: 700 18px/1.3 var(--font-serif-display); }
+.mf-vedic-tier { background: #f3ece0; color: var(--bz-red); }
+.mf-vedic-dimension.is-supportive .mf-vedic-tier { background: #e2efe6; color: var(--bz-green); }
+.mf-vedic-dimension.is-strained .mf-vedic-tier { background: #f7e3e3; color: #9a3b3b; }
+.mf-vedic-confidence { color: #a8a29e; }
+.mf-vedic-evidence p.is-supporting { background: #eef6f0; color: #41584a; }
+.mf-vedic-evidence p.is-limiting { background: #f9eef0; color: #6b4a50; }
+.mf-vedic-evidence small, .mf-vedic-direction small, .mf-vedic-dimension footer small { color: #a8a29e; }
+.mf-vedic-direction, .mf-vedic-dimension footer { color: #57534e; }
+.mf-vedic-overlay h4, .mf-vedic-chart-card > span { color: var(--bz-red); }
+.mf-vedic-chart-card { border-color: var(--bz-line); border-radius: 10px; background: var(--bz-paper-warm); }
+.mf-vedic-chart-card h3 { color: var(--bz-ink); font: 700 21px/1.25 var(--font-serif-display); }
+.mf-vedic-overlay th, .mf-vedic-koota th { color: var(--bz-red); }
+.mf-vedic-overlay td, .mf-vedic-koota td, .mf-vedic-overlay th, .mf-vedic-koota th { border-color: #f0eadf; color: #57534e; }
+.mf-vedic-timing { border-color: var(--bz-line); background: var(--bz-paper-warm); }
+.mf-vedic-timing > span { color: var(--bz-red); }
+.mf-vedic-timing ul { color: #57534e; }
+.mf-vedic-result .mf-formula-global-basis { border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); padding: 22px 24px; }
+.mf-vedic-result .mf-formula-global-basis .mf-formula-basis-summary { color: var(--bz-ink); font-weight: 600; }
+.mf-vedic-result .mf-report-generation-note { color: #a8a29e; }
+.mf-vedic-result .mf-result-actions .mf-secondary-button,
+.mf-vedic-result .mf-result-actions .mf-primary-button { border-radius: 10px; }
+.mf-vedic-result .mf-result-actions .mf-primary-button { background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); }
+
+/* ── 我的报告列表 · bz 语言覆盖(类名保留)────────────────────────────── */
+.mf-reports-workspace { background: var(--bz-paper); border-radius: 18px; padding: clamp(18px, 4vw, 40px); }
+.mf-report-list-heading > div > span { color: var(--bz-red-bright); }
+.mf-report-list-heading h2 { font: 700 24px/1.2 var(--font-serif-display); color: var(--bz-ink); }
+.mf-report-card { border-color: var(--bz-line); border-radius: 12px; background: var(--bz-card); box-shadow: none; min-height: 108px; }
+.mf-report-card-copy h2 { font: 700 17px/1.4 var(--font-serif-display); color: var(--bz-ink); }
+.mf-report-card-meta > span.profile { color: var(--bz-red); background: #f7ece6; }
+.mf-report-card-meta > span.advanced { color: var(--bz-green); background: #e6f0ea; }
+.mf-report-card-meta > span.generating { color: #8a6d2f; background: #f6ecd4; }
+.mf-report-card-meta > span.initial { color: var(--bz-muted); background: #f0ebe3; }
+.mf-report-card-result > span { color: var(--bz-muted); }
+.mf-report-card-actions a, .mf-report-card-actions button:not(.mf-report-generation-disabled) { color: var(--bz-red); }
+.mf-personal-reading-mark { display: none; }
+.mf-personal-reading-card { grid-template-columns: minmax(0, 1fr) auto; }
+.mf-reports-empty { border-color: var(--bz-line); background: var(--bz-card); border-radius: 12px; }
+.mf-reports-storage-note { color: #a8a29e; }
+
+/* ── 工作台外壳 · bz 语言覆盖(类名保留)────────────────────────────── */
+.mf-workspace-shell { background: var(--bz-paper); }
+.mf-workspace-sidebar { background: #fffefc; backdrop-filter: none; border-right-color: var(--bz-line); }
+.mf-workspace-brand { color: var(--bz-ink) !important; }
+.mf-workspace-brand span:last-child { font: 700 17px/1 var(--font-serif-display); }
+.mf-workspace-nav-item { border-radius: 10px; }
+.mf-workspace-nav-item:hover { color: var(--bz-red); transform: none; }
+.mf-workspace-nav-item.active { color: var(--bz-red); border-color: var(--bz-red); background: #fdf2f3; box-shadow: none; }
+.mf-workspace-nav-item.active .mf-workspace-nav-icon { color: #fff; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); box-shadow: none; }
+.mf-workspace-nav-item .mf-workspace-nav-icon { border-radius: 9px; }
+.mf-workspace-nav-item small { color: #a8a29e; }
+.mf-workspace-account { border-top-color: var(--bz-line); }
+.mf-workspace-account a:hover, .mf-workspace-account a.active { color: var(--bz-red); background: #fdf2f3; }
+.mf-workspace-account button { color: var(--bz-muted); }
+.mf-workspace-account button:hover { color: var(--bz-red); }
+.mf-workspace-account button .mf-workspace-nav-icon, .mf-workspace-account a .mf-workspace-nav-icon { border-radius: 9px; }
+.mf-workspace-upgrade-cta { border-radius: 10px; }
+.mf-workspace-nav-item .mf-workspace-nav-icon { background: #f3eee4; }
+
+/* ── 升级页 · bz 语言覆盖(类名保留)────────────────────────────────── */
+.mf-upgrade-workspace { background: var(--bz-paper); border-radius: 18px; padding: clamp(18px, 4vw, 40px); }
+.mf-upgrade-heading .mf-kicker { color: var(--bz-red-bright); }
+.mf-upgrade-heading h1 { font: 700 30px/1.2 var(--font-serif-display); color: var(--bz-ink); }
+.mf-upgrade-heading p, .mf-upgrade-balance { color: var(--bz-muted); }
+.mf-upgrade-balance strong { color: var(--bz-red); }
+.mf-upgrade-tabs button { border-radius: 10px; }
+.mf-upgrade-tabs button.is-active { background: var(--bz-red); box-shadow: none; }
+.mf-upgrade-plan { border-color: var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-upgrade-plan.is-selected { border-color: var(--bz-red); box-shadow: 0 0 0 1px var(--bz-red); background: #fdf8f4; }
+.mf-upgrade-plan-name { font: 700 16px/1.3 var(--font-serif-display); color: var(--bz-ink); }
+.mf-upgrade-plan-badge { color: var(--bz-red); background: #f7e3e3; }
+.mf-upgrade-plan-price { font: 700 46px/1 var(--font-serif-display); letter-spacing: 0; color: var(--bz-ink); }
+.mf-upgrade-plan-uses strong { color: var(--bz-red); }
+.mf-upgrade-plan-unit, .mf-upgrade-plan-description { color: var(--bz-muted); }
+.mf-upgrade-plan-check { color: var(--bz-red); }
+.mf-upgrade-checkout { border-color: var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-upgrade-checkout strong { color: var(--bz-ink); }
+.mf-upgrade-checkout .mf-primary-button { background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); border-radius: 10px; }
+.mf-upgrade-includes { border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-upgrade-includes > span { color: var(--bz-red); }
+.mf-upgrade-includes p { color: #57534e; }
+.mf-upgrade-paypanel { border-color: var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-upgrade-feedback { color: var(--bz-muted); }
+.mf-upgrade-workspace .mf-primary-button, .mf-upgrade-workspace .mf-secondary-button { border-radius: 10px; }
+.mf-upgrade-workspace .mf-secondary-button { border-color: var(--bz-line-strong); background: var(--bz-paper-warm); color: var(--bz-ink); }
+
+/* ── 登录页 · bz 统一(标题字体/主按钮)────────────────────────────── */
+.mf-login-card h1, .mf-login-card h2 { font: 700 26px/1.3 var(--font-serif-display) !important; color: var(--bz-ink) !important; }
+.mf-login-card { border-color: var(--bz-line) !important; }
+.mf-login-submit { background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)) !important; border-radius: 10px !important; font: 750 14.5px/1.2 var(--font-serif-display) !important; letter-spacing: 0.06em; }
+.mf-login-submit:disabled { box-shadow: none !important; }
+.mf-brand span:last-child { font: 700 16px/1 var(--font-serif-display); }
+
+/* ── 首页 · 两处硬伤修正(CTA 色与标题字体栈)───────────────────────── */
+.mf-home-hero .mf-primary-button { background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)) !important; box-shadow: 0 14px 30px rgb(139 30 45 / 22%) !important; }
+.mf-hero-copy h1, .mf-hero-copy h1 em, .mf-how h2, .mf-how h3 { font-family: var(--font-serif-display); }
+.mf-how h3 { font-weight: 700; }
+.mf-hero-copy h1 em { font-style: normal; }

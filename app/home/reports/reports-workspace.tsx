@@ -50,18 +50,6 @@ function relationshipRoleLabel(report: SavedReport) {
   return report.status === "generating" ? "生成中" : "待完成";
 }
 
-function starOrbitStyle(index: number, count: number) {
-  const radius = 29 + (index % 3) * 8;
-  const angle = -90 + (360 / Math.max(count, 1)) * index;
-  const duration = 27 + (index % 3) * 4;
-
-  return {
-    "--mf-fate-orbit-radius": `${radius}%`,
-    "--mf-fate-orbit-angle": `${angle}deg`,
-    "--mf-fate-counter-angle": `${-angle}deg`,
-    "--mf-fate-orbit-duration": `${duration}s`,
-  } as CSSProperties;
-}
 
 export default function ReportsWorkspace() {
   const { status, email } = useAuth();
@@ -165,57 +153,6 @@ export default function ReportsWorkspace() {
         </section>
       ) : (
         <>
-          {latestStarReports.length > 0 ? (
-            <section className="mf-fate-map" aria-labelledby="mf-fate-map-title">
-              <div className="mf-fate-map-heading">
-                <div>
-                  <span>关系图谱</span>
-                  <h2 id="mf-fate-map-title">你与每位 TA 的合盘结构</h2>
-                </div>
-                <p>每位对象展示最近一次合盘的关系结构，点击即可回看。</p>
-              </div>
-
-              <div className="mf-fate-map-stage">
-                <span className="mf-fate-map-orbit near" aria-hidden="true" />
-                <span className="mf-fate-map-orbit middle" aria-hidden="true" />
-                <span className="mf-fate-map-orbit far" aria-hidden="true" />
-
-                <div className={`mf-fate-map-user${nickname ? " has-nickname" : ""}`} aria-label={`星图中心：${nickname || "我"}`}>
-                  <span title={nickname || undefined}>{nickname || "我"}</span>
-                </div>
-
-                {latestStarReports.map((report, index) => (
-                  <div
-                    className="mf-fate-map-star-orbit"
-                    key={report.starId}
-                    style={starOrbitStyle(index, latestStarReports.length)}
-                  >
-                    <Link
-                      className={`mf-fate-map-star ${report.status}`}
-                      href={reportAction(report).href || "/home/reports"}
-                      aria-label={`${report.starName}，${relationshipRoleLabel(report)}，${reportAction(report).label}`}
-                      aria-disabled={reportAction(report).disabled}
-                      tabIndex={reportAction(report).disabled ? -1 : undefined}
-                    >
-                      <span
-                        className="mf-fate-map-avatar"
-                        role="img"
-                        aria-label={report.starName}
-                        style={{ backgroundImage: `url("${report.starPortrait}")` }}
-                      />
-                      <strong>{report.starName}</strong>
-                      <small>{relationshipRoleLabel(report)}</small>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mf-fate-map-legend" aria-label="报告状态说明">
-                <span><i className="advanced" aria-hidden="true" />已完成</span>
-                <span><i className="generating" aria-hidden="true" />生成中</span>
-              </div>
-            </section>
-          ) : null}
 
           <div className="mf-report-list-heading">
             <div>
