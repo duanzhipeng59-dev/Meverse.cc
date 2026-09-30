@@ -13,6 +13,7 @@ import { vedicSignZh } from "./myfate-vedic-types";
 export default function MyfateGeneratedTest({ star, workspace = false, vedicSummary = null }: { star: StarProfile; workspace?: boolean; vedicSummary?: StarVedicSummary | null }) {
   const { status, email } = useAuth();
   const started = useRef(false);
+  const [personName, setPersonName] = useState("");
   const [birthYear, setBirthYear] = useState("");
   const [birthMonth, setBirthMonth] = useState("");
   const [birthDay, setBirthDay] = useState("");
@@ -111,6 +112,7 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
     const birth = params.get("birth");
     const city = params.get("city");
     const profile = readBasicProfile(email);
+    setPersonName(profile.nickname || "");
     let prefilled = false;
     if (birth && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(birth)) {
       const [y, m, d] = birth.slice(0, 10).split("-");
@@ -185,7 +187,7 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
   async function createCompositeAnalysis() {
     if (!validateBirth()) return;
     const profile = readBasicProfile(email);
-    writeBasicProfile(email, { ...profile, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
+    writeBasicProfile(email, { ...profile, nickname: personName.trim() || profile.nickname, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
     setError("");
     setPhase("analyzing");
     try {
@@ -249,6 +251,10 @@ export default function MyfateGeneratedTest({ star, workspace = false, vedicSumm
             </section>
             <section className="mf-bz-duo-info is-you">
               <header><span>你 · 出生信息{hasSavedProfile ? "（已自动填入）" : "（请手动填写）"}</span></header>
+              <label className="mf-bz-field">
+                <span>姓名（可选）</span>
+                <input type="text" maxLength={20} placeholder="用于报告展示" value={personName} onChange={(event) => { setPersonName(event.target.value); setError(""); }} />
+              </label>
               <div className="mf-bz-field">
                 <span>出生日期</span>
                 <div className="mf-bz-area">

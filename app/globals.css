@@ -5186,3 +5186,6 @@ select:focus-visible {
 .mf-bz-duo-info dt { color: #a8a29e; font-size: 12px; }
 .mf-bz-duo-info dd { margin: 0; color: var(--bz-ink); font-size: 12.5px; font-weight: 650; }
 @media (max-width: 860px) { .mf-bz-duo-form { grid-template-columns: 1fr; } }
+
+.mf-bz-duo-info .mf-bz-field input { padding: 12px 14px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: #fff; color: var(--bz-ink); font-size: 14px; }
+.mf-bz-duo-info .mf-bz-field input:focus { outline: none; border-color: var(--bz-red); }

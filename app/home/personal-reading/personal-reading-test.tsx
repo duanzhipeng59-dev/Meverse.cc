@@ -286,8 +286,8 @@ export default function PersonalReadingTest() {
       <div className="mf-bz-form-grid">
         <section className="mf-bz-form-card">
           <label className="mf-bz-field">
-            <span>名称（可选）</span>
-            <input type="text" maxLength={20} placeholder="如：我的命盘" value={personName} onChange={(event) => { setPersonName(event.target.value); setError(""); }} />
+            <span>姓名（可选）</span>
+            <input type="text" maxLength={20} placeholder="用于报告展示" value={personName} onChange={(event) => { setPersonName(event.target.value); setError(""); }} />
           </label>
           <div className="mf-bz-field">
             <span>出生日期</span>
