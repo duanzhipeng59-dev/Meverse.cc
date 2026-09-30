@@ -10,6 +10,19 @@ import type { BaziReadingResult } from "../../myfate-bazi-types";
 const PAGE_PATH = "/home/personal-reading";
 const PENDING_DRAFT_KEY = "myfate-bazi-pending-draft";
 
+// 直辖市(京津沪渝):省级下面直接是区,市级与省级同名同码
+const MUNICIPALITIES = new Set(["110000", "120000", "310000", "500000"]);
+const DEFAULT_PROVINCE = "110000"; // 北京市
+const DEFAULT_DISTRICT = "110101"; // 东城区
+
+function isDistrictChild(item: { name: string }) {
+  return /(区|县)$/u.test(item.name);
+}
+
+async function fetchChildren(code: string) {
+  return fetch(`/api/myfate/china-areas?code=${code}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+}
+
 type Draft = {
   gender: "male" | "female" | "";
   personName: string;
@@ -75,21 +88,31 @@ export default function PersonalReadingTest() {
         setBirthMinute(pending.birthTime.slice(3));
       }
     }
-    const province = pending?.birthProvinceCode ?? "";
+    const province = pending?.birthProvinceCode ?? DEFAULT_PROVINCE;
     const city = pending?.birthCityCode ?? "";
-    const district = pending?.birthDistrictCode ?? "";
+    const district = pending?.birthDistrictCode ?? DEFAULT_DISTRICT;
+    if (!pending) setBirthProvinceCode(DEFAULT_PROVINCE);
     (async () => {
       const provinces = await fetch("/api/myfate/china-areas").then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
       setProvinceOptions(provinces);
-      if (province && provinces.some(p => p.code === province)) {
-        setBirthProvinceCode(province);
-        const cities = await fetch(`/api/myfate/china-areas?code=${province}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
-        setCityOptions(cities);
-        if (city && cities.some(c => c.code === city)) {
+      if (!provinces.some(p => p.code === province)) return;
+      setBirthProvinceCode(province);
+      const children = await fetchChildren(province);
+      if (MUNICIPALITIES.has(province)) {
+        // 直辖市:市级与省级同名,区列表直接来自省级
+        const provName = provinces.find(p => p.code === province)?.name ?? "";
+        setCityOptions([{ code: province, name: provName }]);
+        setBirthCityCode(city || province);
+        setDistrictOptions(children);
+        if (!children.some(d => d.code === district)) setBirthDistrictCode(children[0]?.code ?? "");
+        else setBirthDistrictCode(district);
+      } else {
+        setCityOptions(children);
+        if (city && children.some(c => c.code === city)) {
           setBirthCityCode(city);
-          const districts = await fetch(`/api/myfate/china-areas?code=${city}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+          const districts = await fetchChildren(city);
           setDistrictOptions(districts);
-          if (district && districts.some(d => d.code === district)) setBirthDistrictCode(district);
+          if (districts.some(d => d.code === district)) setBirthDistrictCode(district);
         }
       }
     })();
@@ -104,8 +127,16 @@ export default function PersonalReadingTest() {
     setDistrictOptions([]);
     setError("");
     if (!code) return;
-    const cities = await fetch(`/api/myfate/china-areas?code=${code}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
-    setCityOptions(cities);
+    const children = await fetchChildren(code);
+    if (MUNICIPALITIES.has(code)) {
+      const provName = provinceOptions.find(p => p.code === code)?.name ?? "";
+      setCityOptions([{ code, name: provName }]);
+      setBirthCityCode(code);
+      setDistrictOptions(children);
+      setBirthDistrictCode(children[0]?.code ?? "");
+    } else {
+      setCityOptions(children);
+    }
   }
 
   async function chooseCity(code: string) {
@@ -114,9 +145,14 @@ export default function PersonalReadingTest() {
     setDistrictOptions([]);
     setError("");
     if (!code) return;
-    const districts = await fetch(`/api/myfate/china-areas?code=${code}`).then(r => r.json() as Promise<{ children?: Array<{ code: string; name: string }> }>).then(d => d.children ?? []).catch(() => [] as Array<{ code: string; name: string }>);
+    if (MUNICIPALITIES.has(code) || code === birthProvinceCode) {
+      // 直辖市:区列表已在选省时加载
+      setBirthDistrictCode(districtOptions[0]?.code ?? "");
+      return;
+    }
+    const districts = await fetchChildren(code);
     setDistrictOptions(districts);
-    if (!districts.length) setBirthDistrictCode(code); // municipality leaf: city is the finest level
+    if (!districts.length) setBirthDistrictCode(code);
   }
 
   const currentYear = new Date().getFullYear();
@@ -128,7 +164,6 @@ export default function PersonalReadingTest() {
   const hourOptions = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"));
   const minuteOptions = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, "0"));
   const birthTime = `${birthHour || "00"}:${birthMinute || "00"}`;
-  const timeTouched = birthHour !== "" || birthMinute !== "";
 
   function chooseYear(value: string) {
     setBirthYear(value); setError("");
@@ -261,11 +296,11 @@ export default function PersonalReadingTest() {
                 <option value="">年</option>
                 {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
               </select>
-              <select value={birthMonth} onChange={(event) => chooseMonth(event.target.value)} disabled={!birthYear}>
+              <select value={birthMonth} onChange={(event) => chooseMonth(event.target.value)}>
                 <option value="">月</option>
                 {monthOptions.map((month) => <option key={month} value={month}>{month}</option>)}
               </select>
-              <select value={birthDay} onChange={(event) => { setBirthDay(event.target.value); setError(""); }} disabled={!birthYear || !birthMonth}>
+              <select value={birthDay} onChange={(event) => { setBirthDay(event.target.value); setError(""); }}>
                 <option value="">日</option>
                 {dayOptions.map((day) => <option key={day} value={day}>{day}</option>)}
               </select>
@@ -274,11 +309,11 @@ export default function PersonalReadingTest() {
           <div className="mf-bz-field">
             <span>出生时间</span>
             <div className="mf-bz-time">
-              <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setBirthMinute(event.target.value ? birthMinute || "00" : birthMinute); setError(""); }}>
+              <select value={birthHour} onChange={(event) => { setBirthHour(event.target.value); setError(""); }}>
                 <option value="">时</option>
                 {hourOptions.map((hour) => <option key={hour} value={hour}>{hour}</option>)}
               </select>
-              <select value={birthMinute} onChange={(event) => { setBirthMinute(event.target.value); setError(""); }} disabled={!timeTouched}>
+              <select value={birthMinute} onChange={(event) => { setBirthMinute(event.target.value); setError(""); }}>
                 <option value="">分</option>
                 {minuteOptions.map((minute) => <option key={minute} value={minute}>{minute}</option>)}
               </select>
