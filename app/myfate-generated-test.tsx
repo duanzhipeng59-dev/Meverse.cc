@@ -23,7 +23,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
   const [cityOptions, setCityOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [districtOptions, setDistrictOptions] = useState<Array<{ code: string; name: string }>>([]);
   const [result, setResult] = useState<FormulaTestResult | null>(null);
-  const [phase, setPhase] = useState<"loading" | "profile" | "analyzing" | "result" | "error">("loading");
+  const [phase, setPhase] = useState<"loading" | "profile" | "confirm" | "analyzing" | "result" | "error">("loading");
   const [error, setError] = useState("");
   const MUNICIPALITIES = new Set(["110000", "120000", "310000", "500000"]);
   const DEFAULT_PROVINCE = "110000";
@@ -152,19 +152,25 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     })();
   }, [email, star.id, status]);
 
-  async function createCompositeAnalysis() {
+  function validateBirth() {
     if (!validBirthDate(birthDate) || birthDate < "1900-01-01") {
       setError("请选择有效的出生日期。");
-      return;
+      return false;
     }
     if (!/^\d{2}:\d{2}$/u.test(birthTime)) {
       setError("请填写出生时间（不确定可保持 00:00）。");
-      return;
+      return false;
     }
     if (!birthDistrictCode) {
       setError("请选择出生地点（省/市/区），合盘需要地理位置确定上升星座。");
-      return;
+      return false;
     }
+    setError("");
+    return true;
+  }
+
+  async function createCompositeAnalysis() {
+    if (!validateBirth()) return;
     const profile = readBasicProfile(email);
     writeBasicProfile(email, { ...profile, birthDate, birthTime, birthCityId: profile.birthCityId, birthProvinceCode, birthCityCode, birthDistrictCode });
     setError("");
@@ -264,7 +270,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
               </div>
               <small className="mf-bz-hint">出生时间不确定可保持默认 00:00；出生地点需选到区/县（用于真太阳时与上升星座校准）。</small>
               <div className="mf-report-login-error" role="alert">{error}</div>
-              <button className="mf-bz-btn" type="button" onClick={() => void createCompositeAnalysis()}>查看合盘分析 <span aria-hidden="true">→</span></button>
+              <button className="mf-bz-btn" type="button" onClick={() => { if (!validateBirth()) return; setPhase("confirm"); }}>下一步：确认双方信息 <span aria-hidden="true">→</span></button>
             </section>
             <aside className="mf-bz-include">
               <h2>这份合盘包含</h2>
@@ -277,6 +283,46 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
             </aside>
           </div>
           <Link className="mf-bz-btn-ghost" style={{ justifySelf: "start" }} href={workspace ? `/home/relationship-test/${star.id}` : `/celebrity/${star.id}`}>← 返回详情</Link>
+        </main>
+      </div>
+    );
+  }
+  if (phase === "confirm") {
+    const districtName = [provinceOptions.find(p => p.code === birthProvinceCode)?.name, cityOptions.find(c => c.code === birthCityCode)?.name, districtOptions.find(d => d.code === birthDistrictCode)?.name].filter(Boolean).join(" · ");
+    return (
+      <div className={workspace ? "mf-test-page mf-workspace-test" : "mf-test-page"}>
+        <TestHeader star={star} workspace={workspace} label="吠陀合盘资料" />
+        <main className="mf-bz-form">
+          <header className="mf-bz-form-head">
+            <span>确认合盘</span>
+            <h1>双方基础信息</h1>
+            <p>确认无误后开始计算你们两人的星盘关系。</p>
+          </header>
+          <div className="mf-bz-duo">
+            <section className="mf-bz-duo-card">
+              <img src={star.portraitSrc} alt="" />
+              <div>
+                <span>TA · 明星</span>
+                <h2>{star.name}</h2>
+                <p>{star.role}</p>
+                <small>出生日期 {star.birthDate}</small>
+              </div>
+            </section>
+            <div className="mf-bz-duo-x" aria-hidden="true">×</div>
+            <section className="mf-bz-duo-card">
+              <div className="mf-bz-duo-you">你</div>
+              <div>
+                <span>你 · 出生信息</span>
+                <h2>{birthDate}</h2>
+                <p>{birthTime} · {districtName || "—"}</p>
+                <small>{districtName ? "已按区县校准上升星座" : "出生地点待确认"}</small>
+              </div>
+            </section>
+          </div>
+          <div className="mf-bz-duo-actions">
+            <button className="mf-bz-btn-ghost" type="button" onClick={() => setPhase("profile")}>← 修改信息</button>
+            <button className="mf-bz-btn" type="button" onClick={() => void createCompositeAnalysis()}>确认，开始合盘 <span aria-hidden="true">→</span></button>
+          </div>
         </main>
       </div>
     );
