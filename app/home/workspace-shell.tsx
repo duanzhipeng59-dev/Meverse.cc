@@ -8,7 +8,7 @@ import { useAuth } from "../auth-context";
 const menuItems = [
   {
     icon: "heart",
-    label: "明星合盘",
+    label: "明星解读",
     description: "查看你与 TA 的吠陀合盘报告",
     href: "/home/relationship-test",
   },
