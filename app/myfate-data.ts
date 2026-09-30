@@ -22,8 +22,7 @@ export type StarProfile = {
   portraitSrc: string;
   ideal: Record<Dimension, number>;
   reportPrompt?: string;
-  gallery?: string[];
-}
+};
 
 export type TestOption = {
   label: string;

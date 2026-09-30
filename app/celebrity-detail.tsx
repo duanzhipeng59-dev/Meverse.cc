@@ -7,10 +7,12 @@ export default function CelebrityDetail({
   star,
   backHref,
   workspace = false,
+  others = [],
 }: {
   star: StarProfile;
   backHref: string;
   workspace?: boolean;
+  others?: StarProfile[];
 }) {
   return (
     <div className={workspace ? "mf-workspace-detail" : "mf-page mf-detail-page"}>
@@ -60,11 +62,15 @@ export default function CelebrityDetail({
         </section>
       </div>
 
-      {star.gallery?.length ? (
-        <section className="mf-detail-gallery" aria-label={`${star.name}的更多照片`}>
-          <div className="mf-detail-gallery-row">
-            {star.gallery.map((src) => (
-              <span className="mf-detail-gallery-item" key={src} style={{ backgroundImage: `url("${src}")` }} role="img" aria-label={`${star.name}的照片`} />
+      {others.length ? (
+        <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">
+          <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
+          <div className="mf-detail-others-row">
+            {others.map((item) => (
+              <Link className="mf-detail-others-card" href={workspace ? `/home/relationship-test/${item.id}` : `/celebrity/${item.id}`} key={item.id}>
+                <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${item.portraitSrc}")` }} role="img" aria-label={item.name} />
+                <b>{item.name}</b>
+              </Link>
             ))}
           </div>
         </section>
