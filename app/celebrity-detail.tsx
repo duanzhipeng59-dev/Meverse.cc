@@ -3,16 +3,18 @@ import type { StarProfile } from "./myfate-data";
 import AuthEntryLink from "./auth-entry-link";
 import ReportAwareEntry from "./home/celebrity-match/report-aware-entry";
 
+function formatBirthDate(value: string) {
+  return value.replaceAll("-", ".");
+}
+
 export default function CelebrityDetail({
   star,
   backHref,
   workspace = false,
-  others = [],
 }: {
   star: StarProfile;
   backHref: string;
   workspace?: boolean;
-  others?: StarProfile[];
 }) {
   return (
     <div className={workspace ? "mf-workspace-detail" : "mf-page mf-detail-page"}>
@@ -46,35 +48,28 @@ export default function CelebrityDetail({
           <span className="mf-kicker">{star.role}</span>
           <h1>{star.name}</h1>
           <p className="mf-detail-tagline">“{star.tagline}”</p>
-          <p className="mf-profile-basis">出生日期 {star.birthDate}</p>
-          <div className="mf-detail-description">
-            <p>{star.description}</p>
-          </div>
-          {workspace ? (
-            <ReportAwareEntry starId={star.id} />
-          ) : (
-            <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
-              查看你与 TA 的合盘分析 <span>→</span>
-            </AuthEntryLink>
-          )}
-          <p className="mf-detail-hint">输入出生日期、时间与城市，即可生成吠陀合盘报告</p>
-          <p className="mf-bazi-note">合盘基于吠陀占星（Jyotish），出生时间与城市用于确定上升星座；仅供文化娱乐参考。</p>
+          <p className="mf-detail-born">BORN · {formatBirthDate(star.birthDate)}</p>
         </section>
       </div>
 
-      {others.length ? (
-        <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">
-          <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
-          <div className="mf-detail-others-row">
-            {others.map((item) => (
-              <Link className="mf-detail-others-card" href={workspace ? `/home/relationship-test/${item.id}` : `/celebrity/${item.id}`} key={item.id}>
-                <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${item.portraitSrc}")` }} role="img" aria-label={item.name} />
-                <b>{item.name}</b>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <section className="mf-detail-cta-band">
+        <div className="mf-detail-cta-copy">
+          <h2>你 × {star.name}</h2>
+          <p>从沟通 · 情绪支持 · 亲密边界 · 共同成长，看看你们会形成怎样的关系。</p>
+        </div>
+        {workspace ? (
+          <ReportAwareEntry starId={star.id} />
+        ) : (
+          <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
+            查看你与 {star.name} 的合盘 <span>→</span>
+          </AuthEntryLink>
+        )}
+      </section>
+
+      <section className="mf-detail-bio">
+        <p>{star.description}</p>
+        <p className="mf-detail-bio-note">内容以公开身份信息与测试情境为基础，不推断艺人的真实私生活，也不把性格类型视为固定结论。</p>
+      </section>
     </div>
   );
 }
