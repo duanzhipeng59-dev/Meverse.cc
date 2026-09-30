@@ -24,11 +24,11 @@ const tierTone = (tier: string) => {
   return "is-mixed";
 };
 
-function ChartCard({ title, chart }: { title: string; chart: VedicCompositeResult["userChart"] }) {
+function ChartCard({ title, chart, showLagna }: { title: string; chart: VedicCompositeResult["userChart"]; showLagna: boolean }) {
   return (
     <article className="mf-vedic-chart-card">
       <span>{title}</span>
-      <h3>{zh(vedicSignZh, chart.lagna)} 上升</h3>
+      {showLagna ? <h3>{zh(vedicSignZh, chart.lagna)} 上升</h3> : <h3 className="is-muted">时辰未公开 · 不排上升</h3>}
       <dl>
         <div><dt>月亮</dt><dd>{zh(vedicSignZh, chart.moonSign)} · {zh(vedicNakshatraZh, chart.moonNakshatra)} p{chart.moonPada}</dd></div>
         <div><dt>太阳</dt><dd>{zh(vedicSignZh, chart.sunSign)}</dd></div>
@@ -113,11 +113,10 @@ export default function VedicCompositeResultView({
 
       <section className="mf-vedic-interaction" aria-labelledby="mf-vedic-interaction-title">
         <div className="mf-identity-section-heading">
-          <span>双向互动</span>
-          <h2 id="mf-vedic-interaction-title">行星落入对方宫位</h2>
-          <p>双方行星分别落入对方宫位的结构，是合盘互动方式的主要证据。</p>
+          <span>TA 在你生命里的位置</span>
+          <h2 id="mf-vedic-interaction-title">TA 的行星落入你的宫位</h2>
+          <p>你的宫位由真实出生时间确定，TA 的行星星座由天文历表确定——这一层证据可靠。</p>
         </div>
-        <OverlayTable title={`你的行星 → ${star.name} 的宫位`} items={result.overlayHighlights.userToStar} />
         <OverlayTable title={`${star.name} 的行星 → 你的宫位`} items={result.overlayHighlights.starToUser} />
       </section>
 
@@ -128,8 +127,8 @@ export default function VedicCompositeResultView({
           <p>上升（Lagna）与月亮（Moon）是吠陀合盘的两个基准点。</p>
         </div>
         <div className="mf-vedic-chart-grid">
-          <ChartCard title="你的星盘" chart={result.userChart} />
-          <ChartCard title={`${star.name} 的星盘`} chart={result.starChart} />
+          <ChartCard title="你的星盘" chart={result.userChart} showLagna />
+          <ChartCard title={`${star.name} 的星盘`} chart={result.starChart} showLagna={false} />
         </div>
       </section>
 
@@ -155,7 +154,7 @@ export default function VedicCompositeResultView({
         <p className="mf-formula-basis-summary">{result.tension}</p>
         {result.timingNotes.length ? (
           <div className="mf-vedic-timing">
-            <span>时机观察</span>
+            <span>时机观察（仅你的行运）</span>
             <ul>{result.timingNotes.map((note, index) => <li key={index}>{note}</li>)}</ul>
           </div>
         ) : null}
