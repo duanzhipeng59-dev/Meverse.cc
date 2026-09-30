@@ -31,7 +31,7 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
 
   if (report) {
     const href = report.status === "advanced"
-      ? `/home/reports/${report.id}?from=relationship-test`
+      ? `/home/relationship-test/${report.id}`
       : `/home/relationship-test/${starId}/test?report=${encodeURIComponent(report.id)}`;
     return (
       <Link className="mf-primary-button mf-detail-cta" href={href}>

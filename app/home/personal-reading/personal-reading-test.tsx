@@ -176,7 +176,7 @@ export default function PersonalReadingTest() {
       const body = await response.json() as { reportId?: string; result?: BaziReadingResult };
       if (!body.reportId || body.result?.version !== 5) throw new Error("排盘结果数据不完整。");
       window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
-      window.location.replace(`/home/reports/${body.reportId}`);
+      window.location.replace(`/home/personal-reading/${body.reportId}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "暂时无法排盘。");
       setPhase("error");
@@ -205,7 +205,7 @@ export default function PersonalReadingTest() {
       const body = await response.json() as { reportId?: string; result?: BaziReadingResult };
       if (!body.reportId || body.result?.version !== 5) throw new Error("解读结果数据不完整。");
       window.dispatchEvent(new CustomEvent("myfate-reports-updated"));
-      window.location.replace(`/home/reports/${body.reportId}`);
+      window.location.replace(`/home/personal-reading/${body.reportId}`);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "暂时无法生成解读。");
       setPhase("error");

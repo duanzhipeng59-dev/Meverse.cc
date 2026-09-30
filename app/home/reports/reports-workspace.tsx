@@ -25,10 +25,10 @@ function formatDate(value: string) {
 
 function reportAction(report: SavedReport) {
   if (report.starId === "personal-reading") {
-    if (report.status === "generating") return { label: "继续解读", href: `/home/reports/${report.id}`, disabled: false };
-    return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
+    if (report.status === "generating") return { label: "继续解读", href: `/home/personal-reading/${report.id}`, disabled: false };
+    return { label: "查看报告", href: `/home/personal-reading/${report.id}`, disabled: false };
   }
-  if (report.status === "advanced") return { label: "查看报告", href: `/home/reports/${report.id}`, disabled: false };
+  if (report.status === "advanced") return { label: "查看报告", href: `/home/relationship-test/${report.id}`, disabled: false };
   if (report.status === "generating") return { label: "生成中", href: "", disabled: true };
   return {
     label: "重新合盘",

@@ -55,9 +55,11 @@ function legacyReportText(report: SavedReport) {
 export default function ReportDetailWorkspace({
   reportId,
   fromCelebrityWorkspace = false,
+  section = "reports",
 }: {
   reportId: string;
   fromCelebrityWorkspace?: boolean;
+  section?: "reports" | "relationship-test" | "personal-reading";
 }) {
   const { status, email } = useAuth();
   const [report, setReport] = useState<SavedReport | null>(null);
@@ -99,8 +101,8 @@ export default function ReportDetailWorkspace({
     name: report.starName,
     portraitSrc: report.starPortrait,
   };
-  const backHref = fromCelebrityWorkspace ? "/home/relationship-test" : "/home/reports";
-  const backLabel = fromCelebrityWorkspace ? "返回明星合盘工作台" : "返回我的报告";
+  const backHref = section === "personal-reading" ? "/home/personal-reading" : section === "relationship-test" || fromCelebrityWorkspace ? "/home/relationship-test" : "/home/reports";
+  const backLabel = section === "personal-reading" ? "返回个人解读" : section === "relationship-test" || fromCelebrityWorkspace ? "返回明星合盘工作台" : "返回我的报告";
   const retestHref = `/home/relationship-test/${report.starId}/test?restart=1`;
   const continueTestHref = `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`;
 

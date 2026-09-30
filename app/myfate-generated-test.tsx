@@ -31,7 +31,7 @@ export default function MyfateGeneratedTest({ star, workspace = false }: { star:
     started.current = true;
     const existingReportId = new URLSearchParams(window.location.search).get("report");
     if (existingReportId) {
-      window.location.replace(`/home/reports/${encodeURIComponent(existingReportId)}`);
+      window.location.replace(`/home/relationship-test/${encodeURIComponent(existingReportId)}`);
       return;
     }
     const profile = readBasicProfile(email);
