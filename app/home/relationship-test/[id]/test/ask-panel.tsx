@@ -74,11 +74,13 @@ export default function StarAskPanel({
         ) : null}
       </div>
 
-      <div className="mf-zr-ask-chips">
-        {suggestions.map((item) => (
-          <button type="button" key={item} onClick={() => void ask(item)} disabled={loading}>{item}</button>
-        ))}
-      </div>
+      {entries.some((entry) => entry.role === "assistant") ? null : (
+        <div className="mf-zr-ask-chips">
+          {suggestions.map((item) => (
+            <button type="button" key={item} onClick={() => void ask(item)} disabled={loading}>{item}</button>
+          ))}
+        </div>
+      )}
 
       {error ? <p className="mf-zr-ask-error" role="alert">{error}</p> : null}
 
