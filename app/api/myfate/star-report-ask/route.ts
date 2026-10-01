@@ -2,6 +2,7 @@ import { z } from "zod";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { buildStarBaziReport } from "../../../myfate-star-bazi-report";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
+import { createSupabaseAdminClient } from "../../auth/server";
 import { generateChatText, type ChatMessage } from "../personalize/model-provider";
 import { requireReportUser } from "../reports/server";
 
@@ -39,6 +40,14 @@ export async function POST(request: Request) {
   const session = await requireReportUser(request);
   if (!session) return Response.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
+  // 追问额度 = 累计解读次数 × 10 − 已用追问,不足则 402 引导购买
+  const admin = createSupabaseAdminClient();
+  const { data: askQuota } = await admin
+    .rpc("remaining_ask_credits", { p_user_id: session.user.id });
+  if (typeof askQuota !== "number" || askQuota <= 0) {
+    return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) return Response.json({ error: "BAD_REQUEST" }, { status: 400 });
@@ -68,7 +77,15 @@ export async function POST(request: Request) {
       temperature: 0.8,
       maxTokens: 1200,
     });
-    return Response.json({ answer: generation.content });
+    // 生成成功后扣 1 次追问(并发竞态下的少量超发可接受)
+    let asksRemaining: number | null = null;
+    try {
+      const consumed = await admin.rpc("consume_ask_credit", { p_user_id: session.user.id });
+      if (typeof consumed.data === "number") asksRemaining = consumed.data;
+    } catch (consumeError) {
+      console.error("consume_ask_credit failed", consumeError);
+    }
+    return Response.json({ answer: generation.content, asksRemaining });
   } catch (error) {
     console.error("star-report-ask failed", error);
     return Response.json({ error: "AI_UNAVAILABLE" }, { status: 503 });

@@ -17,6 +17,7 @@ export default function StarAskPanel({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [asksRemaining, setAsksRemaining] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,10 +42,16 @@ export default function StarAskPanel({
         window.location.reload();
         return;
       }
+      if (response.status === 402) {
+        setError("追问额度不足：每 1 次解读附赠 10 次追问，请先购买解读套餐。");
+        setTimeout(() => { window.location.href = "/home/upgrade"; }, 2200);
+        return;
+      }
       if (response.status === 503) throw new Error("暂时无法回答，请稍后再试。");
       if (!response.ok) throw new Error("追问失败，请稍后再试。");
-      const body = await response.json() as { answer?: string };
+      const body = await response.json() as { answer?: string; asksRemaining?: number | null };
       if (!body.answer) throw new Error("追问失败，请稍后再试。");
+      if (typeof body.asksRemaining === "number") setAsksRemaining(body.asksRemaining);
       setEntries((prev) => [...prev, { role: "assistant", content: body.answer as string }]);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "追问失败，请稍后再试。");
@@ -56,7 +63,7 @@ export default function StarAskPanel({
   return (
     <section className="mf-zr-card mf-zr-ask">
       <h2 className="mf-zr-card-title">✦ 继续追问</h2>
-      <p className="mf-zr-ask-sub">基于 {starName} 的八字盘与上方报告，继续问你想知道的</p>
+      <p className="mf-zr-ask-sub">基于 {starName} 的八字盘与上方报告，继续问你想知道的{typeof asksRemaining === "number" ? ` · 剩余追问 ${asksRemaining} 次` : ""}</p>
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
         {entries.map((entry, index) => (
