@@ -41,7 +41,7 @@ export default function StarAskPanel({
         window.location.reload();
         return;
       }
-      if (response.status === 503) throw new Error("命理师暂时不在线，请稍后再试。");
+      if (response.status === 503) throw new Error("解读师暂时不在线，请稍后再试。");
       if (!response.ok) throw new Error("追问失败，请稍后再试。");
       const body = await response.json() as { answer?: string };
       if (!body.answer) throw new Error("追问失败，请稍后再试。");
@@ -55,22 +55,22 @@ export default function StarAskPanel({
 
   return (
     <section className="mf-zr-card mf-zr-ask">
-      <h2 className="mf-zr-card-title">✦ 追问命理师</h2>
+      <h2 className="mf-zr-card-title">✦ 继续追问</h2>
       <p className="mf-zr-ask-sub">基于 {starName} 的八字盘与上方报告，继续问你想知道的</p>
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
         {entries.length === 0 && !loading ? (
-          <p className="mf-zr-ask-empty">命理师已就座 ✦ 从下面的引导问题开始，或直接输入你的追问</p>
+          <p className="mf-zr-ask-empty">解读师已就座 ✦ 从下面的引导问题开始，或直接输入你的追问</p>
         ) : null}
         {entries.map((entry, index) => (
           <div className={`mf-zr-ask-msg ${entry.role}`} key={index}>
-            <span>{entry.role === "user" ? "我" : "命理师"}</span>
+            <span>{entry.role === "user" ? "我" : "解读师"}</span>
             <p>{entry.content}</p>
           </div>
         ))}
         {loading ? (
           <div className="mf-zr-ask-msg assistant">
-            <span>命理师</span>
+            <span>解读师</span>
             <p className="mf-zr-ask-typing">正在起卦<i>…</i></p>
           </div>
         ) : null}
@@ -94,7 +94,7 @@ export default function StarAskPanel({
         <input
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder="输入你想追问的命理问题…"
+          placeholder="输入你想追问的问题…"
           maxLength={500}
           disabled={loading}
         />
