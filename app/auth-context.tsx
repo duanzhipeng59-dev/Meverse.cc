@@ -83,6 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const markSignedOut = useCallback(() => {
+    // 同步清掉服务端 HttpOnly 会话 Cookie,否则接口层仍视为已登录
+    void fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
     const next: AuthState = { status: "anonymous", email: null };
     clearLocalSession();
     cachedSession = next;
