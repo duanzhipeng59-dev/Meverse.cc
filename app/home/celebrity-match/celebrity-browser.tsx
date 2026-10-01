@@ -27,7 +27,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const [tab, setTab] = useState<TabId>("all");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [favorites, setFavorites] = useState<string[]>([]);
   const gridRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
@@ -45,12 +44,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageStars = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
-  function toggleFavorite(event: React.MouseEvent, starId: string) {
-    event.preventDefault();
-    event.stopPropagation();
-    setFavorites(prev => prev.includes(starId) ? prev.filter(id => id !== starId) : [...prev, starId]);
-  }
 
   function goToPage(nextPage: number) {
     setPage(Math.min(totalPages, Math.max(1, nextPage)));
@@ -80,7 +73,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
           ))}
         </div>
         <div className="mf-bz-discover-search">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#8a7f74" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
           <input
             type="search"
             placeholder="搜索"
@@ -100,14 +93,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
             key={star.id}
           >
             <div className="mf-bz-cover-img" style={{ backgroundImage: `url("${star.portraitSrc}")` }} role="img" aria-label={`${star.name}的人物肖像`} />
-            <button
-              type="button"
-              className={`mf-bz-cover-heart ${favorites.includes(star.id) ? "is-fav" : ""}`}
-              aria-label={favorites.includes(star.id) ? `取消喜欢 ${star.name}` : `喜欢 ${star.name}`}
-              onClick={(event) => toggleFavorite(event, star.id)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 9.1c0 4.7-8.5 9.4-8.5 9.4S3.5 13.8 3.5 9.1A4.6 4.6 0 0 1 12 6.7a4.6 4.6 0 0 1 8.5 2.4Z" /></svg>
-            </button>
             <div className="mf-bz-cover-overlay">
               <div className="mf-bz-cover-copy">
                 <strong>{star.name}</strong>
