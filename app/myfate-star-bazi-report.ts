@@ -439,6 +439,29 @@ const PERSONALITY_SHORT: Record<string, string> = {
   官杀: "自律有担当，压力之下反而越战越勇",
 };
 
+// 报告纯文本摘要:与报告页板块一一对应,供追问接口作为权威上下文。
+export function formatStarBaziReport(report: StarBaziReport): string {
+  const lines: string[] = [];
+  lines.push(`四柱:${report.pillars.map((p) => p.ganzhi).join(" ")};日主:${report.dayMaster};五行:${Object.entries(report.wuXing).map(([k, v]) => `${k}${v}`).join(" ")}`);
+  lines.push(`起运:${report.daYun.startText};当前大运:${report.daYun.steps.find((s) => s.current)?.ganzhi ?? ""}`);
+  lines.push(`【人生画像】${report.portrait.lead}`);
+  lines.push(report.portrait.daoFa);
+  lines.push(report.portrait.xi);
+  lines.push(report.portrait.ji);
+  lines.push(report.portrait.xian);
+  for (const item of report.portrait.shenSha) lines.push(item.text);
+  lines.push(report.portrait.personality);
+  lines.push("【感情】");
+  for (const trait of report.love.spouseTraits) lines.push(`${trait.label}:${trait.text}`);
+  lines.push(report.love.family);
+  lines.push(report.love.stability);
+  lines.push("一生婚恋大运:");
+  for (const luck of report.love.marriageLuck) lines.push(`${luck.ganzhi}(${luck.ageText},${luck.tag}):${luck.text}`);
+  lines.push("近期感情流年:");
+  for (const year of report.love.romanceYears) lines.push(`${year.year}年(${year.ganzhi}) 缘分概率${year.probability}%${year.warn ? ",冲夫妻宫" : ""}:${year.text}`);
+  return lines.join("\n");
+}
+
 // 详情页按钮上方的 ~150 字正缘分析梗概。
 export function buildStarBaziBrief(chart: BaziChart): string {
   const report = buildStarBaziReport(chart);

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
-import { buildStarBaziReport } from "../../../myfate-star-bazi-report";
+import { buildStarBaziReport, formatStarBaziReport } from "../../../myfate-star-bazi-report";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
 import { generateChatText, type ChatMessage } from "../personalize/model-provider";
 import { requireReportUser } from "../reports/server";
@@ -16,22 +16,22 @@ const requestSchema = z.object({
   question: z.string().trim().min(1).max(500),
 });
 
-function systemPrompt(starName: string, reportJson: string) {
+function systemPrompt(starName: string, reportDigest: string) {
   return [
-    `你是 Myfate 的资深八字解读师,正在与粉丝用户一对一对话,话题对象是明星「${starName}」的感情与正缘。`,
-    `你手里有他的八字排盘与已生成的正缘分析报告(见下方数据)。`,
+    `你是 Myfate 的资深八字解读师。用户刚刚看完明星「${starName}」的正缘分析报告(页面含「人生画像」「感情」「一生婚恋大运」「近期感情流年」板块),现在基于这份报告向你追问。`,
     "",
-    "【报告数据】",
-    reportJson,
+    "【当前报告全文——唯一事实依据】",
+    reportDigest,
     "",
-    "回答规则:",
-    "1. 只基于给定的排盘与报告数据作答;禁止重新排盘、编造干支,也不谈论现实八卦、行程等盘面之外的事实。",
-    "2. 白话为主,语气温暖有分寸,像一位懂行的朋友;结论用「倾向/可能/建议」的口吻,不做宿命论断言。",
-    "3. 每次回答 150-300 字,可用短句或分点,不要 markdown 标题,可少量使用 ✦ ♡ 等符号。",
-    "4. 用户问到盘面之外的现实问题时,温和地把话题拉回八字解读的视角。",
-    "5. 不做医疗诊断、法律与投资建议。",
-    "6. 涉及时柱、大运精确年份等细节时,提醒「出生时辰为正午近似,仅供参考」。",
-    "7. 回答结尾可以自然地反问一句,引导用户继续追问。",
+    "回答铁律:",
+    "1. 一切回答以这份报告为准:流年年份、缘分概率、婚恋窗口、动荡年份、配偶画像、喜忌神煞等,必须与报告完全一致;禁止自行重新排盘推算,禁止给出报告之外的数字或结论。",
+    "2. 报告已覆盖的问题,先按报告口径直接回答(年份、概率照报告念),再通俗展开解释。",
+    "3. 报告未覆盖的问题,才基于报告内的四柱、十神、大运做延伸推演,并顺带说明「这是报告之外的延伸解读」。",
+    "4. 白话为主,语气温暖有分寸,像一位懂行的朋友;结论用「倾向/可能/建议」的口吻,不做宿命论断言。",
+    "5. 每次回答 150-300 字,可用短句或分点,不要 markdown 标题,可少量使用 ✦ ♡ 等符号。",
+    "6. 用户问到现实八卦、行程等报告之外的事时,温和地把话题拉回报告视角。",
+    "7. 不做医疗诊断、法律与投资建议;涉及时柱与精确年份细节时,提醒「出生时辰为正午近似,仅供参考」。",
+    "8. 回答结尾可以自然地反问一句,引导用户继续追问。",
   ].join("\n");
 }
 
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
   const messages: ChatMessage[] = [...history.slice(-12), { role: "user", content: question }];
   try {
-    const generation = await generateChatText(systemPrompt(star.name, JSON.stringify(report)), messages, {
+    const generation = await generateChatText(systemPrompt(star.name, formatStarBaziReport(report)), messages, {
       temperature: 0.8,
       maxTokens: 1200,
     });
