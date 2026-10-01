@@ -178,10 +178,6 @@ export default function UpgradeWorkspace() {
 
   return (
     <div className="mf-upgrade-workspace">
-      <header className="mf-upgrade-heading">
-        {typeof balance === "number" ? <p className="mf-upgrade-balance">当前剩余解读额度：<strong>{balance}</strong> 次</p> : null}
-      </header>
-
       <div className="mf-upgrade-tabs" role="tablist" aria-label="购买方式">
         <button
           type="button"
