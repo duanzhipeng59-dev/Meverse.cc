@@ -79,6 +79,34 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
       </header>
 
       <section className="mf-zr-card">
+        <h2 className="mf-zr-card-title">✦ 四柱排盘</h2>
+        <div className="mf-zr-chart-grid">
+          {report.pillars.map((pillar) => (
+            <div className={`mf-zr-pillar-col ${pillar.label === "日柱" ? "is-day" : ""}`} key={pillar.label}>
+              <small>{pillar.label}</small>
+              <em>{pillar.shiShenGan}</em>
+              <div className="mf-zr-ganzhi"><b>{pillar.ganzhi[0]}</b><b>{pillar.ganzhi[1]}</b></div>
+              <small>{pillar.hideGan.map((gan, i) => `${gan}${pillar.hideShiShen[i] ?? ""}`).join(" · ")}</small>
+              <small>{pillar.naYin}</small>
+            </div>
+          ))}
+        </div>
+        <div className="mf-zr-wuxing">
+          {(() => {
+            const max = Math.max(1, ...Object.values(report.wuXing));
+            return Object.entries(report.wuXing).map(([element, count]) => (
+              <div className="mf-zr-wx" data-el={element} key={element}>
+                <span>{element}</span>
+                <div className="mf-zr-wx-bar"><i style={{ width: `${Math.round((count / max) * 100)}%` }} /></div>
+                <small>{count}</small>
+              </div>
+            ));
+          })()}
+        </div>
+        <p className="mf-zr-chart-note">起运 {chart.daYun.startText} · 当前 {chart.currentDaYunGanZhi || "—"} 大运 · {chart.currentYearGanZhi}年</p>
+      </section>
+
+      <section className="mf-zr-card">
         <h2 className="mf-zr-card-title">✦ 人生画像</h2>
         <p className="mf-zr-lead"><b>{report.portrait.strength}。</b>{report.portrait.lead.replace(/^([^。]+。)/, "")}</p>
         <p className="mf-zr-p"><LeadText text={report.portrait.daoFa} /></p>
@@ -94,6 +122,21 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
           ))}
         </blockquote>
         <p className="mf-zr-p"><LeadText text={report.portrait.personality} /></p>
+      </section>
+
+      <section className="mf-zr-card">
+        <h2 className="mf-zr-card-title">✦ 大运走势</h2>
+        <div className="mf-zr-dayun">
+          {report.daYun.steps.map((step) => (
+            <div className={`mf-zr-dy ${step.current ? "is-current" : ""}`} key={`${step.ganzhi}-${step.startYear}`}>
+              <small>{step.startAge}-{step.endAge}岁</small>
+              <b>{step.ganzhi}</b>
+              <small>{step.startYear}-{step.endYear}</small>
+              {step.current ? <span className="mf-zr-dy-now">当前</span> : null}
+            </div>
+          ))}
+        </div>
+        <p className="mf-zr-chart-note">大运每十年一换，当前大运会染上它干支五行的色彩；流年概率与婚恋窗口均以此为背景。</p>
       </section>
 
       <section className="mf-zr-card">

@@ -5391,3 +5391,36 @@ select:focus-visible {
 
 /* 套餐卡内底部购买按钮 */
 .mf-upgrade-plan .mf-upgrade-plan-buy { width: 100%; margin-top: 16px; justify-content: center; }
+
+/* ============ 正缘报告·四柱排盘/五行/大运 ============ */
+.mf-zr-chart-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.mf-zr-pillar-col { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 14px 6px 12px; border: 1px solid #e6def5; border-radius: 12px; background: #fdfcff; }
+.mf-zr-pillar-col.is-day { border-color: #c9a8f0; background: #f8f2ff; box-shadow: 0 0 0 1px #c9a8f0; }
+.mf-zr-pillar-col > small { color: #9a90b3; font-size: 11px; }
+.mf-zr-pillar-col > em { font-style: normal; color: #8a4fae; font-size: 12px; font-weight: 700; }
+.mf-zr-ganzhi { display: grid; gap: 2px; }
+.mf-zr-ganzhi b { font-family: var(--font-serif-display); font-size: 24px; line-height: 1.25; color: #3a2f55; letter-spacing: 2px; }
+.mf-zr-pillar-col.is-day .mf-zr-ganzhi b { color: #6b4fd8; }
+.mf-zr-wuxing { display: grid; gap: 8px; margin: 18px 0 0; }
+.mf-zr-wx { display: grid; grid-template-columns: 22px 1fr 20px; align-items: center; gap: 10px; }
+.mf-zr-wx > span { font-size: 13px; font-weight: 700; color: #3a2f55; }
+.mf-zr-wx > small { font-size: 12px; color: #9a90b3; text-align: right; }
+.mf-zr-wx-bar { height: 8px; border-radius: 999px; background: #efe9f8; overflow: hidden; }
+.mf-zr-wx-bar i { display: block; height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+.mf-zr-wx[data-el="木"] .mf-zr-wx-bar i { background: #4c9e6a; }
+.mf-zr-wx[data-el="火"] .mf-zr-wx-bar i { background: #d95970; }
+.mf-zr-wx[data-el="土"] .mf-zr-wx-bar i { background: #c08a4e; }
+.mf-zr-wx[data-el="金"] .mf-zr-wx-bar i { background: #9a8ec9; }
+.mf-zr-wx[data-el="水"] .mf-zr-wx-bar i { background: #5a8fc3; }
+.mf-zr-chart-note { margin: 14px 0 0; color: #9a90b3; font-size: 12.5px; line-height: 1.8; }
+.mf-zr-dayun { display: flex; gap: 10px; overflow-x: auto; padding: 16px 2px 6px; scrollbar-width: thin; }
+.mf-zr-dy { position: relative; display: grid; gap: 3px; justify-items: center; flex-shrink: 0; min-width: 76px; padding: 12px 10px 14px; border: 1px solid #e6def5; border-radius: 12px; background: #fdfcff; }
+.mf-zr-dy small { color: #9a90b3; font-size: 10.5px; }
+.mf-zr-dy b { font-family: var(--font-serif-display); font-size: 19px; color: #3a2f55; letter-spacing: 2px; }
+.mf-zr-dy.is-current { border-color: #6b4fd8; background: #f4efff; box-shadow: 0 4px 14px rgba(107, 79, 216, 0.16); }
+.mf-zr-dy.is-current b { color: #6b4fd8; }
+.mf-zr-dy-now { position: absolute; top: -9px; padding: 1px 8px; border-radius: 999px; background: #6b4fd8; color: #fff; font-size: 10px; letter-spacing: 1px; }
+@media (max-width: 560px) {
+  .mf-zr-ganzhi b { font-size: 20px; }
+  .mf-zr-dy { min-width: 66px; }
+}
