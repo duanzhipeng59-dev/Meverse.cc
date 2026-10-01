@@ -142,6 +142,7 @@ export type StarBaziReport = {
   wuXing: Record<string, number>;
   trueSolar: BaziChart["trueSolar"];
   daYun: BaziChart["daYun"];
+  meta: { monthZhi: string; spouseEl: Element; topGod: string; strength: string };
   portrait: {
     strength: string;
     lead: string;
@@ -340,7 +341,22 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
     wuXing: chart.wuXing,
     trueSolar: chart.trueSolar,
     daYun: chart.daYun,
+    meta: { monthZhi, spouseEl, topGod, strength },
     portrait: { strength, lead, daoFa, xi, ji, xian, shenShaTitle: "神煞", shenSha, personality },
     love: { spouseTraits, family, stability, marriageLuck, romanceYears },
   };
+}
+
+const ELEMENT_TRAIT_SHORT: Record<Element, string> = {
+  木: "清秀书卷", 火: "热情明亮", 土: "稳重踏实", 金: "利落干练", 水: "灵动聪慧",
+};
+const PACE_NOTE: Record<string, string> = {
+  身强: "势均力敌", 身弱: "彼此托举", 中和: "细水长流",
+};
+
+// 详情页按钮上方的 ~50 字八字简述。
+export function buildStarBaziBrief(chart: BaziChart): string {
+  const report = buildStarBaziReport(chart);
+  const { monthZhi, spouseEl, topGod, strength } = report.meta;
+  return `${report.dayMaster}（${GAN_WUXING[report.dayMaster]}）日主，生于${monthZhi}月，命局${strength}，${topGod}主导；配偶星属${spouseEl}，正缘多为${ELEMENT_TRAIT_SHORT[spouseEl]}之人，感情宜${PACE_NOTE[strength]}。`;
 }

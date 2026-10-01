@@ -8,11 +8,13 @@ export default function CelebrityDetail({
   backHref,
   workspace = false,
   others = [],
+  baziBrief = "",
 }: {
   star: StarProfile;
   backHref: string;
   workspace?: boolean;
   others?: StarProfile[];
+  baziBrief?: string;
 }) {
   return (
     <div className={workspace ? "mf-workspace-detail" : "mf-page mf-detail-page"}>
@@ -48,7 +50,7 @@ export default function CelebrityDetail({
           <p className="mf-detail-tagline">“{star.tagline}”</p>
           <p className="mf-profile-basis">出生日期 {star.birthDate}</p>
           <div className="mf-detail-description">
-            <p>{star.description}</p>
+            <p>{baziBrief || star.description}</p>
           </div>
           {workspace ? (
             <ReportAwareEntry starId={star.id} />
@@ -57,8 +59,8 @@ export default function CelebrityDetail({
               查看他的正缘分析报告 <span>→</span>
             </AuthEntryLink>
           )}
-          <p className="mf-detail-hint">输入出生日期、时间与城市，即可生成正缘分析报告</p>
-          <p className="mf-bazi-note">分析基于吠陀占星（Jyotish），出生时间与城市用于确定上升星座；仅供文化娱乐参考。</p>
+          <p className="mf-detail-hint">点击即可查看由八字引擎实时生成的完整正缘分析报告</p>
+          <p className="mf-bazi-note">分析基于八字命理（四柱、十神、大运），出生时辰为正午近似；仅供文化娱乐参考。</p>
         </section>
       </div>
 

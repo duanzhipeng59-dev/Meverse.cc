@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CelebrityDetail from "../../../celebrity-detail";
 import ReportDetailWorkspace from "../../reports/[id]/report-detail-workspace";
-import { getPublishedStar, getPublishedStars } from "../../../myfate-stars-server";
+import { getPublishedStar, getPublishedStars, getStarBaziBrief } from "../../../myfate-stars-server";
 import { requirePageUser } from "../../../require-page-user";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +19,9 @@ export default async function RelationshipTargetPage({ params }: { params: Promi
   }
   const [star, allStars] = await Promise.all([getPublishedStar(id), getPublishedStars()]);
   if (!star) notFound();
-  const others = allStars.filter(item => item.id !== star.id).slice(0, 8); // legacy star view
-  return <CelebrityDetail star={star} backHref="/home" workspace others={others} />;
+  const [others, baziBrief] = await Promise.all([
+    Promise.resolve(allStars.filter(item => item.id !== star.id).slice(0, 8)), // legacy star view
+    getStarBaziBrief(id),
+  ]);
+  return <CelebrityDetail star={star} backHref="/home" workspace others={others} baziBrief={baziBrief} />;
 }
