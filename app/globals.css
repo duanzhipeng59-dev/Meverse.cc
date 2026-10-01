@@ -5342,3 +5342,29 @@ select:focus-visible {
   .mf-zr-pillars { justify-content: center; }
   .mf-zr-kv > div { grid-template-columns: 86px 1fr; }
 }
+
+/* ============ 正缘报告·追问命理师 ============ */
+.mf-zr-ask { display: grid; gap: 14px; }
+.mf-zr-ask-sub { margin: 0; color: #6d6482; font-size: 13.5px; }
+.mf-zr-ask-log { display: grid; gap: 12px; max-height: 340px; overflow-y: auto; padding: 4px 2px; scroll-behavior: smooth; }
+.mf-zr-ask-empty { margin: 0; color: #6d6482; font-size: 14px; line-height: 1.9; text-align: center; padding: 18px 8px; }
+.mf-zr-ask-msg { display: grid; gap: 4px; max-width: 88%; }
+.mf-zr-ask-msg span { font-size: 11px; color: #9a90b3; letter-spacing: 1px; }
+.mf-zr-ask-msg p { margin: 0; padding: 10px 14px; border-radius: 14px; font-size: 14.5px; line-height: 1.8; white-space: pre-wrap; }
+.mf-zr-ask-msg.user { justify-self: end; text-align: right; }
+.mf-zr-ask-msg.user p { background: #6b4fd8; color: #fbfaff; border-bottom-right-radius: 4px; text-align: left; }
+.mf-zr-ask-msg.assistant { justify-self: start; }
+.mf-zr-ask-msg.assistant p { background: #ffffff; border: 1px solid #e6def5; border-bottom-left-radius: 4px; }
+.mf-zr-ask-typing i { display: inline-block; animation: mf-zr-blink 1.2s infinite ease-in-out; font-style: normal; }
+@keyframes mf-zr-blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+.mf-zr-ask-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mf-zr-ask-chips button { padding: 6px 14px; border-radius: 999px; border: 1px solid #d9cdf0; background: #fdfbff; color: #6b4fd8; font-size: 13px; cursor: pointer; transition: all 0.15s ease; }
+.mf-zr-ask-chips button:hover:not(:disabled) { background: #6b4fd8; color: #fbfaff; border-color: #6b4fd8; }
+.mf-zr-ask-chips button:disabled { opacity: 0.5; cursor: default; }
+.mf-zr-ask-error { margin: 0; color: #b3261e; font-size: 13px; }
+.mf-zr-ask-form { display: flex; gap: 10px; }
+.mf-zr-ask-form input { flex: 1; height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #d9cdf0; background: #ffffff; color: #2b2536; font-size: 14.5px; outline: none; }
+.mf-zr-ask-form input:focus { border-color: #6b4fd8; box-shadow: 0 0 0 3px rgba(107, 79, 216, 0.12); }
+.mf-zr-ask-form input::placeholder { color: #a89fc0; }
+.mf-zr-ask-form button { height: 44px; padding: 0 22px; border-radius: 12px; border: none; background: #6b4fd8; color: #fbfaff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.mf-zr-ask-form button:disabled { opacity: 0.45; cursor: default; }

@@ -1,11 +1,26 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import StarAskPanel from "./ask-panel";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../../myfate-stars-server";
 import { requirePageUser } from "../../../../require-page-user";
 
 export const dynamic = "force-dynamic";
+
+const ASK_POOL = [
+  "他的正缘大概什么时候出现？",
+  "他的理想型具体是什么样子？",
+  "和他谈恋爱是什么感觉？",
+  "怎么才能吸引到他？",
+  "他在感情里最怕什么？",
+  "他结婚后会是什么样？",
+];
+
+function askSuggestions(id: string) {
+  const offset = [...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % ASK_POOL.length;
+  return Array.from({ length: 4 }, (_, i) => ASK_POOL[(offset + i) % ASK_POOL.length]);
+}
 
 function LeadText({ text }: { text: string }) {
   const cut = text.indexOf(" ");
@@ -113,6 +128,8 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
           ))}
         </ul>
       </section>
+
+      <StarAskPanel starId={id} starName={star.name} suggestions={askSuggestions(id)} />
 
       <p className="mf-zr-note">
         本报告由八字命理引擎根据公开出生资料自动生成；出生时辰为公开资料所限采用正午近似，年柱、月柱、日柱可靠，时柱及大运细节仅供参考。内容仅供娱乐。
