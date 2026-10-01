@@ -69,7 +69,7 @@ export default function StarAskPanel({
         ))}
         {loading ? (
           <div className="mf-zr-ask-msg assistant">
-            <p className="mf-zr-ask-typing">正在起卦<i>…</i></p>
+            <p className="mf-zr-ask-typing">正在推演<i>…</i></p>
           </div>
         ) : null}
       </div>
