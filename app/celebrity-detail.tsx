@@ -43,7 +43,7 @@ export default function CelebrityDetail({
             role="img"
             aria-label={`${star.name}的人物肖像`}
           />
-          <div className="mf-floating-note"><span>✦</span><strong>{star.matchCount}</strong><small>人已查看</small></div>
+          <div className="mf-floating-note"><span>✦</span><strong>{star.matchCount}</strong><small>浏览</small></div>
         </section>
 
         <section className="mf-detail-copy">

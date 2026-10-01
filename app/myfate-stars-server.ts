@@ -65,7 +65,7 @@ function mapCelebrity(row: CelebrityRow): StarProfile {
     threePillars: row.three_pillars,
     traits: row.traits,
     categories: row.categories,
-    matchCount: new Intl.NumberFormat("en-US").format(row.match_count),
+    matchCount: String(row.match_count),
     portraitSrc: row.portrait_url,
     ideal: {
       security: row.ideal.security,

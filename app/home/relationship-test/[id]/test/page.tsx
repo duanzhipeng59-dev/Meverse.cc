@@ -56,7 +56,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
           <span className="mf-zr-kicker">{star.role}</span>
           <h1>{star.name} 的正缘分析</h1>
           <p>{headline || `“${star.tagline}”`}</p>
-          <small>BORN · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {star.matchCount} 人已查看</small>
+          <small>BORN · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {star.matchCount} 浏览</small>
           <div className="mf-zr-pillars">
             {report.pillars.map((pillar) => (
               <span className="mf-zr-pillar" key={pillar.label}>
