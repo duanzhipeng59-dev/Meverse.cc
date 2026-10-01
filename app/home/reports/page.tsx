@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getStarReportViews } from "../../myfate-stars-server";
-import { requirePageUser } from "../../require-page-user";
+import { getOptionalPageUser } from "../../require-page-user";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ function relativeTime(iso: string) {
 }
 
 export default async function ReportsPage() {
-  const user = await requirePageUser("/home/reports");
+  const user = await getOptionalPageUser("/home/reports");
   const views = user ? await getStarReportViews(user.id) : [];
 
   return (

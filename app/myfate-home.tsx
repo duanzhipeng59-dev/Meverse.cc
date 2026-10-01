@@ -35,7 +35,7 @@ export default async function MyfateHome() {
             <p>
               基于八字命理为 TA 排盘：人生画像、配偶特征、婚恋大运、感情流年，一页看懂 TA 的正缘模样，还能继续追问细节。
             </p>
-            <AuthEntryLink className="mf-bz-btn mf-home-cta" href="/home/relationship-test">开始解读 <span aria-hidden="true">→</span></AuthEntryLink>
+            <Link className="mf-bz-btn mf-home-cta" href="/home/relationship-test">开始解读 <span aria-hidden="true">→</span></Link>
           </div>
 
           <div className="mf-hero-visual">
