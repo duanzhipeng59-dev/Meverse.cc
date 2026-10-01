@@ -20,9 +20,6 @@ export default function WorkspaceProfile() {
       </header>
 
       <section className="mf-bz-account-card">
-        <div className="mf-bz-avatar" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" /><path d="M5 19.5c.9-3.6 3.4-5.4 7-5.4s6.1 1.8 7 5.4" /></svg>
-        </div>
         <div className="mf-bz-account-details">
           <div>
             <span>邮箱</span>
