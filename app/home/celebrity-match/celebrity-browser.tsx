@@ -3,22 +3,24 @@
 import { useMemo, useRef, useState } from "react";
 import AuthEntryLink from "../../auth-entry-link";
 import type { StarProfile } from "../../myfate-data";
-import { starGeneration } from "../../myfate-star-generations";
 
 const PAGE_SIZE = 12;
 
 const TABS = [
   { id: "all", label: "全部" },
-  { id: "2", label: "二代" },
-  { id: "3", label: "三代" },
-  { id: "4", label: "四代" },
+  { id: "80", label: "80后" },
+  { id: "90", label: "90后" },
+  { id: "00", label: "00后" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
 function matchesTab(star: StarProfile, tab: TabId) {
   if (tab === "all") return true;
-  return starGeneration(star.id) === tab;
+  const year = Number(star.birthDate.slice(0, 4));
+  if (tab === "80") return year >= 1980 && year <= 1989;
+  if (tab === "90") return year >= 1990 && year <= 1999;
+  return year >= 2000 && year <= 2009;
 }
 
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarProfile[]; basePath?: string }) {
