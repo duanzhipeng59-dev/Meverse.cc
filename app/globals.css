@@ -5378,8 +5378,8 @@ select:focus-visible {
 .mf-hist-empty h2 { margin: 0; font-family: var(--font-serif-display); font-size: 22px; color: var(--bz-ink); }
 .mf-hist-empty p { margin: 0 0 10px; color: var(--bz-muted); font-size: 14px; }
 
-/* 首页 hero 的主 CTA */
-.mf-home-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; width: auto; }
+/* 首页 hero 的主 CTA:与 logo 同色调 */
+.mf-home-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; width: auto; background: linear-gradient(145deg, #a84265, #64233e); box-shadow: 0 8px 22px rgba(122, 41, 78, 0.28); }
 
 /* 个人中心:解读/追问次数统计卡 */
 .mf-profile-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
