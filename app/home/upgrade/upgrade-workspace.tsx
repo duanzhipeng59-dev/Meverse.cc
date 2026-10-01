@@ -74,14 +74,13 @@ type CreditCheckout = {
 export default function UpgradeWorkspace() {
   const { status } = useAuth();
   const [mode, setMode] = useState<PurchaseMode>("package");
-  const [selectedId, setSelectedId] = useState<PackageId>("explore");
+  const [activePackage, setActivePackage] = useState<UpgradePackage | null>(null);
   const [message, setMessage] = useState("");
   const [balance, setBalance] = useState<number | null>(null);
   const [checkout, setCheckout] = useState<CreditCheckout | null>(null);
   const [payState, setPayState] = useState<"idle" | "creating" | "pending" | "paid">("idle");
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const visiblePackages = packages.filter((item) => item.mode === mode);
-  const selectedPackage = packages.find((item) => item.id === selectedId) ?? packages[1];
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -147,14 +146,15 @@ export default function UpgradeWorkspace() {
     };
   }, [checkout, payState]);
 
-  async function startPayment() {
+  async function startPayment(pkg: UpgradePackage) {
+    setActivePackage(pkg);
     setPayState("creating");
     setMessage("");
     try {
       const response = await fetch("/api/payments/epay/credits/create", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ packageId: selectedPackage.id }),
+        body: JSON.stringify({ packageId: pkg.id }),
       });
       const data = await response.json() as Partial<CreditCheckout> & { error?: string };
       if (!response.ok || !data.checkoutUrl || !data.qrContent || !data.orderNo || !data.accessToken) {
@@ -173,7 +173,6 @@ export default function UpgradeWorkspace() {
 
   function changeMode(nextMode: PurchaseMode) {
     setMode(nextMode);
-    setSelectedId(nextMode === "package" ? "explore" : "single");
     setMessage("");
   }
 
@@ -204,21 +203,12 @@ export default function UpgradeWorkspace() {
         </button>
       </div>
 
-      <div className={mode === "single" ? "mf-upgrade-plan-grid is-single" : "mf-upgrade-plan-grid"} role="radiogroup" aria-label={mode === "package" ? "套餐购买选项" : "按次购买选项"}>
+      <div className={mode === "single" ? "mf-upgrade-plan-grid is-single" : "mf-upgrade-plan-grid"} aria-label={mode === "package" ? "套餐购买选项" : "按次购买选项"}>
         {visiblePackages.map((item) => {
-          const selected = item.id === selectedId;
+          const busy = payState === "creating" || payState === "pending";
+          const mine = activePackage?.id === item.id;
           return (
-            <button
-              className={selected ? "mf-upgrade-plan is-selected" : "mf-upgrade-plan"}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => {
-                setSelectedId(item.id);
-                setMessage("");
-              }}
-              key={item.id}
-            >
+            <article className="mf-upgrade-plan" key={item.id}>
               <span className="mf-upgrade-plan-topline">
                 <span className="mf-upgrade-plan-name">{item.name}</span>
                 {item.badge ? <span className="mf-upgrade-plan-badge">{item.badge}</span> : null}
@@ -227,36 +217,24 @@ export default function UpgradeWorkspace() {
               <span className="mf-upgrade-plan-uses"><strong>{item.usesLabel}</strong></span>
               <span className="mf-upgrade-plan-unit">约 ¥{item.unitPrice} / 次</span>
               <span className="mf-upgrade-plan-description">{item.description}</span>
-              <span className="mf-upgrade-plan-check" aria-hidden="true">{selected ? "✓" : ""}</span>
-            </button>
+              {status === "authenticated" ? (
+                <button
+                  className="mf-primary-button mf-upgrade-plan-buy"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void startPayment(item)}
+                >
+                  {mine && payState === "creating" ? "正在创建订单…" : mine && payState === "pending" ? "等待支付…" : "立即购买"} <span aria-hidden="true">→</span>
+                </button>
+              ) : (
+                <Link className="mf-primary-button mf-upgrade-plan-buy" href="/login?next=%2Fhome%2Fupgrade&from=%2Fhome%2Fupgrade">
+                  立即购买 <span aria-hidden="true">→</span>
+                </Link>
+              )}
+            </article>
           );
         })}
       </div>
-
-      <section className="mf-upgrade-checkout" aria-label="已选套餐">
-        <div>
-          <span>已选择</span>
-          <strong>{selectedPackage.name} · {selectedPackage.usesLabel}</strong>
-          <small>¥{selectedPackage.price}，一次购买，不自动续费</small>
-        </div>
-        {status === "authenticated" ? (
-          <button
-            className="mf-primary-button"
-            type="button"
-            disabled={payState === "creating" || payState === "pending"}
-            onClick={() => void startPayment()}
-          >
-            {payState === "creating" ? "正在创建订单…" : payState === "pending" ? "等待支付…" : "继续购买"} <span aria-hidden="true">→</span>
-          </button>
-        ) : (
-          <Link
-            className="mf-primary-button"
-            href="/login?next=%2Fhome%2Fupgrade&from=%2Fhome%2Fupgrade"
-          >
-            登录后购买 <span aria-hidden="true">→</span>
-          </Link>
-        )}
-      </section>
 
       {checkout && payState !== "idle" ? (
         <section className="mf-upgrade-paypanel" aria-label="支付面板">
@@ -275,7 +253,7 @@ export default function UpgradeWorkspace() {
               </div>
               <div className="mf-upgrade-paypanel-copy">
                 <h2>使用支付宝扫码支付</h2>
-                <p>套餐：{selectedPackage.name} · {selectedPackage.usesLabel} · ¥{selectedPackage.price}</p>
+                <p>套餐：{activePackage?.name} · {activePackage?.usesLabel} · ¥{activePackage?.price}</p>
                 <p>支付完成后本页会自动刷新，次数实时到账。</p>
                 <a href={checkout.checkoutUrl} target="_blank" rel="noreferrer noopener">在浏览器中打开支付页面 →</a>
               </div>
