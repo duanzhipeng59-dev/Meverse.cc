@@ -95,3 +95,10 @@
 .grantCell button { padding: 3px 10px; border: 1px solid #7f294f; border-radius: 6px; background: transparent; color: #7f294f; font-size: 12px; cursor: pointer; }
 .grantCell button:hover:not(:disabled) { background: #7f294f; color: #fff; }
 .grantCell button:disabled { opacity: 0.5; cursor: default; }
+
+/* ===== 功能开关 ===== */
+.flagBar { display: flex; align-items: center; gap: 12px; }
+.flagToggle { padding: 9px 16px; border-radius: 999px; border: 1px solid #7f294f; background: #7f294f; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+.flagToggle:disabled { opacity: 0.5; cursor: default; }
+.flagOn { background: #7f294f; }
+.flagOff { background: #fff; color: #b3261e; border-color: #e3b7b3; }

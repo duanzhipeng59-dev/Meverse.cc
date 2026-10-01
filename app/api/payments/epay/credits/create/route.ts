@@ -1,9 +1,13 @@
 import { getSessionUser } from "../../../../auth/server";
+import { isUpgradesEnabled } from "../../../../../myfate-settings";
 import { jsonResponse } from "../../server";
 import { createCreditCheckout, isReportPackageId } from "../server";
 
 export async function POST(request: Request) {
   try {
+    if (!(await isUpgradesEnabled())) {
+      return jsonResponse({ error: "upgrades_disabled" }, { status: 403 });
+    }
     const body = (await request.json().catch(() => null)) as { packageId?: string } | null;
     const packageId = body?.packageId ?? "";
     if (!isReportPackageId(packageId)) {

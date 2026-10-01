@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import type { AdminCelebrity, AdminCelebritySummary } from "../../../api/admin/content/data";
 import UsersPanel from "./users-panel";
 import styles from "./studio.module.css";
@@ -56,6 +56,7 @@ function splitList(value: string) {
 export default function AdminContentStudio({ initialContent, adminEmail }: { initialContent: Content; adminEmail: string }) {
   const [content, setContent] = useState(initialContent);
   const [section, setSection] = useState<"content" | "users">("content");
+  const [upgradesEnabled, setUpgradesEnabled] = useState<boolean | null>(null);
   const [celebrityDraft, setCelebrityDraft] = useState<AdminCelebrity | null>(null);
   const [activeId, setActiveId] = useState("");
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -68,6 +69,31 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<RequiredField, string>>>({});
   const detailRequest = useRef(0);
   const savedDraft = useRef<AdminCelebrity | null>(null);
+
+  useEffect(() => {
+    void fetch("/api/admin/settings", { cache: "no-store" })
+      .then((response) => (response.ok ? (response.json() as Promise<{ upgradesEnabled?: boolean }>) : null))
+      .then((data) => { if (typeof data?.upgradesEnabled === "boolean") setUpgradesEnabled(data.upgradesEnabled); })
+      .catch(() => undefined);
+  }, []);
+
+  async function toggleUpgrades() {
+    if (upgradesEnabled === null || busy) return;
+    const next = !upgradesEnabled;
+    setUpgradesEnabled(next);
+    try {
+      const response = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ upgradesEnabled: next }),
+      });
+      if (!response.ok) throw new Error();
+      setNotice(next ? "订阅升级已开启" : "订阅升级已关闭，产品端立即生效");
+    } catch {
+      setUpgradesEnabled(!next);
+      setNotice("操作失败，请稍后重试");
+    }
+  }
 
   async function reload(message = "已同步到线上产品") {
     const latest = await api<Content>("/api/admin/content", { cache: "no-store" });
@@ -341,7 +367,18 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
     <main className={styles.page}>
       <header className={styles.header}>
         <div><span className={styles.brand}>M</span><div><p>MYFATE STUDIO</p><h1>明星内容控制台</h1></div></div>
-        <small>{adminEmail}</small>
+        <div className={styles.flagBar}>
+          <button
+            type="button"
+            className={`${styles.flagToggle} ${upgradesEnabled ? styles.flagOn : styles.flagOff}`}
+            disabled={upgradesEnabled === null}
+            onClick={() => void toggleUpgrades()}
+            title="关闭后，产品端订阅升级页停用、下单接口拒绝新订单"
+          >
+            订阅升级 · {upgradesEnabled === null ? "读取中" : upgradesEnabled ? "已开启" : "已关闭"}
+          </button>
+          <small>{adminEmail}</small>
+        </div>
       </header>
 
       {notice && <div className={styles.notice}>{notice}</div>}
