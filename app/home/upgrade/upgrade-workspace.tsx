@@ -26,9 +26,9 @@ const packages: readonly UpgradePackage[] = [
     name: "体验版",
     price: 89,
     uses: 3,
-    usesLabel: "3 次报告",
+    usesLabel: "3 次解读 + 30 次追问",
     unitPrice: "29.67",
-    description: "适合先体验几次解读分析",
+    description: "适合先体验几次 AI 解读",
   },
   {
     id: "explore",
@@ -36,9 +36,9 @@ const packages: readonly UpgradePackage[] = [
     name: "探索版",
     price: 239,
     uses: 10,
-    usesLabel: "10 次报告",
+    usesLabel: "10 次解读 + 100 次追问",
     unitPrice: "23.90",
-    description: "适合持续探索不同关系",
+    description: "适合持续解锁不同偶像的正缘",
     badge: "推荐",
   },
   {
@@ -47,20 +47,20 @@ const packages: readonly UpgradePackage[] = [
     name: "深度版",
     price: 499,
     uses: 30,
-    usesLabel: "30 次报告",
+    usesLabel: "30 次解读 + 300 次追问",
     unitPrice: "16.63",
-    description: "适合高频使用与长期探索",
+    description: "适合高频追问与长期追更",
     badge: "单次最省",
   },
   {
     id: "single",
     mode: "single",
-    name: "单次报告",
+    name: "单次解读",
     price: 50,
     uses: 1,
-    usesLabel: "1 次报告",
+    usesLabel: "1 次解读 + 10 次追问",
     unitPrice: "50.00",
-    description: "适合只想体验一次完整解读",
+    description: "适合只想体验一次",
   },
 ] as const;
 
@@ -182,8 +182,8 @@ export default function UpgradeWorkspace() {
       <header className="mf-upgrade-heading">
         <span className="mf-kicker">MYFATE PACKAGES</span>
         <h1>选择你的关系探索方式</h1>
-        <p>{mode === "package" ? "购买多次报告套餐，次数按需使用，合盘与个人解读通用。" : "单次购买一份报告，用完后可再次购买。"}</p>
-        {typeof balance === "number" ? <p className="mf-upgrade-balance">当前剩余报告额度：<strong>{balance}</strong> 次</p> : null}
+        <p>{mode === "package" ? "解读套餐按需使用，每 1 次解读附赠 10 次追问额度。" : "单次购买 1 次解读（含 10 次追问），用完可再次购买。"}</p>
+        {typeof balance === "number" ? <p className="mf-upgrade-balance">当前剩余解读额度：<strong>{balance}</strong> 次</p> : null}
       </header>
 
       <div className="mf-upgrade-tabs" role="tablist" aria-label="购买方式">
@@ -268,7 +268,7 @@ export default function UpgradeWorkspace() {
               <span>✓</span>
               <div>
                 <h2>支付成功，次数已到账</h2>
-                <p>当前剩余报告额度 <strong>{balance ?? "—"}</strong> 次，可以直接生成合盘或个人解读。</p>
+                <p>当前剩余解读额度 <strong>{balance ?? "—"}</strong> 次，可打开任意偶像的 AI 解读并继续追问。</p>
               </div>
             </div>
           ) : (
@@ -292,9 +292,9 @@ export default function UpgradeWorkspace() {
       <section className="mf-upgrade-includes">
         <span>每个套餐均包含</span>
         <div>
-          <p><i aria-hidden="true">✓</i> 明星合盘分析</p>
-          <p><i aria-hidden="true">✓</i> 个人八字解读</p>
-          <p><i aria-hidden="true">✓</i> 报告保存至个人账户</p>
+          <p><i aria-hidden="true">✓</i> 偶像正缘 AI 解读</p>
+          <p><i aria-hidden="true">✓</i> 每次 1 解读附赠 10 次追问</p>
+          <p><i aria-hidden="true">✓</i> 浏览记录云端保存</p>
         </div>
       </section>
     </div>
