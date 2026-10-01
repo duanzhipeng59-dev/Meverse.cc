@@ -180,9 +180,6 @@ export default function UpgradeWorkspace() {
   return (
     <div className="mf-upgrade-workspace">
       <header className="mf-upgrade-heading">
-        <span className="mf-kicker">MYFATE PACKAGES</span>
-        <h1>选择你的关系探索方式</h1>
-        <p>{mode === "package" ? "解读套餐按需使用，每 1 次解读附赠 10 次追问额度。" : "单次购买 1 次解读（含 10 次追问），用完可再次购买。"}</p>
         {typeof balance === "number" ? <p className="mf-upgrade-balance">当前剩余解读额度：<strong>{balance}</strong> 次</p> : null}
       </header>
 
