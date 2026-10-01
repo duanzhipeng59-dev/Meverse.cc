@@ -36,6 +36,7 @@ export type CelebrityVedicBirth = {
   lat: number;
   lon: number;
   tz: string;
+  gender: "male" | "female" | "other" | "unknown";
   cachedChartMd: string | null;
   cachedChartSummary: Record<string, unknown> | null;
 };
@@ -154,7 +155,7 @@ export async function getCelebrityReportPrompt(id: string): Promise<string | und
   }
 }
 
-const vedicSelection = "id,name,birth_date,birth_time,birth_place,birth_lat,birth_lon,birth_tz,vedic_chart";
+const vedicSelection = "id,name,birth_date,birth_time,birth_place,birth_lat,birth_lon,birth_tz,gender,vedic_chart";
 
 export async function getCelebrityVedicBirth(id: string): Promise<CelebrityVedicBirth | undefined> {
   noStore();
@@ -177,6 +178,7 @@ export async function getCelebrityVedicBirth(id: string): Promise<CelebrityVedic
     lat: row.birth_lat,
     lon: row.birth_lon,
     tz: row.birth_tz,
+    gender: (row as CelebrityRow & { gender?: "male" | "female" | "other" | "unknown" }).gender ?? "unknown",
     cachedChartMd: row.vedic_chart?.structuredMd ?? null,
     cachedChartSummary: row.vedic_chart?.summary ?? null,
   };

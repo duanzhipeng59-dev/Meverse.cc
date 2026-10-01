@@ -5295,3 +5295,50 @@ select:focus-visible {
 .mf-bz-save-status i { box-shadow: 0 0 0 3px rgb(58 138 89 / 15%); }
 
 .mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #f7f1e6, #efe5d2); border: 1px solid var(--bz-line); color: var(--bz-red); font: 700 44px/1 var(--font-serif-display); }
+
+/* ============ 明星正缘报告(八字)·深色报告版式 ============ */
+.mf-zr { display: grid; gap: 18px; padding: clamp(16px, 3vw, 32px); background: #100e16; border-radius: 18px; color: #eceaf2; }
+.mf-zr-topbar { display: flex; justify-content: space-between; align-items: center; color: #b9b3c9; font-size: 13px; letter-spacing: 1px; }
+.mf-zr-topbar .mf-back-link { color: #cfc8e0; }
+.mf-zr-hero { display: flex; gap: 24px; align-items: center; padding: 24px; border: 1px solid #262133; border-radius: 16px; background: linear-gradient(135deg, #1a1626, #14111d); }
+.mf-zr-hero img { flex-shrink: 0; width: 108px; height: 134px; object-fit: cover; border-radius: 12px; border: 1px solid #2c2540; }
+.mf-zr-kicker { color: #9b8fc6; font-size: 12px; letter-spacing: 2px; }
+.mf-zr-hero h1 { margin: 6px 0 4px; font-family: var(--font-serif-display); color: #f5f2fa; font-size: clamp(22px, 3vw, 30px); letter-spacing: 1px; }
+.mf-zr-hero p { margin: 0 0 6px; color: #b9b3c9; font-size: 14px; }
+.mf-zr-hero small { color: #776f8e; font-size: 12px; letter-spacing: 1px; }
+.mf-zr-pillars { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.mf-zr-pillar { display: grid; gap: 3px; text-align: center; padding: 7px 12px 8px; border: 1px solid #2c2540; border-radius: 10px; background: #191527; }
+.mf-zr-pillar small { color: #776f8e; font-size: 11px; }
+.mf-zr-pillar b { color: #e3d9f7; font-family: var(--font-serif-display); font-size: 16px; letter-spacing: 2px; }
+.mf-zr-card { background: #f6f3fa; color: #2b2536; border-radius: 18px; padding: 26px clamp(18px, 4vw, 34px) 30px; }
+.mf-zr-card-title { display: flex; align-items: center; gap: 8px; color: #6b4fd8; font-family: var(--font-serif-display); font-weight: 700; font-size: 19px; letter-spacing: 3px; padding-bottom: 12px; border-bottom: 1px solid #e3dcf2; }
+.mf-zr-lead, .mf-zr-p { font-size: 15px; line-height: 1.95; margin: 0 0 4px; }
+.mf-zr-lead { margin-top: 16px; }
+.mf-zr-lead b, .mf-zr-p b { color: #3a2f55; }
+.mf-zr-p { margin-top: 12px; }
+.mf-zr-xi { margin: 14px 0 4px 14px; display: grid; gap: 7px; }
+.mf-zr-xi p { font-size: 14.5px; line-height: 1.85; }
+.mf-zr-xi b { color: #6b4fd8; }
+.mf-zr-quote { margin: 16px 0; padding: 12px 16px 13px; border-left: 4px solid #d81b7a; background: #faf6fb; border-radius: 0 10px 10px 0; display: grid; gap: 6px; }
+.mf-zr-quote > b { color: #8a4fae; letter-spacing: 2px; font-size: 14.5px; }
+.mf-zr-quote p { font-size: 14.5px; line-height: 1.85; }
+.mf-zr-kv { display: grid; gap: 13px; margin-top: 18px; }
+.mf-zr-kv > div { display: grid; grid-template-columns: 104px 1fr; gap: 12px; align-items: baseline; }
+.mf-zr-kv dt { color: #6b4fd8; font-weight: 700; font-size: 14px; }
+.mf-zr-kv dd { margin: 0; font-size: 15px; line-height: 1.85; }
+.mf-zr-sub { display: flex; align-items: center; gap: 10px; margin: 24px 0 12px; color: #8a4fae; font-weight: 700; letter-spacing: 1px; font-size: 15px; }
+.mf-zr-sub::after { content: ""; flex: 1; height: 1px; background: #eadff5; }
+.mf-zr-list { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
+.mf-zr-list li { font-size: 14.5px; line-height: 1.8; }
+.mf-zr-list b { color: #c2185b; }
+.mf-zr-tag { display: inline-block; margin-left: 8px; padding: 1px 9px; border-radius: 999px; font-size: 11px; vertical-align: 2px; letter-spacing: 1px; }
+.mf-zr-tag.is-hot { background: #fde7f1; color: #c2185b; }
+.mf-zr-tag.is-warn { background: #fdeceb; color: #b3261e; }
+.mf-zr-tag.is-flat { background: #eef0fa; color: #5a6bbf; }
+.mf-zr-warn { color: #b3261e; font-weight: 700; }
+.mf-zr-note { color: #776f8e; font-size: 12.5px; text-align: center; line-height: 1.9; padding: 0 12px; }
+@media (max-width: 640px) {
+  .mf-zr-hero { flex-direction: column; text-align: center; }
+  .mf-zr-pillars { justify-content: center; }
+  .mf-zr-kv > div { grid-template-columns: 86px 1fr; }
+}
