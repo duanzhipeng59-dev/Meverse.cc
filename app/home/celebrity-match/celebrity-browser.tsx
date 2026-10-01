@@ -62,11 +62,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
   return (
     <div className="mf-bz-discover">
-      <header className="mf-bz-discover-head">
-        <h1>遇见让你心动的人<i className="mf-bz-sparkle" aria-hidden="true">✦</i></h1>
-        <p>选择一位偶像，生成你与 TA 的合盘报告</p>
-      </header>
-
       <div className="mf-bz-discover-toolbar">
         <div className="mf-bz-discover-tabs" role="tablist" aria-label="分类筛选">
           {TABS.map((item) => (
