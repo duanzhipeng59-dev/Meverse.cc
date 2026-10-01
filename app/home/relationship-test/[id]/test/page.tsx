@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildStarBaziHeadline, buildStarBaziReport } from "../../../../myfate-star-bazi-report";
-import { getCelebrityVedicBirth, getPublishedStar } from "../../../../myfate-stars-server";
+import { getCelebrityVedicBirth, getPublishedStar, recordStarReportView } from "../../../../myfate-stars-server";
 import { requirePageUser } from "../../../../require-page-user";
 
 export const dynamic = "force-dynamic";
@@ -23,9 +23,10 @@ function LeadText({ text }: { text: string }) {
 
 export default async function StarReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await requirePageUser(`/home/relationship-test/${id}/test`);
+  const user = await requirePageUser(`/home/relationship-test/${id}/test`);
   const star = await getPublishedStar(id);
   if (!star) notFound();
+  void recordStarReportView(user.id, id);
   const birth = await getCelebrityVedicBirth(id);
 
   const chart = buildBaziChart({

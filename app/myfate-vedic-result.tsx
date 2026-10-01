@@ -160,7 +160,7 @@ export default function VedicCompositeResultView({
         ) : null}
         <p className="mf-report-generation-note">本分析基于吠陀占星（Swiss Ephemeris / PyJHora，True Chitrapaksha Ayanamsa），由跨盘计算数据生成，仅供文化娱乐与关系观察参考，不构成现实关系预测。</p>
       </section>
-      <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/reports">返回我的收藏</Link>}</div>
+      <div className="mf-result-actions">{actions ?? <Link className="mf-secondary-button" href="/home/reports">返回浏览记录</Link>}</div>
     </div>
   );
 }

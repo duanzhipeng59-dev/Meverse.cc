@@ -14,8 +14,8 @@ const menuItems = [
   },
   {
     icon: "report",
-    label: "我的收藏",
-    description: "收藏你生成过的解读记录",
+    label: "浏览记录",
+    description: "看过的报告",
     href: "/home/reports",
   },
 ];

@@ -212,6 +212,55 @@ export async function getStarBaziBrief(id: string): Promise<{ headline: string; 
   }
 }
 
+// 浏览记录:打开明星正缘报告时原子计数。
+export async function recordStarReportView(userId: string, starId: string) {
+  try {
+    await createSupabaseAdminClient().rpc("record_star_report_view", { p_user_id: userId, p_star_id: starId });
+  } catch (error) {
+    console.error("Failed to record star report view", error);
+  }
+}
+
+export type StarReportView = {
+  starId: string;
+  name: string;
+  role: string;
+  portraitSrc: string;
+  viewCount: number;
+  lastViewedAt: string;
+};
+
+export async function getStarReportViews(userId: string): Promise<StarReportView[]> {
+  noStore();
+  try {
+    const { data, error } = await createSupabaseAdminClient()
+      .from("star_report_views")
+      .select("star_id, view_count, last_viewed_at, celebrity_profiles!inner(name, role, portrait_url, published)")
+      .eq("user_id", userId)
+      .order("last_viewed_at", { ascending: false })
+      .limit(60);
+    if (error) throw error;
+    return ((data ?? []) as unknown as Array<{
+      star_id: string;
+      view_count: number;
+      last_viewed_at: string;
+      celebrity_profiles: { name: string; role: string; portrait_url: string; published: boolean } | null;
+    }>)
+      .filter((row) => row.celebrity_profiles?.published)
+      .map((row) => ({
+        starId: row.star_id,
+        name: row.celebrity_profiles!.name,
+        role: row.celebrity_profiles!.role,
+        portraitSrc: row.celebrity_profiles!.portrait_url,
+        viewCount: row.view_count,
+        lastViewedAt: row.last_viewed_at,
+      }));
+  } catch (error) {
+    console.error("Failed to read star report views", error);
+    return [];
+  }
+}
+
 export async function incrementStarMatchCount(id: string) {
   const client = createSupabaseAdminClient();
   const { data, error } = await client.from("celebrity_profiles").select("match_count").eq("id", id).maybeSingle();

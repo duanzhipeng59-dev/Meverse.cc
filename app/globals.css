@@ -5361,3 +5361,19 @@ select:focus-visible {
 .mf-zr-ask-form input::placeholder { color: #a89fc0; }
 .mf-zr-ask-form button { height: 44px; padding: 0 22px; border-radius: 12px; border: none; background: #6b4fd8; color: #fbfaff; font-size: 15px; font-weight: 700; cursor: pointer; }
 .mf-zr-ask-form button:disabled { opacity: 0.45; cursor: default; }
+
+/* ============ 浏览记录页 ============ */
+.mf-hist { display: grid; gap: 26px; padding: clamp(18px, 4vw, 40px); background: var(--bz-paper); border-radius: 18px; }
+.mf-hist-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+.mf-hist-head .mf-kicker { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.2em; }
+.mf-hist-head h1 { margin: 8px 0 6px; font-family: var(--font-serif-display); font-size: clamp(26px, 3.4vw, 36px); color: var(--bz-ink); }
+.mf-hist-head p { margin: 0; color: var(--bz-muted); font-size: 14px; }
+.mf-hist-count { display: grid; justify-items: center; padding: 10px 22px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); }
+.mf-hist-count strong { font-family: var(--font-serif-display); font-size: 26px; color: var(--bz-red); }
+.mf-hist-count span { font-size: 12px; color: var(--bz-muted); }
+.mf-hist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+.mf-hist-meta { display: block; margin-top: 4px; color: var(--bz-muted); font-size: 11.5px; opacity: 0.9; }
+.mf-hist-empty { display: grid; justify-items: center; gap: 10px; padding: 64px 20px; border: 1px dashed var(--bz-line-strong); border-radius: 16px; text-align: center; }
+.mf-hist-empty span { font-size: 28px; color: var(--bz-red-bright); }
+.mf-hist-empty h2 { margin: 0; font-family: var(--font-serif-display); font-size: 22px; color: var(--bz-ink); }
+.mf-hist-empty p { margin: 0 0 10px; color: var(--bz-muted); font-size: 14px; }
