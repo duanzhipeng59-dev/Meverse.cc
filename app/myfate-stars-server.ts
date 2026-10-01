@@ -24,6 +24,7 @@ type CelebrityRow = {
   birth_lat?: number | null;
   birth_lon?: number | null;
   birth_tz?: string | null;
+  gender?: "male" | "female" | "other" | "unknown" | null;
   vedic_chart?: { structuredMd: string; summary: Record<string, unknown> } | null;
 };
 
@@ -178,7 +179,7 @@ export async function getCelebrityVedicBirth(id: string): Promise<CelebrityVedic
     lat: row.birth_lat,
     lon: row.birth_lon,
     tz: row.birth_tz,
-    gender: (row as CelebrityRow & { gender?: "male" | "female" | "other" | "unknown" }).gender ?? "unknown",
+    gender: row.gender ?? "unknown",
     cachedChartMd: row.vedic_chart?.structuredMd ?? null,
     cachedChartSummary: row.vedic_chart?.summary ?? null,
   };
