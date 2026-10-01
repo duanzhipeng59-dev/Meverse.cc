@@ -431,9 +431,27 @@ const PACE_NOTE: Record<string, string> = {
   身强: "势均力敌", 身弱: "彼此托举", 中和: "细水长流",
 };
 
-// 详情页按钮上方的 ~50 字八字简述。
+const PERSONALITY_SHORT: Record<string, string> = {
+  比劫: "主见强、讲义气，认定的路不轻易回头",
+  印星: "好学深思、外圆内方，心里自有一套秩序",
+  食伤: "表达欲与才华外放，最受不了被束缚",
+  财星: "务实笃定、目标感强，对认定的人很大方",
+  官杀: "自律有担当，压力之下反而越战越勇",
+};
+
+// 详情页按钮上方的 ~150 字正缘分析梗概。
 export function buildStarBaziBrief(chart: BaziChart): string {
   const report = buildStarBaziReport(chart);
   const { monthZhi, spouseEl, topGod, strength } = report.meta;
-  return `${report.dayMaster}（${GAN_WUXING[report.dayMaster]}）日主，生于${monthZhi}月，命局${strength}，${topGod}主导；配偶星属${spouseEl}，正缘多为${ELEMENT_TRAIT_SHORT[spouseEl]}之人，感情宜${PACE_NOTE[strength]}。`;
+  const dayZhi = chart.pillars[2].ganzhi[1];
+  const hideTrait = (HIDE_GOD_TRAIT[chart.pillars[2].hideShiShen[0]] ?? "").split("，")[0];
+  const best = [...report.love.romanceYears].sort((a, b) => b.probability - a.probability)[0];
+  const warnYear = report.love.romanceYears.find((y) => y.warn);
+  const window = report.love.marriageLuck.find((m) => m.tag === "婚恋窗口");
+  return [
+    `${report.dayMaster}${GAN_WUXING[report.dayMaster]}日主生于${monthZhi}月，命局${strength}、${topGod}主导：${PERSONALITY_SHORT[topGod]}。`,
+    `感情上配偶星属${spouseEl}、夫妻宫坐${dayZhi}，正缘多为${ELEMENT_TRAIT_SHORT[spouseEl]}${hideTrait ? `、${hideTrait}` : ""}之人，相处宜${PACE_NOTE[strength]}。`,
+    `未来十年缘分峰值在${best.year}年（${best.ganzhi}，${best.probability}%）${window ? `，${window.ganzhi}大运（${window.ageText}）是婚恋大窗口` : ""}。`,
+    warnYear ? `${warnYear.year}年冲夫妻宫，聚散变数偏大，重大感情决定宜缓。` : "婚恋盘面整体平稳，没有明显的刑冲信号。",
+  ].join("");
 }
