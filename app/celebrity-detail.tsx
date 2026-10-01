@@ -41,7 +41,7 @@ export default function CelebrityDetail({
             role="img"
             aria-label={`${star.name}的人物肖像`}
           />
-          <div className="mf-floating-note"><span>✦</span><strong>{star.matchCount}</strong><small>人已合盘</small></div>
+          <div className="mf-floating-note"><span>✦</span><strong>{star.matchCount}</strong><small>人已查看</small></div>
         </section>
 
         <section className="mf-detail-copy">
@@ -60,7 +60,7 @@ export default function CelebrityDetail({
             </AuthEntryLink>
           )}
           <p className="mf-detail-hint">点击即可查看由八字引擎实时生成的完整正缘分析报告</p>
-          <p className="mf-bazi-note">分析基于八字命理（四柱、十神、大运），出生时辰为正午近似；仅供文化娱乐参考。</p>
+          <p className="mf-bazi-note">分析基于八字（四柱、十神、大运），仅供文化娱乐</p>
         </section>
       </div>
 
