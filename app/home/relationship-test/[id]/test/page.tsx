@@ -97,8 +97,6 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
             </div>
           ))}
         </dl>
-        <p className="mf-zr-p"><LeadText text={report.love.family} /></p>
-        <p className="mf-zr-p"><LeadText text={report.love.stability} /></p>
 
         <h3 className="mf-zr-sub">近期感情流年</h3>
         <ul className="mf-zr-list">
