@@ -5292,7 +5292,7 @@ select:focus-visible {
 .mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #f7f1e6, #efe5d2); border: 1px solid var(--bz-line); color: var(--bz-red); font: 700 44px/1 var(--font-serif-display); }
 
 /* ============ 明星正缘报告(八字)·深色报告版式 ============ */
-.mf-zr { display: grid; gap: 18px; padding: clamp(16px, 3vw, 32px); background: #100e16; border-radius: 18px; color: #eceaf2; }
+.mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(16px, 3vw, 32px); background: #100e16; border-radius: 18px; color: #eceaf2; min-width: 0; }
 .mf-zr-topbar { display: flex; justify-content: space-between; align-items: center; color: #b9b3c9; font-size: 13px; letter-spacing: 1px; }
 .mf-zr-topbar .mf-back-link { color: #cfc8e0; }
 .mf-zr-hero { display: flex; gap: 24px; align-items: center; padding: 24px; border: 1px solid #262133; border-radius: 16px; background: linear-gradient(135deg, #1a1626, #14111d); }
