@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
 
-export default function WorkspaceProfile() {
+export default function WorkspaceProfile({ upgradesEnabled = true }: { upgradesEnabled?: boolean }) {
   const { status, email, markSignedOut } = useAuth();
   const router = useRouter();
   const [credits, setCredits] = useState<{ balance: number | null; asksRemaining: number | null }>({ balance: null, asksRemaining: null });
@@ -45,7 +45,7 @@ export default function WorkspaceProfile() {
         <p>管理你的账号信息</p>
       </header>
 
-      {status === "authenticated" ? (
+      {status === "authenticated" && upgradesEnabled ? (
         <section className="mf-profile-stats" aria-label="额度统计">
           <div>
             <i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="3.5" width="14" height="17" rx="2" /><path d="M9 3.5v3M15 3.5v3M5 9.5h14M9.5 13.5h5M9.5 16.5h5" /></svg></i>

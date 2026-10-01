@@ -212,6 +212,21 @@ export async function getStarBaziBrief(id: string): Promise<{ headline: string; 
   }
 }
 
+// 是否已解锁过该明星的报告(付费模式下重看免费)。
+export async function hasStarReportView(userId: string, starId: string): Promise<boolean> {
+  try {
+    const { data } = await createSupabaseAdminClient()
+      .from("star_report_views")
+      .select("star_id")
+      .eq("user_id", userId)
+      .eq("star_id", starId)
+      .maybeSingle();
+    return Boolean(data);
+  } catch {
+    return false;
+  }
+}
+
 // 浏览记录:打开明星正缘报告时原子计数。
 export async function recordStarReportView(userId: string, starId: string) {
   try {

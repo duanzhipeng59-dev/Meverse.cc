@@ -68,7 +68,7 @@ function LogoutIcon() {
   );
 }
 
-export default function WorkspaceShell({ children }: { children: ReactNode }) {
+export default function WorkspaceShell({ children, upgradesEnabled = true }: { children: ReactNode; upgradesEnabled?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const { status, markSignedOut } = useAuth();
@@ -156,6 +156,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="mf-workspace-account" aria-label="账户选项">
+          {upgradesEnabled ? (
           <Link
             className={pathname === "/home/upgrade" ? "active" : undefined}
             href="/home/upgrade"
@@ -164,6 +165,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
             <span className="mf-workspace-nav-icon"><UpgradeIcon /></span>
             <span>订阅升级</span>
           </Link>
+          ) : null}
           <Link
             className={pathname === "/home/profile" ? "active" : undefined}
             href="/home/profile"
@@ -237,6 +239,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="mf-mobile-menu-account">
+            {upgradesEnabled ? (
             <Link
               className={pathname === "/home/upgrade" ? "active" : undefined}
               href="/home/upgrade"
@@ -246,6 +249,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
               <span className="mf-workspace-nav-icon"><UpgradeIcon /></span>
               <span>订阅升级</span>
             </Link>
+            ) : null}
             <Link
               className={pathname === "/home/profile" ? "active" : undefined}
               href="/home/profile"

@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildStarBaziHeadline, buildStarBaziReport } from "../../../../myfate-star-bazi-report";
-import { getCelebrityVedicBirth, getPublishedStar, recordStarReportView } from "../../../../myfate-stars-server";
+import { getCelebrityVedicBirth, getPublishedStar, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
+import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
+import { isUpgradesEnabled } from "../../../../myfate-settings";
 import { requirePageUser } from "../../../../require-page-user";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +28,13 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
   const user = await requirePageUser(`/home/relationship-test/${id}/test`);
   const star = await getPublishedStar(id);
   if (!star) notFound();
+
+  // 付费模式:首次解锁一位偶像的报告消耗 1 次解读,已解锁的重看免费;免费模式直接放行
+  const metered = await isUpgradesEnabled();
+  if (metered && !(await hasStarReportView(user.id, id))) {
+    if ((await getReportCredits(user.id)) <= 0) redirect("/home/upgrade");
+    if ((await consumeReportCredit(user.id)) < 0) redirect("/home/upgrade");
+  }
   void recordStarReportView(user.id, id);
   const birth = await getCelebrityVedicBirth(id);
 
@@ -112,7 +121,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
         </ul>
       </section>
 
-      <StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} />
+      <StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} />
 
       <p className="mf-zr-note">
         分析基于八字（四柱、十神、大运），仅供文化娱乐

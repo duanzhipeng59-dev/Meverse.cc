@@ -3,6 +3,7 @@ import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { buildStarBaziReport } from "../../../myfate-star-bazi-report";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
 import { createSupabaseAdminClient } from "../../auth/server";
+import { isUpgradesEnabled } from "../../../myfate-settings";
 import { generateChatText, type ChatMessage } from "../personalize/model-provider";
 import { requireReportUser } from "../reports/server";
 
@@ -40,12 +41,15 @@ export async function POST(request: Request) {
   const session = await requireReportUser(request);
   if (!session) return Response.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
-  // 追问额度 = 累计解读次数 × 10 − 已用追问,不足则 402 引导购买
+  // 追问额度 = 累计解读次数 × 10 − 已用追问,不足则 402 引导购买;免费模式跳过计量
+  const metered = await isUpgradesEnabled();
   const admin = createSupabaseAdminClient();
-  const { data: askQuota } = await admin
-    .rpc("remaining_ask_credits", { p_user_id: session.user.id });
-  if (typeof askQuota !== "number" || askQuota <= 0) {
-    return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+  if (metered) {
+    const { data: askQuota } = await admin
+      .rpc("remaining_ask_credits", { p_user_id: session.user.id });
+    if (typeof askQuota !== "number" || askQuota <= 0) {
+      return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+    }
   }
 
   const body = await request.json().catch(() => null);
@@ -77,13 +81,15 @@ export async function POST(request: Request) {
       temperature: 0.8,
       maxTokens: 1200,
     });
-    // 生成成功后扣 1 次追问(并发竞态下的少量超发可接受)
+    // 生成成功后扣 1 次追问(并发竞态下的少量超发可接受);免费模式不扣
     let asksRemaining: number | null = null;
-    try {
-      const consumed = await admin.rpc("consume_ask_credit", { p_user_id: session.user.id });
-      if (typeof consumed.data === "number") asksRemaining = consumed.data;
-    } catch (consumeError) {
-      console.error("consume_ask_credit failed", consumeError);
+    if (metered) {
+      try {
+        const consumed = await admin.rpc("consume_ask_credit", { p_user_id: session.user.id });
+        if (typeof consumed.data === "number") asksRemaining = consumed.data;
+      } catch (consumeError) {
+        console.error("consume_ask_credit failed", consumeError);
+      }
     }
     return Response.json({ answer: generation.content, asksRemaining });
   } catch (error) {
