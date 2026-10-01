@@ -264,6 +264,15 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
       : "婚姻稳定性 整体婚恋盘面平稳，没有明显的刑冲信号，属于细水长流的类型；真正要防的不是风浪，而是平淡期的心猿意马。";
 
   // ——— 一生婚恋大运 ———
+  const dayunFlatTexts = [
+    "这一步感情平稳，重心更多在事业与自我建设。",
+    "此运感情戏份不多，缘分在别处悄悄生长，不急。",
+    "大运未直接引动感情宫位，关系按自己的节奏走，稳定大于惊喜。",
+  ];
+  const dayunChongTexts = [
+    "大运冲动夫妻宫，感情易有波折、异地或聚少离多的考验，重大决定宜缓。",
+    "此运冲感情宫位，关系的弹性被反复测试——能一起扛过去的，大概率是正缘。",
+  ];
   const marriageLuck = chart.daYun.steps
     .filter((step: BaziDaYunStep) => step.startAge >= 14 && step.startAge <= 60)
     .map((step: BaziDaYunStep) => {
@@ -273,8 +282,9 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
       const hasPeach = step.ganzhi[1] === taoHuaZhi;
       const heGong = LIU_HE[step.ganzhi[1]] === dayZhi;
       const chongGong = CHONG[step.ganzhi[1]] === dayZhi;
+      const seed = step.startYear + step.startAge;
       let tag = "平稳期";
-      let text = "这一步感情平稳，重心更多在事业与自我建设。";
+      let text = dayunFlatTexts[seed % dayunFlatTexts.length];
       if (hasSpouse && hasPeach) {
         tag = "婚恋窗口";
         text = "财星与桃花齐动，是全局里最容易定下来的婚恋大窗口。";
@@ -289,17 +299,82 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
         text = "大运与夫妻宫相合，关系容易在这一步走向稳定。";
       } else if (chongGong) {
         tag = "动荡期";
-        text = "大运冲动夫妻宫，感情易有波折、异地或聚少离多的考验，重大决定宜缓。";
+        text = dayunChongTexts[seed % dayunChongTexts.length];
       }
       return { ganzhi: step.ganzhi, ageText: `${step.startAge}-${step.endAge}岁`, text, tag };
     });
 
-  // ——— 近期感情流年(未来10年) ———
+  // ——— 近期感情流年(未来10年):天干十神定主题,信号叠加定文案 ———
+  const warnTexts: ((branchEl: string, branchRole: string) => string)[] = [
+    (el, role) => `流年冲夫妻宫，${el}气（${role}）直撞感情位：聚少离多、旧事重提或外来干扰都可能出现，重大承诺宜缓。`,
+    (el) => `冲动夫妻宫，${el}气撞入，关系里的变量被放大，容易因距离或旁人意见起波折；这一年先稳住自己，再做决定。`,
+    () => "冲夫妻宫之年，感情如走窄桥，宜守不宜攻——把想说的说清楚，但别急着要答案。",
+    () => "流年冲入感情宫位，波动难免：可能忽冷忽热、也可能心浮气躁，给彼此多一点缓冲期。",
+  ];
+  const comboTexts = [
+    "财星桃花叠动，是未来十年里缘分浓度最高的年份，遇到的人又心动又靠谱。",
+    "财星与桃花齐发，感情大年：脱单、公开、定终身都占天时。",
+  ];
+  const spouseTexts = [
+    "财星流年，容易遇到条件契合、能落到实处的人，桃花质量偏高。",
+    "财星当值，异性缘与现实条件都在线，是适合认真表态的一年。",
+    "财星引动，感情容易「来真的」——确认关系、见家长这类落地动作都合适。",
+    "财星照命，感情从心动走向落地的一年，务实的选择会带来安全感。",
+    "财星通关，社交与现实两条线都有机会，遇到的人经得起日常检验。",
+  ];
+  const peachTexts = [
+    "桃花流年，魅力值拉满，社交场上容易被看见，人缘先于爱情到来。",
+    "桃花入命，这一年不缺心动，缺的是筛选——新鲜感面前保持清醒。",
+    "桃花当值，观众缘异性缘齐涨，舞台和聚会都是缘分入口。",
+  ];
+  const heGongTexts = [
+    "流年合入夫妻宫，关系升温、名分落地都顺，适合确定关系。",
+    "与夫妻宫相合，感情稳定度上扬，谈婚论嫁的事这一年好推进。",
+    "合入感情宫位，遇到的人自带「定下来」的气质，值得认真对待。",
+  ];
+  const ganHeTexts = [
+    "流年与日主相合，自己先动心的一年，心动归心动，节奏别乱。",
+    "天干合日主，情绪容易被牵动、容易上头；确认过细节再投入。",
+  ];
+  const roleTheme: Record<string, string[]> = {
+    比劫: [
+      "比劫流年，朋友与热闹变多，感情多从熟人圈萌芽，但要防「被截胡」。",
+      "比劫当值，自我意识强，容易因小事较劲；感情上退半步反而更顺。",
+      "比劫之年，聚会多、开销也大，选人比花钱更重要。",
+    ],
+    印星: [
+      "印星流年，心境偏静，适合沉淀与修复，旧人旧事有回头的迹象。",
+      "印星主滋养，贵人多为长辈型，介绍与相亲的质量好过自由邂逅。",
+      "印星当值，先把自己照顾好，缘分会在状态最好的时候靠近。",
+    ],
+    食伤: [
+      "食伤流年，表达欲和魅力一起上扬，多露面、多表达，缘分来得比想象中快。",
+      "食伤泄秀，状态轻盈有趣，容易因为作品或爱好被人注意到。",
+      "食伤主创意与社交，这一年桃花带着欣赏而来，不妨主动一点。",
+    ],
+    官杀: [
+      "官杀流年，事业与规矩占用精力，感情节奏偏慢，但来得多半是「正经人」。",
+      "官杀当值，遇到的人偏成熟稳重，进展不快，却更接近能定下来的类型。",
+      "官杀主责任与名分，适合把暧昧摊开谈，拖着反而彼此消耗。",
+    ],
+  };
+  const roleStemScore: Record<string, number> = { 财星: 10, 食伤: 7, 官杀: 5, 印星: 2, 比劫: -3 };
+  const roleBranchScore: Record<string, number> = { 财星: 8, 食伤: 4, 官杀: 3, 印星: 1, 比劫: -2 };
+
+  // 同一明星内,同类信号的年份从文案池不同位置轮转,避免撞句
+  const themeCursor: Record<string, number> = {};
+  const cursor = (key: string) => {
+    themeCursor[key] = (themeCursor[key] ?? 0) + 1;
+    return themeCursor[key] - 1;
+  };
+
   const romanceYears = [];
   for (let year = currentYear; year < currentYear + 10; year += 1) {
     const gz = yearGanZhi(year);
     const stemEl = GAN_WUXING[gz[0]];
     const branchEl = ZHI_WUXING[gz[1]];
+    const stemRole = roleOfElement(stemEl, dayMaster);
+    const branchRole = roleOfElement(branchEl, dayMaster);
     const hasSpouse = stemEl === spouseEl || branchEl === spouseEl;
     const hasPeach = gz[1] === taoHuaZhi;
     const heGong = LIU_HE[gz[1]] === dayZhi;
@@ -307,30 +382,32 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
     const heDayMaster = GAN_HE[gz[0]] === dayMaster;
     const banHe = SAN_HE[dayZhi].includes(gz[1]) && gz[1] !== dayZhi;
 
-    let score = 28;
-    if (hasSpouse) score += 18;
-    if (hasPeach) score += 15;
-    if (heGong) score += 14;
-    if (heDayMaster) score += 10;
-    if (banHe) score += 8;
-    if (chongGong) score -= 18;
-    const probability = Math.max(15, Math.min(78, Math.round(score)));
+    let score = 30 + roleStemScore[stemRole] + roleBranchScore[branchRole];
+    if (hasPeach) score += 12;
+    if (heGong) score += 12;
+    if (banHe) score += 6;
+    if (heDayMaster) score += 8;
+    if (chongGong) score -= 22;
+    const probability = Math.max(15, Math.min(85, Math.round(score)));
 
-    let text = "平流年，感情随缘，宜把重心放在自己身上。";
+    const pick = (key: string, list: string[]) => list[cursor(key) % list.length];
+    let text: string;
     let warn = false;
     if (chongGong) {
-      text = "流年冲夫妻宫，聚散变数大，不宜仓促做重大承诺。";
+      text = warnTexts[cursor("warn") % warnTexts.length](branchEl, branchRole);
       warn = true;
     } else if (hasSpouse && hasPeach) {
-      text = "财星桃花叠动，是未来十年里缘分浓度最高的年份。";
+      text = pick("combo", comboTexts);
     } else if (hasSpouse) {
-      text = "财星流年，容易遇到条件契合、能落到实处的人。";
+      text = pick("spouse", spouseTexts);
     } else if (hasPeach) {
-      text = "桃花流年，魅力值拉满，社交场上容易被看见。";
+      text = pick("peach", peachTexts);
     } else if (heGong) {
-      text = "流年合入夫妻宫，关系升温，适合确定名分。";
+      text = pick("hegong", heGongTexts);
     } else if (heDayMaster) {
-      text = "流年与日主相合，自己先动心的一年。";
+      text = pick("ganhe", ganHeTexts);
+    } else {
+      text = pick(stemRole, roleTheme[stemRole] ?? ["流年平稳，感情随缘，宜把重心放在自己身上。"]);
     }
     romanceYears.push({ year, ganzhi: gz, probability, text, warn });
   }
