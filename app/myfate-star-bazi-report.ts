@@ -462,6 +462,14 @@ export function formatStarBaziReport(report: StarBaziReport): string {
   return lines.join("\n");
 }
 
+// 详情页标题下的一句命理印象(~40字)。
+export function buildStarBaziHeadline(chart: BaziChart): string {
+  const report = buildStarBaziReport(chart);
+  const { monthZhi, spouseEl, topGod, strength } = report.meta;
+  const hideTrait = (HIDE_GOD_TRAIT[chart.pillars[2].hideShiShen[0]] ?? "").split("，")[0];
+  return `${report.dayMaster}${GAN_WUXING[report.dayMaster]}日主生于${monthZhi}月，命局${strength}、${topGod}主导——正缘是${ELEMENT_TRAIT_SHORT[spouseEl]}${hideTrait ? `、${hideTrait}` : ""}之人`;
+}
+
 // 详情页按钮上方的 ~150 字正缘分析梗概。
 export function buildStarBaziBrief(chart: BaziChart): string {
   const report = buildStarBaziReport(chart);

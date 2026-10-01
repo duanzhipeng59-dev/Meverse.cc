@@ -19,9 +19,9 @@ export default async function RelationshipTargetPage({ params }: { params: Promi
   }
   const [star, allStars] = await Promise.all([getPublishedStar(id), getPublishedStars()]);
   if (!star) notFound();
-  const [others, baziBrief] = await Promise.all([
+  const [others, bazi] = await Promise.all([
     Promise.resolve(allStars.filter(item => item.id !== star.id).slice(0, 8)), // legacy star view
     getStarBaziBrief(id),
   ]);
-  return <CelebrityDetail star={star} backHref="/home" workspace others={others} baziBrief={baziBrief} />;
+  return <CelebrityDetail star={star} backHref="/home" workspace others={others} baziBrief={bazi.brief} baziHeadline={bazi.headline} />;
 }

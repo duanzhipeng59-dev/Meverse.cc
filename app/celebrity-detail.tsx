@@ -9,12 +9,14 @@ export default function CelebrityDetail({
   workspace = false,
   others = [],
   baziBrief = "",
+  baziHeadline = "",
 }: {
   star: StarProfile;
   backHref: string;
   workspace?: boolean;
   others?: StarProfile[];
   baziBrief?: string;
+  baziHeadline?: string;
 }) {
   return (
     <div className={workspace ? "mf-workspace-detail" : "mf-page mf-detail-page"}>
@@ -47,7 +49,7 @@ export default function CelebrityDetail({
         <section className="mf-detail-copy">
           <span className="mf-kicker">{star.role}</span>
           <h1>{star.name}</h1>
-          <p className="mf-detail-tagline">“{star.tagline}”</p>
+          {baziHeadline ? <p className="mf-detail-tagline">{baziHeadline}</p> : <p className="mf-detail-tagline">“{star.tagline}”</p>}
           <p className="mf-profile-basis">出生日期 {star.birthDate}</p>
           <div className="mf-detail-description">
             <p>{baziBrief || star.description}</p>

@@ -1,7 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { createSupabaseAdminClient } from "./api/auth/server";
 import { buildBaziChart } from "./myfate-bazi-engine";
-import { buildStarBaziBrief } from "./myfate-star-bazi-report";
+import { buildStarBaziBrief, buildStarBaziHeadline } from "./myfate-star-bazi-report";
 import { createDefaultCelebrityReportPrompt, getStar, stars, type StarProfile } from "./myfate-data";
 
 type CelebrityRow = {
@@ -194,21 +194,21 @@ export async function cacheCelebrityVedicChart(id: string, structuredMd: string,
     .eq("id", id);
 }
 
-// 详情页八字简述(~50字):按出生资料实时排盘生成,数据缺失时返回空串。
-export async function getStarBaziBrief(id: string): Promise<string> {
+// 详情页八字文案:标题下的一句命理印象 + 按钮上方的梗概,按出生资料实时排盘生成。
+export async function getStarBaziBrief(id: string): Promise<{ headline: string; brief: string }> {
   try {
     const birth = await getCelebrityVedicBirth(id);
-    if (!birth) return "";
+    if (!birth) return { headline: "", brief: "" };
     const chart = buildBaziChart({
       birthDate: birth.birthDate,
       birthTime: birth.birthTime,
       gender: birth.gender === "female" ? "female" : "male",
       city: { id: birth.starId, name: birth.birthPlace || "首尔", lat: birth.lat, lon: birth.lon, tz: birth.tz },
     });
-    return buildStarBaziBrief(chart);
+    return { headline: buildStarBaziHeadline(chart), brief: buildStarBaziBrief(chart) };
   } catch (error) {
     console.error("Failed to build star bazi brief", error);
-    return "";
+    return { headline: "", brief: "" };
   }
 }
 
