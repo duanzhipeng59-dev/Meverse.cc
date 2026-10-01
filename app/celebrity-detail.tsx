@@ -58,7 +58,7 @@ export default function CelebrityDetail({
             <ReportAwareEntry starId={star.id} />
           ) : (
             <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
-              查看他的正缘分析报告 <span>→</span>
+              AI解读 <span>→</span>
             </AuthEntryLink>
           )}
           <p className="mf-detail-hint">点击即可查看由八字引擎实时生成的完整正缘分析报告</p>
