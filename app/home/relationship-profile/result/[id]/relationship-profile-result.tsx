@@ -99,7 +99,7 @@ export default function RelationshipProfileResult({ reportId }: { reportId: stri
         </section>
         <div className="mf-result-actions">
           <Link className="mf-primary-button" href="/home/relationship-profile/test">重新测试</Link>
-          <Link className="mf-secondary-button" href="/home/reports">查看我的报告</Link>
+          <Link className="mf-secondary-button" href="/home/reports">查看我的收藏</Link>
         </div>
         <p className="mf-disclaimer">结果仅用于自我观察与娱乐，不构成心理诊断或专业建议。</p>
       </div>

@@ -132,7 +132,7 @@ export default function ReportsWorkspace() {
     <div className="mf-reports-workspace">
       <header className="mf-reports-heading">
         <div>
-          <span className="mf-kicker">我的报告</span>
+          <span className="mf-kicker">我的收藏</span>
           <h1>每一种关系，都有自己的位置</h1>
           <p>这里保存你完成过的明星合盘分析与历史画像，每次合盘都会形成一份独立记录。</p>
         </div>

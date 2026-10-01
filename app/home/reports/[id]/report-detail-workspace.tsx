@@ -54,7 +54,7 @@ export default function ReportDetailWorkspace({
     return (
       <div className="mf-report-detail-state">
         <span>✦</span><h1>没有找到这份报告</h1><p>它可能已被清除，或保存在另一台设备上。</p>
-        <Link className="mf-primary-button" href="/home/reports">返回我的报告</Link>
+        <Link className="mf-primary-button" href="/home/reports">返回我的收藏</Link>
       </div>
     );
   }
@@ -68,7 +68,7 @@ export default function ReportDetailWorkspace({
     portraitSrc: report.starPortrait,
   };
   const backHref = section === "personal-reading" ? "/home/personal-reading" : section === "relationship-test" || fromCelebrityWorkspace ? "/home/relationship-test" : "/home/reports";
-  const backLabel = section === "personal-reading" ? "返回个人解读" : section === "relationship-test" || fromCelebrityWorkspace ? "返回明星合盘工作台" : "返回我的报告";
+  const backLabel = section === "personal-reading" ? "返回个人解读" : section === "relationship-test" || fromCelebrityWorkspace ? "返回明星合盘工作台" : "返回我的收藏";
   const retestHref = report.starId === "personal-reading" ? "/home/personal-reading" : `/home/relationship-test/${report.starId}/test?restart=1`;
   const continueTestHref = report.starId === "personal-reading" ? `/home/personal-reading/${report.id}` : `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`;
 
