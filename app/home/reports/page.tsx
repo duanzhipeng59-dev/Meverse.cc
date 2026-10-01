@@ -27,7 +27,7 @@ export default async function ReportsPage() {
       <header className="mf-hist-head">
         <div>
           <span className="mf-kicker">浏览记录</span>
-          <h1>看过的报告</h1>
+          <h1>已解锁报告</h1>
           <p>自动记录你打开过的明星正缘报告，按最近浏览排序。</p>
         </div>
         {views.length ? (
