@@ -5377,3 +5377,6 @@ select:focus-visible {
 .mf-hist-empty span { font-size: 28px; color: var(--bz-red-bright); }
 .mf-hist-empty h2 { margin: 0; font-family: var(--font-serif-display); font-size: 22px; color: var(--bz-ink); }
 .mf-hist-empty p { margin: 0 0 10px; color: var(--bz-muted); font-size: 14px; }
+
+/* 首页 hero 的主 CTA */
+.mf-home-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; width: auto; }

@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { getHomepageStars } from "./myfate-stars-server";
-import HomeProfileEntry from "./home-profile-entry";
 import AuthEntryLink from "./auth-entry-link";
 
 export default async function MyfateHome() {
   const stars = await getHomepageStars();
-  const previewRoles = ["灵魂知己", "搭档", "姐姐", "玩伴", "挚友", "恋人"];
   const previewOrbits = [
     { radius: "20%", angle: "-90deg", counterAngle: "90deg", duration: "48s", size: "56px", mobileSize: "48px" },
     { radius: "20%", angle: "30deg", counterAngle: "-30deg", duration: "48s", size: "52px", mobileSize: "46px" },
@@ -32,16 +30,16 @@ export default async function MyfateHome() {
       <main>
         <section className="mf-hero mf-home-hero">
           <div className="mf-hero-copy">
-            <div className="mf-home-eyebrow"><span>✦</span> 个人命理探索</div>
-            <h1><span>输入出生信息，</span><em>看见你与 TA 的星盘结构</em></h1>
+            <div className="mf-home-eyebrow"><span>✦</span> 明星正缘解读</div>
+            <h1><span>每一位偶像，</span><em>都有一份正缘分析</em></h1>
             <p>
-              输入你的出生信息，生成属于你的八字命盘与八大板块个人解读。
+              基于八字命理为 TA 排盘：人生画像、配偶特征、婚恋大运、感情流年，一页看懂 TA 的正缘模样，还能继续追问细节。
             </p>
-            <HomeProfileEntry />
+            <AuthEntryLink className="mf-bz-btn mf-home-cta" href="/home/relationship-test">开始解读 <span aria-hidden="true">→</span></AuthEntryLink>
           </div>
 
           <div className="mf-hero-visual">
-            <div className="mf-home-fate-map" aria-label="关系身份图谱示例">
+            <div className="mf-home-fate-map" aria-label="明星正缘解读示例">
               <div className="mf-home-fate-map-stage">
                 <i className="mf-home-map-ring near" aria-hidden="true" />
                 <i className="mf-home-map-ring middle" aria-hidden="true" />
@@ -67,7 +65,6 @@ export default async function MyfateHome() {
                         style={{ backgroundImage: `url("${star.portraitSrc}")` }}
                       />
                       <strong>{star.name}</strong>
-                      <small>{previewRoles[index]}</small>
                     </div>
                   </div>
                 ))}
@@ -79,10 +76,10 @@ export default async function MyfateHome() {
         <section className="mf-stars-section" id="stars">
           <div className="mf-section-heading">
             <div>
-              <span className="mf-kicker">解读对象预览</span>
+              <span className="mf-kicker">正缘报告预览</span>
               <h2>这一刻，你想了解谁？</h2>
             </div>
-            <p>进入工作台后即可生成你的个人解读报告。</p>
+            <p>60 位偶像的正缘分析报告已就绪，登录即可打开。</p>
           </div>
 
           <div className="mf-star-grid">
@@ -98,7 +95,7 @@ export default async function MyfateHome() {
                   </div>
                 </div>
                 <div className="mf-star-card-bottom">
-                  <span>{star.tagline}</span>
+                  <span>{star.role}</span>
                 </div>
               </article>
             ))}
@@ -107,19 +104,19 @@ export default async function MyfateHome() {
 
         <section className="mf-how" id="how-it-works">
           <div className="mf-section-heading">
-            <div><span className="mf-kicker">解读说明</span><h2>从填写信息，到看见你的命盘结构</h2></div>
+            <div><span className="mf-kicker">解读说明</span><h2>从选择偶像，到看见 TA 的正缘</h2></div>
           </div>
           <div className="mf-how-grid">
-            <article><span>01</span><h3>填写基础资料</h3><p>留下昵称与出生信息（日期、时间、城市），资料会自动保存在当前设备，后续无需重复填写。</p></article>
-            <article><span>02</span><h3>确认出生信息</h3><p>登录后进入个人解读，确认你的出生信息（日期、时间、地点）。</p></article>
-            <article><span>03</span><h3>查看解读报告</h3><p>系统按真太阳时排盘，呈现八字、五行、大运与八大板块解读。</p></article>
+            <article><span>01</span><h3>选择 TA</h3><p>在明星解读中按 80后 / 90后 / 00后 筛选或直接搜索名字，找到你关心的那位偶像。</p></article>
+            <article><span>02</span><h3>打开正缘报告</h3><p>系统按 TA 的公开出生资料排盘，呈现人生画像、配偶特征、婚恋大运与感情流年。</p></article>
+            <article><span>03</span><h3>继续追问</h3><p>报告下方可以直接提问，解读会基于 TA 的盘面继续展开，越问越细。</p></article>
           </div>
         </section>
       </main>
 
       <footer className="mf-footer">
         <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
-        <p>分析内容基于传统文化典籍与固定规则生成，仅供娱乐与自我观察参考，不构成科学结论、现实关系判断或专业建议。</p>
+        <p>分析内容基于八字命理（四柱、十神、大运）生成，出生时辰为正午近似，仅供文化娱乐参考，不构成科学结论、现实关系判断或专业建议。</p>
       </footer>
     </div>
   );
