@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
-import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
+import { buildStarBaziHeadline, buildStarBaziReport } from "../../../../myfate-star-bazi-report";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../../myfate-stars-server";
 import { requirePageUser } from "../../../../require-page-user";
 
@@ -49,6 +49,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
     },
   });
   const report = buildStarBaziReport(chart);
+  const headline = buildStarBaziHeadline(chart);
 
   return (
     <div className="mf-zr">
@@ -62,8 +63,8 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
         <div>
           <span className="mf-zr-kicker">{star.role}</span>
           <h1>{star.name} 的正缘分析</h1>
-          <p>“{star.tagline}”</p>
-          <small>BORN · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {star.matchCount} 人已解读</small>
+          <p>{headline || `“${star.tagline}”`}</p>
+          <small>BORN · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {star.matchCount} 人已查看</small>
           <div className="mf-zr-pillars">
             {report.pillars.map((pillar) => (
               <span className="mf-zr-pillar" key={pillar.label}>
@@ -132,7 +133,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
       <StarAskPanel starId={id} starName={star.name} suggestions={askSuggestions(id)} />
 
       <p className="mf-zr-note">
-        本报告由八字命理引擎根据公开出生资料自动生成；出生时辰为公开资料所限采用正午近似，年柱、月柱、日柱可靠，时柱及大运细节仅供参考。内容仅供娱乐。
+        分析基于八字（四柱、十神、大运），仅供文化娱乐
       </p>
     </div>
   );
