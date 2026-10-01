@@ -8,19 +8,11 @@ import { requirePageUser } from "../../../../require-page-user";
 
 export const dynamic = "force-dynamic";
 
-const ASK_POOL = [
+const ASK_SUGGESTIONS = [
   "他的正缘大概什么时候出现？",
-  "他的理想型具体是什么样子？",
-  "和他谈恋爱是什么感觉？",
-  "怎么才能吸引到他？",
-  "他在感情里最怕什么？",
-  "他结婚后会是什么样？",
+  "什么属相和他最般配？",
+  "他的正缘外貌和性格特征是什么？",
 ];
-
-function askSuggestions(id: string) {
-  const offset = [...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % ASK_POOL.length;
-  return Array.from({ length: 4 }, (_, i) => ASK_POOL[(offset + i) % ASK_POOL.length]);
-}
 
 function LeadText({ text }: { text: string }) {
   const cut = text.indexOf(" ");
@@ -130,7 +122,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
         </ul>
       </section>
 
-      <StarAskPanel starId={id} starName={star.name} suggestions={askSuggestions(id)} />
+      <StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} />
 
       <p className="mf-zr-note">
         分析基于八字（四柱、十神、大运），仅供文化娱乐

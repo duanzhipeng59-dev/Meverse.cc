@@ -59,9 +59,6 @@ export default function StarAskPanel({
       <p className="mf-zr-ask-sub">基于 {starName} 的八字盘与上方报告，继续问你想知道的</p>
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
-        {entries.length === 0 && !loading ? (
-          <p className="mf-zr-ask-empty">✦ 从下面的引导问题开始，或直接输入你的追问</p>
-        ) : null}
         {entries.map((entry, index) => (
           <div className={`mf-zr-ask-msg ${entry.role}`} key={index}>
             <p>{entry.content}</p>
