@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import type { AdminCelebrity, AdminCelebritySummary } from "../../../api/admin/content/data";
+import UsersPanel from "./users-panel";
 import styles from "./studio.module.css";
 
 type Content = { celebrities: AdminCelebritySummary[] };
@@ -54,6 +55,7 @@ function splitList(value: string) {
 
 export default function AdminContentStudio({ initialContent, adminEmail }: { initialContent: Content; adminEmail: string }) {
   const [content, setContent] = useState(initialContent);
+  const [section, setSection] = useState<"content" | "users">("content");
   const [celebrityDraft, setCelebrityDraft] = useState<AdminCelebrity | null>(null);
   const [activeId, setActiveId] = useState("");
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -346,6 +348,12 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
 
       <section className={styles.workspace}>
         <aside className={styles.sidebar}>
+          <nav className={styles.sectionNav} aria-label="后台模块">
+            <button type="button" className={section === "content" ? styles.sectionActive : undefined} onClick={() => setSection("content")}>明星卡片</button>
+            <button type="button" className={section === "users" ? styles.sectionActive : undefined} onClick={() => setSection("users")}>用户管理</button>
+          </nav>
+          {section === "content" && (
+          <>
           <div className={styles.sideHeading}><div><strong>{content.celebrities.length} 张卡片</strong><small>按住 ⠿ 拖动排序</small></div><button onClick={createCelebrity}>＋ 添加</button></div>
           <div className={styles.bulkToolbar}>
             <label><input type="checkbox" checked={content.celebrities.length > 0 && selectedIds.size === content.celebrities.length} onChange={toggleAll} />全选</label>
@@ -380,10 +388,12 @@ export default function AdminContentStudio({ initialContent, adminEmail }: { ini
               >⠿</button>
             </div>
           ))}
+          </>
+          )}
         </aside>
 
         <div className={styles.editor}>
-          {loadingDetail ? <div className={styles.empty}><span className={styles.loader} />正在读取卡片资料</div> : !celebrityDraft ? <div className={styles.empty}>选择或添加一张明星卡片</div> : <>
+          {section === "users" ? <UsersPanel /> : loadingDetail ? <div className={styles.empty}><span className={styles.loader} />正在读取卡片资料</div> : !celebrityDraft ? <div className={styles.empty}>选择或添加一张明星卡片</div> : <>
             <div className={styles.editorTitle}><div><p>CELEBRITY PROFILE</p><h2>{celebrityDraft.name || "新明星卡片"}</h2></div><div className={styles.actions}><button className={styles.generate} disabled={busy || generating} onClick={generateCelebrityProfile}>{generating ? "正在生成…" : "生成其他资料"}</button><button disabled={busy || generating} onClick={saveCelebrity}>保存卡片</button>{content.celebrities.some((item) => item.id === celebrityDraft.id) && <button className={styles.danger} disabled={busy || generating} onClick={deleteCelebrity}>删除</button>}</div></div>
             <div className={styles.formGrid}>
               <label className={fieldErrors.id ? styles.hasError : ""}>英文 ID <span className={styles.required}>必填</span><input id="celebrity-id" value={celebrityDraft.id} disabled={content.celebrities.some((item) => item.id === celebrityDraft.id)} onChange={(event) => { setCelebrityDraft({ ...celebrityDraft, id: event.target.value.toLowerCase() }); clearFieldError("id"); }} placeholder="例如 bang-chan" aria-invalid={Boolean(fieldErrors.id)} />{fieldErrors.id && <small className={styles.fieldError}>{fieldErrors.id}</small>}</label>
