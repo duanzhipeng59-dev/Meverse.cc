@@ -100,17 +100,6 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
         <p className="mf-zr-p"><LeadText text={report.love.family} /></p>
         <p className="mf-zr-p"><LeadText text={report.love.stability} /></p>
 
-        <h3 className="mf-zr-sub">一生婚恋大运</h3>
-        <ul className="mf-zr-list">
-          {report.love.marriageLuck.map((item) => (
-            <li key={item.ganzhi}>
-              <b>{item.ganzhi}（{item.ageText}）</b>
-              <span className={`mf-zr-tag ${item.tag === "婚恋窗口" ? "is-hot" : item.tag === "动荡期" ? "is-warn" : "is-flat"}`}>{item.tag}</span>
-              <br />{item.text}
-            </li>
-          ))}
-        </ul>
-
         <h3 className="mf-zr-sub">近期感情流年</h3>
         <ul className="mf-zr-list">
           {report.love.romanceYears.map((item) => (
