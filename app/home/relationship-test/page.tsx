@@ -1,4 +1,6 @@
 import { getPublishedStarList } from "../../myfate-stars-server";
+
+export const dynamic = "force-dynamic";
 import CelebrityBrowser from "../celebrity-match/celebrity-browser";
 
 export default async function RelationshipTestWorkspace() {

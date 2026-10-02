@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getHomepageStarList } from "./myfate-stars-server";
 import AuthEntryLink from "./auth-entry-link";
 
+export const dynamic = "force-dynamic";
+
 export default async function MyfateHome() {
   const stars = await getHomepageStarList();
   const previewOrbits = [

@@ -8,7 +8,13 @@ const OBJECT_PREFIX = "/storage/v1/object/public/";
 export const PORTRAIT_WIDTHS = [240, 360, 520] as const;
 
 function renderUrl(objectUrl: string, params: Record<string, string | number>) {
-  const url = new URL(objectUrl);
+  if (!objectUrl || !/^https?:\/\//u.test(objectUrl)) return objectUrl;
+  let url: URL;
+  try {
+    url = new URL(objectUrl);
+  } catch {
+    return objectUrl;
+  }
   const path = url.pathname;
   const marker = path.indexOf(OBJECT_PREFIX);
   if (marker < 0) return objectUrl;
