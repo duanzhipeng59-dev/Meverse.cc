@@ -110,7 +110,7 @@ export default async function AstrologyReportPage({ params }: { params: Promise<
 
       <div id="astro-ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} reportType="astrology" /></div>
 
-      <footer className="mf-astro-source"><p>星位由 <a href="https://github.com/aryaminus/astro" target="_blank" rel="noreferrer">aryaminus/astro</a> 确定性引擎计算（MIT）。占星属于文化解释体系，不构成科学结论或医疗、法律、投资建议。</p></footer>
+      <footer className="mf-astro-source"><p>星位由确定性引擎计算。占星属于文化解释体系，不构成科学结论或医疗、法律、投资建议。</p></footer>
     </div>
   );
 }
