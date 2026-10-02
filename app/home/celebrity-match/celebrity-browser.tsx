@@ -2,9 +2,10 @@
 
 import { useMemo, useRef, useState } from "react";
 import AuthEntryLink from "../../auth-entry-link";
-import type { StarProfile } from "../../myfate-data";
+import type { StarListItem } from "../../myfate-stars-server";
+import { PORTRAIT_SIZES, portraitImage, portraitSrcSet } from "../../myfate-image";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 6;
 
 const QUICK_FILTERS = [
   { id: "recommended", label: "推荐" },
@@ -23,7 +24,7 @@ const GENERATIONS = [
 type QuickFilterId = (typeof QUICK_FILTERS)[number]["id"];
 type GenerationId = (typeof GENERATIONS)[number]["id"];
 
-function matchesGeneration(star: StarProfile, generation: GenerationId) {
+function matchesGeneration(star: StarListItem, generation: GenerationId) {
   if (generation === "all") return true;
   const year = Number(star.birthDate.slice(0, 4));
   if (generation === "80") return year >= 1980 && year <= 1989;
@@ -31,7 +32,7 @@ function matchesGeneration(star: StarProfile, generation: GenerationId) {
   return year >= 2000 && year <= 2009;
 }
 
-export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarProfile[]; basePath?: string }) {
+export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarListItem[]; basePath?: string }) {
   const [quickFilter, setQuickFilter] = useState<QuickFilterId>("recommended");
   const [generation, setGeneration] = useState<GenerationId>("all");
   const [category, setCategory] = useState("all");
@@ -175,14 +176,32 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
       </div>
 
       <div className="mf-bz-discover-grid" ref={gridRef}>
-        {pageStars.map((star) => (
+        {pageStars.map((star, index) => (
           <AuthEntryLink
             className="mf-bz-star-cover"
             href={`${basePath}/${star.id}`}
             anonymousNext={basePath}
             key={star.id}
           >
-            <div className="mf-bz-cover-img" style={{ backgroundImage: `url("${star.portraitSrc}")` }} role="img" aria-label={`${star.name}的人物肖像`} />
+            <img
+              className="mf-bz-cover-img"
+              src={portraitImage(star.portraitSrc, 360)}
+              srcSet={portraitSrcSet(star.portraitSrc)}
+              sizes={PORTRAIT_SIZES}
+              alt={`${star.name}的人物肖像`}
+              width={360}
+              height={468}
+              loading={index < 2 ? "eager" : "lazy"}
+              fetchPriority={index < 2 ? "high" : "auto"}
+              decoding="async"
+              onError={(event) => {
+                const img = event.currentTarget;
+                if (img.dataset.fallback) return;
+                img.dataset.fallback = "1";
+                img.srcset = "";
+                img.src = "/historical-figure.svg";
+              }}
+            />
             <div className="mf-bz-cover-overlay">
               <div className="mf-bz-cover-copy">
                 <strong>{star.name}</strong>

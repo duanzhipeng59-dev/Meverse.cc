@@ -1,3 +1,4 @@
+import sharp from "sharp";
 import { adminError, adminJson, requireAdmin, writeAuditLog } from "../../server";
 import { createSupabaseAdminClient } from "../../../auth/server";
 import { safeId } from "../data";
@@ -23,12 +24,22 @@ export async function POST(request: Request) {
       return adminJson({ error: "invalid_portrait" }, request, admin, { status: 400 });
     }
 
+    // 统一处理:EXIF 矫正 → 最长边 1600px → WebP q80,统一走唯一文件名 + 一年缓存
+    const processed = await sharp(Buffer.from(await file.arrayBuffer()))
+      .rotate()
+      .resize(1600, 1600, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+    if (processed.length < 1) {
+      return adminJson({ error: "invalid_portrait" }, request, admin, { status: 400 });
+    }
+
     const supabase = createSupabaseAdminClient();
     const bucket = "celebrity-portraits";
-    const path = `${starId}/${crypto.randomUUID()}.${extension}`;
-    const { error } = await supabase.storage.from(bucket).upload(path, await file.arrayBuffer(), {
-      contentType: file.type,
-      cacheControl: "3600",
+    const path = `${starId}/${crypto.randomUUID()}.webp`;
+    const { error } = await supabase.storage.from(bucket).upload(path, processed, {
+      contentType: "image/webp",
+      cacheControl: "31536000",
       upsert: false,
     });
     if (error) throw error;

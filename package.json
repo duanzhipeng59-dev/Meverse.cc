@@ -24,7 +24,8 @@
     "qrcode-generator": "^2.0.4",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "resend": "6.20.0"
+    "resend": "6.20.0",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",

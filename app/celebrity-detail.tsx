@@ -14,7 +14,7 @@ export default function CelebrityDetail({
   star: StarProfile;
   backHref: string;
   workspace?: boolean;
-  others?: StarProfile[];
+  others?: Array<Pick<StarProfile, "id" | "name" | "portraitSrc">>;
   baziBrief?: string;
   baziHeadline?: string;
 }) {

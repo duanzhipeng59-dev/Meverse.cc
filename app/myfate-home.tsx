@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getHomepageStars } from "./myfate-stars-server";
+import { getHomepageStarList } from "./myfate-stars-server";
 import AuthEntryLink from "./auth-entry-link";
 
 export default async function MyfateHome() {
-  const stars = await getHomepageStars();
+  const stars = await getHomepageStarList();
   const previewOrbits = [
     { radius: "20%", angle: "-90deg", counterAngle: "90deg", duration: "48s", size: "56px", mobileSize: "48px" },
     { radius: "20%", angle: "30deg", counterAngle: "-30deg", duration: "48s", size: "52px", mobileSize: "46px" },

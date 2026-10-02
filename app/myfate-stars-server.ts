@@ -85,6 +85,74 @@ function reportPromptForRow(row: CelebrityRow) {
   return row.report_prompt?.trim() || row.ideal?._reportPrompt?.trim() || createDefaultCelebrityReportPrompt(star);
 }
 
+// ── 明星目录:列表页专用轻量查询 + 5 分钟公共缓存 ─────────────────────────
+// 只取卡片所需字段,不含描述/报告提示词等详情内容;缓存只放已发布的公共数据。
+
+export type StarListItem = {
+  id: string;
+  name: string;
+  role: string;
+  birthDate: string;
+  gender: "male" | "female" | "other" | "unknown";
+  mbti: string;
+  categories: string[];
+  portraitSrc: string;
+  createdAt: string;
+  homepageFeatured: boolean;
+};
+
+type ListRow = {
+  id: string;
+  name: string;
+  role: string;
+  birth_date: string;
+  gender: "male" | "female" | "other" | "unknown";
+  mbti: string;
+  categories: string[] | null;
+  portrait_url: string;
+  created_at: string;
+  homepage_featured: boolean;
+};
+
+const listSelection = "id,name,role,birth_date,gender,mbti,categories,portrait_url,created_at,homepage_featured,homepage_position";
+const LIST_CACHE_TTL_MS = 5 * 60_000;
+let listCache: { items: StarListItem[]; at: number } | null = null;
+
+export async function getPublishedStarList(): Promise<StarListItem[]> {
+  if (listCache && Date.now() - listCache.at < LIST_CACHE_TTL_MS) return listCache.items;
+  try {
+    const { data, error } = await createSupabaseAdminClient()
+      .from("celebrity_profiles")
+      .select(listSelection)
+      .eq("published", true)
+      .order("workspace_position", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    const items = ((data ?? []) as unknown as ListRow[]).map((row) => ({
+      id: row.id,
+      name: row.name,
+      role: row.role,
+      birthDate: row.birth_date,
+      gender: row.gender ?? "unknown",
+      mbti: row.mbti,
+      categories: row.categories ?? [],
+      portraitSrc: row.portrait_url,
+      createdAt: row.created_at,
+      homepageFeatured: Boolean(row.homepage_featured),
+    }));
+    listCache = { items, at: Date.now() };
+    return items;
+  } catch (error) {
+    console.error("Failed to read published star list", error);
+    return listCache?.items ?? [];
+  }
+}
+
+export async function getHomepageStarList(): Promise<StarListItem[]> {
+  const items = await getPublishedStarList();
+  return items.filter((item) => item.homepageFeatured).slice(0, 6);
+}
+
 export async function getPublishedStars(): Promise<StarProfile[]> {
   if (!hasCloudConfig()) return stars;
   noStore();

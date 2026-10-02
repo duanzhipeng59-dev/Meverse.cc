@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CelebrityDetail from "../../../celebrity-detail";
 import ReportDetailWorkspace from "../../reports/[id]/report-detail-workspace";
-import { getPublishedStar, getPublishedStars, getStarBaziBrief } from "../../../myfate-stars-server";
+import { getPublishedStar, getPublishedStarList, getStarBaziBrief, type StarListItem } from "../../../myfate-stars-server";
 import { requirePageUser } from "../../../require-page-user";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +27,7 @@ export default async function RelationshipTargetPage({ params }: { params: Promi
   if (UUID_PATTERN.test(id)) {
     return <ReportDetailWorkspace reportId={id} section="relationship-test" />;
   }
-  const [star, allStars] = await Promise.all([getPublishedStar(id), getPublishedStars()]);
+  const [star, allStars] = await Promise.all([getPublishedStar(id), getPublishedStarList()]);
   if (!star) notFound();
   const [others, bazi] = await Promise.all([
     Promise.resolve(monthlyOthers(allStars.filter(item => item.id !== star.id), star.id)),
