@@ -4998,15 +4998,29 @@ select:focus-visible {
 .mf-bz-discover-head p { margin: 0; color: var(--bz-muted); font-size: 13.5px; }
 .mf-bz-discover-head aside { flex-shrink: 0; display: flex; align-items: center; gap: 14px; padding-left: 22px; border-left: 1px solid var(--bz-line); }
 .mf-bz-discover-head aside p { margin: 0; color: var(--bz-red); font: 600 13px/2 var(--font-serif-display); letter-spacing: 0.3em; writing-mode: vertical-rl; }
-.mf-bz-discover-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: nowrap; }
-.mf-bz-discover-tabs { display: flex; gap: 8px; flex-shrink: 0; }
-.mf-bz-discover-tabs { display: flex; gap: 8px; }
-.mf-bz-discover-tabs button { height: 43px; padding: 0 18px; border: 1px solid var(--bz-line); border-radius: 999px; background: var(--bz-card); color: var(--bz-muted); font-size: 13px; font-weight: 650; cursor: pointer; }
+.mf-bz-discover-tools { min-width: 0; display: grid; gap: 12px; }
+.mf-bz-discover-toolbar { min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.mf-bz-discover-tabs { min-width: 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.mf-bz-discover-tabs::-webkit-scrollbar { display: none; }
+.mf-bz-discover-tabs button { flex-shrink: 0; height: 40px; padding: 0 17px; border: 1px solid var(--bz-line); border-radius: 999px; background: var(--bz-card); color: var(--bz-muted); font-size: 13px; font-weight: 650; cursor: pointer; }
 .mf-bz-discover-tabs button.is-active { border-color: var(--bz-red); color: var(--bz-red); background: #fdf2f3; }
-.mf-bz-discover-search { display: flex; align-items: center; gap: 10px; flex-shrink: 0; width: 150px; height: 43px; padding: 0 16px; border: 1px solid var(--bz-line-strong); border-radius: 999px; background: var(--bz-card); }
+.mf-bz-discover-search { box-sizing: border-box; display: flex; align-items: center; gap: 10px; width: 100%; height: 48px; padding: 0 17px; border: 1px solid var(--bz-line-strong); border-radius: 14px; background: var(--bz-card); transition: border-color .2s ease, box-shadow .2s ease; }
+.mf-bz-discover-search:focus-within { border-color: rgb(139 30 45 / 45%); box-shadow: 0 0 0 3px rgb(139 30 45 / 8%); }
 .mf-bz-discover-search svg { width: 17px; height: 17px; stroke: var(--bz-muted); stroke-width: 1.7; stroke-linecap: round; }
-.mf-bz-discover-search input { flex: 1; padding: 0; border: 0; background: transparent; color: var(--bz-ink); font-size: 16px; }
+.mf-bz-discover-search input { min-width: 0; flex: 1; padding: 0; border: 0; background: transparent; color: var(--bz-ink); font-size: 16px; }
 .mf-bz-discover-search input:focus { outline: none; }
+.mf-bz-filter-trigger { flex-shrink: 0; height: 40px; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--bz-line-strong); border-radius: 999px; background: var(--bz-card); color: var(--bz-ink); font-size: 13px; font-weight: 700; cursor: pointer; }
+.mf-bz-filter-trigger svg { width: 16px; height: 16px; }
+.mf-bz-filter-trigger.is-active { border-color: rgb(139 30 45 / 30%); background: #fdf2f3; color: var(--bz-red); }
+.mf-bz-advanced-filters { position: relative; display: grid; gap: 15px; padding: 17px 18px; border: 1px solid var(--bz-line); border-radius: 14px; background: #fffaf7; }
+.mf-bz-filter-group { display: grid; grid-template-columns: 92px 1fr; align-items: start; gap: 14px; }
+.mf-bz-filter-group > span { padding-top: 8px; color: var(--bz-muted); font-size: 12px; font-weight: 650; }
+.mf-bz-filter-group > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.mf-bz-filter-group button { min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 999px; background: rgb(139 30 45 / 5%); color: #6f625c; font-size: 12px; cursor: pointer; }
+.mf-bz-filter-group button.is-active { border-color: rgb(139 30 45 / 16%); background: var(--bz-red); color: #fff; }
+.mf-bz-filter-reset { justify-self: end; padding: 2px 0; border: 0; background: transparent; color: var(--bz-red); font-size: 12px; cursor: pointer; }
+.mf-bz-discover-summary { min-height: 20px; display: flex; align-items: center; justify-content: space-between; color: var(--bz-muted); font-size: 12px; }
+.mf-bz-discover-summary button { padding: 0; border: 0; background: transparent; color: var(--bz-red); font-size: 12px; cursor: pointer; }
 .mf-bz-discover-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .mf-bz-star-card { min-width: 0; display: flex; flex-direction: column; padding: 16px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); color: inherit; text-decoration: none; transition: border-color .2s ease, transform .2s ease; }
 .mf-bz-star-card:hover { border-color: var(--bz-red); transform: translateY(-3px); }
@@ -5029,15 +5043,20 @@ select:focus-visible {
   .mf-bz-discover-head aside { display: none; }
   .mf-bz-discover-head h1 { font-size: clamp(24px, 5.6vw, 30px); }
   .mf-bz-discover-tabs button { padding: 8px 13px; font-size: 12px; }
-  .mf-bz-discover-search { width: 140px; }
 }
 @media (max-width: 560px) {
-  .mf-bz-discover { gap: 16px; }
-  .mf-bz-discover-toolbar { gap: 10px; }
-  .mf-bz-discover-tabs { overflow-x: auto; scrollbar-width: none; min-width: 0; }
-  .mf-bz-discover-tabs::-webkit-scrollbar { display: none; }
-  .mf-bz-discover-tabs button { height: 36px; padding: 0 11px; font-size: 11.5px; white-space: nowrap; }
-  .mf-bz-discover-search { width: 150px; height: 36px; padding: 0 12px; }
+  .mf-bz-discover { gap: 13px; padding: 14px 12px 16px; overflow: hidden; }
+  .mf-bz-discover-tools { gap: 10px; }
+  .mf-bz-discover-search { height: 46px; padding: 0 14px; border-radius: 12px; }
+  .mf-bz-discover-toolbar { gap: 8px; }
+  .mf-bz-discover-tabs button { height: 38px; padding: 0 13px; font-size: 12px; white-space: nowrap; }
+  .mf-bz-filter-trigger { height: 38px; padding: 0 12px; font-size: 12px; }
+  .mf-bz-advanced-filters { gap: 17px; padding: 16px 14px; }
+  .mf-bz-filter-group { grid-template-columns: 1fr; gap: 8px; }
+  .mf-bz-filter-group > span { padding-top: 0; }
+  .mf-bz-filter-group > div { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .mf-bz-filter-group > div::-webkit-scrollbar { display: none; }
+  .mf-bz-filter-group button { flex-shrink: 0; min-height: 34px; }
   .mf-bz-discover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .mf-bz-star-card { padding: 10px; }
   .mf-bz-star-info strong { font-size: 16px; }
@@ -5423,4 +5442,178 @@ select:focus-visible {
 @media (max-width: 560px) {
   .mf-zr-ganzhi b { font-size: 20px; }
   .mf-zr-dy { min-width: 66px; }
+}
+
+
+/* ============ AI 生辰画像·完整报告结构 ============ */
+.mf-zr { scroll-behavior: smooth; }
+.mf-zr-hero-copy { min-width: 0; }
+.mf-zr-toc { position: sticky; top: 12px; z-index: 5; display: flex; gap: 7px; overflow-x: auto; padding: 9px; border: 1px solid rgb(255 255 255 / 8%); border-radius: 14px; background: rgb(24 20 34 / 88%); box-shadow: 0 12px 32px rgb(0 0 0 / 22%); backdrop-filter: blur(16px); scrollbar-width: none; }
+.mf-zr-toc::-webkit-scrollbar { display: none; }
+.mf-zr-toc a { flex: 0 0 auto; padding: 7px 12px; border-radius: 999px; color: #bdb6cd; font-size: 12px; text-decoration: none; transition: color .18s ease, background .18s ease; }
+.mf-zr-toc a:hover { color: #fff; background: #6b4fd8; }
+.mf-zr-card { scroll-margin-top: 82px; }
+.mf-zr-section-head { display: flex; align-items: center; gap: 14px; padding-bottom: 15px; border-bottom: 1px solid #e3dcf2; }
+.mf-zr-section-head > span { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 50%; background: #ece4fa; color: #6b4fd8; font: 700 12px/1 var(--font-serif-display); }
+.mf-zr-section-head h2 { margin: 0; color: #3a2f55; font: 700 20px/1.3 var(--font-serif-display); letter-spacing: 2px; }
+.mf-zr-section-head p { margin: 4px 0 0; color: #9187a6; font-size: 12.5px; }
+.mf-zr-foundation { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 18px; }
+.mf-zr-foundation > div { display: grid; gap: 5px; min-width: 0; padding: 13px 14px; border: 1px solid #e6def5; border-radius: 12px; background: #fdfcff; }
+.mf-zr-foundation small { color: #9a90b3; font-size: 11px; }
+.mf-zr-foundation b { color: #4b3d65; font-size: 13px; line-height: 1.5; }
+.mf-zr-aux { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 18px; }
+.mf-zr-aux > div { display: grid; justify-items: center; gap: 3px; padding: 12px 8px; border-radius: 12px; background: #eee8f7; text-align: center; }
+.mf-zr-aux small { color: #8b809f; font-size: 10.5px; }
+.mf-zr-aux b { color: #5b4679; font: 700 17px/1.35 var(--font-serif-display); letter-spacing: 2px; }
+.mf-zr-aux span { color: #9a90b3; font-size: 10.5px; }
+.mf-zr-verdict { margin-top: 18px; padding: 18px 20px; border: 1px solid #dacdf1; border-radius: 14px; background: linear-gradient(135deg, #f8f3ff, #fdfbff); }
+.mf-zr-verdict > p { margin: 0; color: #3a2f55; font: 700 17px/1.8 var(--font-serif-display); }
+.mf-zr-verdict > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.mf-zr-verdict span { padding: 4px 10px; border-radius: 999px; background: #ece4fa; color: #6b4fd8; font-size: 12px; }
+.mf-zr-reading-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+.mf-zr-reading { padding: 18px; border: 1px solid #e6def5; border-radius: 14px; background: #fdfcff; }
+.mf-zr-reading h3 { margin: 0 0 8px; color: #6b4fd8; font: 700 16px/1.4 var(--font-serif-display); letter-spacing: 1px; }
+.mf-zr-reading-lead { margin: 0 0 10px; color: #3a2f55; font-size: 14.5px; font-weight: 700; line-height: 1.8; }
+.mf-zr-reading ul { display: grid; gap: 7px; margin: 0; padding-left: 18px; }
+.mf-zr-reading li { color: #625872; font-size: 13.5px; line-height: 1.75; }
+.mf-zr-stage-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mf-zr-stage-grid article { display: grid; gap: 5px; padding: 15px; border-radius: 12px; background: #f1ecf8; }
+.mf-zr-stage-grid span { color: #8a7d9d; font-size: 11.5px; }
+.mf-zr-stage-grid b { color: #55436f; font: 700 15px/1.4 var(--font-serif-display); }
+.mf-zr-stage-grid p { margin: 0; color: #6f667c; font-size: 13px; line-height: 1.7; }
+.mf-zr-god-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; margin-top: 18px; }
+.mf-zr-god-grid article { min-width: 0; padding: 14px 12px; border: 1px solid #e6def5; border-radius: 12px; background: #fdfcff; }
+.mf-zr-god-grid article.is-primary { border-color: #a98ce0; background: #f4efff; box-shadow: 0 8px 22px rgb(107 79 216 / 10%); }
+.mf-zr-god-grid article > div { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.mf-zr-god-grid b { color: #4b3d65; font-size: 15px; }
+.mf-zr-god-grid span, .mf-zr-god-grid small { color: #9187a6; font-size: 10.5px; }
+.mf-zr-god-grid small { display: block; margin-top: 5px; color: #8a4fae; }
+.mf-zr-god-grid p { margin: 10px 0 0; color: #665d73; font-size: 12.5px; line-height: 1.7; }
+.mf-zr-relation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mf-zr-relation-grid article { padding: 14px 15px; border-left: 3px solid #b7a8d4; border-radius: 4px 12px 12px 4px; background: #f7f4fb; }
+.mf-zr-relation-grid article.is-good { border-color: #5e9d78; background: #f1f8f3; }
+.mf-zr-relation-grid article.is-caution { border-color: #c47a67; background: #fbf3f0; }
+.mf-zr-relation-grid b { color: #55436f; font-size: 13.5px; }
+.mf-zr-relation-grid p { margin: 6px 0 0; color: #6f667c; font-size: 13px; line-height: 1.7; }
+.mf-zr-dayun-detail { display: grid; gap: 9px; margin-top: 18px; }
+.mf-zr-dayun-detail article { display: grid; grid-template-columns: 150px 90px 1fr; gap: 14px; align-items: center; padding: 13px 15px; border: 1px solid #e6def5; border-radius: 12px; background: #fdfcff; }
+.mf-zr-dayun-detail article.is-current { border-color: #6b4fd8; background: #f4efff; box-shadow: 0 7px 20px rgb(107 79 216 / 12%); }
+.mf-zr-dayun-detail article > div { display: flex; align-items: center; gap: 8px; }
+.mf-zr-dayun-detail b { color: #4b3d65; font: 700 17px/1 var(--font-serif-display); letter-spacing: 2px; }
+.mf-zr-dayun-detail span, .mf-zr-dayun-detail small { color: #948aa7; font-size: 11px; }
+.mf-zr-dayun-detail em { padding: 2px 7px; border-radius: 999px; background: #6b4fd8; color: #fff; font-size: 9px; font-style: normal; white-space: nowrap; }
+.mf-zr-dayun-detail p { margin: 0; color: #655b74; font-size: 13px; line-height: 1.65; }
+.mf-zr-year-grid { display: grid; gap: 8px; }
+.mf-zr-year-grid article { padding: 13px 15px; border: 1px solid #e6def5; border-radius: 12px; background: #fdfcff; }
+.mf-zr-year-grid article.is-good { border-left: 4px solid #5e9d78; }
+.mf-zr-year-grid article.is-caution { border-left: 4px solid #c47a67; }
+.mf-zr-year-grid article > div { display: grid; grid-template-columns: 54px 1fr 34px; align-items: baseline; gap: 10px; }
+.mf-zr-year-grid b { color: #4b3d65; font-size: 15px; }
+.mf-zr-year-grid span { color: #8a4fae; font-size: 12px; }
+.mf-zr-year-grid em { color: #9b90ae; font-size: 12px; font-style: normal; text-align: right; }
+.mf-zr-year-grid p { margin: 6px 0 0 64px; color: #665d73; font-size: 13px; line-height: 1.65; }
+.mf-zr-advice { counter-reset: advice; display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; }
+.mf-zr-advice li { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: center; color: #51475f; font-size: 14px; line-height: 1.75; }
+.mf-zr-advice li::before { counter-increment: advice; content: counter(advice); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #ece4fa; color: #6b4fd8; font: 700 12px/1 var(--font-serif-display); }
+@media (max-width: 820px) {
+  .mf-zr-foundation, .mf-zr-aux { grid-template-columns: repeat(2, 1fr); }
+  .mf-zr-god-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mf-zr-god-grid article:first-child { grid-column: 1 / -1; }
+  .mf-zr-dayun-detail article { grid-template-columns: 132px 80px 1fr; }
+}
+@media (max-width: 640px) {
+  .mf-zr { padding: 13px; border-radius: 0; }
+  .mf-zr-card { padding: 22px 16px 25px; }
+  .mf-zr-toc { top: 8px; }
+  .mf-zr-reading-grid, .mf-zr-stage-grid, .mf-zr-relation-grid { grid-template-columns: 1fr; }
+  .mf-zr-dayun-detail article { grid-template-columns: 1fr; gap: 5px; }
+  .mf-zr-year-grid article > div { grid-template-columns: 50px 1fr 28px; }
+  .mf-zr-year-grid p { margin-left: 0; }
+  .mf-zr-section-head h2 { font-size: 18px; }
+}
+
+
+/* ============ AI 星盘解读 ============ */
+.mf-workspace-detail .mf-detail-copy .mf-detail-astro-cta,
+.mf-detail-page .mf-detail-copy .mf-detail-astro-cta { margin-top: 10px; border: 1px solid #6f5b8d; background: #f7f2fb; color: #553f73; box-shadow: none; }
+.mf-workspace-detail .mf-detail-copy .mf-detail-astro-cta:hover,
+.mf-detail-page .mf-detail-copy .mf-detail-astro-cta:hover { background: #eee5f7; }
+.mf-astro { display: grid; gap: 18px; min-width: 0; padding: clamp(16px, 3vw, 32px); border-radius: 18px; background: radial-gradient(circle at 82% 4%, #27213c 0, #13101c 36%, #0d0b13 72%); color: #eeeaf5; scroll-behavior: smooth; }
+.mf-astro-hero { display: flex; align-items: center; gap: 22px; padding: 23px; border: 1px solid rgb(184 158 225 / 18%); border-radius: 17px; background: linear-gradient(135deg, rgb(38 30 55 / 94%), rgb(19 16 28 / 96%)); }
+.mf-astro-hero img { flex: 0 0 auto; width: 92px; height: 112px; border: 1px solid #45375d; border-radius: 12px; object-fit: cover; }
+.mf-astro-hero span { color: #a995ca; font-size: 10.5px; font-weight: 700; letter-spacing: .18em; }
+.mf-astro-hero h1 { margin: 5px 0; color: #f7f3fb; font: 700 clamp(23px, 3vw, 31px)/1.3 var(--font-serif-display); letter-spacing: 1px; }
+.mf-astro-hero p { margin: 0 0 7px; color: #c0b8cf; font-size: 13.5px; line-height: 1.7; }
+.mf-astro-hero small { color: #80768f; font-size: 11.5px; }
+.mf-astro-card { scroll-margin-top: 82px; padding: 26px clamp(18px, 4vw, 34px) 30px; border-radius: 18px; background: #f7f4fa; color: #2d2737; }
+.mf-astro-chart-layout { display: grid; grid-template-columns: minmax(290px, .95fr) minmax(240px, 1.05fr); gap: 28px; align-items: center; margin-top: 22px; }
+.mf-astro-wheel { position: relative; width: min(100%, 360px); aspect-ratio: 1; margin: auto; border: 1px solid #b7a6cf; border-radius: 50%; background: radial-gradient(circle, #fbf9fd 0 28%, #f1ebf7 29% 30%, #faf8fc 31% 57%, #e4daee 58% 59%, #f7f3fa 60% 100%); box-shadow: inset 0 0 45px rgb(86 55 123 / 8%), 0 18px 42px rgb(38 20 58 / 10%); overflow: hidden; }
+.mf-astro-wheel .ring { position: absolute; inset: 13%; border: 1px solid #d2c5e0; border-radius: 50%; }
+.mf-astro-wheel .ring.two { inset: 29%; border-color: #bfaed3; }
+.mf-astro-wheel .axis { position: absolute; top: 50%; left: 6%; width: 88%; height: 1px; background: #ddd3e7; transform: rotate(0deg); }
+.mf-astro-wheel .axis.b { transform: rotate(90deg); }
+.mf-astro-zodiac, .mf-astro-planet { position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; margin: -12px; display: grid; place-items: center; transform: rotate(var(--astro-angle)) translateY(-155px) rotate(calc(-1 * var(--astro-angle))); color: #75638d; font-size: 16px; }
+.mf-astro-planet { width: 27px; height: 27px; margin: -13.5px; transform: rotate(var(--astro-angle)) translateY(-105px) rotate(calc(-1 * var(--astro-angle))); border: 1px solid #a990c5; border-radius: 50%; background: #fdfbff; color: #5c3e7a; box-shadow: 0 3px 8px rgb(45 24 67 / 15%); font-size: 14px; }
+.mf-astro-wheel-core { position: absolute; inset: 36%; display: grid; place-content: center; justify-items: center; border-radius: 50%; background: linear-gradient(145deg, #3a2d4b, #1f1929); color: #f7f1fd; box-shadow: 0 8px 22px rgb(38 20 58 / 25%); }
+.mf-astro-wheel-core b { font: 700 13px/1.35 var(--font-serif-display); }
+.mf-astro-wheel-core small { color: #a99bb7; font-size: 9px; }
+.mf-astro-planet-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.mf-astro-planet-list > div { display: grid; gap: 3px; padding: 11px 12px; border: 1px solid #e4dbea; border-radius: 10px; background: #fdfcff; }
+.mf-astro-planet-list b { color: #544064; font-size: 12.5px; }
+.mf-astro-planet-list span { color: #91869e; font-size: 10.5px; line-height: 1.5; }
+.mf-astro-big-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+.mf-astro-big-three article { padding: 18px; border: 1px solid #dfd4e8; border-radius: 14px; background: linear-gradient(145deg, #fdfbff, #f2ecf7); }
+.mf-astro-big-three span { color: #907aa7; font-size: 11px; }
+.mf-astro-big-three b { display: block; margin: 6px 0 8px; color: #4d385f; font: 700 19px/1.35 var(--font-serif-display); }
+.mf-astro-big-three p { margin: 0; color: #6e6477; font-size: 13px; line-height: 1.7; }
+.mf-astro-balance { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 22px; }
+.mf-astro-balance h3 { margin: 0 0 10px; color: #5e4870; font: 700 15px/1.4 var(--font-serif-display); }
+.mf-astro-balance > div > div { display: grid; grid-template-columns: 34px 1fr 20px; align-items: center; gap: 8px; margin-top: 7px; }
+.mf-astro-balance span, .mf-astro-balance small { color: #83778f; font-size: 11px; }
+.mf-astro-balance i { height: 7px; border-radius: 999px; background: #e8e0ee; overflow: hidden; }
+.mf-astro-balance i b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #8060a5, #b086c9); }
+.mf-astro-sections { display: grid; gap: 12px; margin-top: 18px; }
+.mf-astro-sections article { padding: 19px 20px; border: 1px solid #e2d9e8; border-radius: 14px; background: #fdfcff; }
+.mf-astro-sections h3 { margin: 0 0 7px; color: #563d6b; font: 700 16px/1.4 var(--font-serif-display); }
+.mf-astro-sections p { margin: 0 0 9px; color: #43394d; font-size: 14px; font-weight: 650; line-height: 1.75; }
+.mf-astro-sections ul { display: grid; gap: 6px; margin: 0; padding-left: 18px; color: #746a7d; font-size: 12.8px; line-height: 1.7; }
+.mf-astro-aspects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.mf-astro-aspects article { padding: 13px 14px; border-left: 3px solid #9c89ad; border-radius: 4px 11px 11px 4px; background: #fdfcff; }
+.mf-astro-aspects article.is-strength { border-color: #6c9b83; }
+.mf-astro-aspects article.is-growth { border-color: #b87876; }
+.mf-astro-aspects article > div { display: flex; justify-content: space-between; gap: 8px; }
+.mf-astro-aspects b { color: #554263; font-size: 12.5px; }
+.mf-astro-aspects span { color: #9b91a4; font-size: 10px; white-space: nowrap; }
+.mf-astro-aspects p { margin: 6px 0 0; color: #746a7d; font-size: 12px; line-height: 1.6; }
+.mf-zr-relation-grid article small { display: block; margin-top: 4px; color: #93879d; font-size: 10.5px; }
+.mf-astro-houses { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 18px; }
+.mf-astro-houses article { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 13px; border: 1px solid #e2d9e8; border-radius: 12px; background: #fdfcff; }
+.mf-astro-houses article > span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #ece3f3; color: #684d7e; font: 700 12px/1 var(--font-serif-display); }
+.mf-astro-houses b { color: #533e63; font-size: 13px; }
+.mf-astro-houses small { display: block; color: #988da1; font-size: 10px; }
+.mf-astro-houses p { margin: 5px 0 0; color: #746a7d; font-size: 11.5px; line-height: 1.55; }
+.mf-astro-special { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 10px; margin-top: 18px; }
+.mf-astro-special article { display: grid; gap: 5px; padding: 15px; border-radius: 12px; background: #eee7f4; }
+.mf-astro-special span { color: #8a7899; font-size: 10.5px; }
+.mf-astro-special b { color: #513c61; font: 700 15px/1.4 var(--font-serif-display); }
+.mf-astro-special p { margin: 0; color: #746a7d; font-size: 12px; line-height: 1.65; }
+.mf-astro-source { color: #81778d; font-size: 11.5px; line-height: 1.7; text-align: center; }
+.mf-astro-source p { margin: 0; }
+.mf-astro-source a { color: #ad92cf; text-decoration: underline; }
+.mf-astro-error { display: grid; justify-items: center; gap: 10px; padding: 70px 20px; border: 1px solid #2d2738; border-radius: 16px; background: #18141f; text-align: center; }
+.mf-astro-error > span { color: #ad92cf; font-size: 28px; }
+.mf-astro-error h1 { margin: 0; color: #f4eff8; font: 700 24px/1.4 var(--font-serif-display); }
+.mf-astro-error p { margin: 0 0 8px; color: #a99fb2; font-size: 13px; }
+@media (max-width: 820px) {
+  .mf-astro-chart-layout { grid-template-columns: 1fr; }
+  .mf-astro-houses { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .mf-astro { padding: 13px; border-radius: 0; }
+  .mf-astro-hero { flex-direction: column; text-align: center; }
+  .mf-astro-card { padding: 22px 16px 25px; }
+  .mf-astro-wheel { width: min(100%, 310px); }
+  .mf-astro-zodiac { transform: rotate(var(--astro-angle)) translateY(-133px) rotate(calc(-1 * var(--astro-angle))); }
+  .mf-astro-planet { transform: rotate(var(--astro-angle)) translateY(-90px) rotate(calc(-1 * var(--astro-angle))); }
+  .mf-astro-big-three, .mf-astro-balance, .mf-astro-aspects, .mf-astro-houses { grid-template-columns: 1fr; }
 }

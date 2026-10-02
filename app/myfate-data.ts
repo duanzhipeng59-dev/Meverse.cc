@@ -18,6 +18,8 @@ export type StarProfile = {
   threePillars: string;
   traits: string[];
   categories?: string[];
+  gender?: "male" | "female" | "other" | "unknown";
+  createdAt?: string;
   matchCount: string;
   portraitSrc: string;
   ideal: Record<Dimension, number>;
@@ -55,6 +57,7 @@ export function createDefaultCelebrityReportPrompt(star: StarProfile) {
 export const stars: StarProfile[] = [
   {
     id: "bang-chan",
+    gender: "male",
     name: "Bang Chan",
     role: "艺人 · 舞台创作者",
     tagline: "热烈负责，也会把柔软藏进照顾里",
@@ -72,6 +75,7 @@ export const stars: StarProfile[] = [
   },
   {
     id: "hyunjin",
+    gender: "male",
     name: "Hyunjin",
     role: "艺人 · 舞台创作者",
     tagline: "感受浓烈，期待灵魂先于语言相认",
@@ -89,6 +93,7 @@ export const stars: StarProfile[] = [
   },
   {
     id: "james",
+    gender: "male",
     name: "James",
     role: "艺人 · 舞台创作者",
     tagline: "冷静观察，只为真正有趣的人打开自己",
@@ -106,6 +111,7 @@ export const stars: StarProfile[] = [
   },
   {
     id: "juhoon",
+    gender: "male",
     name: "Juhoon",
     role: "艺人 · 舞台创作者",
     tagline: "跟着感觉靠近，在舒服的陪伴里慢慢认真",
@@ -123,6 +129,7 @@ export const stars: StarProfile[] = [
   },
   {
     id: "keonho",
+    gender: "male",
     name: "Keonho",
     role: "艺人 · 舞台创作者",
     tagline: "独立直接，喜欢一起拆解未知世界",
@@ -140,6 +147,7 @@ export const stars: StarProfile[] = [
   },
   {
     id: "seonghyeon",
+    gender: "male",
     name: "Seonghyeon",
     role: "艺人 · 舞台创作者",
     tagline: "安静而坚定，认定之后更相信长期行动",

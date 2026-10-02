@@ -236,7 +236,8 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
   ];
 
   // ——— 感情:配偶星(男命看财)、夫妻宫(日支) ———
-  const spouseEl = wealthEl;
+  const spouseEl = chart.gender === "female" ? officerEl : wealthEl;
+  const spouseGod = chart.gender === "female" ? "官杀（配偶星）" : "财星（配偶星）";
   const spouseCount = chart.wuXing[spouseEl];
   const dayPillar = chart.pillars[2];
   const hideTraits = dayPillar.hideShiShen.slice(0, 2).map((g) => HIDE_GOD_TRAIT[g] ?? "").filter(Boolean);
@@ -244,8 +245,8 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
   const spouseTraits = [
     { label: "长相/气质", text: `他的另一半（${spouseEl}五行之人）通常${ELEMENT_TRAIT[spouseEl]}。` },
     { label: "性格", text: `夫妻宫坐${dayZhi}，藏干${dayPillar.hideGan.join("、")}——对方${hideTraits.join("，同时")}。` },
-    { label: "个人能力", text: spouseCount >= 3 ? `命中财星${spouseCount}见、根气十足，对方多半事业心强、经济独立，能在现实层面与他并肩。` : spouseCount === 2 ? `命中财星${spouseCount}见，对方有自己的专长与节奏，属于细水长流型伙伴。` : spouseCount === 1 ? `命中财星${spouseCount}见、偏弱，这段关系里他更像照顾者，对方的闪光点需要在日常里慢慢被发现。` : `命中财星不透（深藏地支），缘分偏晚但后劲足，对方的闪光点需要在日常里慢慢被发现。` },
-    { label: "能否旺他", text: xiEls.includes(spouseEl) ? "财星为喜用，另一半会带旺他的财运与状态，属于彼此成就的类型。" : jiEls.includes(spouseEl) ? "财星为忌，感情容易消耗他的精力，择偶时“省心”比“心动”更重要。" : "财星为闲神，感情对他的运势影响中性，关键看两个人怎么经营。" },
+    { label: "个人能力", text: spouseCount >= 3 ? `命中${spouseGod}${spouseCount}见、根气十足，对方多半事业心强、经济独立，能在现实层面与他并肩。` : spouseCount === 2 ? `命中${spouseGod}${spouseCount}见，对方有自己的专长与节奏，属于细水长流型伙伴。` : spouseCount === 1 ? `命中${spouseGod}${spouseCount}见、偏弱，这段关系里他更像照顾者，对方的闪光点需要在日常里慢慢被发现。` : `命中${spouseGod}不透（深藏地支），缘分偏晚但后劲足，对方的闪光点需要在日常里慢慢被发现。` },
+    { label: "能否旺他", text: xiEls.includes(spouseEl) ? "配偶星为喜用，另一半会带旺他的财运与状态，属于彼此成就的类型。" : jiEls.includes(spouseEl) ? "配偶星为忌，感情容易消耗他的精力，择偶时“省心”比“心动”更重要。" : "配偶星为闲神，感情对他的运势影响中性，关键看两个人怎么经营。" },
     { label: "另一半职业方向", text: `多为${ELEMENT_INDUSTRY[spouseEl]}等${spouseEl}属性行业。` },
   ];
 
@@ -287,10 +288,10 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
       let text = dayunFlatTexts[seed % dayunFlatTexts.length];
       if (hasSpouse && hasPeach) {
         tag = "婚恋窗口";
-        text = "财星与桃花齐动，是全局里最容易定下来的婚恋大窗口。";
+        text = "配偶星与桃花齐动，是全局里最容易定下来的婚恋大窗口。";
       } else if (hasSpouse) {
         tag = "婚恋窗口";
-        text = "财星入运，恋爱与婚姻的机会明显增多，遇到的人条件也在线。";
+        text = "配偶星入运，恋爱与婚姻的机会明显增多，遇到的人条件也在线。";
       } else if (hasPeach) {
         tag = "婚恋窗口";
         text = "桃花入运，人缘与魅力上扬，感情故事丰富，但要防烂桃花。";
@@ -312,15 +313,15 @@ export function buildStarBaziReport(chart: BaziChart, currentYear = new Date().g
     () => "流年冲入感情宫位，波动难免：可能忽冷忽热、也可能心浮气躁，给彼此多一点缓冲期。",
   ];
   const comboTexts = [
-    "财星桃花叠动，是未来十年里缘分浓度最高的年份，遇到的人又心动又靠谱。",
-    "财星与桃花齐发，感情大年：脱单、公开、定终身都占天时。",
+    "配偶星与桃花叠动，是未来十年里缘分浓度最高的年份，遇到的人又心动又靠谱。",
+    "配偶星与桃花齐发，感情大年：脱单、公开、定终身都占天时。",
   ];
   const spouseTexts = [
-    "财星流年，容易遇到条件契合、能落到实处的人，桃花质量偏高。",
-    "财星当值，异性缘与现实条件都在线，是适合认真表态的一年。",
-    "财星引动，感情容易「来真的」——确认关系、见家长这类落地动作都合适。",
-    "财星照命，感情从心动走向落地的一年，务实的选择会带来安全感。",
-    "财星通关，社交与现实两条线都有机会，遇到的人经得起日常检验。",
+    "配偶星流年，容易遇到条件契合、能落到实处的人，桃花质量偏高。",
+    "配偶星当值，异性缘与现实条件都在线，是适合认真表态的一年。",
+    "配偶星引动，感情容易「来真的」——确认关系、见家长这类落地动作都合适。",
+    "配偶星照命，感情从心动走向落地的一年，务实的选择会带来安全感。",
+    "配偶星通关，社交与现实两条线都有机会，遇到的人经得起日常检验。",
   ];
   const peachTexts = [
     "桃花流年，魅力值拉满，社交场上容易被看见，人缘先于爱情到来。",

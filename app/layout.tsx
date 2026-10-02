@@ -6,20 +6,20 @@ import { LanguageProvider } from "./language-context";
 
 export const metadata: Metadata = {
   title: {
-    default: "Myfate · 看见 TA 的正缘模样",
+    default: "Myfate · 读懂 TA 的生辰画像",
     template: "%s · Myfate",
   },
-  description: "基于八字命理为偶像生成正缘分析报告：人生画像、配偶特征、婚恋大运与感情流年，还可以继续追问。",
+  description: "基于八字命理生成完整 AI 生辰画像：性格天赋、事业财富、关系家庭、身心节律与大运流年。",
   openGraph: {
-    title: "Myfate · 看见 TA 的正缘模样",
-    description: "偶像正缘分析报告，基于八字命理生成。",
+    title: "Myfate · 读懂 TA 的生辰画像",
+    description: "偶像 AI 生辰画像，基于八字命理引擎生成。",
     type: "website",
     locale: "zh_CN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Myfate · 看见 TA 的正缘模样",
-    description: "偶像正缘分析报告，基于八字命理生成。",
+    title: "Myfate · 读懂 TA 的生辰画像",
+    description: "偶像 AI 生辰画像，基于八字命理引擎生成。",
   },
 };
 

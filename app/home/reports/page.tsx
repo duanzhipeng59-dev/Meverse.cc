@@ -28,7 +28,7 @@ export default async function ReportsPage() {
         <div>
           <span className="mf-kicker">浏览记录</span>
           <h1>已解锁报告</h1>
-          <p>自动记录你打开过的明星正缘报告，按最近浏览排序。</p>
+          <p>自动记录你打开过的明星 AI 生辰画像，按最近浏览排序。</p>
         </div>
         {views.length ? (
           <div className="mf-hist-count"><strong>{views.length}</strong><span>位明星</span></div>
@@ -39,7 +39,7 @@ export default async function ReportsPage() {
         <section className="mf-hist-empty">
           <span aria-hidden="true">✦</span>
           <h2>还没有浏览记录</h2>
-          <p>去明星解读打开一份正缘报告，它会自动出现在这里。</p>
+          <p>去明星解读打开一份 AI 生辰画像，它会自动出现在这里。</p>
           <Link className="mf-bz-btn" href="/home/relationship-test">去明星解读 <span aria-hidden="true">→</span></Link>
         </section>
       ) : (

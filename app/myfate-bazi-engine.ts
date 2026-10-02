@@ -11,6 +11,8 @@ export type BaziPillar = {
   hideGan: string[];
   hideShiShen: string[];
   naYin: string;
+  diShi: string;
+  xunKong: string;
 };
 
 export type BaziDaYunStep = {
@@ -34,8 +36,19 @@ export type BaziTrueSolar = {
 
 export type BaziChart = {
   pillars: BaziPillar[];
+  gender: "male" | "female";
   dayMaster: string;
   wuXing: Record<string, number>;
+  auxiliary: {
+    taiYuan: string;
+    taiYuanNaYin: string;
+    taiXi: string;
+    taiXiNaYin: string;
+    mingGong: string;
+    mingGongNaYin: string;
+    shenGong: string;
+    shenGongNaYin: string;
+  };
   trueSolar: BaziTrueSolar;
   daYun: {
     startText: string;
@@ -96,15 +109,26 @@ export function buildBaziChart(input: {
     adjusted.getUTCHours(), adjusted.getUTCMinutes(), 0,
   ).getLunar().getEightChar();
   ec.setSect(2); // 晚子时:23点后日柱不变、时柱为子
+  // lunar-javascript 运行时已提供以下完整排盘方法，但社区类型声明尚未同步。
+  const detailedEc = ec as typeof ec & {
+    getYearDiShi(): string; getYearXunKong(): string;
+    getMonthDiShi(): string; getMonthXunKong(): string;
+    getDayDiShi(): string; getDayXunKong(): string;
+    getTimeDiShi(): string; getTimeXunKong(): string;
+    getTaiYuan(): string; getTaiYuanNaYin(): string;
+    getTaiXi(): string; getTaiXiNaYin(): string;
+    getMingGong(): string; getMingGongNaYin(): string;
+    getShenGong(): string; getShenGongNaYin(): string;
+  };
 
-  const pillar = (label: string, ganzhi: string, shiShenGan: string, hideGan: string[], hideShiShen: string[], naYin: string): BaziPillar =>
-    ({ label, ganzhi, shiShenGan: label === "日柱" ? `日主${shiShenGan}` : shiShenGan, hideGan, hideShiShen, naYin });
+  const pillar = (label: string, ganzhi: string, shiShenGan: string, hideGan: string[], hideShiShen: string[], naYin: string, diShi: string, xunKong: string): BaziPillar =>
+    ({ label, ganzhi, shiShenGan: label === "日柱" ? `日主${shiShenGan}` : shiShenGan, hideGan, hideShiShen, naYin, diShi, xunKong });
 
   const pillars: BaziPillar[] = [
-    pillar("年柱", ec.getYear(), ec.getYearShiShenGan(), ec.getYearHideGan(), ec.getYearShiShenZhi(), ec.getYearNaYin()),
-    pillar("月柱", ec.getMonth(), ec.getMonthShiShenGan(), ec.getMonthHideGan(), ec.getMonthShiShenZhi(), ec.getMonthNaYin()),
-    pillar("日柱", ec.getDay(), ec.getDayGan(), ec.getDayHideGan(), ec.getDayShiShenZhi(), ec.getDayNaYin()),
-    pillar("时柱", ec.getTime(), ec.getTimeShiShenGan(), ec.getTimeHideGan(), ec.getTimeShiShenZhi(), ec.getTimeNaYin()),
+    pillar("年柱", ec.getYear(), ec.getYearShiShenGan(), ec.getYearHideGan(), ec.getYearShiShenZhi(), ec.getYearNaYin(), detailedEc.getYearDiShi(), detailedEc.getYearXunKong()),
+    pillar("月柱", ec.getMonth(), ec.getMonthShiShenGan(), ec.getMonthHideGan(), ec.getMonthShiShenZhi(), ec.getMonthNaYin(), detailedEc.getMonthDiShi(), detailedEc.getMonthXunKong()),
+    pillar("日柱", ec.getDay(), ec.getDayGan(), ec.getDayHideGan(), ec.getDayShiShenZhi(), ec.getDayNaYin(), detailedEc.getDayDiShi(), detailedEc.getDayXunKong()),
+    pillar("时柱", ec.getTime(), ec.getTimeShiShenGan(), ec.getTimeHideGan(), ec.getTimeShiShenZhi(), ec.getTimeNaYin(), detailedEc.getTimeDiShi(), detailedEc.getTimeXunKong()),
   ];
 
   const wuXing: Record<string, number> = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
@@ -146,8 +170,19 @@ export function buildBaziChart(input: {
 
   return {
     pillars,
+    gender: input.gender,
     dayMaster: ec.getDayGan(),
     wuXing,
+    auxiliary: {
+      taiYuan: detailedEc.getTaiYuan(),
+      taiYuanNaYin: detailedEc.getTaiYuanNaYin(),
+      taiXi: detailedEc.getTaiXi(),
+      taiXiNaYin: detailedEc.getTaiXiNaYin(),
+      mingGong: detailedEc.getMingGong(),
+      mingGongNaYin: detailedEc.getMingGongNaYin(),
+      shenGong: detailedEc.getShenGong(),
+      shenGongNaYin: detailedEc.getShenGongNaYin(),
+    },
     trueSolar,
     daYun: {
       startText: `${yun.getStartYear()}年${yun.getStartMonth()}个月${yun.getStartDay()}天`,

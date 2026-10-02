@@ -30,10 +30,10 @@ export default async function MyfateHome() {
       <main>
         <section className="mf-hero mf-home-hero">
           <div className="mf-hero-copy">
-            <div className="mf-home-eyebrow"><span>✦</span> 明星正缘解读</div>
-            <h1><span>每一位偶像，</span><em>都有一份正缘分析</em></h1>
+            <div className="mf-home-eyebrow"><span>✦</span> AI 生辰画像</div>
+            <h1><span>每一位偶像，</span><em>都有一份 AI 生辰画像</em></h1>
             <p>
-              基于八字命理为 TA 排盘：人生画像、配偶特征、婚恋大运、感情流年，一页看懂 TA 的正缘模样，还能继续追问细节。
+              基于 TA 的公开出生资料排盘，一页读懂性格天赋、事业财富、关系家庭、身心节律与未来运势，还能继续向 AI 命理师追问。
             </p>
             <Link className="mf-bz-btn mf-home-cta" href="/home/relationship-test">开始解读 <span aria-hidden="true">→</span></Link>
           </div>
@@ -76,10 +76,10 @@ export default async function MyfateHome() {
         <section className="mf-stars-section" id="stars">
           <div className="mf-section-heading">
             <div>
-              <span className="mf-kicker">正缘报告预览</span>
+              <span className="mf-kicker">AI 生辰画像预览</span>
               <h2>这一刻，你想了解谁？</h2>
             </div>
-            <p>60 位偶像的正缘分析报告已就绪，登录即可打开。</p>
+            <p>60 位偶像的 AI 生辰画像已就绪，登录即可打开。</p>
           </div>
 
           <div className="mf-star-grid">
@@ -104,11 +104,11 @@ export default async function MyfateHome() {
 
         <section className="mf-how" id="how-it-works">
           <div className="mf-section-heading">
-            <div><span className="mf-kicker">解读说明</span><h2>从选择偶像，到看见 TA 的正缘</h2></div>
+            <div><span className="mf-kicker">解读说明</span><h2>从选择偶像，到读懂 TA 的生辰画像</h2></div>
           </div>
           <div className="mf-how-grid">
             <article><span>01</span><h3>选择 TA</h3><p>在明星解读中按 80后 / 90后 / 00后 筛选或直接搜索名字，找到你关心的那位偶像。</p></article>
-            <article><span>02</span><h3>打开正缘报告</h3><p>系统按 TA 的公开出生资料排盘，呈现人生画像、配偶特征、婚恋大运与感情流年。</p></article>
+            <article><span>02</span><h3>打开 AI 生辰画像</h3><p>系统按 TA 的公开出生资料排盘，呈现性格天赋、事业财富、关系家庭、身心节律与大运流年。</p></article>
             <article><span>03</span><h3>继续追问</h3><p>报告下方可以直接提问，解读会基于 TA 的盘面继续展开，越问越细。</p></article>
           </div>
         </section>

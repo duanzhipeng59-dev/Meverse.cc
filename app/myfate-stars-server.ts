@@ -27,6 +27,7 @@ type CelebrityRow = {
   birth_lon?: number | null;
   birth_tz?: string | null;
   gender?: "male" | "female" | "other" | "unknown" | null;
+  created_at?: string | null;
   vedic_chart?: { structuredMd: string; summary: Record<string, unknown> } | null;
 };
 
@@ -44,7 +45,7 @@ export type CelebrityVedicBirth = {
   cachedChartSummary: Record<string, unknown> | null;
 };
 
-const profileSelection = "id,name,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal";
+const profileSelection = "id,name,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal,gender,created_at";
 const reportSelection = `${profileSelection},report_prompt`;
 
 function hasCloudConfig() {
@@ -65,6 +66,8 @@ function mapCelebrity(row: CelebrityRow): StarProfile {
     threePillars: row.three_pillars,
     traits: row.traits,
     categories: row.categories,
+    gender: row.gender ?? "unknown",
+    createdAt: row.created_at ?? undefined,
     matchCount: String(row.match_count),
     portraitSrc: row.portrait_url,
     ideal: {

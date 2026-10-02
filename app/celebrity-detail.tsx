@@ -58,11 +58,14 @@ export default function CelebrityDetail({
             <ReportAwareEntry starId={star.id} />
           ) : (
             <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
-              AI解读 <span>→</span>
+              查看 AI 生辰画像 <span>→</span>
             </AuthEntryLink>
           )}
-          <p className="mf-detail-hint">点击即可查看由八字引擎实时生成的完整正缘分析报告</p>
-          <p className="mf-bazi-note">分析基于八字（四柱、十神、大运），仅供文化娱乐</p>
+          <AuthEntryLink className="mf-secondary-button mf-detail-cta mf-detail-astro-cta" href={`/home/relationship-test/${star.id}/astrology`}>
+            AI 星盘解读 <span>→</span>
+          </AuthEntryLink>
+          <p className="mf-detail-hint">点击即可查看由八字引擎实时生成的完整 AI 生辰画像</p>
+          <p className="mf-bazi-note">分析基于八字（四柱、藏干、十神、五行、大运与流年），仅供文化娱乐</p>
         </section>
       </div>
 

@@ -9,11 +9,13 @@ export default function StarAskPanel({
   starName,
   suggestions,
   metered = true,
+  reportType = "bazi",
 }: {
   starId: string;
   starName: string;
   suggestions: string[];
   metered?: boolean;
+  reportType?: "bazi" | "astrology";
 }) {
   const [entries, setEntries] = useState<ChatEntry[]>([]);
   const [input, setInput] = useState("");
@@ -38,7 +40,7 @@ export default function StarAskPanel({
       const response = await fetch("/api/myfate/star-report-ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ starId, history, question: text }),
+        body: JSON.stringify({ starId, history, question: text, reportType }),
       });
       if (response.status === 401) {
         window.location.reload();
@@ -64,8 +66,8 @@ export default function StarAskPanel({
 
   return (
     <section className="mf-zr-card mf-zr-ask">
-      <h2 className="mf-zr-card-title">✦ 继续追问</h2>
-      <p className="mf-zr-ask-sub">基于 {starName} 的八字盘与上方报告，继续问你想知道的{metered && typeof asksRemaining === "number" ? ` · 剩余追问 ${asksRemaining} 次` : ""}</p>
+      <h2 className="mf-zr-card-title">✦ AI 命理师</h2>
+      <p className="mf-zr-ask-sub">基于 {starName} 的{reportType === "astrology" ? "本命星盘" : "完整八字盘与生辰画像"}，继续问你想了解的{metered && typeof asksRemaining === "number" ? ` · 剩余追问 ${asksRemaining} 次` : ""}</p>
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
         {entries.map((entry, index) => (
