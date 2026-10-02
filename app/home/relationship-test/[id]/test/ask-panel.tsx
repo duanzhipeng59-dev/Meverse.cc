@@ -66,7 +66,7 @@ export default function StarAskPanel({
 
   return (
     <section className="mf-zr-card mf-zr-ask">
-      <h2 className="mf-zr-card-title">✦ AI 命理师</h2>
+      <h2 className="mf-zr-card-title">✦ AI追问</h2>
       <p className="mf-zr-ask-sub">基于 {starName} 的{reportType === "astrology" ? "本命星盘" : "完整八字盘与生辰画像"}，继续问你想了解的{metered && typeof asksRemaining === "number" ? ` · 剩余追问 ${asksRemaining} 次` : ""}</p>
 
       <div className="mf-zr-ask-log" ref={scrollRef}>

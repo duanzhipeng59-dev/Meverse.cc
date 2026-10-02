@@ -58,7 +58,7 @@ export default function CelebrityDetail({
             <ReportAwareEntry starId={star.id} />
           ) : (
             <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
-              查看 AI 生辰画像 <span>→</span>
+              AI 生成画像 <span>→</span>
             </AuthEntryLink>
           )}
           <AuthEntryLink className="mf-secondary-button mf-detail-cta mf-detail-astro-cta" href={`/home/relationship-test/${star.id}/astrology`}>

@@ -209,10 +209,25 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
             </article>
           ))}
         </div>
-        <h3 className="mf-zr-sub">感情流年补充</h3>
-        <ul className="mf-zr-list">
-          {report.love.romanceYears.map((item) => <li key={item.year}><b>{item.year}（{item.ganzhi}）· 缘分趋势 {item.probability}%</b>{item.warn ? <span className="mf-zr-warn"> · 关系波动期</span> : null}<br />{item.text}</li>)}
-        </ul>
+        <h3 className="mf-zr-sub">感情流年</h3>
+        <div className="mf-zr-year-grid">
+          {report.love.romanceYears.map((item, index) => {
+            const positiveLabels = ["缘分增强", "关系升温", "适合推进"];
+            const steadyLabels = ["平稳发展", "自然相处", "持续观察"];
+            const cautionLabels = ["放慢节奏", "注意沟通", "谨慎推进"];
+            const status = item.warn
+              ? cautionLabels[index % cautionLabels.length]
+              : item.probability >= 45
+                ? positiveLabels[index % positiveLabels.length]
+                : steadyLabels[index % steadyLabels.length];
+            return (
+              <article className={item.warn ? "is-caution" : item.probability >= 45 ? "is-good" : ""} key={item.year}>
+                <div><b>{item.year}</b><span>{item.ganzhi}年 · {status}</span><em>{item.probability}%</em></div>
+                <p>{item.text}</p>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
       <section className="mf-zr-card">
