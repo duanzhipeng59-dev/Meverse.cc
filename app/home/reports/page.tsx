@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getStarReportViews } from "../../myfate-stars-server";
+import { PORTRAIT_SIZES, portraitImage, portraitSrcSet } from "../../myfate-image";
 import { getOptionalPageUser } from "../../require-page-user";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +47,24 @@ export default async function ReportsPage() {
         <div className="mf-hist-grid">
           {views.map((view) => (
             <Link className="mf-bz-star-cover" href={`/home/relationship-test/${view.starId}/test`} key={view.starId}>
-              <div className="mf-bz-cover-img" style={{ backgroundImage: `url("${view.portraitSrc}")` }} role="img" aria-label={`${view.name}的人物肖像`} />
+              <img
+                className="mf-bz-cover-img"
+                src={portraitImage(view.portraitSrc, 360)}
+                srcSet={portraitSrcSet(view.portraitSrc)}
+                sizes={PORTRAIT_SIZES}
+                alt={`${view.name}的人物肖像`}
+                width={360}
+                height={468}
+                loading="lazy"
+                decoding="async"
+                onError={(event) => {
+                  const img = event.currentTarget;
+                  if (img.dataset.fallback) return;
+                  img.dataset.fallback = "1";
+                  img.srcset = "";
+                  img.src = "/historical-figure.svg";
+                }}
+              />
               <div className="mf-bz-cover-overlay">
                 <div className="mf-bz-cover-copy">
                   <strong>{view.name}</strong>

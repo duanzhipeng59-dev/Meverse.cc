@@ -5039,7 +5039,7 @@ select:focus-visible {
 @media (max-width: 1080px) { .mf-bz-discover-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 980px) {
   .mf-bz-discover { padding: 20px 18px 18px; }
-  .mf-bz-discover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .mf-bz-discover-grid, .mf-hist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .mf-bz-discover-head aside { display: none; }
   .mf-bz-discover-head h1 { font-size: clamp(24px, 5.6vw, 30px); }
   .mf-bz-discover-tabs button { padding: 8px 13px; font-size: 12px; }
@@ -5390,7 +5390,7 @@ select:focus-visible {
 .mf-hist-count { display: grid; justify-items: center; padding: 10px 22px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); }
 .mf-hist-count strong { font-family: var(--font-serif-display); font-size: 26px; color: var(--bz-red); }
 .mf-hist-count span { font-size: 12px; color: var(--bz-muted); }
-.mf-hist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+.mf-hist-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .mf-hist-meta { display: block; margin-top: 4px; color: var(--bz-muted); font-size: 11.5px; opacity: 0.9; }
 .mf-hist-empty { display: grid; justify-items: center; gap: 10px; padding: 64px 20px; border: 1px dashed var(--bz-line-strong); border-radius: 16px; text-align: center; }
 .mf-hist-empty span { font-size: 28px; color: var(--bz-red-bright); }
