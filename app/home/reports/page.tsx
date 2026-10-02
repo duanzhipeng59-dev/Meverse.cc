@@ -5,20 +5,6 @@ import { getOptionalPageUser } from "../../require-page-user";
 
 export const dynamic = "force-dynamic";
 
-function relativeTime(iso: string) {
-  const date = new Date(iso);
-  const now = new Date();
-  const sameDay = date.toDateString() === now.toDateString();
-  if (sameDay) return `今天 ${date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
-  if (diffDays === 1) return "昨天";
-  if (diffDays < 30) return `${diffDays}天前`;
-  const sameYear = date.getFullYear() === now.getFullYear();
-  return sameYear
-    ? date.toLocaleDateString("zh-CN", { month: "long", day: "numeric" })
-    : date.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" });
-}
-
 export default async function ReportsPage() {
   const user = await getOptionalPageUser("/home/reports");
   const views = user ? await getStarReportViews(user.id) : [];
@@ -51,7 +37,6 @@ export default async function ReportsPage() {
                 <div className="mf-bz-cover-copy">
                   <strong>{view.name}</strong>
                   <span>{view.role}</span>
-                  <small className="mf-hist-meta">{relativeTime(view.lastViewedAt)} · 看过 {view.viewCount} 次</small>
                 </div>
                 <span className="mf-bz-cover-go" aria-hidden="true">→</span>
               </div>
