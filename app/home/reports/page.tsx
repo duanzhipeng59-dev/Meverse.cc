@@ -40,8 +40,7 @@ export default async function ReportsPage() {
         <section className="mf-hist-empty">
           <span aria-hidden="true">✦</span>
           <h2>还没有浏览记录</h2>
-          <p>去明星解读打开一份 AI 生辰画像，它会自动出现在这里。</p>
-          <Link className="mf-bz-btn" href="/home/relationship-test">去明星解读 <span aria-hidden="true">→</span></Link>
+          <p>去明星解读打开一份报告，它会自动出现在这里。</p>
         </section>
       ) : (
         <div className="mf-hist-grid">
