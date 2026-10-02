@@ -5036,7 +5036,7 @@ select:focus-visible {
 .mf-bz-discover-pagination button { padding: 9px 16px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: var(--bz-card); color: var(--bz-ink); font-size: 12.5px; font-weight: 650; cursor: pointer; }
 .mf-bz-discover-pagination button:disabled { opacity: 0.45; cursor: default; }
 .mf-bz-discover-pagination span { color: var(--bz-muted); font-size: 12px; }
-@media (max-width: 1080px) { .mf-bz-discover-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1080px) { .mf-bz-discover-grid, .mf-hist-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 980px) {
   .mf-bz-discover { padding: 20px 18px 18px; }
   .mf-bz-discover-grid, .mf-hist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
@@ -5045,7 +5045,7 @@ select:focus-visible {
   .mf-bz-discover-tabs button { padding: 8px 13px; font-size: 12px; }
 }
 @media (max-width: 560px) {
-  .mf-bz-discover { gap: 13px; padding: 14px 12px 16px; overflow: hidden; }
+  .mf-bz-discover, .mf-hist { gap: 13px; padding: 14px 12px 16px; overflow: hidden; }
   .mf-bz-discover-tools { gap: 10px; }
   .mf-bz-discover-search { height: 46px; padding: 0 14px; border-radius: 12px; }
   .mf-bz-discover-toolbar { gap: 8px; }
@@ -5057,7 +5057,7 @@ select:focus-visible {
   .mf-bz-filter-group > div { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
   .mf-bz-filter-group > div::-webkit-scrollbar { display: none; }
   .mf-bz-filter-group button { flex-shrink: 0; min-height: 34px; }
-  .mf-bz-discover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .mf-bz-discover-grid, .mf-hist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .mf-bz-star-card { padding: 10px; }
   .mf-bz-star-info strong { font-size: 16px; }
   .mf-bz-star-info span { font-size: 10.5px; }
@@ -5382,7 +5382,7 @@ select:focus-visible {
 .mf-zr-ask-form button:disabled { opacity: 0.45; cursor: default; }
 
 /* ============ 浏览记录页 ============ */
-.mf-hist { display: grid; gap: 26px; padding: clamp(18px, 4vw, 40px); background: var(--bz-paper); border-radius: 18px; }
+.mf-hist { display: grid; gap: 18px; padding: 24px 26px 20px; background: var(--bz-paper); border-radius: 18px; width: 100%; }
 .mf-hist-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
 .mf-hist-head .mf-kicker { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.2em; }
 .mf-hist-head h1 { margin: 8px 0 6px; font-family: var(--font-serif-display); font-size: clamp(26px, 3.4vw, 36px); color: var(--bz-ink); }
