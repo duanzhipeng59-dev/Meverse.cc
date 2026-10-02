@@ -42,7 +42,7 @@ export default function ReportAwareEntry({ starId }: { starId: string }) {
 
   return (
     <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${starId}/test`}>
-      AI 生成画像 <span>→</span>
+      AI 生辰解读 <span>→</span>
     </AuthEntryLink>
   );
 }
