@@ -13,9 +13,8 @@ import { requirePageUser } from "../../../../require-page-user";
 export const dynamic = "force-dynamic";
 
 const ASK_SUGGESTIONS = [
-  "TA 的核心性格和隐藏天赋是什么？",
-  "TA 的事业优势和财富模式是什么？",
   "TA 的感情模式与正缘特征是什么？",
+  "我想和TA合盘",
   "未来三年最重要的运势变化是什么？",
 ];
 

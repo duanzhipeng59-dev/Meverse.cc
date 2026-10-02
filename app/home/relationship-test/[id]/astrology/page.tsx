@@ -16,7 +16,6 @@ const PLANET_SYMBOL: Record<string, string> = { Sun: "☉", Moon: "☽", Mercury
 const ASK_SUGGESTIONS = [
   "TA 的太阳、月亮和上升有什么矛盾？",
   "TA 在感情里真正需要什么？",
-  "TA 最适合怎样的事业方向？",
   "命盘里最强的天赋和课题是什么？",
 ];
 
