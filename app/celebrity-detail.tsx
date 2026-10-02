@@ -64,8 +64,7 @@ export default function CelebrityDetail({
           <AuthEntryLink className="mf-secondary-button mf-detail-cta mf-detail-astro-cta" href={`/home/relationship-test/${star.id}/astrology`}>
             AI 星盘解读 <span>→</span>
           </AuthEntryLink>
-          <p className="mf-detail-hint">点击即可查看由八字引擎实时生成的完整 AI 生辰画像</p>
-          <p className="mf-bazi-note">分析基于八字（四柱、藏干、十神、五行、大运与流年），仅供文化娱乐</p>
+          <p className="mf-detail-hint">报告基于公开信息与公开引擎推导</p>
         </section>
       </div>
 
