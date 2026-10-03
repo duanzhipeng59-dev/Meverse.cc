@@ -5618,3 +5618,59 @@ select:focus-visible {
   .mf-astro-planet { transform: rotate(var(--astro-angle)) translateY(-90px) rotate(calc(-1 * var(--astro-angle))); }
   .mf-astro-big-three, .mf-astro-balance, .mf-astro-aspects, .mf-astro-houses { grid-template-columns: 1fr; }
 }
+
+/* ============ 报告页加载骨架 ============ */
+.mf-skel { display: grid; gap: 16px; padding: clamp(16px, 3vw, 32px); border-radius: 18px; }
+.mf-skel-bazi { background: var(--bz-paper); color: var(--bz-ink); }
+.mf-skel-astrology { background: #14101d; }
+.mf-skel-topbar { display: flex; justify-content: space-between; }
+.mf-skel-hero { display: flex; gap: 22px; align-items: center; padding: 24px; border-radius: 16px; }
+.mf-skel-bazi .mf-skel-hero { border: 1px solid var(--bz-line); background: var(--bz-card); }
+.mf-skel-astrology .mf-skel-hero { border: 1px solid #2c2540; background: #1a1626; }
+.skel-portrait { flex-shrink: 0; width: 108px; height: 134px; border-radius: 12px; }
+.mf-skel-hero-copy { display: grid; gap: 12px; flex: 1; }
+.mf-skel-pillars { display: flex; gap: 10px; }
+.mf-skel-pillars i { width: 62px; height: 52px; border-radius: 10px; }
+.mf-skel-card { display: grid; gap: 12px; padding: 22px 24px; border-radius: 16px; }
+.mf-skel-bazi .mf-skel-card { border: 1px solid var(--bz-line); background: var(--bz-card); }
+.mf-skel-astrology .mf-skel-card { border: 1px solid #2c2540; background: #1a1626; }
+.skel-bar { display: block; height: 16px; border-radius: 6px; }
+.skel-bar.w-24 { width: 96px; } .skel-bar.w-20 { width: 80px; } .skel-bar.w-32 { width: 130px; } .skel-bar.w-40 { width: 170px; } .skel-bar.w-60 { width: 55%; } .skel-bar.w-80 { width: 72%; }
+.skelp-line, .skel-line { display: block; height: 13px; border-radius: 6px; }
+.skel-line { width: 92%; }
+.skel-line.short { width: 64%; }
+.mf-skel .skel-portrait, .mf-skel .skel-bar, .mf-skel .skel-line, .mf-skel .mf-skel-pillars i {
+  background: linear-gradient(100deg, transparent 20%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, transparent 80%);
+  background-size: 220% 100%;
+  animation: mf-skel-shimmer 1.4s infinite linear;
+}
+.mf-skel-astrology .skel-portrait, .mf-skel-astrology .skel-bar, .mf-skel-astrology .skel-line, .mf-skel-astrology .mf-skel-pillars i {
+  background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.07) 60%, transparent 80%);
+  background-size: 220% 100%;
+}
+@keyframes mf-skel-shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.mf-skel-status { margin: 4px 0 0; text-align: center; font-size: 14px; color: var(--bz-muted); }
+.mf-skel-astrology .mf-skel-status { color: #9b90b3; }
+.mf-skel-patience { margin: 0; text-align: center; font-size: 12.5px; color: var(--bz-muted); opacity: 0; animation: mf-skel-hint 0.4s 5s forwards; }
+.mf-skel-astrology .mf-skel-patience { color: #776f8e; }
+@keyframes mf-skel-hint { to { opacity: 1; } }
+
+/* 报告入口按钮加载态 */
+.mf-launch-spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 999px; vertical-align: -2px; animation: mf-spin 0.7s linear infinite; }
+@keyframes mf-spin { to { transform: rotate(360deg); } }
+.mf-primary-button:disabled, .mf-secondary-button:disabled { opacity: 0.75; cursor: default; }
+
+/* 浏览记录:报告入口卡片 */
+.mf-hist-tabs { display: flex; gap: 8px; }
+.mf-hist-tabs a { padding: 8px 16px; border: 1px solid var(--bz-line); border-radius: 999px; background: var(--bz-card); color: var(--bz-muted); font-size: 13px; font-weight: 650; text-decoration: none; }
+.mf-hist-tabs a.is-active { border-color: var(--bz-red); color: var(--bz-red); background: #fdf2f3; }
+.mf-hist-card { display: grid; gap: 0; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); overflow: hidden; }
+.mf-hist-card-head { display: flex; gap: 12px; align-items: center; padding: 12px 14px; text-decoration: none; color: inherit; }
+.mf-hist-card-head img { flex-shrink: 0; width: 52px; height: 62px; border-radius: 10px; object-fit: cover; object-position: center; border: 1px solid var(--bz-line); }
+.mf-hist-card-head strong { display: block; font-size: 15.5px; color: var(--bz-ink); }
+.mf-hist-card-head small { color: var(--bz-muted); font-size: 12px; }
+.mf-hist-entry { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 2px 10px; padding: 11px 14px; border-top: 1px solid var(--bz-line); text-decoration: none; }
+.mf-hist-entry b { font-size: 13.5px; color: var(--bz-red); }
+.mf-hist-entry small { color: var(--bz-muted); font-size: 11.5px; }
+.mf-hist-entry > span { grid-row: 1 / span 2; align-self: center; color: var(--bz-muted); }
+.mf-hist-entry:hover { background: #fdf8f4; }

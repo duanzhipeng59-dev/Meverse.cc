@@ -1,7 +1,6 @@
 import Link from "next/link";
+import ReportLaunchButtons from "./report-launch-buttons";
 import type { StarProfile } from "./myfate-data";
-import AuthEntryLink from "./auth-entry-link";
-import ReportAwareEntry from "./home/celebrity-match/report-aware-entry";
 
 export default function CelebrityDetail({
   star,
@@ -54,16 +53,7 @@ export default function CelebrityDetail({
           <div className="mf-detail-description">
             <p>{baziBrief || star.description}</p>
           </div>
-          {workspace ? (
-            <ReportAwareEntry starId={star.id} />
-          ) : (
-            <AuthEntryLink className="mf-primary-button mf-detail-cta" href={`/home/relationship-test/${star.id}/test`}>
-              AI 生辰解读 <span>→</span>
-            </AuthEntryLink>
-          )}
-          <AuthEntryLink className="mf-secondary-button mf-detail-cta mf-detail-astro-cta" href={`/home/relationship-test/${star.id}/astrology`}>
-            AI 星盘解读 <span>→</span>
-          </AuthEntryLink>
+          <ReportLaunchButtons starId={star.id} />
           <p className="mf-detail-hint">报告基于公开信息与公开引擎推导</p>
         </section>
       </div>

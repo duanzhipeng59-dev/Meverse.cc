@@ -39,7 +39,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
     if ((await getReportCredits(user.id)) <= 0) redirect("/home/upgrade");
     if ((await consumeReportCredit(user.id)) < 0) redirect("/home/upgrade");
   }
-  void recordStarReportView(user.id, id);
+  void recordStarReportView(user.id, id, "bazi");
   const birth = await getCelebrityVedicBirth(id);
   const hasExactBirthTime = Boolean(birth?.birthTime);
 

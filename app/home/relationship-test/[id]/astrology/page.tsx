@@ -28,7 +28,7 @@ export default async function AstrologyReportPage({ params }: { params: Promise<
   if (!star) notFound();
   const birth = await getCelebrityVedicBirth(id);
   const metered = await isUpgradesEnabled();
-  void recordStarReportView(user.id, id);
+  void recordStarReportView(user.id, id, "astrology");
 
   let report;
   try {

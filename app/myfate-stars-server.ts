@@ -298,10 +298,12 @@ export async function hasStarReportView(userId: string, starId: string): Promise
   }
 }
 
-// 浏览记录:打开明星正缘报告时原子计数。
-export async function recordStarReportView(userId: string, starId: string) {
+// 浏览记录:报告页真正打开后原子计数(按报告类型区分)。
+export type StarReportType = "bazi" | "astrology";
+
+export async function recordStarReportView(userId: string, starId: string, reportType: StarReportType = "bazi") {
   try {
-    await createSupabaseAdminClient().rpc("record_star_report_view", { p_user_id: userId, p_star_id: starId });
+    await createSupabaseAdminClient().rpc("record_star_report_view", { p_user_id: userId, p_star_id: starId, p_report_type: reportType });
   } catch (error) {
     console.error("Failed to record star report view", error);
   }
@@ -312,6 +314,7 @@ export type StarReportView = {
   name: string;
   role: string;
   portraitSrc: string;
+  reportType: StarReportType;
   viewCount: number;
   lastViewedAt: string;
 };
@@ -321,13 +324,14 @@ export async function getStarReportViews(userId: string): Promise<StarReportView
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("star_report_views")
-      .select("star_id, view_count, last_viewed_at, celebrity_profiles!inner(name, role, portrait_url, published)")
+      .select("star_id, report_type, view_count, last_viewed_at, celebrity_profiles!inner(name, role, portrait_url, published)")
       .eq("user_id", userId)
       .order("last_viewed_at", { ascending: false })
-      .limit(60);
+      .limit(120);
     if (error) throw error;
     return ((data ?? []) as unknown as Array<{
       star_id: string;
+      report_type: StarReportType;
       view_count: number;
       last_viewed_at: string;
       celebrity_profiles: { name: string; role: string; portrait_url: string; published: boolean } | null;
@@ -338,6 +342,7 @@ export async function getStarReportViews(userId: string): Promise<StarReportView
         name: row.celebrity_profiles!.name,
         role: row.celebrity_profiles!.role,
         portraitSrc: row.celebrity_profiles!.portrait_url,
+        reportType: row.report_type === "astrology" ? "astrology" : "bazi",
         viewCount: row.view_count,
         lastViewedAt: row.last_viewed_at,
       }));
