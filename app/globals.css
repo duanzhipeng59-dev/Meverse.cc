@@ -5688,9 +5688,19 @@ select:focus-visible {
 .mf-primary-button:disabled, .mf-secondary-button:disabled { opacity: 0.75; cursor: default; }
 
 /* 浏览记录:报告入口卡片 */
-.mf-hist-tabs { display: flex; gap: 8px; }
-.mf-hist-tabs a { padding: 8px 16px; border: 1px solid var(--bz-line); border-radius: 999px; background: var(--bz-card); color: var(--bz-muted); font-size: 13px; font-weight: 650; text-decoration: none; }
-.mf-hist-tabs a.is-active { border-color: var(--bz-red); color: var(--bz-red); background: #fdf2f3; }
+.mf-hist-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.mf-hist-tabs a, .mf-hist-tabs button { padding: 8px 16px; border: 1px solid var(--bz-line); border-radius: 999px; background: var(--bz-card); color: var(--bz-muted); font-size: 13px; font-weight: 650; text-decoration: none; cursor: pointer; font-family: inherit; }
+.mf-hist-tabs button:hover { color: #e8dade; }
+.mf-hist-tabs button:focus-visible, .mf-hist-tabs a:focus-visible { outline: 2px solid rgb(222 107 145 / 70%); outline-offset: 2px; }
+.mf-hist-tabs a.is-active, .mf-hist-tabs button.is-active { border-color: transparent; color: #fff; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); }
+.mf-hist-body { display: grid; gap: 16px; min-height: 240px; align-content: start; }
+.mf-hist-fade { animation: mf-hist-fade .16s ease; }
+@keyframes mf-hist-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mf-hist-fade { animation: none; } }
+.mf-hist-retry { justify-self: center; padding: 10px 22px; border: 1px solid var(--bz-red); border-radius: 999px; background: transparent; color: var(--bz-red-bright); font: 650 13px/1 inherit; cursor: pointer; }
+.mf-hist-retry:hover { background: var(--bz-red); color: #fff; }
+.mf-hist-stale { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-paper-warm); color: var(--bz-muted); font-size: 12.5px; }
+.mf-hist-stale button { flex-shrink: 0; padding: 6px 14px; border: 1px solid var(--bz-red); border-radius: 999px; background: transparent; color: var(--bz-red-bright); font: 650 12px/1 inherit; cursor: pointer; }
 .mf-hist-card { display: grid; gap: 0; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); overflow: hidden; }
 .mf-hist-card-head { display: flex; gap: 12px; align-items: center; padding: 12px 14px; text-decoration: none; color: inherit; }
 .mf-hist-card-head img { flex-shrink: 0; width: 52px; height: 62px; border-radius: 10px; object-fit: cover; object-position: center; border: 1px solid var(--bz-line); }
