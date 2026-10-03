@@ -4946,6 +4946,27 @@ select:focus-visible {
 .mf-workspace-shell .mf-bz-profile-stats i { background: var(--bz-card); }
 .mf-workspace-shell .mf-workspace-disclaimer,
 .mf-workspace-shell .mf-reports-storage-note { color: var(--bz-muted); }
+.mf-workspace-shell,
+.mf-workspace-shell .mf-workspace-main { background: radial-gradient(circle at 90% 0, rgb(212 80 106 / 8%), transparent 28rem), #0e0c13; }
+.mf-workspace-shell .mf-workspace-sidebar { border-right-color: #241f31; background: rgb(18 15 25 / 92%); }
+.mf-workspace-shell .mf-workspace-brand,
+.mf-workspace-shell .mf-workspace-nav-item,
+.mf-workspace-shell .mf-workspace-account button,
+.mf-workspace-shell .mf-workspace-account a { color: var(--bz-muted); }
+.mf-workspace-shell .mf-workspace-brand { color: var(--bz-ink); }
+.mf-workspace-shell .mf-workspace-nav-item:hover { color: var(--bz-red-bright); }
+.mf-workspace-shell .mf-workspace-nav-item.active { color: #f4f0fa; border-color: rgb(212 80 106 / 30%); background: linear-gradient(135deg, rgb(212 80 106 / 18%), rgb(212 80 106 / 6%)); box-shadow: none; }
+.mf-workspace-shell .mf-workspace-nav-icon { color: var(--bz-muted); background: rgb(255 255 255 / 5%); }
+.mf-workspace-shell .mf-workspace-nav-item.active .mf-workspace-nav-icon { color: #fff; background: linear-gradient(145deg, #a84265, #702443); }
+.mf-workspace-shell .mf-workspace-account { border-top-color: #241f31; }
+.mf-workspace-shell .mf-workspace-account a:hover,
+.mf-workspace-shell .mf-workspace-account a.active { color: var(--bz-red-bright); background: rgb(212 80 106 / 10%); }
+.mf-workspace-shell .mf-workspace-account button small { color: #b8a9b0; background: #241f31; }
+.mf-workspace-shell .mf-workspace-mobile-bar { border-bottom-color: #241f31; background: rgb(14 12 19 / 96%); }
+.mf-workspace-shell .mf-mobile-menu-dialog { background: rgb(14 12 19 / 97%); }
+.mf-workspace-shell .mf-workspace-label { color: #6d6482; }
+.mf-workspace-shell .mf-workspace-meta { border-color: #241f31; background: var(--bz-card); }
+.mf-workspace-shell .mf-workspace-content .mf-bz-discover-search input { color: var(--bz-ink); }
 .mf-workspace-sidebar { background: #fffefc; backdrop-filter: none; border-right-color: var(--bz-line); }
 .mf-workspace-brand { color: var(--bz-ink) !important; }
 .mf-workspace-brand span:last-child { font: 700 17px/1 var(--font-serif-display); }
