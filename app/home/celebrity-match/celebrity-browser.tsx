@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
+
 import { useMemo, useRef, useState } from "react";
-import AuthEntryLink from "../../auth-entry-link";
 import type { StarListItem } from "../../myfate-stars-server";
 import { PORTRAIT_SIZES, portraitImage, portraitSrcSet } from "../../myfate-image";
 
@@ -62,10 +63,9 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
       <div className="mf-bz-discover-grid" ref={gridRef}>
         {pageStars.map((star, index) => (
-          <AuthEntryLink
+          <Link
             className="mf-bz-star-cover"
             href={`${basePath}/${star.id}`}
-            anonymousNext={basePath}
             key={star.id}
           >
             <img
@@ -94,7 +94,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
               </div>
               <span className="mf-bz-cover-go" aria-hidden="true">→</span>
             </div>
-          </AuthEntryLink>
+          </Link>
         ))}
         {pageStars.length === 0 ? (
           <p className="mf-bz-discover-empty">没有找到符合条件的人，换个筛选条件试试。</p>

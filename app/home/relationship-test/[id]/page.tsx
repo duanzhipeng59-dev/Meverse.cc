@@ -23,8 +23,9 @@ function monthlyOthers<T extends { id: string }>(pool: T[], starId: string, coun
 
 export default async function RelationshipTargetPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await requirePageUser(`/home/relationship-test/${id}`);
+  // 游客可浏览明星详情;登录门槛移到报告入口按钮(AI解读)
   if (UUID_PATTERN.test(id)) {
+    await requirePageUser(`/home/relationship-test/${id}`);
     return <ReportDetailWorkspace reportId={id} section="relationship-test" />;
   }
   const [star, allStars] = await Promise.all([getPublishedStar(id), getPublishedStarList()]);
