@@ -5313,7 +5313,8 @@ select:focus-visible {
 
 /* ============ 明星正缘报告(八字)·深色报告版式 ============ */
 .mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(16px, 3vw, 32px); background: #100e16; border-radius: 18px; color: #eceaf2; min-width: 0; }
-.mf-zr-topbar { display: flex; justify-content: space-between; align-items: center; color: #b9b3c9; font-size: 13px; letter-spacing: 1px; }
+.mf-zr-topbar { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 6px 0 12px; margin: -6px 0 0; background: #100e16; border-bottom: 1px solid rgb(255 255 255 / 5%); color: #b9b3c9; font-size: 13px; letter-spacing: 1px; }
+.mf-astro .mf-zr-topbar { background: #0d0b13; }
 .mf-zr-topbar .mf-back-link { color: #cfc8e0; }
 .mf-zr-hero { display: flex; gap: 24px; align-items: center; padding: 24px; border: 1px solid #262133; border-radius: 16px; background: linear-gradient(135deg, #1a1626, #14111d); }
 .mf-zr-hero img { flex-shrink: 0; width: 108px; height: 134px; object-fit: cover; border-radius: 12px; border: 1px solid #2c2540; }
@@ -5449,7 +5450,7 @@ select:focus-visible {
 /* ============ AI 生辰画像·完整报告结构 ============ */
 .mf-zr { scroll-behavior: smooth; }
 .mf-zr-hero-copy { min-width: 0; }
-.mf-zr-toc { position: sticky; top: 12px; z-index: 5; display: flex; gap: 7px; overflow-x: auto; padding: 9px; border: 1px solid rgb(255 255 255 / 8%); border-radius: 14px; background: rgb(24 20 34 / 88%); box-shadow: 0 12px 32px rgb(0 0 0 / 22%); backdrop-filter: blur(16px); scrollbar-width: none; }
+.mf-zr-toc { display: flex; gap: 7px; overflow-x: auto; padding: 9px; border: 1px solid rgb(255 255 255 / 8%); border-radius: 14px; background: rgb(24 20 34 / 88%); scrollbar-width: none; }
 .mf-zr-toc::-webkit-scrollbar { display: none; }
 .mf-zr-toc a { flex: 0 0 auto; padding: 7px 12px; border-radius: 999px; color: #bdb6cd; font-size: 12px; text-decoration: none; transition: color .18s ease, background .18s ease; }
 .mf-zr-toc a:hover { color: #fff; background: #6b4fd8; }
@@ -5690,3 +5691,8 @@ select:focus-visible {
 .mf-zr-ask-retry button { padding: 3px 12px; border: 1px solid #b3261e; border-radius: 999px; background: transparent; color: #b3261e; font-size: 12px; cursor: pointer; }
 .mf-zr-ask-retry button:hover:not(:disabled) { background: #b3261e; color: #fff; }
 .mf-zr-ask-retry button:disabled { opacity: 0.5; cursor: default; }
+
+/* 报告顶部分享按钮 */
+.mf-zr-share { flex-shrink: 0; display: inline-flex; align-items: center; padding: 7px 16px; border: 1px solid rgb(255 255 255 / 14%); border-radius: 999px; background: rgb(255 255 255 / 6%); color: #e6dff2; font-size: 12.5px; letter-spacing: 1px; cursor: pointer; }
+.mf-zr-share:hover { background: rgb(255 255 255 / 12%); }
+.mf-zr-share .mf-launch-spinner { width: 12px; height: 12px; margin-right: 6px; border-width: 1.5px; }

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
+import ShareButton from "../../../../share-button";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
@@ -62,7 +63,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
     <div className="mf-zr">
       <div className="mf-zr-topbar">
         <Link className="mf-back-link" href="/home/relationship-test">← 返回明星解读</Link>
-        <span>AI 生辰画像</span>
+        <ShareButton />
       </div>
 
       <header className="mf-zr-hero">
