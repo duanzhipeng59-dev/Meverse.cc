@@ -231,7 +231,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
                 <p className="mf-dayun-shift"><b>{year.dayunShift.year} 年起进入 {year.dayunShift.to} 大运</b>{year.dayunShift.note}</p>
               ) : null}
               <article className={`is-${year.tone}`}>
-                <div className="mf-year-head"><b>{year.year}</b><span>{year.ganzhi}年 · {year.focus}</span><em>{year.score}｜{year.tone === "good" ? "顺势" : year.tone === "caution" ? "调整" : "平稳"}</em></div>
+                <div className="mf-year-head"><b>{year.year}</b><span>{year.ganzhi}年 · {year.focus}</span><em className={`is-${year.tone}`}><b>{year.score}</b><i>｜</i>{year.tone === "good" ? "顺势期" : year.tone === "caution" ? "调整期" : "平稳期"}</em></div>
                 <p className="mf-year-keyword">{year.keyword}{year.continuation ? " · 延续" : ""}</p>
                 <p className="mf-year-theme">{year.theme}</p>
                 <p className="mf-year-line mf-is-opp"><b>机会</b>{year.opportunity}</p>

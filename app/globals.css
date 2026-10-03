@@ -5879,11 +5879,20 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dayun-shift { grid-column: 1 / -1; margin: 0; padding: 11px 14px; border: 1px dashed rgba(210, 163, 92, 0.45); border-radius: 10px; background: rgba(210, 163, 92, 0.07); color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
 .mf-dayun-shift b { display: block; margin-bottom: 3px; color: var(--bz-gold); font-size: 13px; }
 
-.mf-year-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.mf-year-head em { margin-left: auto; font-style: normal; font-weight: 700; font-size: 13px; }
-.mf-zr-year-grid article.is-good .mf-year-head em { color: var(--bz-green); }
-.mf-zr-year-grid article.is-neutral .mf-year-head em { color: var(--bz-gold); }
-.mf-zr-year-grid article.is-caution .mf-year-head em { color: var(--bz-error); }
+/* 流年分数+状态:一行横排,分数暖白/分隔灰/状态文字按三态着色,整体不可换行 */
+.mf-year-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.mf-year-head span { min-width: 0; }
+.mf-year-head em { margin-left: auto; display: inline-flex; align-items: baseline; flex-shrink: 0; white-space: nowrap; font-style: normal; font-weight: 650; font-size: 12px; background: none; border: 0; padding: 0; }
+.mf-year-head em b { color: var(--bz-ink); font-weight: 700; }
+.mf-year-head em i { color: #8d7f86; font-style: normal; font-weight: 400; }
+.mf-year-head em.is-good { color: var(--bz-green); }
+.mf-year-head em.is-neutral { color: var(--bz-gold); }
+.mf-year-head em.is-caution { color: var(--bz-error); }
+/* 极窄屏:标题区允许两行,状态整块右对齐换行但自身不拆分 */
+@media (max-width: 380px) {
+  .mf-year-head { flex-wrap: wrap; gap: 4px; }
+  .mf-year-head b { margin-right: 2px; }
+}
 .mf-year-keyword { margin: 8px 0 0; color: var(--bz-red-bright); font-weight: 700; font-size: 13px; }
 .mf-year-theme { margin: 4px 0 0; color: var(--bz-ink); font-size: 12.5px; line-height: 1.7; }
 .mf-year-line { margin: 6px 0 0; color: var(--bz-muted); font-size: 12px; line-height: 1.65; }
