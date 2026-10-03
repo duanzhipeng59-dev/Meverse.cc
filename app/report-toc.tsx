@@ -39,6 +39,7 @@ export default function ReportToc({ items }: { items: TocItem[] }) {
     const threshold = 130;
     let raf = 0;
     let lastY = window.scrollY;
+    let dirMark = 0;
     const update = () => {
       if (Date.now() < lockUntil.current) return;
       let current = items[0]?.id ?? "";
@@ -50,10 +51,15 @@ export default function ReportToc({ items }: { items: TocItem[] }) {
     };
     const onScroll = () => {
       const y = window.scrollY;
-      // 下滑超过一段距离收起顶栏(仅保留导航),上滑立即恢复
-      if (y - lastY > 24 && y > 360) document.documentElement.classList.add("mf-topbar-collapsed");
-      else if (y - lastY < -24 || y < 120) document.documentElement.classList.remove("mf-topbar-collapsed");
-      lastY = y;
+      // 以 150ms 为窗口累计位移判断方向,兼容平滑/惯性滚动的逐帧小位移
+      const now = performance.now();
+      if (now - dirMark > 150) {
+        const delta = y - lastY;
+        if (delta > 18 && y > 360) document.documentElement.classList.add("mf-topbar-collapsed");
+        else if (delta < -18 || y < 120) document.documentElement.classList.remove("mf-topbar-collapsed");
+        lastY = y;
+        dirMark = now;
+      }
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(update);
     };
