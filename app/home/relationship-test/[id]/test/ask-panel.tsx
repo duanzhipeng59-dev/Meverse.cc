@@ -28,7 +28,7 @@ export default function StarAskPanel({
   starName: string;
   suggestions: string[];
   metered?: boolean;
-  reportType?: "bazi" | "astrology";
+  reportType?: "bazi" | "astrology" | "dual";
 }) {
   const [entries, setEntries] = useState<AskEntry[]>([]);
   const [loaded, setLoaded] = useState(false);

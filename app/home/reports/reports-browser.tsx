@@ -14,6 +14,7 @@ import {
   type StarGroup,
 } from "./aggregate";
 import type { StarReportView } from "../../myfate-stars-server";
+import type { DualReportRow } from "../../myfate-dual-server";
 
 const STATE_KEY = "myfate_reports_state_v1";
 
@@ -21,7 +22,8 @@ type Phase = "ready" | "refreshing" | "error";
 
 // 浏览记录筛选:三类记录来自同一份"全部"数据,筛选纯前端完成——
 // 点击即时切换选中态与内容,无网络等待;数据刷新单独走 API 且过期结果不落地。
-export default function ReportsBrowser({ initialGroups, urlFilter }: { initialGroups: StarGroup[]; urlFilter: ReportFilter | null }) {
+export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }: { initialGroups: StarGroup[]; dualReports: DualReportRow[]; urlFilter: ReportFilter | null }) {
+  const [dualList, setDualList] = useState(dualReports);
   const [groups, setGroups] = useState(initialGroups);
   const [filter, setFilter] = useState<ReportFilter>(urlFilter ?? "all");
   const [phase, setPhase] = useState<Phase>("ready");
@@ -124,7 +126,7 @@ export default function ReportsBrowser({ initialGroups, urlFilter }: { initialGr
             <p>内容没能加载出来，你的筛选选择已保留。</p>
             <button className="mf-hist-retry" type="button" onClick={refresh}>重新加载</button>
           </section>
-        ) : visibleGroups.length === 0 ? (
+        ) : (filter === "dual" ? dualList.length === 0 : visibleGroups.length === 0 && (filter !== "all" || dualList.length === 0)) ? (
           <section className="mf-hist-empty">
             <span aria-hidden="true">✦</span>
             <h2>{empty.title}</h2>
@@ -158,6 +160,26 @@ export default function ReportsBrowser({ initialGroups, urlFilter }: { initialGr
                 ))}
               </article>
             ))}
+            {(filter === "all" || filter === "dual") && dualList.length ? dualList.map((report) => (
+              <article className="mf-hist-card mf-hist-card-dual" key={report.id}>
+                <Link className="mf-hist-card-head" href={`/home/dual-star-match/reports/${report.id}`}>
+                  <span className="mf-hist-dual-avatars">
+                    <img src={report.portraitA ?? ""} alt="" loading="lazy" decoding="async" aria-hidden="true" />
+                    <i aria-hidden="true">×</i>
+                    <img src={report.portraitB ?? ""} alt="" loading="lazy" decoding="async" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <strong>{report.nameA} × {report.nameB}</strong>
+                    <small>双星合盘</small>
+                  </div>
+                </Link>
+                <Link className="mf-hist-entry" href={`/home/dual-star-match/reports/${report.id}`}>
+                  <b>双星合盘报告</b>
+                  <small>{relativeTime(report.createdAt)} · {report.status === "ready" ? "已生成" : report.status === "failed" ? "生成失败" : "生成中"}</small>
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </article>
+            )) : null}
           </div>
         )}
         {phase === "error" && groups.length > 0 ? (

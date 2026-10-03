@@ -57,6 +57,9 @@ export default function CelebrityDetail({
           </div>
           <ReportLaunchButtons starId={star.id} unlocked={unlockedReportTypes} />
           <p className="mf-detail-hint">报告基于公开信息与公开引擎推导</p>
+          <Link className="mf-dual-entry" href={`/home/dual-star-match?star=${star.id}`}>
+            <span aria-hidden="true">✕</span>与另一位明星合盘
+          </Link>
         </section>
       </div>
 

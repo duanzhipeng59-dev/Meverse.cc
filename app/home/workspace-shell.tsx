@@ -13,6 +13,12 @@ const menuItems = [
     href: "/home/relationship-test",
   },
   {
+    icon: "dual",
+    label: "双星合盘",
+    description: "两位明星的关系解读",
+    href: "/home/dual-star-match",
+  },
+  {
     icon: "report",
     label: "浏览记录",
     description: "看过的报告",
@@ -57,7 +63,18 @@ function UpgradeIcon() {
 
 function MenuIcon({ icon }: { icon: string }) {
   if (icon === "report") return <ReportIcon />;
+  if (icon === "dual") return <DualIcon />;
   return <HeartIcon />;
+}
+
+function DualIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8.5 3.5v2M8.5 21v-2M2.5 9.5h2M18.5 9.5h-3" transform="translate(1 2.5)" />
+      <path d="M9 15.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z" transform="translate(-1 -1)" />
+      <path d="M16.5 19a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+    </svg>
+  );
 }
 
 function LogoutIcon() {

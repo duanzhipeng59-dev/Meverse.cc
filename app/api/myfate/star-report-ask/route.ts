@@ -3,6 +3,7 @@ import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { buildStarBaziReport, formatStarBaziReport } from "../../../myfate-star-bazi-report";
 import { formatAstrologyReport, getAstrologyReport } from "../../../myfate-astrology-engine";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
+import { getDualReport } from "../../../myfate-dual-server";
 import {
   appendExchange,
   clearConversation,
@@ -23,7 +24,7 @@ import { isUpgradesEnabled } from "../../../myfate-settings";
 export const maxDuration = 60;
 
 const starIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(100);
-const typeSchema = z.enum(["bazi", "astrology"]);
+const typeSchema = z.enum(["bazi", "astrology", "dual"]);
 const requestSchema = z.object({
   starId: starIdSchema,
   reportType: typeSchema.default("bazi"),
@@ -50,7 +51,26 @@ function systemPrompt(starName: string, reportDigest: string, summary: string) {
   ].join("\n");
 }
 
-async function buildDigest(starId: string, reportType: "bazi" | "astrology") {
+async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "dual") {
+  if (reportType === "dual") {
+    // 双星追问:starId 即报告 id,上下文来自已生成的合盘报告
+    const report = await getDualReport(starId);
+    if (!report || report.status !== "ready") throw new Error("DUAL_REPORT_NOT_READY");
+    const [starA, starB] = await Promise.all([getPublishedStar(report.starA), getPublishedStar(report.starB)]);
+    const nameA = starA?.name ?? report.starA;
+    const nameB = starB?.name ?? report.starB;
+    const content = report.content as { summary?: string; sections?: Record<string, { title?: string; paragraphs?: string[] }>; basis?: Array<{ term?: string; plain?: string }>; scores?: Record<string, number> } | null;
+    const lines: string[] = [
+      `这是「${nameA} × ${nameB}」双星合盘报告。关系画像:${report.summary}`,
+    ];
+    if (content?.scores) lines.push("评分(相对趋势):" + Object.entries(content.scores).map(([k, v]) => `${k}=${v}`).join(" "));
+    for (const section of Object.values(content?.sections ?? {})) {
+      if (section?.title && section.paragraphs?.length) lines.push(`【${section.title}】` + section.paragraphs.join(" "));
+    }
+    if (content?.basis?.length) lines.push("命理依据:" + content.basis.map((item) => `${item.term}(${item.plain})`).join(";"));
+    return { name: `${nameA} × ${nameB}`, digest: lines.join("\n") };
+  }
+
   const star = await getPublishedStar(starId);
   if (!star) throw new Error("STAR_NOT_FOUND");
   const birth = await getCelebrityVedicBirth(starId);
