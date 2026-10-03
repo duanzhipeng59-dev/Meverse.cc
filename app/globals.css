@@ -4815,35 +4815,35 @@ select:focus-visible {
 .mf-bz-profile-head { display: grid; gap: 12px; }
 .mf-bz-profile-head h1 { margin: 0; color: var(--bz-ink); font: 700 clamp(30px, 4vw, 49px)/1.18 "Noto Serif SC", "Songti SC", Georgia, serif; }
 .mf-bz-profile-head p { margin: 0; color: var(--bz-muted); font: 400 clamp(15px, 2vw, 18px)/1.55 Inter, system-ui, sans-serif; }
-.mf-bz-profile-head span { color: #7d7473; font: 400 clamp(13px, 1.6vw, 18px)/1.4 Inter, system-ui, sans-serif; }
+.mf-bz-profile-head span { color: var(--bz-muted); font: 400 clamp(13px, 1.6vw, 18px)/1.4 Inter, system-ui, sans-serif; }
 
 .mf-bz-account-card { display: flex; align-items: center; gap: 30px; padding: 0 36px; min-height: 220px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); flex-wrap: wrap; }
-.mf-bz-avatar { flex-shrink: 0; display: grid; place-items: center; width: 142px; height: 142px; border-radius: 999px; background: #e9cfcc; }
-.mf-bz-avatar svg { width: 68px; height: 68px; stroke: #741225; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.mf-bz-avatar { flex-shrink: 0; display: grid; place-items: center; width: 142px; height: 142px; border-radius: 999px; background: var(--bz-card-raised); }
+.mf-bz-avatar svg { width: 68px; height: 68px; stroke: var(--bz-red-bright); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .mf-bz-account-details { flex: 1; min-width: 240px; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
 .mf-bz-account-details > div { display: grid; gap: 5px; }
-.mf-bz-account-details span { color: #7d7473; font: 400 14px/17px Inter, system-ui, sans-serif; }
-.mf-bz-account-details input { width: min(320px, 100%); padding: 4px 0; border: 0; border-bottom: 1px solid #e8deda; background: transparent; color: #241719; font: 700 28px/40px "Noto Serif SC", "Songti SC", Georgia, serif; }
-.mf-bz-account-details input:focus { outline: none; border-bottom-color: #741225; }
-.mf-bz-account-details b { color: #241719; font: 400 18px/22px Inter, system-ui, sans-serif; word-break: break-all; }
-.mf-bz-account-button { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 136px; height: 58px; border: 1px solid #741225; border-radius: 6px; background: #fcfaf7; color: #741225; font: 600 18px/26px "Noto Serif SC", "Songti SC", Georgia, serif; cursor: pointer; }
-.mf-bz-account-button:hover { background: #741225; color: #fff; }
+.mf-bz-account-details span { color: var(--bz-muted); font: 400 14px/17px Inter, system-ui, sans-serif; }
+.mf-bz-account-details input { width: min(320px, 100%); padding: 4px 0; border: 0; border-bottom: 1px solid var(--bz-line-strong); background: transparent; color: var(--bz-ink); font: 700 28px/40px "Noto Serif SC", "Songti SC", Georgia, serif; }
+.mf-bz-account-details input:focus { outline: none; border-bottom-color: var(--bz-red); }
+.mf-bz-account-details b { color: var(--bz-ink); font: 400 18px/22px Inter, system-ui, sans-serif; word-break: break-all; }
+.mf-bz-account-button { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 136px; height: 58px; border: 1px solid var(--bz-red); border-radius: 6px; background: transparent; color: var(--bz-red-bright); font: 600 18px/26px "Noto Serif SC", "Songti SC", Georgia, serif; cursor: pointer; }
+.mf-bz-account-button:hover { background: var(--bz-red); color: #fff; }
 
-.mf-bz-birth-card { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; padding: 34px 36px 30px; border: 1px solid #e8deda; border-radius: 10px; background: #fffefc; }
+.mf-bz-birth-card { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; padding: 34px 36px 30px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-card); }
 .mf-bz-birth-heading { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-.mf-bz-birth-heading h2 { margin: 0; color: #241719; font: 700 28px/40px "Noto Serif SC", "Songti SC", Georgia, serif; }
-.mf-bz-save-status { display: flex; align-items: center; gap: 10px; color: #3a8a59; font: 400 14px/17px Inter, system-ui, sans-serif; }
-.mf-bz-save-status i { width: 20px; height: 20px; border-radius: 999px; background: #3a8a59; }
+.mf-bz-birth-heading h2 { margin: 0; color: var(--bz-ink); font: 700 28px/40px "Noto Serif SC", "Songti SC", Georgia, serif; }
+.mf-bz-save-status { display: flex; align-items: center; gap: 10px; color: var(--bz-green); font: 400 14px/17px Inter, system-ui, sans-serif; }
+.mf-bz-save-status i { width: 20px; height: 20px; border-radius: 999px; background: var(--bz-green); }
 .mf-bz-birth-row { width: 100%; display: flex; gap: 30px; flex-wrap: wrap; }
 .mf-bz-birth-field { flex: 1 1 320px; min-width: 280px; display: grid; gap: 8px; }
-.mf-bz-birth-field > span { color: #241719; font: 600 16px/19px Inter, system-ui, sans-serif; }
-.mf-bz-birth-input { display: flex; align-items: center; gap: 14px; min-height: 58px; padding: 0 18px; border: 1px solid #d7c9c3; border-radius: 6px; background: #fffefc; }
-.mf-bz-birth-input svg { flex-shrink: 0; width: 20px; height: 20px; stroke: #7d7473; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.mf-bz-birth-input select { flex: 1; min-width: 0; padding: 14px 4px; border: 0; background: transparent; color: #241719; font: 400 16px/19px Inter, system-ui, sans-serif; cursor: pointer; }
+.mf-bz-birth-field > span { color: var(--bz-ink); font: 600 16px/19px Inter, system-ui, sans-serif; }
+.mf-bz-birth-input { display: flex; align-items: center; gap: 14px; min-height: 58px; padding: 0 18px; border: 1px solid var(--bz-line-strong); border-radius: 6px; background: var(--bz-paper-warm); }
+.mf-bz-birth-input svg { flex-shrink: 0; width: 20px; height: 20px; stroke: var(--bz-muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.mf-bz-birth-input select { flex: 1; min-width: 0; padding: 14px 4px; border: 0; background: transparent; color: var(--bz-ink); font: 400 16px/19px Inter, system-ui, sans-serif; cursor: pointer; }
 .mf-bz-birth-input select:focus { outline: none; }
 .mf-bz-birth-input select:disabled { opacity: 0.45; cursor: default; }
-.mf-bz-privacy-note { margin: 4px 0 0; display: flex; align-items: center; gap: 10px; color: #7d7473; font: 400 14px/17px Inter, system-ui, sans-serif; }
-.mf-bz-privacy-note svg { flex-shrink: 0; width: 19px; height: 19px; stroke: #7d7473; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.mf-bz-privacy-note { margin: 4px 0 0; display: flex; align-items: center; gap: 10px; color: var(--bz-muted); font: 400 14px/17px Inter, system-ui, sans-serif; }
+.mf-bz-privacy-note svg { flex-shrink: 0; width: 19px; height: 19px; stroke: var(--bz-muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 720px) { .mf-bz-account-card { padding: 24px; } .mf-bz-avatar { width: 96px; height: 96px; } .mf-bz-avatar svg { width: 46px; height: 46px; } }
 
 /* ── mf-bz 统一按钮两件套(替代旧 mf-primary/secondary-button)──────── */
@@ -5814,8 +5814,10 @@ select:focus-visible {
 .mf-workspace-shell .mf-mobile-menu-dialog[open] { color: var(--bz-ink); background: #151014; box-shadow: 24px 0 60px rgb(0 0 0 / 55%); }
 .mf-workspace-shell .mf-mobile-menu-dialog[open]::backdrop { background: rgb(6 4 6 / 60%); }
 
-/* 明星图深色骨架 + 加载淡入 */
+/* 明星图深色骨架 + 加载淡入;3s 后 CSS 兜底强制显示,淡入不成为显示的必要条件 */
 .mf-bz-star-cover { background: linear-gradient(100deg, #151014 30%, #221920 45%, #151014 60%); background-size: 220% 100%; animation: mf-cover-skel 1.5s infinite linear; }
-.mf-bz-cover-img { opacity: 0; transition: opacity .45s ease; }
+.mf-bz-star-cover:has(.mf-bz-cover-img[data-loaded="1"]) { animation: none; }
+.mf-bz-cover-img { opacity: 0; transition: opacity .45s ease; animation: mf-cover-reveal 0s 3s forwards; }
 .mf-bz-cover-img[data-loaded="1"], .mf-bz-cover-img[data-fallback="1"] { opacity: 1; }
 @keyframes mf-cover-skel { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+@keyframes mf-cover-reveal { to { opacity: 1; } }

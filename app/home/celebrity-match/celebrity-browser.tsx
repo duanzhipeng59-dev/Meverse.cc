@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { useMemo, useRef, useState } from "react";
 import type { StarListItem } from "../../myfate-stars-server";
-import { PORTRAIT_SIZES, portraitImage, portraitSrcSet } from "../../myfate-image";
+import PortraitImg from "../../portrait-img";
 
 const PAGE_SIZE = 6;
 
@@ -68,24 +68,10 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
             href={`${basePath}/${star.id}`}
             key={star.id}
           >
-            <img
-              className="mf-bz-cover-img"
-              src={portraitImage(star.portraitSrc, 360)}
-              srcSet={portraitSrcSet(star.portraitSrc)}
-              sizes={PORTRAIT_SIZES}
+            <PortraitImg
+              src={star.portraitSrc}
               alt={`${star.name}的人物肖像`}
-              width={360}
-              height={468}
-              loading={index < 2 ? "eager" : "lazy"}
-              fetchPriority={index < 2 ? "high" : "auto"}
-              decoding="async"
-              onError={(event) => {
-                const img = event.currentTarget;
-                if (img.dataset.fallback) return;
-                img.dataset.fallback = "1";
-                img.srcset = "";
-                img.src = "/historical-figure.svg";
-              }}
+              priority={index < 2}
             />
             <div className="mf-bz-cover-overlay">
               <div className="mf-bz-cover-copy">
