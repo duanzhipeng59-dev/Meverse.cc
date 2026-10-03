@@ -95,7 +95,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       ]} />
 
       <section className="mf-zr-card" id="chart">
-        <div className="mf-zr-section-head"><span>01</span><div><h2>命局底盘</h2><p>TA 出生那一刻的\u201c出厂配置\u201d——下面有导读,看不懂术语也没关系</p></div></div>
+        <div className="mf-zr-section-head"><span>01</span><div><h2>命局底盘</h2><p>TA 出生那一刻的“出厂配置”——下面有导读,看不懂术语也没关系</p></div></div>
         <p className="mf-zr-plain-note">📖 下面是排盘数据区：<b>年/月/日/时</b>四根柱子代表 TA 出生时刻的能量配置，日柱代表 TA 自己。术语看不懂完全没关系——从「02 核心生辰画像」开始，所有内容都已经翻译成大白话了。</p>
         <div className="mf-zr-chart-grid">
           {report.pillars.map((pillar) => (
@@ -200,7 +200,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="luck">
-        <div className="mf-zr-section-head"><span>07</span><div><h2>大运与未来十年</h2><p>人生剧本的\u201c章节梗概\u201d,再看每一年的节奏</p></div></div>
+        <div className="mf-zr-section-head"><span>07</span><div><h2>大运与未来十年</h2><p>人生剧本的“章节梗概”,再看每一年的节奏</p></div></div>
         <div className="mf-zr-dayun-detail">
           {profile.dayun.map((step) => (
             <article className={`is-${step.tone} ${step.current ? "is-current" : ""}`} key={step.ganzhi + step.yearText}>
