@@ -6018,3 +6018,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-dual-directions { grid-template-columns: 1fr; }
   .mf-dual-generate { width: 100%; }
 }
+
+/* 命盘区导读语(降低术语门槛) */
+.mf-zr-plain-note { margin: 0 0 14px; padding: 12px 14px; border: 1px dashed var(--bz-line-strong); border-radius: 10px; background: var(--bz-paper-warm); color: var(--bz-muted); font-size: 12.5px; line-height: 1.8; }
+.mf-zr-plain-note b { color: var(--bz-ink); }

@@ -16,38 +16,42 @@ const PO: Record<string, string> = { 子: "酉", 酉: "子", 丑: "辰", 辰: "�
 const GAN_HE: Record<string, string> = { 甲: "己", 己: "甲", 乙: "庚", 庚: "乙", 丙: "辛", 辛: "丙", 丁: "壬", 壬: "丁", 戊: "癸", 癸: "戊" };
 const ZHI_XING = new Set(["寅巳", "巳申", "申寅", "丑戌", "戌未", "未丑", "子卯", "卯子", "辰辰", "午午", "酉酉", "亥亥"]);
 
+const GOD_PLAIN: Record<string, string> = {
+  比劫: "同伴力(爱自己做主、也爱拉朋友一起)", 印星: "吸收力(爱学习、爱攒安全感)", 食伤: "表达力(爱输出、爱创作)", 财星: "经营力(务实、盯着结果和资源)", 官杀: "责任力(扛事、在意规则和评价)",
+};
+
 const ELEMENT_NATURE: Record<Element, string> = {
-  木: "生长、规划与仁厚", 火: "表达、热度与行动", 土: "稳定、承载与兑现", 金: "判断、边界与执行", 水: "洞察、流动与适应",
+  木: "像树一样爱规划、肯慢慢长", 火: "有热度、爱表达、说干就干", 土: "稳得住、能扛事、说到做到", 金: "有主见、干脆利落、守边界", 水: "脑子活、会看形势、能屈能伸",
 };
 const ELEMENT_CARE: Record<Element, string> = {
-  木: "传统命理把木对应到舒展与节律，适合规律作息、减少长期压抑",
-  火: "传统命理把火对应到心神与活力，忙碌期更要留意休息和情绪降温",
-  土: "传统命理把土对应到消化与稳定感，饮食规律比短期进补更重要",
-  金: "传统命理把金对应到呼吸与边界，适合保持环境清爽并安排有氧活动",
-  水: "传统命理把水对应到恢复与储备，避免持续透支，睡眠是重要补给",
+  木: "木属性的人最怕憋着,规律作息、常出门走走,状态就顺",
+  火: "火属性的人烧得旺也灭得快,忙碌期记得给自己降温、补觉",
+  土: "土属性的人图个安稳,三餐规律比什么补品都管用",
+  金: "金属性的人在意秩序,环境清爽、常做做运动,人会松下来",
+  水: "水属性的人靠睡眠回血,别连续透支,累了就早点休息",
 };
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
   比劫: ["自主", "同伴", "行动力"], 印星: ["学习", "直觉", "安全感"], 食伤: ["表达", "创作", "影响力"], 财星: ["资源", "现实", "经营力"], 官杀: ["责任", "规则", "成就感"],
 };
 const CATEGORY_READING: Record<string, string> = {
-  比劫: "自我驱动力和同伴意识明显，适合在竞争或协作中建立位置；过旺时要避免固执与资源争夺。",
-  印星: "吸收、思考与复盘能力突出，容易依赖熟悉的安全区；把理解转化为行动，优势才会落地。",
-  食伤: "表达、创意和输出欲是重要天赋，适合用作品被看见；过旺时需留意情绪化表达。",
-  财星: "对资源、效率和结果敏感，擅长把抽象目标变成现实成果；不要把关系也过度量化。",
-  官杀: "责任感、目标感与抗压能力较强，在清晰规则中容易成长；压力过重时要避免自我苛责。",
+  比劫: "TA 很有主心骨,喜欢自己说了算,也愿意拉朋友一起干;但太强时容易固执,合伙时容易因为'谁说了算'闹别扭。",
+  印星: "TA 学东西快、爱琢磨,心里需要踏实感;但容易宅在舒适区——想清楚之后要真的去做,本事才算数。",
+  食伤: "TA 一肚子想法憋不住,天生适合靠内容和作品被看见;情绪上头时说话容易冲,先过一遍脑子再开口。",
+  财星: "TA 很务实,眼睛盯着结果和资源,能把想法变成真金白银;但别把感情也算得太清,关系需要留点余地。",
+  官杀: "TA 能扛事、在意别人的评价,规矩清楚的环境里反而长得快;压力太大时别硬撑,学会放过自己。",
 };
 const CAREER_BY_GOD: Record<string, string> = {
-  比劫: "需要自主权、竞争感或团队号召力的角色", 印星: "研究、教育、策划、内容沉淀与专业支持型角色", 食伤: "创作、传播、表演、设计、产品与表达型角色", 财星: "经营、商业、项目管理、资源整合与结果导向型角色", 官杀: "管理、制度、专业服务、组织决策与高责任角色",
+  比劫: "能自己拍板、带队伍冲锋的活儿", 印星: "做研究、教书、做策划、攒专业底子的活儿", 食伤: "搞创作、做内容、上台表演、做产品的活儿", 财星: "做生意、管项目、整合资源、看结果的活儿", 官杀: "当管理、定规矩、扛指标、受人托付的活儿",
 };
 const WEALTH_BY_GOD: Record<string, string> = {
-  比劫: "财富来自行动速度与人脉协作，但合伙和冲动开支需要清晰边界。", 印星: "更适合凭专业、资历和长期积累变现，慢就是快。", 食伤: "作品、流量、表达和差异化能力是主要变现入口。", 财星: "资源嗅觉和经营意识较强，适合让现金流和长期配置并行。", 官杀: "稳定职位、责任溢价和组织信用是财富的重要来源。",
+  比劫: "钱靠闯出来、靠朋友帮出来,但合伙要先把账算清楚,冲动消费要管住。", 印星: "靠专业吃饭,前期慢,后面越老越值钱。", 食伤: "才华就是提款机,作品和流量到哪,钱就到哪。", 财星: "天生的生意嗅觉,适合边赚边攒,让钱生钱。", 官杀: "职位和口碑就是钱,升上去、被信任,收入自然来。",
 };
 const DAYUN_THEME: Record<string, string> = {
-  比劫: "自主与竞争被放大，适合建立个人位置，也要管理合作边界。", 印星: "学习、沉淀与贵人支持增强，适合升级能力和修复状态。", 食伤: "创作与表达进入活跃期，作品和影响力更容易被看见。", 财星: "资源、合作和现实成果成为主线，适合经营与兑现。", 官杀: "责任与目标上升，事业结构可能重组，压力也会带来位置。",
+  比劫: "这十年靠自己,适合打出自己的名号,但合伙前先谈好规矩。", 印星: "这十年是充电期,学东西、遇贵人、把状态养回来。", 食伤: "这十年灵感外冒,多做作品、多露脸,容易被看见。", 财星: "这十年跟钱和合作打交道最多,适合把想法落地变现。", 官杀: "这十年担子变重,事业上可能大调整,扛过去位置就是你的。",
 };
 // ── 大运/流年差异化文案池(引擎事实驱动,候选按年确定性轮转+相邻去重) ──
 const DAYUN_KEYWORD: Record<string, string[]> = {
-  比劫: ["建立位置", "独立扩张", "竞合生长"], 印星: ["能力升级", "蓄力沉淀", "借力修复"], 食伤: ["表达破圈", "作品立身", "灵感变现"], 财星: ["经营兑现", "资源整合", "务实落地"], 官杀: ["责任扩张", "结构重塑", "压力淬炼"],
+  比劫: ["自立门户", "打出名号", "兄弟同行"], 印星: ["充电学习", "贵人相助", "养精蓄锐"], 食伤: ["才华出圈", "作品说话", "灵感爆发"], 财星: ["赚钱落地", "资源到手", "务实经营"], 官杀: ["挑大梁", "岗位升迁", "压力成长"],
 };
 const DAYUN_FOCUS: Record<string, Array<{ label: string; text: string }>> = {
   比劫: [{ label: "事业", text: "适合争取主导权和可见度，但合伙分工要提前定规则" }, { label: "财富", text: "收入与个人投入强相关，防冲动开支与担保借贷" }, { label: "身心", text: "能量足但易过载，规律训练比冲刺更重要" }],
@@ -64,7 +68,7 @@ const DAYUN_ADVICE: Record<string, string[]> = {
   官杀: ["用书面计划管理承诺：每接受一项新职责，就同步砍掉一件旧事务。", "建立季度复盘机制，把压力翻译成可执行的里程碑。"],
 };
 const ANNUAL_KEYWORD: Record<string, string[]> = {
-  比劫: ["自立门户", "并肩行事", "竞合之年"], 印星: ["蓄力沉淀", "进修蓄能", "贵人指路"], 食伤: ["表达破圈", "作品面世", "灵感落地"], 财星: ["务实经营", "资源落袋", "变现之年"], 官杀: ["责任上肩", "规则重塑", "压力淬炼"],
+  比劫: ["自己说了算", "拉朋友入伙", "抢地盘"], 印星: ["充电学习", "遇贵人", "歇口气"], 食伤: ["被看见", "出新作", "话变多"], 财星: ["钱进来", "谈合作", "管住账"], 官杀: ["挑担子", "被考核", "扛压力"],
 };
 const ANNUAL_OPPORTUNITY: Record<string, string[]> = {
   比劫: ["适合主动牵头做一件事，你的行动速度就是今年的竞争力。", "适合召集同伴共同推进目标，人脉会在协作中变成资产。", "适合拿回一件事的主导权，按自己的方式做一遍。"],
@@ -272,8 +276,8 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
 
   const personalityDetails = [
     CATEGORY_READING[topGod],
-    "日主" + dayMaster + "属" + dayElement + "，底层气质偏向" + ELEMENT_NATURE[dayElement] + "。",
-    strength === "身强" ? "自我驱动力充足，适合承担和主导；成长点是给反馈与合作留位置。" : strength === "身弱" ? "感受力细密、善于借势；稳定环境和可靠团队能放大优势。" : "内外能量相对均衡，适应性强，关键在于建立长期主线。",
+    "性格底色是「" + dayMaster + "·" + dayElement + "」——" + ELEMENT_NATURE[dayElement] + "。命盘里" + topGod + "的力量最突出,也就是" + GOD_PLAIN[topGod] + "。",
+    strength === "身强" ? "自己想干嘛就能干起来,不太需要别人推;要修炼的是听劝、给别人留位置。" : strength === "身弱" ? "心思细、会看脸色,擅长借别人的势;找个稳的平台和靠谱的队友,优势会翻倍。" : "能量不多不少,适应力强;关键是早点定下主线,别什么都试。",
   ];
   const talentDetails = [
     topGod + "主导、" + secondGod + "辅助，天赋组合落在“" + CATEGORY_KEYWORDS[topGod].join("、") + "”与“" + CATEGORY_KEYWORDS[secondGod].join("、") + "”。",
@@ -406,7 +410,7 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
       season: monthBranch + "月（" + monthElement + "旺之令）",
       strength,
       pattern: topGod + "主导 · " + secondGod + "辅助",
-      statement: dayMaster + dayElement + "日主生于" + monthBranch + "月，命局" + strength + "。核心课题是把" + CATEGORY_KEYWORDS[topGod].join("、") + "转化成可持续的生活与成果。",
+      statement: "TA 的核心五行是「" + dayMaster + "·" + dayElement + "」（命理叫日主，相当于性格底色），出生在" + monthBranch + "月。" + (strength === "身强" ? "整体能量偏旺，是个有主见、有干劲的人。" : strength === "身弱" ? "整体能量偏柔和，靠敏感和借力吃饭的人。" : "整体能量均衡，什么环境都能适应。") + "这辈子最该做的，是把「" + CATEGORY_KEYWORDS[topGod].join("、") + "」这些天生优势，变成看得见的成果。",
       favorable,
       cautious,
     },
@@ -414,9 +418,9 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
     relations: buildRelations(chart),
     lifeStages,
     areas: {
-      personality: { summary: "外在由" + topGod + "驱动，内在以" + secondGod + "调节；真正的优势来自两者配合。", details: personalityDetails },
-      talent: { summary: "最值得发展的不是单点能力，而是“" + CATEGORY_KEYWORDS[topGod][0] + " × " + CATEGORY_KEYWORDS[secondGod][0] + "”的组合能力。", details: talentDetails },
-      career: { summary: careerSummary, details: careerDetails },
+      personality: { summary: "台面上的 TA 靠" + topGod + "(" + GOD_PLAIN[topGod].split("(")[0] + ")打天下,心里的天平由" + secondGod + "把关;两者配合好,才是真正的优势。", details: personalityDetails },
+      talent: { summary: "最值钱的天赋是一个组合:「" + CATEGORY_KEYWORDS[topGod][0] + "」加上「" + CATEGORY_KEYWORDS[secondGod][0] + "」——单拎出来不稀奇,放在一起就是 TA 的独家牌。", details: talentDetails },
+      career: { summary: "一句话:" + careerSummary, details: careerDetails },
       wealth: { summary: wealthSummary, details: wealthDetails },
       relationship: { summary: relationText, details: ["配偶星属" + spouseElement + "，关系里更容易被具有" + ELEMENT_NATURE[spouseElement] + "特质的人吸引。", "夫妻宫坐" + dayBranch + "，藏干" + chart.pillars[2].hideGan.join("、") + "，亲密关系会触发" + chart.pillars[2].hideShiShen.join("、") + "等内在需求。", "关系质量不只看配偶星，还要结合夫妻宫、大运和流年共同判断。"] },
       family: { summary: "家庭影响主要从年柱与月柱进入，既塑造安全感，也塑造面对规则与责任的方式。", details: familyDetails },
@@ -425,10 +429,10 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
     dayun: chart.daYun.steps.map((step, index) => dayunInsight(step, dayMaster, favorable, cautious, index, branches)),
     annual,
     advice: [
-      "优先发展" + favorable.join("、") + "所代表的环境与能力，让喜用力量在现实中有落点。",
-      "当" + cautious.join("、") + "相关压力明显时，减少同时推进的目标，先恢复节奏再做扩张。",
-      "把" + topGod + "的优势用于长期作品或稳定关系，避免只在短期情绪里消耗。",
-      "出生时辰会影响时柱、起运和部分细节；若目前时辰为近似值，应把具体年份判断视为趋势参考。",
+      "多做和" + favorable.join("、") + "相关的事(换个说法:这类环境让 TA 如鱼得水),好状态要有地方使。",
+      "凡是" + cautious.join("、") + "味道太重的人和事,别硬碰——先砍掉一半目标,缓过来再说。",
+      "把" + topGod + "(" + GOD_PLAIN[topGod].split("(")[0] + ")的本事沉淀成作品或长期关系,别只图一时爽。",
+      "出生时辰会影响部分细节;如果 TA 的时辰是估算的,具体年份的判断当趋势看就好,别抠细节。",
     ],
   };
 }

@@ -95,7 +95,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
       ]} />
 
       <section className="mf-zr-card" id="chart">
-        <div className="mf-zr-section-head"><span>01</span><div><h2>命局底盘</h2><p>四柱、藏干、十神、纳音与能量阶段</p></div></div>
+        <div className="mf-zr-section-head"><span>01</span><div><h2>命局底盘</h2><p>TA 出生那一刻的\u201c出厂配置\u201d——下面有导读,看不懂术语也没关系</p></div></div>
+        <p className="mf-zr-plain-note">📖 下面是排盘数据区：<b>年/月/日/时</b>四根柱子代表 TA 出生时刻的能量配置，日柱代表 TA 自己。术语看不懂完全没关系——从「02 核心生辰画像」开始，所有内容都已经翻译成大白话了。</p>
         <div className="mf-zr-chart-grid">
           {report.pillars.map((pillar) => (
             <div className={`mf-zr-pillar-col ${pillar.label === "日柱" ? "is-day" : ""}`} key={pillar.label}>
@@ -110,10 +111,10 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
 
         <div className="mf-zr-foundation">
-          <div><small>日主</small><b>{report.dayMaster}{profile.summary.dayElement} · {profile.summary.yinYang}</b></div>
-          <div><small>月令</small><b>{profile.summary.season}</b></div>
-          <div><small>旺衰</small><b>{profile.summary.strength}</b></div>
-          <div><small>主导结构</small><b>{profile.summary.pattern}</b></div>
+          <div><small>性格底色（日主）</small><b>{report.dayMaster}{profile.summary.dayElement} · {profile.summary.yinYang}</b></div>
+          <div><small>出生季节（月令）</small><b>{profile.summary.season}</b></div>
+          <div><small>能量状态（旺衰）</small><b>{profile.summary.strength}</b></div>
+          <div><small>人生主剧本（格局）</small><b>{profile.summary.pattern}</b></div>
         </div>
 
         <div className="mf-zr-wuxing">
@@ -137,7 +138,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="portrait">
-        <div className="mf-zr-section-head"><span>02</span><div><h2>核心生辰画像</h2><p>性格底色、行为模式与优势天赋</p></div></div>
+        <div className="mf-zr-section-head"><span>02</span><div><h2>核心生辰画像</h2><p>TA 是个什么样的人、天赋在哪</p></div></div>
         <div className="mf-zr-verdict">
           <p>{profile.summary.statement}</p>
           <div><span>喜用：{profile.summary.favorable.join("、")}</span><span>慎用：{profile.summary.cautious.join("、")}</span></div>
@@ -153,7 +154,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="ten-gods">
-        <div className="mf-zr-section-head"><span>03</span><div><h2>十神能量结构</h2><p>看清驱动力、表达方式、资源观和责任模式</p></div></div>
+        <div className="mf-zr-section-head"><span>03</span><div><h2>性格的五种燃料</h2><p>命盘里哪股力量在推着 TA 走（已翻译成大白话）</p></div></div>
         <div className="mf-zr-god-grid">
           {profile.tenGods.map((god) => (
             <article key={god.name} className={god.level === "主导" ? "is-primary" : ""}>
@@ -165,7 +166,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="career">
-        <div className="mf-zr-section-head"><span>04</span><div><h2>事业与财富</h2><p>适合的成就路径、资源模式与风险边界</p></div></div>
+        <div className="mf-zr-section-head"><span>04</span><div><h2>事业与财富</h2><p>TA 适合干什么、钱从哪来、哪里要小心</p></div></div>
         <div className="mf-zr-reading-grid">
           <ReadingBlock title="事业路径" {...profile.areas.career} />
           <ReadingBlock title="财富模式" {...profile.areas.wealth} />
@@ -173,7 +174,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="relationship">
-        <div className="mf-zr-section-head"><span>05</span><div><h2>关系与家庭</h2><p>亲密关系模式、配偶星、夫妻宫与原生环境</p></div></div>
+        <div className="mf-zr-section-head"><span>05</span><div><h2>关系与家庭</h2><p>TA 谈感情的样子,以及正缘长什么样</p></div></div>
         <div className="mf-zr-reading-grid">
           <ReadingBlock title="亲密关系" {...profile.areas.relationship} />
           <ReadingBlock title="家庭影响" {...profile.areas.family} />
@@ -186,7 +187,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="wellbeing">
-        <div className="mf-zr-section-head"><span>06</span><div><h2>身心能量与调节</h2><p>从五行偏向理解恢复方式，不作医学诊断</p></div></div>
+        <div className="mf-zr-section-head"><span>06</span><div><h2>身心与回血方式</h2><p>TA 怎么休息最有效（仅供娱乐参考，不是医学建议）</p></div></div>
         <ReadingBlock title="身心节律" {...profile.areas.wellbeing} />
         <h3 className="mf-zr-sub">命局作用关系</h3>
         <div className="mf-zr-relation-grid">
@@ -199,7 +200,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="luck">
-        <div className="mf-zr-section-head"><span>07</span><div><h2>大运与未来十年</h2><p>先看十年背景，再看每一年的行动节奏</p></div></div>
+        <div className="mf-zr-section-head"><span>07</span><div><h2>大运与未来十年</h2><p>人生剧本的\u201c章节梗概\u201d,再看每一年的节奏</p></div></div>
         <div className="mf-zr-dayun-detail">
           {profile.dayun.map((step) => (
             <article className={`is-${step.tone} ${step.current ? "is-current" : ""}`} key={step.ganzhi + step.yearText}>
@@ -237,7 +238,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card">
-        <div className="mf-zr-section-head"><span>08</span><div><h2>画像总结与行动建议</h2><p>把命局倾向转化成可以执行的选择</p></div></div>
+        <div className="mf-zr-section-head"><span>08</span><div><h2>总结与建议</h2><p>如果只能记住四句话,就是这四句</p></div></div>
         <ol className="mf-zr-advice">{profile.advice.map((item) => <li key={item}>{item}</li>)}</ol>
       </section>
 
