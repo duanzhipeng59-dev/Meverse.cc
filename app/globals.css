@@ -2,29 +2,34 @@
 
 :root {
   /* mf-bz 新中式设计 token(全站统一基准) */
-  --bz-red: #8b1e2d;
-  --bz-red-deep: #741225;
-  --bz-red-bright: #a92434;
-  --bz-paper: #faf8f4;
-  --bz-paper-warm: #fdfbf7;
-  --bz-card: #fffefc;
-  --bz-line: #ebe5da;
-  --bz-line-strong: #d7c9c3;
-  --bz-ink: #241719;
-  --bz-muted: #7d7473;
-  --bz-gold: #c9a15a;
-  --bz-green: #3a8a59;
+  --bz-red: #c64b73;
+  --bz-red-deep: #a83a5e;
+  --bz-red-bright: #de6b91;
+  --bz-paper: #0f0b0e;
+  --bz-paper-warm: #151014;
+  --bz-card: #1c151a;
+  --bz-card-raised: #261b22;
+  --bz-selected: #3a1c29;
+  --bz-line: rgba(255, 235, 242, 0.10);
+  --bz-line-strong: rgba(255, 235, 242, 0.20);
+  --bz-ink: #f7f0f2;
+  --bz-muted: #bdaeb4;
+  --bz-faint: #897980;
+  --bz-gold: #d2a35c;
+  --bz-green: #72b58a;
+  --bz-error: #e06d7c;
   --font-serif-display: "Noto Serif SC", "Songti SC", Georgia, serif;
 
   --blue: #3189ef;
   --blue-dark: #1f75da;
-  --blue-soft: #eef6ff;
-  --text: #17191c;
-  --muted: #7d8592;
-  --line: #e2e5e9;
-  --soft: #f5f6f7;
-  --surface: #fff;
-  --surface-subtle: #f8f9fb;
+  --blue-soft: #1a1c22;
+  --text: #f7f0f2;
+  --muted: #bdaeb4;
+  --line: rgba(255, 235, 242, 0.10);
+  --soft: #151014;
+  --surface: #1c151a;
+  --surface-subtle: #151014;
+  color-scheme: dark;
   --radius-md: 14px;
   --radius-lg: 20px;
   --shadow-sm: 0 1px 2px rgb(16 24 40 / 4%), 0 6px 18px rgb(16 24 40 / 5%);
@@ -42,7 +47,7 @@ html,
 body {
   min-height: 100%;
   margin: 0;
-  background: #fff;
+  background: #0f0b0e;
   color: var(--text);
   font-family:
     Ubuntu, Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -4912,61 +4917,6 @@ select:focus-visible {
 .mf-reports-storage-note { color: #a8a29e; }
 
 /* ── 工作台外壳 · bz 语言覆盖(类名保留)────────────────────────────── */
-/* ===== 工作台深色主视觉 ===== */
-.mf-workspace-shell {
-  --bz-paper: #131019;
-  --bz-paper-warm: #17131f;
-  --bz-card: #1a1624;
-  --bz-line: #2c2540;
-  --bz-line-strong: #3a3152;
-  --bz-ink: #eceaf2;
-  --bz-muted: #9d94b3;
-  --bz-red: #d4506a;
-  --bz-red-deep: #b13a52;
-  --bz-red-bright: #e56a82;
-  background: #0e0c13;
-}
-.mf-workspace-shell { background: #0e0c13; }
-/* 深色下白色元素反转:按钮、输入、图标等固定色值 */
-.mf-workspace-shell .mf-bz-btn,
-.mf-workspace-shell .mf-primary-button { color: #fff; }
-.mf-workspace-shell .mf-bz-btn-ghost { background: var(--bz-paper-warm); }
-.mf-workspace-shell .mf-bz-discover-grid { color: var(--bz-ink); }
-.mf-workspace-shell input,
-.mf-workspace-shell select { color-scheme: dark; }
-.mf-workspace-shell .mf-bz-star-cover { background: var(--bz-card); }
-.mf-workspace-shell .mf-bz-cover-overlay { background: linear-gradient(180deg, transparent 40%, rgb(10 8 14 / 92%) 88%); }
-.mf-workspace-shell .mf-hist-card-head img,
-.mf-workspace-shell .mf-bz-cover-img { background: var(--bz-line); }
-.mf-workspace-shell .mf-hist-tabs a { background: var(--bz-card); }
-.mf-workspace-shell .mf-hist-tabs a.is-active { background: rgb(212 80 106 / 14%); }
-.mf-workspace-shell .mf-hist-entry:hover { background: var(--bz-paper-warm); }
-.mf-workspace-shell .mf-bz-account-card,
-.mf-workspace-shell .mf-bz-avatar,
-.mf-workspace-shell .mf-bz-profile-stats i { background: var(--bz-card); }
-.mf-workspace-shell .mf-workspace-disclaimer,
-.mf-workspace-shell .mf-reports-storage-note { color: var(--bz-muted); }
-.mf-workspace-shell,
-.mf-workspace-shell .mf-workspace-main { background: radial-gradient(circle at 90% 0, rgb(212 80 106 / 8%), transparent 28rem), #0e0c13; }
-.mf-workspace-shell .mf-workspace-sidebar { border-right-color: #241f31; background: rgb(18 15 25 / 92%); }
-.mf-workspace-shell .mf-workspace-brand,
-.mf-workspace-shell .mf-workspace-nav-item,
-.mf-workspace-shell .mf-workspace-account button,
-.mf-workspace-shell .mf-workspace-account a { color: var(--bz-muted); }
-.mf-workspace-shell .mf-workspace-brand { color: var(--bz-ink); }
-.mf-workspace-shell .mf-workspace-nav-item:hover { color: var(--bz-red-bright); }
-.mf-workspace-shell .mf-workspace-nav-item.active { color: #f4f0fa; border-color: rgb(212 80 106 / 30%); background: linear-gradient(135deg, rgb(212 80 106 / 18%), rgb(212 80 106 / 6%)); box-shadow: none; }
-.mf-workspace-shell .mf-workspace-nav-icon { color: var(--bz-muted); background: rgb(255 255 255 / 5%); }
-.mf-workspace-shell .mf-workspace-nav-item.active .mf-workspace-nav-icon { color: #fff; background: linear-gradient(145deg, #a84265, #702443); }
-.mf-workspace-shell .mf-workspace-account { border-top-color: #241f31; }
-.mf-workspace-shell .mf-workspace-account a:hover,
-.mf-workspace-shell .mf-workspace-account a.active { color: var(--bz-red-bright); background: rgb(212 80 106 / 10%); }
-.mf-workspace-shell .mf-workspace-account button small { color: #b8a9b0; background: #241f31; }
-.mf-workspace-shell .mf-workspace-mobile-bar { border-bottom-color: #241f31; background: rgb(14 12 19 / 96%); }
-.mf-workspace-shell .mf-mobile-menu-dialog { background: rgb(14 12 19 / 97%); }
-.mf-workspace-shell .mf-workspace-label { color: #6d6482; }
-.mf-workspace-shell .mf-workspace-meta { border-color: #241f31; background: var(--bz-card); }
-.mf-workspace-shell .mf-workspace-content .mf-bz-discover-search input { color: var(--bz-ink); }
 .mf-workspace-shell .mf-bz-account-button { border-color: var(--bz-red-bright); background: var(--bz-paper-warm); color: var(--bz-red-bright); }
 .mf-workspace-shell .mf-primary-button { background: linear-gradient(135deg, #a84265, #702443); }
 .mf-workspace-shell .mf-secondary-button { border-color: var(--bz-line-strong); background: var(--bz-card); color: var(--bz-ink); }

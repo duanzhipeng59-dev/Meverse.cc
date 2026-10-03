@@ -1,16 +1,16 @@
 :root {
-  --mf-ink: #251b22;
-  --mf-muted: #756870;
-  --mf-plum: #7a294e;
-  --mf-rose: #b75976;
-  --mf-blush: #f6e5e8;
-  --mf-cream: #fffaf6;
-  --mf-line: rgba(70, 42, 55, 0.13);
-  --mf-shadow: 0 24px 70px rgba(82, 35, 58, 0.14);
+  --mf-ink: #f7f0f2;
+  --mf-muted: #bdaeb4;
+  --mf-plum: #de6b91;
+  --mf-rose: #de6b91;
+  --mf-blush: #261b22;
+  --mf-cream: #0f0b0e;
+  --mf-line: rgba(255, 235, 242, 0.10);
+  --mf-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
 }
 
 html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--mf-cream); color: var(--mf-ink); }
+body { margin: 0; background: #0f0b0e; color: var(--mf-ink); color-scheme: dark; }
 button, a { -webkit-tap-highlight-color: transparent; }
 
 .mf-page, .mf-test-page, .mf-result-page {
