@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../auth-context";
 import type { DualStarCandidate } from "../../myfate-dual-server";
 
@@ -21,10 +21,17 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
   const [error, setError] = useState("");
   const [existing, setExisting] = useState<{ reportId: string; label: string } | null>(null);
 
-  // 登录前暂存选择,登录回来恢复
-  useMemo(() => {
-    if (status !== "loading") return;
-  }, [status]);
+  // 挂载时若无携带明星,尝试恢复登录前暂存的选择
+  useEffect(() => {
+    if (initialStarId) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null") as { a?: string | null; b?: string | null } | null;
+      if (saved?.a) setSlotA(candidates.find((c) => c.id === saved.a) ?? null);
+      if (saved?.b) setSlotB(candidates.find((c) => c.id === saved.b) ?? null);
+    } catch {
+      // 忽略
+    }
+  }, [candidates, initialStarId]);
 
   const filtered = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -39,21 +46,6 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
       // 隐私模式忽略
     }
   }
-
-  function restore() {
-    try {
-      const saved = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null") as { a?: string | null; b?: string | null } | null;
-      if (saved?.a) setSlotA(candidates.find((c) => c.id === saved.a) ?? null);
-      if (saved?.b) setSlotB(candidates.find((c) => c.id === saved.b) ?? null);
-    } catch {
-      // 忽略
-    }
-  }
-
-  // 挂载时若无携带明星,尝试恢复登录前暂存的选择
-  useMemo(() => {
-    if (!initialStarId) restore();
-  }, [candidates]);
 
   function choose(candidate: DualStarCandidate) {
     if (picking === "A") {
