@@ -37,8 +37,15 @@ export default function ReportToc({ items }: { items: TocItem[] }) {
     };
   }, [items]);
 
-  function onJump(id: string) {
-    lockUntil.current = Date.now() + 900;
+  function onJump(id: string, event: React.MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    // 精确滚动到吸顶条(顶栏+导航)下方,不依赖浏览器锚点的 scroll-margin 行为
+    const y = el.getBoundingClientRect().top + window.scrollY - 120;
+    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    window.history.replaceState(null, "", `#${id}`);
+    lockUntil.current = Date.now() + 1000;
     setActive(id);
   }
 
@@ -58,7 +65,7 @@ export default function ReportToc({ items }: { items: TocItem[] }) {
           key={item.id}
           href={`#${item.id}`}
           data-toc={item.id}
-          onClick={() => onJump(item.id)}
+          onClick={(event) => onJump(item.id, event)}
           className={active === item.id ? "is-active" : undefined}
           aria-current={active === item.id ? "true" : undefined}
         >
