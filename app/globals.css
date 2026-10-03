@@ -4811,13 +4811,13 @@ select:focus-visible {
 
 /* ── 个人中心 · Figma 版单列布局 ─────────────────────────────────────── */
 .mf-bz-profile { display: flex; flex-direction: column; gap: 36px; padding: clamp(24px, 4vw, 44px) clamp(18px, 4vw, 54px); }
-.mf-bz-profile-loading { color: #7d7473; font-size: 14px; }
+.mf-bz-profile-loading { color: var(--bz-muted); font-size: 14px; }
 .mf-bz-profile-head { display: grid; gap: 12px; }
-.mf-bz-profile-head h1 { margin: 0; color: #241719; font: 700 clamp(30px, 4vw, 49px)/1.18 "Noto Serif SC", "Songti SC", Georgia, serif; }
-.mf-bz-profile-head p { margin: 0; color: #7d7473; font: 400 clamp(15px, 2vw, 18px)/1.55 Inter, system-ui, sans-serif; }
+.mf-bz-profile-head h1 { margin: 0; color: var(--bz-ink); font: 700 clamp(30px, 4vw, 49px)/1.18 "Noto Serif SC", "Songti SC", Georgia, serif; }
+.mf-bz-profile-head p { margin: 0; color: var(--bz-muted); font: 400 clamp(15px, 2vw, 18px)/1.55 Inter, system-ui, sans-serif; }
 .mf-bz-profile-head span { color: #7d7473; font: 400 clamp(13px, 1.6vw, 18px)/1.4 Inter, system-ui, sans-serif; }
 
-.mf-bz-account-card { display: flex; align-items: center; gap: 30px; padding: 0 36px; min-height: 220px; border: 1px solid #e8deda; border-radius: 10px; background: #fffefc; flex-wrap: wrap; }
+.mf-bz-account-card { display: flex; align-items: center; gap: 30px; padding: 0 36px; min-height: 220px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); flex-wrap: wrap; }
 .mf-bz-avatar { flex-shrink: 0; display: grid; place-items: center; width: 142px; height: 142px; border-radius: 999px; background: #e9cfcc; }
 .mf-bz-avatar svg { width: 68px; height: 68px; stroke: #741225; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .mf-bz-account-details { flex: 1; min-width: 240px; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
@@ -5810,3 +5810,9 @@ select:focus-visible {
 .mf-workspace-shell .mf-mobile-menu-trigger { color: var(--bz-ink); background: rgb(255 255 255 / 6%); }
 .mf-workspace-shell .mf-mobile-menu-dialog[open] { color: var(--bz-ink); background: #151014; box-shadow: 24px 0 60px rgb(0 0 0 / 55%); }
 .mf-workspace-shell .mf-mobile-menu-dialog[open]::backdrop { background: rgb(6 4 6 / 60%); }
+
+/* 明星图深色骨架 + 加载淡入 */
+.mf-bz-star-cover { background: linear-gradient(100deg, #151014 30%, #221920 45%, #151014 60%); background-size: 220% 100%; animation: mf-cover-skel 1.5s infinite linear; }
+.mf-bz-cover-img { opacity: 0; transition: opacity .45s ease; }
+.mf-bz-cover-img[data-loaded="1"], .mf-bz-cover-img[data-fallback="1"] { opacity: 1; }
+@keyframes mf-cover-skel { from { background-position: 120% 0; } to { background-position: -120% 0; } }

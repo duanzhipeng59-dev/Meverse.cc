@@ -7,6 +7,7 @@ export default function PortraitImg({ src, alt, priority = false }: { src: strin
   return (
     <img
       className="mf-bz-cover-img"
+      onLoad={(event) => { event.currentTarget.dataset.loaded = "1"; }}
       src={portraitImage(src, 360)}
       srcSet={portraitSrcSet(src)}
       sizes={PORTRAIT_SIZES}
