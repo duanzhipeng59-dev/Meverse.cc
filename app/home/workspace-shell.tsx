@@ -83,9 +83,16 @@ export default function WorkspaceShell({ children, upgradesEnabled = true }: { c
     if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
   }, []);
 
+  // 桌面侧栏路由预热:点击菜单时骨架立即接管(动态页 RSC 需要数百毫秒,不预热会滞留旧页)
+  useEffect(() => {
+    for (const item of menuItems) router.prefetch(item.href);
+  }, [router]);
+
   function openMobileMenu() {
     if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
     setMobileMenuClosing(false);
+    // 打开抽屉时预热菜单路由:点击后 loading 骨架立即接管,旧页面不再滞留闪现
+    for (const item of menuItems) router.prefetch(item.href);
     if (!mobileMenuRef.current?.open) {
       mobileMenuRef.current?.showModal();
       setMobileMenuOpen(true);

@@ -4666,8 +4666,8 @@ select:focus-visible {
 
 /* ── route transition skeletons ─────────────────────────────────────── */
 .mf-workspace-skeleton { padding: 28px 0; display: grid; gap: 18px; }
-.mf-skeleton { position: relative; overflow: hidden; border-radius: 14px; background: #efeae3; }
-.mf-skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgb(255 255 255 / 65%), transparent); animation: mf-skeleton-shimmer 1.4s infinite; }
+.mf-skeleton { position: relative; overflow: hidden; border-radius: 14px; background: #1c151a; }
+.mf-skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgb(255 235 242 / 7%), transparent); animation: mf-skeleton-shimmer 1.4s infinite; }
 @keyframes mf-skeleton-shimmer { 100% { transform: translateX(100%); } }
 .mf-skeleton-heading { width: 40%; height: 30px; }
 .mf-skeleton-title { width: 52%; height: 34px; }
@@ -5292,7 +5292,7 @@ select:focus-visible {
 .mf-bz-starreport-hero img { flex-shrink: 0; width: 132px; height: 160px; border-radius: 12px; object-fit: cover; border: 1px solid var(--bz-line); }
 .mf-bz-starreport-kicker { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.16em; }
 .mf-bz-starreport-hero h1 { margin: 10px 0 10px; color: var(--bz-ink); font: 700 clamp(26px, 3vw, 34px)/1.2 var(--font-serif-display); }
-.mf-bz-starreport-hero p { margin: 0; color: #57534e; font: 500 15px/1.8 var(--font-serif-display); }
+.mf-bz-starreport-hero p { margin: 0; color: var(--bz-muted); font: 500 15px/1.8 var(--font-serif-display); }
 .mf-bz-starreport-hero small { display: block; margin-top: 12px; color: var(--bz-red); font: 700 12px/1 Inter, system-ui, sans-serif; letter-spacing: 0.16em; }
 .mf-bz-starreport-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .mf-bz-starreport-sections article { padding: 24px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); }
@@ -5302,7 +5302,7 @@ select:focus-visible {
 .mf-bz-starreport-placeholder { display: grid; place-items: center; gap: 10px; padding: 34px 0; border: 1px dashed var(--bz-line-strong); border-radius: 10px; background: var(--bz-paper-warm); }
 .mf-bz-starreport-placeholder span { color: var(--bz-gold); }
 .mf-bz-starreport-placeholder p { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
-.mf-bz-starreport-note { margin: 0; padding: 12px 16px; border-radius: 10px; background: #f3eee4; color: #a8a29e; font-size: 11.5px; }
+.mf-bz-starreport-note { margin: 0; padding: 12px 16px; border-radius: 10px; background: var(--bz-paper-warm); color: var(--bz-muted); font-size: 11.5px; }
 @media (max-width: 760px) { .mf-bz-starreport-hero { flex-direction: column; align-items: flex-start; } .mf-bz-starreport-sections { grid-template-columns: 1fr; } }
 
 
@@ -5335,7 +5335,7 @@ select:focus-visible {
 .mf-bz-privacy-note { margin-top: 2px; }
 .mf-bz-save-status i { box-shadow: 0 0 0 3px rgb(58 138 89 / 15%); }
 
-.mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #f7f1e6, #efe5d2); border: 1px solid var(--bz-line); color: var(--bz-red); font: 700 44px/1 var(--font-serif-display); }
+.mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #3a1c29, #261b22); border: 1px solid var(--bz-line); color: var(--bz-red-bright); font: 700 44px/1 var(--font-serif-display); }
 
 /* ============ 明星正缘报告(八字)·深色报告版式 ============ */
 .mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(16px, 3vw, 32px); background: #100e16; border-radius: 18px; color: #eceaf2; min-width: 0; }
