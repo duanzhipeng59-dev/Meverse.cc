@@ -4912,7 +4912,40 @@ select:focus-visible {
 .mf-reports-storage-note { color: #a8a29e; }
 
 /* ── 工作台外壳 · bz 语言覆盖(类名保留)────────────────────────────── */
-.mf-workspace-shell { background: var(--bz-paper); }
+/* ===== 工作台深色主视觉 ===== */
+.mf-workspace-shell {
+  --bz-paper: #131019;
+  --bz-paper-warm: #17131f;
+  --bz-card: #1a1624;
+  --bz-line: #2c2540;
+  --bz-line-strong: #3a3152;
+  --bz-ink: #eceaf2;
+  --bz-muted: #9d94b3;
+  --bz-red: #d4506a;
+  --bz-red-deep: #b13a52;
+  --bz-red-bright: #e56a82;
+  background: #0e0c13;
+}
+.mf-workspace-shell { background: #0e0c13; }
+/* 深色下白色元素反转:按钮、输入、图标等固定色值 */
+.mf-workspace-shell .mf-bz-btn,
+.mf-workspace-shell .mf-primary-button { color: #fff; }
+.mf-workspace-shell .mf-bz-btn-ghost { background: var(--bz-paper-warm); }
+.mf-workspace-shell .mf-bz-discover-grid { color: var(--bz-ink); }
+.mf-workspace-shell input,
+.mf-workspace-shell select { color-scheme: dark; }
+.mf-workspace-shell .mf-bz-star-cover { background: var(--bz-card); }
+.mf-workspace-shell .mf-bz-cover-overlay { background: linear-gradient(180deg, transparent 40%, rgb(10 8 14 / 92%) 88%); }
+.mf-workspace-shell .mf-hist-card-head img,
+.mf-workspace-shell .mf-bz-cover-img { background: var(--bz-line); }
+.mf-workspace-shell .mf-hist-tabs a { background: var(--bz-card); }
+.mf-workspace-shell .mf-hist-tabs a.is-active { background: rgb(212 80 106 / 14%); }
+.mf-workspace-shell .mf-hist-entry:hover { background: var(--bz-paper-warm); }
+.mf-workspace-shell .mf-bz-account-card,
+.mf-workspace-shell .mf-bz-avatar,
+.mf-workspace-shell .mf-bz-profile-stats i { background: var(--bz-card); }
+.mf-workspace-shell .mf-workspace-disclaimer,
+.mf-workspace-shell .mf-reports-storage-note { color: var(--bz-muted); }
 .mf-workspace-sidebar { background: #fffefc; backdrop-filter: none; border-right-color: var(--bz-line); }
 .mf-workspace-brand { color: var(--bz-ink) !important; }
 .mf-workspace-brand span:last-child { font: 700 17px/1 var(--font-serif-display); }
