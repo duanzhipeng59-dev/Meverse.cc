@@ -4,14 +4,13 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./auth-context";
 
-type ReportKind = "bazi" | "astrology";
+type ReportKind = "bazi";
 
 const KINDS: Array<{ id: ReportKind; label: string; loading: string; path: string; className: string }> = [
   { id: "bazi", label: "AI 生辰解读", loading: "正在打开画像…", path: "test", className: "mf-primary-button mf-detail-cta" },
-  { id: "astrology", label: "AI 星盘解读", loading: "正在打开星盘…", path: "astrology", className: "mf-secondary-button mf-detail-cta mf-detail-astro-cta" },
 ];
 
-// 报告入口:点击 100ms 内进入加载态(旋转+文案),双按钮互斥禁用,锁定宽度防跳动,超时恢复并提示。
+// 报告入口:点击后立即进入加载态,锁定宽度防跳动,超时恢复并提示。
 export default function ReportLaunchButtons({ starId, unlocked = [] }: { starId: string; unlocked?: Array<"bazi" | "astrology"> }) {
   const { status } = useAuth();
   const router = useRouter();
@@ -62,9 +61,9 @@ export default function ReportLaunchButtons({ starId, unlocked = [] }: { starId:
           </button>
         );
       })}
-      {unlocked.length ? (
+      {unlocked.includes("bazi") ? (
         <p className="mf-unlocked-note">
-          ✓ 已解锁{KINDS.filter((kind) => unlocked.includes(kind.id)).map((kind) => kind.id === "bazi" ? " 生辰画像" : " 星盘解读").join(" ·")}，重看免费
+          ✓ 已解锁生辰画像，重看免费
         </p>
       ) : null}
       {error ? <p className="mf-detail-hint" role="alert">{error}</p> : null}

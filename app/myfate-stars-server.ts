@@ -345,6 +345,7 @@ export async function getStarReportViews(userId: string): Promise<StarReportView
         .from("star_report_views")
         .select("star_id, report_type, view_count, last_viewed_at, celebrity_profiles!inner(name, role, portrait_url, published)")
         .eq("user_id", userId)
+        .eq("report_type", "bazi")
         .order("last_viewed_at", { ascending: false })
         .limit(120),
       createSupabaseAdminClient()

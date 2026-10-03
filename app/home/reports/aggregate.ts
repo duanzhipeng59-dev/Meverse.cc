@@ -1,24 +1,21 @@
 // 浏览记录聚合与文案:纯函数,服务端页面与客户端筛选组件共用。
 import type { StarReportType, StarReportView } from "../../myfate-stars-server";
 
-export type ReportFilter = "all" | "bazi" | "astrology" | "dual";
+export type ReportFilter = "all" | "bazi" | "dual";
 
-export const REPORT_LABELS: Record<StarReportType, string> = {
+export const REPORT_LABELS: Partial<Record<StarReportType, string>> = {
   bazi: "AI 生辰画像",
-  astrology: "AI 星盘解读",
 };
 
 export const FILTERS: Array<{ id: ReportFilter; label: string }> = [
   { id: "all", label: "全部" },
   { id: "bazi", label: "生辰画像" },
-  { id: "astrology", label: "星盘解读" },
   { id: "dual", label: "双星合盘" },
 ];
 
 export const EMPTY_COPY: Record<ReportFilter, { title: string; hint: string }> = {
   all: { title: "还没有浏览记录", hint: "去明星解读打开一份报告，它会自动出现在这里。" },
   bazi: { title: "还没有浏览过生辰画像", hint: "在明星详情页打开「AI 生辰解读」，记录会出现在这里。" },
-  astrology: { title: "还没有浏览过星盘解读", hint: "在明星详情页打开「AI 星盘解读」，记录会出现在这里。" },
   dual: { title: "还没有生成过双星合盘", hint: "在「双星合盘」选择两位明星生成报告，记录会出现在这里。" },
 };
 
@@ -35,6 +32,7 @@ export type StarGroup = {
 export function aggregateGroups(views: StarReportView[]): StarGroup[] {
   const groups = new Map<string, StarGroup>();
   for (const view of views) {
+    if (view.reportType !== "bazi") continue;
     let group = groups.get(view.starId);
     if (!group) {
       group = { starId: view.starId, name: view.name, role: view.role, portraitSrc: view.portraitSrc, entries: [], latestAt: view.lastViewedAt };

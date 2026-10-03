@@ -83,6 +83,17 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
   return (
     <div className="mf-bz-discover">
+      <header className="mf-bz-discover-head">
+        <div>
+          <span>CELEBRITY READING</span>
+          <h1>读懂 TA 的天赋与人生节奏<i className="mf-bz-sparkle" aria-hidden="true">✦</i></h1>
+          <p>从公开生辰信息出发，浏览人物档案，选择生辰画像或双人关系解读。</p>
+        </div>
+        <aside aria-label="已收录人数">
+          <strong>{stars.length}</strong>
+          <small>位明星档案</small>
+        </aside>
+      </header>
       <div className="mf-bz-discover-tools">
         <label className="mf-bz-discover-search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true">

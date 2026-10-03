@@ -150,7 +150,7 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
                 {group.entries.map((entry) => (
                   <Link
                     className="mf-hist-entry"
-                    href={`/home/relationship-test/${group.starId}${entry.type === "astrology" ? "/astrology" : "/test"}?from=reports`}
+                    href={`/home/relationship-test/${group.starId}/test?from=reports`}
                     key={entry.type}
                   >
                     <b>{REPORT_LABELS[entry.type]}</b>

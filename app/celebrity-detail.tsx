@@ -23,16 +23,17 @@ export default function CelebrityDetail({
     <div className={workspace ? "mf-workspace-detail" : "mf-page mf-detail-page"}>
       {workspace ? (
         <div className="mf-workspace-detail-topbar">
-          <Link className="mf-back-link" href={backHref} aria-label="返回工作区">
+          <Link className="mf-back-link mf-icon-back" href={backHref} aria-label="返回">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-            <span>返回工作区</span>
           </Link>
           <span>明星解读</span>
         </div>
       ) : (
         <header className="mf-header">
           <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
-          <Link className="mf-back-link" href={backHref}>← 返回选择</Link>
+          <Link className="mf-back-link mf-icon-back" href={backHref} aria-label="返回">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          </Link>
         </header>
       )}
 
@@ -52,14 +53,24 @@ export default function CelebrityDetail({
           <h1>{star.name}</h1>
           {baziHeadline ? <p className="mf-detail-tagline">{baziHeadline}</p> : <p className="mf-detail-tagline">“{star.tagline}”</p>}
           <p className="mf-profile-basis">出生日期 {star.birthDate}</p>
+          {star.traits.length ? <div className="mf-detail-traits" aria-label="人物特质">{star.traits.map((trait) => <span key={trait}>{trait}</span>)}</div> : null}
           <div className="mf-detail-description">
+            <span className="mf-detail-section-label">PERSONA NOTES</span>
+            <h2>人物解读</h2>
             <p>{baziBrief || star.description}</p>
+            <dl>
+              <div><dt>关系方式</dt><dd>{star.relationshipStyle}</dd></div>
+              <div><dt>关注重点</dt><dd>{star.focus}</dd></div>
+              <div><dt>命理线索</dt><dd>{star.threePillars}</dd></div>
+            </dl>
           </div>
           <ReportLaunchButtons starId={star.id} unlocked={unlockedReportTypes} />
-          <p className="mf-detail-hint">报告基于公开信息与公开引擎推导</p>
           <Link className="mf-dual-entry" href={`/home/dual-star-match?star=${star.id}`}>
-            <span aria-hidden="true">✕</span>与另一位明星合盘
+            <span className="mf-dual-entry-icon" aria-hidden="true">✦</span>
+            <span><b>AI 解读星盘</b><small>选择另一位明星，解读双人关系</small></span>
+            <i aria-hidden="true">→</i>
           </Link>
+          <p className="mf-detail-hint">报告基于公开信息与公开引擎推导</p>
         </section>
       </div>
 
