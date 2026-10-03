@@ -58,16 +58,11 @@ export default function CelebrityDetail({
             <span className="mf-detail-section-label">PERSONA NOTES</span>
             <h2>人物解读</h2>
             <p>{baziBrief || star.description}</p>
-            <dl>
-              <div><dt>关系方式</dt><dd>{star.relationshipStyle}</dd></div>
-              <div><dt>关注重点</dt><dd>{star.focus}</dd></div>
-              <div><dt>命理线索</dt><dd>{star.threePillars}</dd></div>
-            </dl>
           </div>
           <ReportLaunchButtons starId={star.id} unlocked={unlockedReportTypes} />
           <Link className="mf-dual-entry" href={`/home/dual-star-match?star=${star.id}`}>
             <span className="mf-dual-entry-icon" aria-hidden="true">✦</span>
-            <span><b>AI 解读星盘</b><small>选择另一位明星，解读双人关系</small></span>
+            <span><b>AI 双星合盘</b><small>选择另一位明星，解读双人关系</small></span>
             <i aria-hidden="true">→</i>
           </Link>
           <p className="mf-detail-hint">报告基于公开信息与公开引擎推导</p>

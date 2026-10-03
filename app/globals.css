@@ -5015,14 +5015,22 @@ select:focus-visible {
 
 /* ── 明星合盘发现页 (mf-bz-discover) ─────────────────────────────────── */
 .mf-bz-discover { display: flex; flex-direction: column; align-items: stretch; gap: 18px; padding: 24px 26px 20px; background: var(--bz-paper); border-radius: 18px; width: 100%; }
-@media (max-width: 900px) { .mf-bz-discover { padding: 20px 18px 18px; } }
-.mf-bz-discover-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; }
+@media (max-width: 900px) {
+  .mf-bz-discover { padding: 20px 18px 18px; }
+  .mf-bz-discover-head { flex-direction: column; align-items: flex-start; gap: 14px; padding-bottom: 16px; }
+  .mf-bz-discover-head h1 { margin: 8px 0; }
+  .mf-bz-discover-head p { max-width: none; }
+  .mf-bz-discover-head aside { grid-auto-flow: column; justify-items: start; align-items: baseline; gap: 8px; padding: 0; border-left: 0; }
+  .mf-bz-discover-head aside strong { font-size: 30px; }
+}
+.mf-bz-discover-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 36px; padding-bottom: 20px; border-bottom: 1px solid var(--bz-line); }
+.mf-bz-discover-head > div { min-width: 0; }
 .mf-bz-discover-head span { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.22em; }
-.mf-bz-discover-head h1 { margin: 10px 0 10px; color: var(--bz-ink); font: 700 clamp(26px, 3.6vw, 40px)/1.2 var(--font-serif-display); }
-.mf-bz-discover-head p { margin: 0; color: var(--bz-muted); font-size: 13.5px; }
-.mf-bz-discover-head aside { flex-shrink: 0; min-width: 126px; display: grid; justify-items: end; gap: 4px; padding: 8px 0 8px 24px; border-left: 1px solid var(--bz-line); }
-.mf-bz-discover-head aside strong { color: var(--bz-ink); font: 700 32px/1 var(--font-serif-display); }
-.mf-bz-discover-head aside small { color: var(--bz-muted); font-size: 11px; letter-spacing: .08em; }
+.mf-bz-discover-head h1 { margin: 12px 0 12px; color: var(--bz-ink); font: 700 clamp(28px, 3vw, 42px)/1.18 var(--font-serif-display); letter-spacing: .01em; }
+.mf-bz-discover-head p { margin: 0; max-width: 560px; color: var(--bz-muted); font-size: 13.5px; line-height: 1.8; }
+.mf-bz-discover-head aside { flex-shrink: 0; display: grid; justify-items: end; gap: 6px; padding: 4px 0 6px 32px; border-left: 1px solid var(--bz-line); }
+.mf-bz-discover-head aside strong { color: var(--bz-ink); font: 700 clamp(34px, 3vw, 44px)/1 var(--font-serif-display); }
+.mf-bz-discover-head aside small { color: var(--bz-muted); font-size: 11px; letter-spacing: .1em; white-space: nowrap; }
 .mf-bz-discover-tools { min-width: 0; display: grid; gap: 12px; }
 .mf-bz-discover-toolbar { min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .mf-bz-discover-tabs { min-width: 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
