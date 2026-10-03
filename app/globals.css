@@ -4967,6 +4967,12 @@ select:focus-visible {
 .mf-workspace-shell .mf-workspace-label { color: #6d6482; }
 .mf-workspace-shell .mf-workspace-meta { border-color: #241f31; background: var(--bz-card); }
 .mf-workspace-shell .mf-workspace-content .mf-bz-discover-search input { color: var(--bz-ink); }
+.mf-workspace-shell .mf-mobile-menu-trigger { color: var(--bz-ink); background: rgb(255 255 255 / 6%); }
+.mf-workspace-shell .mf-mobile-menu-trigger:focus-visible { outline-color: rgb(212 80 106 / 45%); }
+.mf-workspace-shell .mf-mobile-menu-dialog[open] { color: var(--bz-ink); background: #14101d; box-shadow: 24px 0 60px rgb(0 0 0 / 55%); }
+.mf-workspace-shell .mf-mobile-menu-dialog[open]::backdrop { background: rgb(0 0 0 / 55%); }
+.mf-workspace-shell .mf-mobile-menu-dialog .mf-workspace-nav-item.active { color: #f4f0fa; }
+.mf-workspace-shell .mf-mobile-menu-heading .mf-workspace-brand { color: var(--bz-ink); }
 .mf-workspace-sidebar { background: #fffefc; backdrop-filter: none; border-right-color: var(--bz-line); }
 .mf-workspace-brand { color: var(--bz-ink) !important; }
 .mf-workspace-brand span:last-child { font: 700 17px/1 var(--font-serif-display); }
