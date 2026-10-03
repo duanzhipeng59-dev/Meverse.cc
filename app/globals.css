@@ -5880,7 +5880,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dayun-shift b { display: block; margin-bottom: 3px; color: var(--bz-gold); font-size: 13px; }
 
 /* 流年分数+状态:一行横排,分数暖白/分隔灰/状态文字按三态着色,整体不可换行 */
-.mf-year-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.mf-zr-year-grid article > .mf-year-head { display: flex; grid-template-columns: none; align-items: baseline; justify-content: space-between; gap: 6px; }
 .mf-year-head span { min-width: 0; }
 .mf-year-head em { margin-left: auto; display: inline-flex; align-items: baseline; flex-shrink: 0; white-space: nowrap; font-style: normal; font-weight: 650; font-size: 12px; background: none; border: 0; padding: 0; }
 .mf-year-head em b { color: var(--bz-ink); font-weight: 700; }
