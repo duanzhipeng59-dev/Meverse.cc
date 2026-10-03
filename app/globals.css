@@ -5720,3 +5720,42 @@ select:focus-visible {
 .mf-zr-share { flex-shrink: 0; display: inline-flex; align-items: center; padding: 7px 16px; border: 1px solid rgb(255 255 255 / 14%); border-radius: 999px; background: rgb(255 255 255 / 6%); color: #e6dff2; font-size: 12.5px; letter-spacing: 1px; cursor: pointer; }
 .mf-zr-share:hover { background: rgb(255 255 255 / 12%); }
 .mf-zr-share .mf-launch-spinner { width: 12px; height: 12px; margin-right: 6px; border-width: 1.5px; }
+
+/* ===== 全站深色:首页/公开页 myfate.css 固定浅色修正 ===== */
+.mf-page, .mf-test-page, .mf-result-page {
+  background:
+    radial-gradient(circle at 86% 5%, rgb(198 75 115 / 9%), transparent 28rem),
+    radial-gradient(circle at 12% 40%, rgb(210 163 92 / 5%), transparent 30rem),
+    #0f0b0e;
+}
+.mf-home-header { border-color: rgba(255, 235, 242, 0.12); background: rgb(21 16 20 / 72%); box-shadow: 0 12px 34px rgb(0 0 0 / 35%), inset 0 1px 0 rgb(255 255 255 / 6%); }
+.mf-header-cta { border-color: var(--bz-line-strong); color: var(--bz-ink); }
+.mf-header-cta:hover { border-color: var(--bz-red-bright); color: var(--bz-red-bright); }
+.mf-home-eyebrow { border-color: rgb(198 75 115 / 30%); color: var(--bz-red-bright); background: rgb(198 75 115 / 10%); }
+.mf-home-fate-map { border-color: rgba(255, 235, 242, 0.12); background: radial-gradient(circle at 50% 55%, rgb(198 75 115 / 12%), transparent 34%), rgb(28 21 26 / 88%); box-shadow: 0 25px 65px rgb(0 0 0 / 45%); }
+.mf-home-fate-map-heading > small { color: #897980; }
+.mf-home-map-ring { border-color: rgb(222 107 145 / 14%); }
+.mf-home-map-ring.near { border-color: rgb(222 107 145 / 26%); }
+.mf-home-hero h1 { color: var(--bz-ink); }
+.mf-home-hero h1 em { color: var(--bz-red-bright); font-style: italic; }
+.mf-hero-copy p { color: var(--bz-muted); }
+.mf-home-cta { background: linear-gradient(135deg, #c64b73, #8e2f51); box-shadow: 0 8px 22px rgb(198 75 115 / 30%); }
+.mf-stars-section { border-top-color: var(--mf-line); }
+.mf-section-heading h2 { color: var(--bz-ink); }
+.mf-section-heading .mf-kicker { color: var(--bz-red-bright); }
+.mf-section-heading > p { color: var(--bz-muted); }
+.mf-star-card-bottom span { color: var(--bz-muted); }
+.mf-star-card-bottom b { color: var(--bz-red-bright); }
+.mf-how h2 { color: var(--bz-ink); }
+.mf-how h3 { color: var(--bz-ink); }
+.mf-how article p { color: var(--bz-muted); }
+.mf-how article > span { color: var(--bz-red-bright); }
+.mf-footer { border-top-color: var(--mf-line); }
+.mf-footer p { color: #897980; }
+/* 登录页 */
+.mf-login-page { color: var(--bz-ink); background: radial-gradient(circle at 76% 18%, rgb(198 75 115 / 16%), transparent 24rem), radial-gradient(circle at 18% 82%, rgb(210 163 92 / 8%), transparent 26rem), linear-gradient(145deg, #151014, #0f0b0e); }
+.mf-login-page::before { border-color: rgb(222 107 145 / 14%); box-shadow: 0 0 0 70px rgb(255 255 255 / 2%), 0 0 0 140px rgb(222 107 145 / 3%); }
+.mf-login-page::after { border-color: rgb(222 107 145 / 10%); box-shadow: 0 0 0 55px rgb(255 255 255 / 2%); }
+.mf-login-card { border-color: rgba(255, 235, 242, 0.14); background: rgb(28 21 26 / 92%); box-shadow: 0 30px 80px rgb(0 0 0 / 50%); }
+/* 答题/生成页 */
+.mf-test-header { border-bottom-color: var(--mf-line); }
