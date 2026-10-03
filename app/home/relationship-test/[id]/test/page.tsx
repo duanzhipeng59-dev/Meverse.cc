@@ -96,7 +96,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
       <section className="mf-zr-card" id="chart">
         <div className="mf-zr-section-head"><span>01</span><div><h2>命局底盘</h2><p>TA 出生那一刻的“出厂配置”——下面有导读,看不懂术语也没关系</p></div></div>
-        <p className="mf-zr-plain-note">📖 下面是排盘数据区：<b>年/月/日/时</b>四根柱子代表 TA 出生时刻的能量配置，日柱代表 TA 自己。术语看不懂完全没关系——从「02 核心生辰画像」开始，所有内容都已经翻译成大白话了。</p>
         <div className="mf-zr-chart-grid">
           {report.pillars.map((pillar) => (
             <div className={`mf-zr-pillar-col ${pillar.label === "日柱" ? "is-day" : ""}`} key={pillar.label}>
