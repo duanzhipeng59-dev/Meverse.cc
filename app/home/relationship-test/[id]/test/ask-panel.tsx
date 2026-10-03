@@ -145,10 +145,12 @@ export default function StarAskPanel({
           <button type="button" className="mf-zr-ask-clear" onClick={() => void clearChat()}>清空对话</button>
         ) : null}
       </div>
-      <p className="mf-zr-ask-sub">
-        {hasHistory ? "继续上次的对话" : "关于这份报告，你还想了解什么？"}
-        {metered && typeof asksRemaining === "number" ? ` · 剩余追问 ${asksRemaining} 次` : ""}
-      </p>
+      {!hasHistory || (metered && typeof asksRemaining === "number") ? (
+        <p className="mf-zr-ask-sub">
+          {!hasHistory ? "关于这份报告，你还想了解什么？" : ""}
+          {hasHistory && metered && typeof asksRemaining === "number" ? `剩余追问 ${asksRemaining} 次` : ""}
+        </p>
+      ) : null}
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
         {loaded && hasMore ? (
