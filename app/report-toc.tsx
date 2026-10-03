@@ -9,12 +9,15 @@ export type TocItem = { id: string; label: string };
 export default function ReportToc({ items }: { items: TocItem[] }) {
   const [active, setActive] = useState(items[0]?.id ?? "");
   const navRef = useRef<HTMLElement | null>(null);
+  // 点击跳转后短暂锁定高亮为点击项,避免惯性滚动期间被位置跟踪覆盖
+  const lockUntil = useRef(0);
 
   useEffect(() => {
     // 顶栏+导航吸顶占位高度;最后一个越过该线的章节即当前章节
     const threshold = 130;
     let raf = 0;
     const update = () => {
+      if (Date.now() < lockUntil.current) return;
       let current = items[0]?.id ?? "";
       for (const item of items) {
         const el = document.getElementById(item.id);
@@ -34,6 +37,11 @@ export default function ReportToc({ items }: { items: TocItem[] }) {
     };
   }, [items]);
 
+  function onJump(id: string) {
+    lockUntil.current = Date.now() + 900;
+    setActive(id);
+  }
+
   useEffect(() => {
     const nav = navRef.current;
     const el = nav?.querySelector<HTMLElement>(`a[data-toc="${active}"]`);
@@ -50,6 +58,7 @@ export default function ReportToc({ items }: { items: TocItem[] }) {
           key={item.id}
           href={`#${item.id}`}
           data-toc={item.id}
+          onClick={() => onJump(item.id)}
           className={active === item.id ? "is-active" : undefined}
           aria-current={active === item.id ? "true" : undefined}
         >
