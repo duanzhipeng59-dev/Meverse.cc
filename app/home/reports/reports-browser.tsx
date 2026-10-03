@@ -29,12 +29,11 @@ export default function ReportsBrowser({ initialGroups, urlFilter }: { initialGr
   const filterRef = useRef(filter);
   filterRef.current = filter;
 
-  // 返回本页时恢复上次筛选与滚动位置(URL 带 type 参数时以 URL 为准)
+  // 返回本页时恢复上次筛选与滚动位置(分类以 URL 参数优先,滚动位置始终恢复)
   useEffect(() => {
-    if (urlFilter) return;
     try {
       const saved = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null") as { f?: ReportFilter; y?: number } | null;
-      if (saved?.f) setFilter(saved.f);
+      if (!urlFilter && saved?.f) setFilter(saved.f);
       if (saved?.y) requestAnimationFrame(() => window.scrollTo(0, saved.y as number));
     } catch {
       // 忽略损坏的会话状态
