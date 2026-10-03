@@ -3,7 +3,8 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import StarAskPanel from "../test/ask-panel";
-import ShareButton from "../../../../share-button";
+import ReportTopbar from "../../../../report-topbar";
+import ReportToc from "../../../../report-toc";
 import { getAstrologyReport } from "../../../../myfate-astrology-engine";
 import { getCelebrityVedicBirth, getPublishedStar, recordStarReportView } from "../../../../myfate-stars-server";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
@@ -22,8 +23,9 @@ const ASK_SUGGESTIONS = [
 
 type AstroStyle = CSSProperties & { "--astro-angle": string; "--zodiac-index"?: number };
 
-export default async function AstrologyReportPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AstrologyReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
   const { id } = await params;
+  const { from } = await searchParams;
   const user = await requirePageUser(`/home/relationship-test/${id}/astrology`);
   const star = await getPublishedStar(id);
   if (!star) notFound();
@@ -46,7 +48,7 @@ export default async function AstrologyReportPage({ params }: { params: Promise<
     console.error("Failed to build astrology report", error);
     return (
       <div className="mf-astro">
-        <div className="mf-zr-topbar"><Link className="mf-back-link" href={`/home/relationship-test/${id}`}>← 返回人物详情</Link><ShareButton /></div>
+        <ReportTopbar starId={id} fromReports={from === "reports"} />
         <section className="mf-astro-error"><span>✦</span><h1>星盘正在重新校准</h1><p>计算服务暂时没有返回完整盘面，请稍后刷新重试。</p><Link className="mf-primary-button" href={`/home/relationship-test/${id}/astrology`}>重新生成</Link></section>
       </div>
     );
@@ -58,14 +60,21 @@ export default async function AstrologyReportPage({ params }: { params: Promise<
 
   return (
     <div className="mf-astro">
-      <div className="mf-zr-topbar"><Link className="mf-back-link" href={`/home/relationship-test/${id}`}>← 返回人物详情</Link><ShareButton /></div>
+      <ReportTopbar starId={id} fromReports={from === "reports"} />
 
       <header className="mf-astro-hero">
         <Image src={star.portraitSrc} alt={star.name} width={92} height={112} sizes="92px" unoptimized />
         <div><span>WESTERN NATAL CHART</span><h1>{star.name} 的 AI 星盘解读</h1><p>从行星、宫位、相位与格局，理解 TA 的人格结构、情感方式和人生动力。</p><small>{star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {report.timeKnown ? "出生时间已确认" : "出生时间未确认，已隐藏上升与宫位结论"}</small></div>
       </header>
 
-      <nav className="mf-zr-toc" aria-label="星盘报告目录"><a href="#astro-chart">星盘</a><a href="#astro-core">人格</a><a href="#astro-themes">主题</a><a href="#astro-aspects">相位</a><a href="#astro-houses">宫位</a><a href="#astro-ask">AI 追问</a></nav>
+      <ReportToc items={[
+        { id: "astro-chart", label: "星盘" },
+        { id: "astro-core", label: "人格" },
+        { id: "astro-themes", label: "主题" },
+        { id: "astro-aspects", label: "相位" },
+        { id: "astro-houses", label: "宫位" },
+        { id: "astro-ask", label: "AI 追问" },
+      ]} />
 
       <section className="mf-astro-card" id="astro-chart">
         <div className="mf-zr-section-head"><span>01</span><div><h2>本命星盘</h2><p>行星落座、角度与能量分布</p></div></div>

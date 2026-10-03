@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
-import ShareButton from "../../../../share-button";
+import ReportTopbar from "../../../../report-topbar";
+import ReportToc from "../../../../report-toc";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
@@ -29,8 +30,9 @@ function ReadingBlock({ title, summary, details }: { title: string; summary: str
   );
 }
 
-export default async function StarReportPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function StarReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
   const { id } = await params;
+  const { from } = await searchParams;
   const user = await requirePageUser(`/home/relationship-test/${id}/test`);
   const star = await getPublishedStar(id);
   if (!star) notFound();
@@ -61,10 +63,7 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="mf-zr">
-      <div className="mf-zr-topbar">
-        <Link className="mf-back-link" href="/home/relationship-test">← 返回明星解读</Link>
-        <ShareButton />
-      </div>
+      <ReportTopbar starId={id} fromReports={from === "reports"} />
 
       <header className="mf-zr-hero">
         <Image src={star.portraitSrc} alt={star.name} width={108} height={134} sizes="(max-width: 640px) 108px, 108px" unoptimized />
@@ -84,9 +83,16 @@ export default async function StarReportPage({ params }: { params: Promise<{ id:
         </div>
       </header>
 
-      <nav className="mf-zr-toc" aria-label="报告目录">
-        <a href="#chart">命盘</a><a href="#portrait">画像</a><a href="#ten-gods">十神</a><a href="#career">事业财富</a><a href="#relationship">关系家庭</a><a href="#wellbeing">身心</a><a href="#luck">大运流年</a><a href="#ask">AI 追问</a>
-      </nav>
+      <ReportToc items={[
+        { id: "chart", label: "命盘" },
+        { id: "portrait", label: "画像" },
+        { id: "ten-gods", label: "十神" },
+        { id: "career", label: "事业财富" },
+        { id: "relationship", label: "关系家庭" },
+        { id: "wellbeing", label: "身心" },
+        { id: "luck", label: "大运流年" },
+        { id: "ask", label: "AI 追问" },
+      ]} />
 
       <section className="mf-zr-card" id="chart">
         <div className="mf-zr-section-head"><span>01</span><div><h2>命局底盘</h2><p>四柱、藏干、十神、纳音与能量阶段</p></div></div>
