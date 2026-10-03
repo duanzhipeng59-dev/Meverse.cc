@@ -2,17 +2,61 @@
 
 import Link from "next/link";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
 
 const PAGE_SIZE = 6;
+const LIST_STATE_KEY = "myfate_star_list_v1";
 
 
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarListItem[]; basePath?: string }) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const gridRef = useRef<HTMLDivElement>(null);
+  const stateRef = useRef({ page: 1, query: "" });
+
+  // 从明星详情返回时,恢复上次的页码/搜索词/滚动位置(会话内有效)
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(LIST_STATE_KEY) ?? "null") as { p?: number; q?: string; y?: number } | null;
+      if (saved?.q) setQuery(saved.q);
+      if (saved?.p && saved.p > 1) setPage(saved.p);
+      if (saved?.y) requestAnimationFrame(() => window.scrollTo(0, saved.y as number));
+    } catch {
+      // 忽略损坏的会话状态
+    }
+  }, []);
+
+  // 页码/搜索变化即保存,供返回恢复
+  useEffect(() => {
+    stateRef.current = { page, query };
+    try {
+      sessionStorage.setItem(LIST_STATE_KEY, JSON.stringify({ p: page, q: query, y: Math.round(window.scrollY) }));
+    } catch {
+      // 隐私模式下忽略
+    }
+  }, [page, query]);
+
+  // 节流记录滚动位置
+  useEffect(() => {
+    let timer = 0;
+    const onScroll = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        try {
+          sessionStorage.setItem(LIST_STATE_KEY, JSON.stringify({ p: stateRef.current.page, q: stateRef.current.query, y: Math.round(window.scrollY) }));
+        } catch {
+          // 忽略
+        }
+      }, 300);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(timer);
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     const keyword = query.trim().toLowerCase();
