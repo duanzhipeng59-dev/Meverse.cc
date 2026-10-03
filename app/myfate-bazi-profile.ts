@@ -154,7 +154,7 @@ export type BaziLifeProfile = {
   }>;
   annual: Array<{
     year: number; ganzhi: string; focus: string; score: number; tone: Tone;
-    keyword: string; theme: string; basis: string[]; opportunity: string; watch: string; advice: string;
+    keyword: string; theme: string; basis: string[]; opportunity: string; watch: string; advice: string; text: string;
     continuation: boolean; dayunGanzhi: string; dayunRange: string; dayunShift: null | { year: number; from: string; to: string; note: string };
   }>;
   advice: string[];
@@ -372,8 +372,9 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
       : `${ganzhi}年${category}主事，${signals.length ? `关键信号是${signals.map((s) => SIGNAL_NOTE[s]).join("、")}。` : "没有与原局形成强互动，以大运背景下的常规节奏为主。"}`;
     const adviceTail = score >= 70 ? "适合把资源集中在最重要的目标上。" : score < 50 ? "适合控制变量、少做加法，先稳住基本盘。" : "适合按既定节奏推进，不必激进也不必收缩。";
     const advice = `${DAYUN_ADVICE[category][rotation % DAYUN_ADVICE[category].length]}${adviceTail}`;
+    const text = theme + " 机会：" + opportunity + " 留意：" + watch;
     return {
-      ...rest, keyword, theme, basis, opportunity, watch, advice, continuation,
+      ...rest, keyword, theme, basis, opportunity, watch, advice, text, continuation,
       dayunGanzhi: step.ganzhi,
       dayunRange: step.startYear + "–" + step.endYear,
       dayunShift,
