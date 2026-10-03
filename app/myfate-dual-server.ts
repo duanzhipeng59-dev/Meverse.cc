@@ -30,7 +30,8 @@ export async function getDualStarCandidates(): Promise<DualStarCandidate[]> {
     .from("celebrity_profiles")
     .select("id,name,role,portrait_url,birth_date,birth_time,birth_place")
     .eq("published", true)
-    .order("sort_order", { ascending: true })
+    .order("workspace_position", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: true })
     .returns<CandidateRow[]>();
   if (error) throw error;
   const list = (data ?? []).map((row) => ({
