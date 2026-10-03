@@ -60,6 +60,7 @@ export type DualReportRow = {
   keywords: string[];
   summary: string;
   content: unknown;
+  scores: Record<string, number> | null;
   error: string | null;
   createdAt: string;
 };
@@ -73,6 +74,7 @@ type RawRow = {
   keywords: unknown;
   summary: string;
   content: unknown;
+  scores: unknown;
   error: string | null;
   created_at: string;
 };
@@ -103,6 +105,7 @@ function mapRow(row: RawRow, profiles: Map<string, { name: string; portrait: str
     keywords: Array.isArray(row.keywords) ? row.keywords as string[] : [],
     summary: row.summary ?? "",
     content: row.content,
+    scores: row.scores && typeof row.scores === "object" ? row.scores as Record<string, number> : null,
     error: row.error,
     createdAt: row.created_at,
   };
@@ -111,7 +114,7 @@ function mapRow(row: RawRow, profiles: Map<string, { name: string; portrait: str
 export async function getUserDualReports(userId: string): Promise<DualReportRow[]> {
   const { data, error } = await createSupabaseAdminClient()
     .from("dual_star_reports")
-    .select("id,user_id,star_a,star_b,status,keywords,summary,content,error,created_at")
+    .select("id,user_id,star_a,star_b,status,keywords,summary,content,scores,error,created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50)
@@ -124,7 +127,7 @@ export async function getUserDualReports(userId: string): Promise<DualReportRow[
 export async function getDualReport(id: string): Promise<DualReportRow | null> {
   const { data, error } = await createSupabaseAdminClient()
     .from("dual_star_reports")
-    .select("id,user_id,star_a,star_b,status,keywords,summary,content,error,created_at")
+    .select("id,user_id,star_a,star_b,status,keywords,summary,content,scores,error,created_at")
     .eq("id", id)
     .maybeSingle()
     .returns<RawRow | null>();
@@ -139,7 +142,7 @@ export async function findExistingDualReport(userId: string, starA: string, star
   const [a, b] = [starA, starB].sort();
   const { data, error } = await createSupabaseAdminClient()
     .from("dual_star_reports")
-    .select("id,user_id,star_a,star_b,status,keywords,summary,content,error,created_at")
+    .select("id,user_id,star_a,star_b,status,keywords,summary,content,scores,error,created_at")
     .eq("user_id", userId)
     .eq("star_a", a)
     .eq("star_b", b)
