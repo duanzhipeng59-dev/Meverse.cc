@@ -94,7 +94,7 @@ async function generateContent(s: DualStructure): Promise<DualReportContent> {
   const prompt = buildPrompt(s);
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    const generation = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { temperature: 0.7 });
+    const generation = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { temperature: 0.65, maxTokens: 12000 });
     try {
       return dualReportSchema.parse(JSON.parse(extractJson(generation.content)));
     } catch (error) {
