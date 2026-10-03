@@ -96,7 +96,34 @@ function aspectsFor(chart: EngineWesternChart, names: string[]) {
   return chart.aspects.filter((aspect) => names.includes(aspect.a) || names.includes(aspect.b)).sort((a, b) => a.orb - b.orb).slice(0, 4).map((aspect) => planetName(aspect.a) + "与" + planetName(aspect.b) + "形成" + (ASPECT_ZH[aspect.aspect] ?? aspect.aspect) + "（容许度 " + aspect.orb.toFixed(1) + "°）");
 }
 
-export async function getAstrologyReport(input: { name: string; birthDate: string; birthTime?: string; lat: number; lon: number; tz: string; timeKnown: boolean }): Promise<AstrologyReport> {
+type AstrologyInput = { name: string; birthDate: string; birthTime?: string; lat: number; lon: number; tz: string; timeKnown: boolean };
+
+// 星盘数据确定性:按输入缓存 24h,失败回退旧缓存;并发请求合并为一次外呼。
+const reportCache = new Map<string, { report: AstrologyReport; at: number }>();
+const inflight = new Map<string, Promise<AstrologyReport>>();
+const REPORT_CACHE_TTL = 24 * 3_600_000;
+
+export async function getAstrologyReport(input: AstrologyInput): Promise<AstrologyReport> {
+  const key = JSON.stringify([input.name, input.birthDate, input.birthTime ?? "", input.lat, input.lon, input.tz, input.timeKnown]);
+  const cached = reportCache.get(key);
+  if (cached && Date.now() - cached.at < REPORT_CACHE_TTL) return cached.report;
+  const pending = inflight.get(key);
+  if (pending) return pending;
+  const task = buildAstrologyReport(input)
+    .then((report) => {
+      reportCache.set(key, { report, at: Date.now() });
+      return report;
+    })
+    .catch((error) => {
+      if (cached) return cached.report;
+      throw error;
+    })
+    .finally(() => { inflight.delete(key); });
+  inflight.set(key, task);
+  return task;
+}
+
+async function buildAstrologyReport(input: AstrologyInput): Promise<AstrologyReport> {
   const [year, month, day] = input.birthDate.split("-").map(Number);
   const [hour, minute] = (input.birthTime || "12:00").split(":").map(Number);
   const endpoint = process.env.ASTROLOGY_ENGINE_URL || "https://astro-api-a2rc.onrender.com/chart/natal";
@@ -104,7 +131,7 @@ export async function getAstrologyReport(input: { name: string; birthDate: strin
     method: "POST",
     headers: { "content-type": "application/json", ...(process.env.ASTROLOGY_ENGINE_TOKEN ? { authorization: "Bearer " + process.env.ASTROLOGY_ENGINE_TOKEN } : {}) },
     body: JSON.stringify({ name: input.name, year, month, day, hour, minute, lat: input.lat, lng: input.lon, tz: input.tz, time_known: input.timeKnown, systems: ["western"], house_system: "whole-sign" }),
-    signal: AbortSignal.timeout(55_000),
+    signal: AbortSignal.timeout(15_000),
   });
   if (!response.ok) throw new Error("ASTROLOGY_ENGINE_HTTP_" + response.status);
   const data = await response.json() as EngineResponse;
