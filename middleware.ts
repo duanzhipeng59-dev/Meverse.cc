@@ -28,6 +28,9 @@ const RATE_MAX_KEYS = 50_000;
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
 function ipFrom(request: NextRequest) {
+  // Cloudflare 橙云代理后,Vercel 看到的直连 IP 是 CF 边缘节点;真实客户端 IP 由 CF 头携带
+  const cfIp = request.headers.get("cf-connecting-ip");
+  if (cfIp) return cfIp.trim();
   const forwarded = request.headers.get("x-forwarded-for");
   return (forwarded?.split(",")[0] ?? "").trim() || "unknown";
 }
