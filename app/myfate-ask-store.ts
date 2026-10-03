@@ -42,18 +42,31 @@ function mapConversation(row: ConversationRow): AskConversation {
   };
 }
 
+const CONVERSATION_SELECT = "id,summary,summarized_count,message_count,last_message_at";
+
 export async function getOrCreateConversation(userId: string, starId: string, reportType: "bazi" | "astrology"): Promise<AskConversation> {
   const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
+  const query = () => supabase
     .from("ask_conversations")
-    .upsert(
-      { user_id: userId, star_id: starId, report_type: reportType },
-      { onConflict: "user_id,star_id,report_type", ignoreDuplicates: true },
-    )
-    .select("id,summary,summarized_count,message_count,last_message_at")
+    .select(CONVERSATION_SELECT)
+    .eq("user_id", userId)
+    .eq("star_id", starId)
+    .eq("report_type", reportType)
     .maybeSingle();
-  if (error || !data) throw error ?? new Error("ASK_CONVERSATION_UPSERT_FAILED");
-  return mapConversation(data as unknown as ConversationRow);
+
+  const existing = await query();
+  if (existing.data) return mapConversation(existing.data as unknown as ConversationRow);
+
+  const inserted = await supabase
+    .from("ask_conversations")
+    .insert({ user_id: userId, star_id: starId, report_type: reportType })
+    .select(CONVERSATION_SELECT)
+    .maybeSingle();
+  if (inserted.data) return mapConversation(inserted.data as unknown as ConversationRow);
+  // 并发下唯一键冲突:再读一次
+  const again = await query();
+  if (again.data) return mapConversation(again.data as unknown as ConversationRow);
+  throw inserted.error ?? new Error("ASK_CONVERSATION_UPSERT_FAILED");
 }
 
 export async function listMessages(conversationId: string, before?: number): Promise<{ messages: AskMessageRow[]; hasMore: boolean }> {
