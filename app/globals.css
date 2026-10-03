@@ -5241,13 +5241,13 @@ select:focus-visible {
   .mf-detail-portrait-wrap::after { content: ""; position: absolute; inset: auto 0 0; height: 34%; background: linear-gradient(transparent, rgb(20 10 14 / 55%)); pointer-events: none; }
   /* 喜欢数:右上小徽章 */
   .mf-workspace-detail .mf-floating-note,
-  .mf-detail-page .mf-floating-note { top: 14px; right: 14px; bottom: auto; left: auto; min-width: 0; padding: 8px 13px; display: inline-flex; align-items: baseline; gap: 7px; border-radius: 999px; background: rgb(255 254 252 / 82%); backdrop-filter: blur(10px); box-shadow: 0 8px 22px rgb(36 23 25 / 16%); }
+  .mf-detail-page .mf-floating-note { top: 14px; right: 14px; bottom: auto; left: auto; min-width: 0; padding: 8px 13px; display: inline-flex; align-items: baseline; gap: 7px; border-radius: 999px; background: rgb(15 11 14 / 74%); backdrop-filter: blur(10px); box-shadow: 0 8px 22px rgb(0 0 0 / 32%); }
   .mf-workspace-detail .mf-floating-note strong, .mf-detail-page .mf-floating-note strong { font: 700 13.5px/1 Georgia, serif; }
   .mf-workspace-detail .mf-floating-note small, .mf-detail-page .mf-floating-note small { font-size: 9.5px; }
   .mf-workspace-detail .mf-floating-note > span, .mf-detail-page .mf-floating-note > span { font-size: 11px; }
   /* 信息卡上浮压住照片底边 */
   .mf-workspace-detail .mf-detail-copy,
-  .mf-detail-page .mf-detail-copy { position: relative; z-index: 2; margin: -56px 14px 0; padding: 24px 20px 26px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); box-shadow: 0 18px 44px rgb(36 23 25 / 10%); }
+  .mf-detail-page .mf-detail-copy { position: relative; z-index: 2; margin: -56px 14px 0; padding: 24px 20px 26px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); box-shadow: 0 18px 44px rgb(0 0 0 / 35%); }
   .mf-workspace-detail .mf-detail-copy h1, .mf-detail-page .mf-detail-copy h1 { margin: 8px 0 10px; font: 700 40px/1.1 var(--font-serif-display); letter-spacing: 0.02em; }
   .mf-detail-tagline { font-size: 15px; line-height: 1.75; }
   .mf-detail-born, .mf-profile-basis { font-size: 12px; }
@@ -5263,6 +5263,8 @@ select:focus-visible {
   .mf-detail-page .mf-detail-copy > .mf-detail-hint { display: none; }
   .mf-workspace-detail .mf-detail-copy > .mf-bazi-note,
   .mf-detail-page .mf-detail-copy > .mf-bazi-note { order: 3; margin-top: 14px; }
+  .mf-workspace-detail .mf-detail-copy > .mf-unlocked-note,
+  .mf-detail-page .mf-detail-copy > .mf-unlocked-note { order: 3; margin: 6px 2px 0; }
 }
 
 /* 平板:双栏反转,人像更大(861-1180px),桌面 >1180 不动 */
@@ -5561,9 +5563,9 @@ select:focus-visible {
 
 /* ============ AI 星盘解读 ============ */
 .mf-workspace-detail .mf-detail-copy .mf-detail-astro-cta,
-.mf-detail-page .mf-detail-copy .mf-detail-astro-cta { margin-top: 10px; border: 1px solid #6f5b8d; background: #f7f2fb; color: #553f73; box-shadow: none; }
+.mf-detail-page .mf-detail-copy .mf-detail-astro-cta { margin-top: 10px; border: 1px solid #8d75b8; background: rgb(109 87 146 / 16%); color: #cbb8e8; box-shadow: none; }
 .mf-workspace-detail .mf-detail-copy .mf-detail-astro-cta:hover,
-.mf-detail-page .mf-detail-copy .mf-detail-astro-cta:hover { background: #eee5f7; }
+.mf-detail-page .mf-detail-copy .mf-detail-astro-cta:hover { background: rgb(109 87 146 / 27%); }
 .mf-astro { display: grid; gap: 18px; min-width: 0; padding: clamp(16px, 3vw, 32px); border-radius: 18px; background: radial-gradient(circle at 82% 4%, #27213c 0, #13101c 36%, #0d0b13 72%); color: #eeeaf5; scroll-behavior: smooth; }
 .mf-astro-hero { display: flex; align-items: center; gap: 22px; padding: 23px; border: 1px solid rgb(184 158 225 / 18%); border-radius: 17px; background: linear-gradient(135deg, rgb(38 30 55 / 94%), rgb(19 16 28 / 96%)); }
 .mf-astro-hero img { flex: 0 0 auto; width: 92px; height: 112px; border: 1px solid #45375d; border-radius: 12px; object-fit: cover; }
@@ -5756,8 +5758,9 @@ select:focus-visible {
 .mf-zr-note { color: #897980; }
 
 /* ===== 深色:星盘报告浅色卡 -> 深紫灰表面 ===== */
-.mf-detail-astro-cta { border-color: var(--bz-line-strong); background: var(--bz-card); color: var(--bz-ink); box-shadow: none; }
-.mf-detail-astro-cta:hover { background: var(--bz-card-raised, #261b22); }
+.mf-detail-astro-cta { border-color: #8d75b8; background: rgb(109 87 146 / 16%); color: #cbb8e8; box-shadow: none; }
+.mf-detail-astro-cta:hover { background: rgb(109 87 146 / 27%); }
+.mf-detail-copy .mf-unlocked-note { margin: 12px 2px 0; font-size: 12px; letter-spacing: .02em; color: var(--bz-red-bright); }
 .mf-astro-card { background: var(--bz-card); color: var(--bz-ink); border: 1px solid var(--bz-line); }
 .mf-astro-wheel { border-color: rgb(222 107 145 / 30%); background: radial-gradient(circle, #1a1522 0 28%, #221a2c 29% 30%, #191422 31% 57%, #2c2138 58% 59%, #171221 60% 100%); box-shadow: inset 0 0 45px rgb(198 75 115 / 8%), 0 18px 42px rgb(0 0 0 / 40%); }
 .mf-astro-wheel .ring { border-color: rgb(255 235 242 / 12%); }

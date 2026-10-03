@@ -9,6 +9,7 @@ export default function CelebrityDetail({
   others = [],
   baziBrief = "",
   baziHeadline = "",
+  unlockedReportTypes = [],
 }: {
   star: StarProfile;
   backHref: string;
@@ -16,6 +17,7 @@ export default function CelebrityDetail({
   others?: Array<Pick<StarProfile, "id" | "name" | "portraitSrc">>;
   baziBrief?: string;
   baziHeadline?: string;
+  unlockedReportTypes?: Array<"bazi" | "astrology">;
 }) {
   return (
     <div className={workspace ? "mf-workspace-detail" : "mf-page mf-detail-page"}>
@@ -53,7 +55,7 @@ export default function CelebrityDetail({
           <div className="mf-detail-description">
             <p>{baziBrief || star.description}</p>
           </div>
-          <ReportLaunchButtons starId={star.id} />
+          <ReportLaunchButtons starId={star.id} unlocked={unlockedReportTypes} />
           <p className="mf-detail-hint">报告基于公开信息与公开引擎推导</p>
         </section>
       </div>

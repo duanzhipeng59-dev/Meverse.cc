@@ -12,7 +12,7 @@ const KINDS: Array<{ id: ReportKind; label: string; loading: string; path: strin
 ];
 
 // 报告入口:点击 100ms 内进入加载态(旋转+文案),双按钮互斥禁用,锁定宽度防跳动,超时恢复并提示。
-export default function ReportLaunchButtons({ starId }: { starId: string }) {
+export default function ReportLaunchButtons({ starId, unlocked = [] }: { starId: string; unlocked?: Array<"bazi" | "astrology"> }) {
   const { status } = useAuth();
   const router = useRouter();
   const [pending, setPending] = useState<ReportKind | null>(null);
@@ -62,6 +62,11 @@ export default function ReportLaunchButtons({ starId }: { starId: string }) {
           </button>
         );
       })}
+      {unlocked.length ? (
+        <p className="mf-unlocked-note">
+          ✓ 已解锁{KINDS.filter((kind) => unlocked.includes(kind.id)).map((kind) => kind.id === "bazi" ? " 生辰画像" : " 星盘解读").join(" ·")}，重看免费
+        </p>
+      ) : null}
       {error ? <p className="mf-detail-hint" role="alert">{error}</p> : null}
     </>
   );

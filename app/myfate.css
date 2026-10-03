@@ -1218,7 +1218,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .mf-workspace-card-grid .mf-star-overlay h2 { font-size: 23px; }
   .mf-workspace-shell.is-detail .mf-workspace-mobile-bar { display: none; }
   .mf-workspace-shell.is-detail .mf-workspace-main { min-height: 100vh; padding-top: 0; }
-  .mf-workspace-detail-topbar { position: sticky; top: 0; z-index: 10; width: 100%; height: 60px; box-sizing: border-box; padding: 0 16px; background: rgba(255, 250, 246, .96); box-shadow: 18px 0 0 rgba(255,250,246,.96), -18px 0 0 rgba(255,250,246,.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .mf-workspace-detail-topbar { position: sticky; top: 0; z-index: 10; width: 100%; height: 60px; box-sizing: border-box; padding: 0 16px; background: rgb(15 11 14 / 96%); box-shadow: 18px 0 0 rgb(15 11 14 / 96%), -18px 0 0 rgb(15 11 14 / 96%); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
   .mf-workspace-detail-topbar .mf-back-link { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: #f7f0f2; background: rgba(255, 255, 255, 0.08); }
   .mf-workspace-detail-topbar .mf-back-link span { display: none; }
   .mf-workspace-detail-topbar .mf-back-link svg { width: 24px; height: 24px; }
