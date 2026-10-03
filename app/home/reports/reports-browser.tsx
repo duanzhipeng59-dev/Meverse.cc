@@ -129,6 +129,9 @@ export default function ReportsBrowser({ initialGroups, urlFilter }: { initialGr
             <span aria-hidden="true">✦</span>
             <h2>{empty.title}</h2>
             <p>{empty.hint}</p>
+            <button className="mf-hist-retry" type="button" onClick={refresh} disabled={phase === "refreshing"}>
+              {phase === "refreshing" ? "正在加载…" : "重新加载"}
+            </button>
           </section>
         ) : (
           <div className="mf-hist-grid mf-hist-fade" key={filter}>
