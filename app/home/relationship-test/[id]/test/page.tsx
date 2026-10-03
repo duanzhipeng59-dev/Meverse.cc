@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
 import ReportToc from "../../../../report-toc";
+import LuckGuide from "../../../../luck-guide";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
@@ -199,20 +201,51 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <section className="mf-zr-card" id="luck">
-        <div className="mf-zr-section-head"><span>07</span><div><h2>大运与未来十年</h2><p>先看十年背景，再看每一年的行动节奏</p></div></div>
+        <div className="mf-zr-section-head"><span>07</span><div><h2>大运与未来十年</h2><p>先看十年背景，再看每一年的行动节奏</p></div><LuckGuide /></div>
+        <p className="mf-luck-intro">顺势指数表示该年命理结构与原局、当前大运的整体协调程度，只用于比较年份节奏，不是好运或坏运的绝对判断。70 分以上为顺势期，50–69 为平稳期，50 以下为调整期。</p>
+
+        <h3 className="mf-zr-sub">十年大运背景</h3>
+        <p className="mf-luck-note">大运代表约十年的长期人生背景，反映这一阶段持续存在的主题和主要力量。</p>
         <div className="mf-zr-dayun-detail">
           {profile.dayun.map((step) => (
             <article className={`is-${step.tone} ${step.current ? "is-current" : ""}`} key={step.ganzhi + step.yearText}>
-              <div><b>{step.ganzhi}</b><span>{step.ageText}</span>{step.current ? <em>当前大运</em> : null}</div><small>{step.yearText}</small><p>{step.theme}</p>
+              <div className="mf-dayun-head"><b>{step.ganzhi}大运</b><span>{step.ageText}｜{step.yearText}</span>{step.current ? <em>当前大运</em> : null}</div>
+              <span className="mf-dayun-keyword">阶段主题：{step.keyword}</span>
+              <p>{step.theme}</p>
+              <details className="mf-luck-detail">
+                <summary>命理依据</summary>
+                <ul>{step.basis.map((line) => <li key={line}>{line}</li>)}</ul>
+              </details>
+              <div className="mf-dayun-focus">{step.focus.map((item) => <span key={item.label}><b>{item.label}</b>{item.text}</span>)}</div>
+              <p className="mf-dayun-advice">{step.advice}</p>
             </article>
           ))}
         </div>
+
         <h3 className="mf-zr-sub">未来十年流年提示</h3>
+        <p className="mf-luck-note">流年代表某一个具体年份的变化，发生在当前大运背景之中，同一年需要结合所属大运一起理解。</p>
         <div className="mf-zr-year-grid">
           {profile.annual.map((year) => (
-            <article className={`is-${year.tone}`} key={year.year}>
-              <div><b>{year.year}</b><span>{year.ganzhi} · {year.focus}</span><em>{year.score}</em></div><p>{year.text}</p>
-            </article>
+            <Fragment key={year.year}>
+              {year.dayunShift ? (
+                <p className="mf-dayun-shift"><b>{year.dayunShift.year} 年起进入 {year.dayunShift.to} 大运</b>{year.dayunShift.note}</p>
+              ) : null}
+              <article className={`is-${year.tone}`}>
+                <div className="mf-year-head"><b>{year.year}</b><span>{year.ganzhi}年 · {year.focus}</span><em>{year.score}｜{year.tone === "good" ? "顺势" : year.tone === "caution" ? "调整" : "平稳"}</em></div>
+                <p className="mf-year-keyword">{year.keyword}{year.continuation ? " · 延续" : ""}</p>
+                <p className="mf-year-theme">{year.theme}</p>
+                <p className="mf-year-line mf-is-opp"><b>机会</b>{year.opportunity}</p>
+                <p className="mf-year-line mf-is-watch"><b>留意</b>{year.watch}</p>
+                <details className="mf-luck-detail">
+                  <summary>展开解读</summary>
+                  <div className="mf-year-basis">
+                    <small>所属大运：{year.dayunGanzhi}大运（{year.dayunRange}）</small>
+                    <ul>{year.basis.map((line) => <li key={line}>{line}</li>)}</ul>
+                    <p className="mf-year-line"><b>建议</b>{year.advice}</p>
+                  </div>
+                </details>
+              </article>
+            </Fragment>
           ))}
         </div>
         <h3 className="mf-zr-sub">感情流年</h3>

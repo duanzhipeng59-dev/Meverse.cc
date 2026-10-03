@@ -5490,12 +5490,22 @@ select:focus-visible {
 /* ============ AI 生辰画像·完整报告结构 ============ */
 .mf-zr { scroll-behavior: smooth; }
 .mf-zr-hero-copy { min-width: 0; }
-.mf-zr-toc { position: sticky; top: calc(var(--mf-rep-topbar-h, 47px) + 6px); z-index: 19; display: flex; gap: 4px; overflow-x: auto; padding: 5px 8px; border: 1px solid var(--bz-line); border-radius: 12px; background: rgb(17 13 17 / 92%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); scrollbar-width: none; }
+/* 章节导航:wrapper 承担吸顶与渐隐提示,nav 横向滑动 */
+.mf-zr-toc-wrap { position: sticky; top: calc(var(--mf-rep-topbar-h, 60px) + 6px); z-index: 19; }
+.mf-zr-toc-wrap::before, .mf-zr-toc-wrap::after { content: ""; position: absolute; top: 0; bottom: 0; width: 30px; pointer-events: none; opacity: 0; transition: opacity .25s ease; z-index: 2; }
+.mf-zr-toc-wrap::before { left: 0; background: linear-gradient(90deg, rgb(20 15 19 / 96%), transparent); }
+.mf-zr-toc-wrap::after { right: 0; background: linear-gradient(270deg, rgb(20 15 19 / 96%), transparent); }
+.mf-zr-toc-wrap.has-left::before, .mf-zr-toc-wrap.has-right::after { opacity: 1; }
+.mf-zr-toc { display: flex; gap: 4px; overflow-x: auto; padding: 2px 8px; border: 1px solid var(--bz-line); border-radius: 12px; background: rgb(17 13 17 / 92%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); scrollbar-width: none; overscroll-behavior-x: contain; }
 .mf-zr-toc::-webkit-scrollbar { display: none; }
-.mf-zr-toc a { position: relative; flex: 0 0 auto; padding: 7px 11px 8px; border-radius: 8px; color: #a99dae; font-size: 12.5px; font-weight: 600; text-decoration: none; transition: color .18s ease, background .18s ease; }
+.mf-zr-toc a { position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0 11px; border-radius: 8px; color: #a99dae; font-size: 12.5px; font-weight: 600; text-decoration: none; transition: color .18s ease, background .18s ease; }
 .mf-zr-toc a:hover { color: #e8dade; background: rgb(255 235 242 / 5%); }
-.mf-zr-toc a.is-active { color: var(--bz-red-bright); }
-.mf-zr-toc a.is-active::after { content: ""; position: absolute; left: 11px; right: 11px; bottom: 3px; height: 2px; border-radius: 2px; background: var(--bz-red-bright); }
+.mf-zr-toc a.is-active { color: var(--bz-red-bright); font-weight: 700; }
+.mf-zr-toc a.is-active::after { content: ""; position: absolute; left: 11px; right: 11px; bottom: 5px; height: 2px; border-radius: 2px; background: var(--bz-red-bright); }
+/* 下滑收起顶栏只留导航,上滑恢复 */
+.mf-zr-topbar { transition: transform .3s ease; }
+html.mf-topbar-collapsed .mf-zr-topbar { transform: translateY(-101%); }
+html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-zr-card { scroll-margin-top: 112px; }
 #ask, #astro-ask { scroll-margin-top: 112px; }
 .mf-zr-section-head { display: flex; align-items: center; gap: 14px; padding-bottom: 15px; border-bottom: 1px solid #e3dcf2; }
@@ -5569,7 +5579,7 @@ select:focus-visible {
 @media (max-width: 640px) {
   .mf-zr { padding: 13px; border-radius: 0; --mf-rep-pad: 13px; }
   .mf-zr-card { padding: 22px 16px 25px; }
-  .mf-zr-toc { top: calc(var(--mf-rep-topbar-h, 47px) + 4px); }
+  .mf-zr-toc-wrap { top: calc(var(--mf-rep-topbar-h, 60px) + 4px); }
   .mf-zr-reading-grid, .mf-zr-stage-grid, .mf-zr-relation-grid { grid-template-columns: 1fr; }
   .mf-zr-dayun-detail article { grid-template-columns: 1fr; gap: 5px; }
   .mf-zr-year-grid article > div { grid-template-columns: 50px 1fr 28px; }
@@ -5850,3 +5860,62 @@ select:focus-visible {
 .mf-bz-cover-img[data-loaded="1"], .mf-bz-cover-img[data-fallback="1"] { opacity: 1; }
 @keyframes mf-cover-skel { from { background-position: 120% 0; } to { background-position: -120% 0; } }
 @keyframes mf-cover-reveal { to { opacity: 1; } }
+
+/* ── 大运/流年:顺势指数体系(颜色+文字标签,不用大面积色块) ───────────── */
+.mf-luck-intro { margin: 14px 0 2px; color: var(--bz-muted); font-size: 12.5px; line-height: 1.8; }
+.mf-luck-note { margin: 6px 0 14px; color: #8d7f86; font-size: 12px; }
+.mf-luck-guide-trigger { margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border: 1px solid var(--bz-line-strong); border-radius: 999px; background: transparent; color: var(--bz-muted); font: 600 12px/1 inherit; font-family: inherit; cursor: pointer; }
+.mf-luck-guide-trigger i { display: grid; place-items: center; width: 15px; height: 15px; border: 1px solid currentColor; border-radius: 50%; font-style: normal; font-size: 10px; }
+.mf-luck-guide-trigger:hover { color: var(--bz-red-bright); border-color: var(--bz-red); }
+
+.mf-dayun-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.mf-dayun-head b { font-size: 15px; }
+.mf-dayun-keyword { display: block; margin-top: 6px; color: var(--bz-red-bright); font-size: 12.5px; font-weight: 650; }
+.mf-dayun-focus { display: grid; gap: 6px; margin: 9px 0; }
+.mf-dayun-focus span { font-size: 12px; color: var(--bz-muted); line-height: 1.65; }
+.mf-dayun-focus b { color: var(--bz-ink); margin-right: 6px; font-weight: 650; }
+.mf-dayun-advice { margin: 8px 0 0; color: var(--bz-ink); font-size: 12.5px; line-height: 1.7; }
+
+.mf-dayun-shift { grid-column: 1 / -1; margin: 0; padding: 11px 14px; border: 1px dashed rgba(210, 163, 92, 0.45); border-radius: 10px; background: rgba(210, 163, 92, 0.07); color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
+.mf-dayun-shift b { display: block; margin-bottom: 3px; color: var(--bz-gold); font-size: 13px; }
+
+.mf-year-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.mf-year-head em { margin-left: auto; font-style: normal; font-weight: 700; font-size: 13px; }
+.mf-zr-year-grid article.is-good .mf-year-head em { color: var(--bz-green); }
+.mf-zr-year-grid article.is-neutral .mf-year-head em { color: var(--bz-gold); }
+.mf-zr-year-grid article.is-caution .mf-year-head em { color: var(--bz-error); }
+.mf-year-keyword { margin: 8px 0 0; color: var(--bz-red-bright); font-weight: 700; font-size: 13px; }
+.mf-year-theme { margin: 4px 0 0; color: var(--bz-ink); font-size: 12.5px; line-height: 1.7; }
+.mf-year-line { margin: 6px 0 0; color: var(--bz-muted); font-size: 12px; line-height: 1.65; }
+.mf-year-line b { color: var(--bz-ink); font-weight: 650; margin-right: 6px; }
+.mf-year-line.mf-is-opp b { color: var(--bz-green); }
+.mf-year-line.mf-is-watch b { color: var(--bz-gold); }
+.mf-luck-detail { margin-top: 9px; border-top: 1px dashed var(--bz-line); }
+.mf-luck-detail summary { cursor: pointer; padding: 7px 0 3px; color: var(--bz-red-bright); font-size: 12px; font-weight: 600; list-style: none; user-select: none; }
+.mf-luck-detail summary::-webkit-details-marker { display: none; }
+.mf-luck-detail summary::before { content: "＋ "; font-weight: 400; }
+.mf-luck-detail[open] summary::before { content: "－ "; }
+.mf-luck-detail[open] summary { margin-bottom: 4px; }
+.mf-luck-detail ul { margin: 4px 0; padding-left: 15px; }
+.mf-luck-detail li { color: var(--bz-muted); font-size: 12px; line-height: 1.75; }
+.mf-year-basis > small { display: block; color: #8d7f86; font-size: 11.5px; }
+
+/* 如何理解弹层:底部抽屉 */
+.mf-luck-guide { position: fixed; inset: 0; z-index: 60; }
+.mf-luck-guide-mask { position: absolute; inset: 0; background: rgb(6 4 6 / 60%); }
+.mf-luck-guide-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 78vh; overflow: auto; box-sizing: border-box; padding: 20px 22px 32px; border-top: 1px solid var(--bz-line-strong); border-radius: 20px 20px 0 0; background: #171015; animation: mf-sheet-up .28s ease; }
+@keyframes mf-sheet-up { from { transform: translateY(44px); opacity: .4; } }
+.mf-luck-guide-sheet header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.mf-luck-guide-sheet header b { color: var(--bz-ink); font-size: 16px; }
+.mf-luck-guide-sheet header button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: rgb(255 235 242 / 8%); color: var(--bz-muted); font-size: 18px; cursor: pointer; }
+.mf-luck-guide-sheet dt { margin: 14px 0 5px; color: var(--bz-red-bright); font-weight: 700; font-size: 13.5px; }
+.mf-luck-guide-sheet dd { margin: 0; color: var(--bz-muted); font-size: 13px; line-height: 1.8; }
+.mf-luck-guide-sheet dd b { color: var(--bz-ink); }
+.mf-luck-guide-sheet .is-good { color: var(--bz-green); font-weight: 650; }
+.mf-luck-guide-sheet .is-neutral { color: var(--bz-gold); font-weight: 650; }
+.mf-luck-guide-sheet .is-caution { color: var(--bz-error); font-weight: 650; }
+
+/* 新版大运卡:信息分层后改单列自适应,覆盖旧三列网格 */
+.mf-zr-dayun-detail article { grid-template-columns: minmax(0, 1fr); gap: 3px; align-items: start; }
+.mf-zr-dayun-detail article > div { flex-wrap: wrap; }
+.mf-zr-dayun-detail article > p { margin: 3px 0 0; }

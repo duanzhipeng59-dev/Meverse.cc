@@ -45,6 +45,45 @@ const WEALTH_BY_GOD: Record<string, string> = {
 const DAYUN_THEME: Record<string, string> = {
   比劫: "自主与竞争被放大，适合建立个人位置，也要管理合作边界。", 印星: "学习、沉淀与贵人支持增强，适合升级能力和修复状态。", 食伤: "创作与表达进入活跃期，作品和影响力更容易被看见。", 财星: "资源、合作和现实成果成为主线，适合经营与兑现。", 官杀: "责任与目标上升，事业结构可能重组，压力也会带来位置。",
 };
+// ── 大运/流年差异化文案池(引擎事实驱动,候选按年确定性轮转+相邻去重) ──
+const DAYUN_KEYWORD: Record<string, string[]> = {
+  比劫: ["建立位置", "独立扩张", "竞合生长"], 印星: ["能力升级", "蓄力沉淀", "借力修复"], 食伤: ["表达破圈", "作品立身", "灵感变现"], 财星: ["经营兑现", "资源整合", "务实落地"], 官杀: ["责任扩张", "结构重塑", "压力淬炼"],
+};
+const DAYUN_FOCUS: Record<string, Array<{ label: string; text: string }>> = {
+  比劫: [{ label: "事业", text: "适合争取主导权和可见度，但合伙分工要提前定规则" }, { label: "财富", text: "收入与个人投入强相关，防冲动开支与担保借贷" }, { label: "身心", text: "能量足但易过载，规律训练比冲刺更重要" }],
+  印星: [{ label: "学习", text: "系统学习与资格积累的窗口期，知识复利明显" }, { label: "事业", text: "适合后台支持、研究策划类角色，贵人在师长与上级" }, { label: "身心", text: "休整与恢复效率高，注意别退回舒适区不出发" }],
+  食伤: [{ label: "事业", text: "创作、传播与产品能力被放大，适合用作品说话" }, { label: "关系", text: "表达欲增强，魅力上升，也要避免情绪化输出" }, { label: "财富", text: "流量与才华变现的入口打开，宜专注一两条主线" }],
+  财星: [{ label: "财富", text: "经营意识与现金流机会增强，适合把想法变成产品" }, { label: "事业", text: "商务、合作与结果导向的角色更容易出成绩" }, { label: "关系", text: "现实议题进入关系，共同规划比浪漫更重要" }],
+  官杀: [{ label: "事业", text: "职责、考核与影响范围上升，是建立职业壁垒的十年" }, { label: "身心", text: "压力管理系统化：睡眠、运动与情绪出口都要安排" }, { label: "财富", text: "职位与信用溢价是主要来源，慎加杠杆" }],
+};
+const DAYUN_ADVICE: Record<string, string[]> = {
+  比劫: ["把年度目标拆到季度，先赢一场小的再谈扩张，合作一律先定退出机制。", "每季度留一个月只做核心目标，砍掉搭便车型合作。"],
+  印星: ["选一个两年内能拿下的资质或体系课程，把学习产出沉淀成可展示的成果。", "为深造留出固定时间块，学完立刻找一个小场景实践。"],
+  食伤: ["选定一个对外表达的主阵地，按周稳定输出，让作品替你积累信用。", "把灵感记录成素材库，每季度完成一件完整作品而不是十个开头。"],
+  财星: ["为现金流设两条纪律：大额支出冷静期与合作分账书面化。", "每年做一次资产盘点，把资源投向能复利的一两处。"],
+  官杀: ["用书面计划管理承诺：每接受一项新职责，就同步砍掉一件旧事务。", "建立季度复盘机制，把压力翻译成可执行的里程碑。"],
+};
+const ANNUAL_KEYWORD: Record<string, string[]> = {
+  比劫: ["自立门户", "并肩行事", "竞合之年"], 印星: ["蓄力沉淀", "进修蓄能", "贵人指路"], 食伤: ["表达破圈", "作品面世", "灵感落地"], 财星: ["务实经营", "资源落袋", "变现之年"], 官杀: ["责任上肩", "规则重塑", "压力淬炼"],
+};
+const ANNUAL_OPPORTUNITY: Record<string, string[]> = {
+  比劫: ["适合主动牵头做一件事，你的行动速度就是今年的竞争力。", "适合召集同伴共同推进目标，人脉会在协作中变成资产。", "适合拿回一件事的主导权，按自己的方式做一遍。"],
+  印星: ["适合系统学习或考取资质，今年吸收的会成为明年的筹码。", "适合主动请教前辈与专业人士，关键指点能少走弯路。", "适合整理方法论，把零散经验沉淀成体系。"],
+  食伤: ["适合公开发表作品与观点，被看见本身就是机会。", "适合启动创作型项目，灵感密度比平时更高。", "适合做内容、产品或提案，差异化表达是突破口。"],
+  财星: ["适合推进合作与谈判，资源向你倾斜的概率上升。", "适合把想法做成可交易的东西，现金流会给出反馈。", "适合盘点与优化现有资源结构，减法也是收益。"],
+  官杀: ["适合争取更明确的职责与头衔，位置比舒适更重要。", "适合在规则与考核中胜出，专业度会被放大检视。", "适合接下有挑战的任务，压力正是建立信誉的通道。"],
+};
+const ANNUAL_WATCH: Record<string, string[]> = {
+  比劫: ["留意合伙与分账边界，口头承诺今年更容易留下隐患。", "留意冲动决策，重要决定给自己 48 小时冷静期。", "留意资源争夺引发的摩擦，先小人后君子更稳妥。"],
+  印星: ["留意想得多做得少，学完的东西要尽快落地验证。", "留意对安全区的依赖，舒适但不成长的事要设期限。", "留意信息过载，输入要有筛选标准。"],
+  食伤: ["留意表达过载，情绪上头时先草稿后发送。", "留意兴趣发散，同时开工太多会稀释成果。", "留意对反馈过度敏感，作品要经得起批评。"],
+  财星: ["留意透支与杠杆，机会越多越要守住现金流底线。", "留意把关系过度量化，合作需要留人情余地。", "留意账期与合同细节，书面化是自我保护。"],
+  官杀: ["留意多头承诺同时压身，接新事前先减旧事。", "留意自我苛责，考核之外还要有自己的评价标准。", "留意睡眠与情绪张力，压力需要稳定出口。"],
+};
+const SIGNAL_NOTE: Record<string, string> = {
+  chong_day: "与日支相冲", he_day: "与日支六合", chong_month: "与月支相冲", he_month: "与月支六合",
+  chong_dayun: "与大运支相冲", he_dayun: "与大运支相合", gan_he: "天干与日主相合", xing: "与命局成刑", hai: "与命局相害", po: "与命局相破",
+};
 
 function roleOfElement(el: Element, dayMaster: string): string {
   const day = GAN_WUXING[dayMaster];
@@ -109,8 +148,15 @@ export type BaziLifeProfile = {
     family: { summary: string; details: string[] };
     wellbeing: { summary: string; details: string[] };
   };
-  dayun: Array<{ ganzhi: string; ageText: string; yearText: string; theme: string; tone: Tone; current: boolean }>;
-  annual: Array<{ year: number; ganzhi: string; focus: string; score: number; text: string; tone: Tone }>;
+  dayun: Array<{
+    ganzhi: string; ageText: string; yearText: string; tone: Tone; current: boolean;
+    keyword: string; theme: string; basis: string[]; focus: Array<{ label: string; text: string }>; advice: string;
+  }>;
+  annual: Array<{
+    year: number; ganzhi: string; focus: string; score: number; tone: Tone;
+    keyword: string; theme: string; basis: string[]; opportunity: string; watch: string; advice: string;
+    continuation: boolean; dayunGanzhi: string; dayunRange: string; dayunShift: null | { year: number; from: string; to: string; note: string };
+  }>;
   advice: string[];
 };
 
@@ -132,20 +178,47 @@ function buildRelations(chart: BaziChart): BaziLifeProfile["relations"] {
   return result.length ? result : [{ title: "结构平稳", text: "四柱之间没有明显的合冲刑害，命局内部拉扯较少，更多课题来自运势阶段而非先天结构。", tone: "neutral" }];
 }
 
-function dayunInsight(step: BaziDaYunStep, dayMaster: string, favorable: Element[], cautious: Element[]) {
+function dayunInsight(step: BaziDaYunStep, dayMaster: string, favorable: Element[], cautious: Element[], index: number, branches: string[]) {
   const stemEl = GAN_WUXING[step.ganzhi[0]];
   const branchEl = ZHI_WUXING[step.ganzhi[1]];
+  const stemGod = tenGod(dayMaster, step.ganzhi[0]);
+  const branchGod = tenGod(dayMaster, step.ganzhi[1]);
   const category = roleOfElement(stemEl, dayMaster);
   const helpful = favorable.includes(stemEl) || favorable.includes(branchEl);
   const taxing = cautious.includes(stemEl) && cautious.includes(branchEl);
+  const basis: string[] = [
+    `大运天干 ${step.ganzhi[0]} 属${stemEl}，为日主${stemGod}；大运支 ${step.ganzhi[1]} 属${branchEl}，为${branchGod}。`,
+  ];
+  if (CHONG[step.ganzhi[1]] === branches[2]) basis.push(`大运支与日支(${branches[2]})相冲，这一阶段关系与自我定位的调整感更强。`);
+  else if (LIU_HE[step.ganzhi[1]] === branches[2]) basis.push(`大运支与日支(${branches[2]})六合，内在状态与外部机会容易相互配合。`);
+  else if (GAN_HE[step.ganzhi[0]] === dayMaster) basis.push(`大运天干与日干相合，外部力量会主动牵引个人方向。`);
+  basis.push(helpful ? `${stemEl}${branchEl}之气落在喜用(${favorable.join("、")})一方，阶段力量与原局需求同向。` : taxing ? `${stemEl}${branchEl}之气偏向需节制的一方(${cautious.join("、")})，扩张要更谨慎。` : `喜忌参半，阶段表现很大程度取决于具体选择与环境。`);
+  const keyword = DAYUN_KEYWORD[category][(index + (helpful ? 0 : 1)) % DAYUN_KEYWORD[category].length];
+  const focus = DAYUN_FOCUS[category].slice(0, helpful || taxing ? 3 : 2);
+  const advice = DAYUN_ADVICE[category][(index + (taxing ? 1 : 0)) % DAYUN_ADVICE[category].length];
+  const theme = DAYUN_THEME[category] + (helpful ? "喜用力量到位，顺势投入更容易形成成果。" : taxing ? "忌神力量偏重，宜先稳结构再扩张。" : "吉凶取决于选择与环境，重在把握节奏。");
   return {
     ganzhi: step.ganzhi,
     ageText: step.startAge + "–" + step.endAge + "岁",
     yearText: step.startYear + "–" + step.endYear,
-    theme: DAYUN_THEME[category] + (helpful ? " 喜用力量到位，顺势投入更容易形成成果。" : taxing ? " 忌神力量偏重，宜控制节奏、先稳结构再扩张。" : " 吉凶取决于选择与环境，重在把握节奏。"),
+    keyword, theme, basis, focus, advice,
     tone: (helpful ? "good" : taxing ? "caution" : "neutral") as Tone,
     current: step.current,
   };
+}
+
+// 字符二元组相似度:粗粒度查重(确定性文案无需精确算法)
+function textSimilarity(a: string, b: string) {
+  const bigrams = (s: string) => {
+    const set = new Set<string>();
+    for (let i = 0; i < s.length - 1; i += 1) set.add(s.slice(i, i + 2));
+    return set;
+  };
+  const left = bigrams(a), right = bigrams(b);
+  if (!left.size || !right.size) return 0;
+  let hit = 0;
+  for (const gram of left) if (right.has(gram)) hit += 1;
+  return hit / Math.min(left.size, right.size);
 }
 
 export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().getFullYear()): BaziLifeProfile {
@@ -230,24 +303,100 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
     cautious.map((element) => element + "气过旺时易表现为" + ELEMENT_NATURE[element] + "失衡").join("；") + "。",
   ];
 
+  const branches = chart.pillars.map((pillar) => pillar.ganzhi[1]);
+  const dayunSteps = chart.daYun.steps;
   const annual = Array.from({ length: 10 }, (_, index) => {
     const year = currentYear + index;
     const ganzhi = yearGanZhi(year);
     const stemElement = GAN_WUXING[ganzhi[0]];
     const branchElement = ZHI_WUXING[ganzhi[1]];
+    const stemGod = tenGod(dayMaster, ganzhi[0]);
     const category = roleOfElement(stemElement, dayMaster);
+    // 该年所属大运(未来十年可能跨步)
+    const step = dayunSteps.find((item) => year >= item.startYear && year <= item.endYear) ?? dayunSteps.find((item) => item.current) ?? dayunSteps[0];
+    const stepIndex = dayunSteps.indexOf(step);
+    const prevStep = stepIndex > 0 ? dayunSteps[stepIndex - 1] : null;
+    const dayunShift = prevStep && year === step.startYear
+      ? { year, from: prevStep.ganzhi, to: step.ganzhi, note: `长期主题由「${DAYUN_KEYWORD[roleOfElement(GAN_WUXING[prevStep.ganzhi[0]], dayMaster)][0]}」转向「${DAYUN_KEYWORD[roleOfElement(GAN_WUXING[step.ganzhi[0]], dayMaster)][0]}」。` }
+      : null;
+
     let score = 60;
     if (favorable.includes(stemElement)) score += 12;
     if (favorable.includes(branchElement)) score += 8;
     if (cautious.includes(stemElement)) score -= 10;
     if (cautious.includes(branchElement)) score -= 7;
-    if (CHONG[ganzhi[1]] === dayBranch) score -= 9;
-    if (LIU_HE[ganzhi[1]] === dayBranch) score += 7;
-    score = Math.max(35, Math.min(88, score));
-    const tone: Tone = score >= 70 ? "good" : score < 52 ? "caution" : "neutral";
-    const relationSignal = CHONG[ganzhi[1]] === dayBranch ? "同时冲动日支，关系与居住节奏可能出现调整。" : LIU_HE[ganzhi[1]] === dayBranch ? "同时合入日支，合作与关系更容易推进。" : "整体以该年主气为核心，宜按节奏推进。";
-    return { year, ganzhi, focus: category, score, text: DAYUN_THEME[category] + " " + relationSignal, tone };
+    const signals: string[] = [];
+    if (CHONG[ganzhi[1]] === branches[2]) { score -= 9; signals.push("chong_day"); }
+    if (LIU_HE[ganzhi[1]] === branches[2]) { score += 7; signals.push("he_day"); }
+    if (CHONG[ganzhi[1]] === branches[1]) { score -= 4; signals.push("chong_month"); }
+    if (LIU_HE[ganzhi[1]] === branches[1]) { score += 4; signals.push("he_month"); }
+    if (step && CHONG[ganzhi[1]] === step.ganzhi[1]) { score -= 5; signals.push("chong_dayun"); }
+    if (step && LIU_HE[ganzhi[1]] === step.ganzhi[1]) { score += 5; signals.push("he_dayun"); }
+    if (GAN_HE[ganzhi[0]] === dayMaster) { score += 3; signals.push("gan_he"); }
+    if (ZHI_XING.has(ganzhi[1] + branches[2]) || ZHI_XING.has(branches[2] + ganzhi[1])) { score -= 3; signals.push("xing"); }
+    if (HAI[ganzhi[1]] === branches[2]) { score -= 2; signals.push("hai"); }
+    score = Math.max(38, Math.min(88, score));
+    const tone: Tone = score >= 70 ? "good" : score < 50 ? "caution" : "neutral";
+    return {
+      year, ganzhi, focus: category, stemElement, branchElement, stemGod, category, score, tone, signals,
+      step, dayunShift,
+      branchGod: tenGod(dayMaster, ganzhi[1]),
+    };
+  }).map((row, index, rows) => {
+    const { signals, step, dayunShift, stemElement, branchElement, stemGod, branchGod, ...rest } = row;
+    const { year, ganzhi, category, score, tone } = rest;
+    // 命理依据:干支十神 + 与原局/大运的实际关系,逐年组合唯一
+    const basis: string[] = [`流年天干 ${ganzhi[0]} 属${stemElement}，为日主${stemGod}；流年支 ${ganzhi[1]} 属${branchElement}，主气为${branchGod}。`];
+    for (const signal of signals) {
+      const note = SIGNAL_NOTE[signal];
+      if (signal === "chong_day") basis.push(`流年支与日支(${branches[2]})相冲，${year}年的变化感会集中体现在自我定位与亲密关系上。`);
+      else if (signal === "he_day") basis.push(`流年支与日支(${branches[2]})六合，合作与关系议题更容易顺水推进。`);
+      else if (signal === "chong_month") basis.push(`流年支与月支(${branches[1]})相冲，工作节奏或团队环境可能出现调整。`);
+      else if (signal === "he_month") basis.push(`流年支与月支(${branches[1]})六合，平台与上级的支持面更顺。`);
+      else if (signal === "chong_dayun") basis.push(`流年支与${step.ganzhi}大运相冲，短期节奏与十年主线方向有拉扯。`);
+      else if (signal === "he_dayun") basis.push(`流年支与${step.ganzhi}大运相合，年度机会与长期主线相互成就。`);
+      else if (signal === "gan_he") basis.push(`流年天干${ganzhi[0]}与日干${dayMaster}相合，外部资源主动靠近。`);
+      else if (note) basis.push(`${note}，细节消耗需要预留弹性。`);
+    }
+    if (!signals.length) basis.push(`与原局四支柱支没有形成明显合冲，${year}年整体延续当前大运主题，以${DAYUN_KEYWORD[category][0]}的既有节奏展开。`);
+
+    // 与上一年比较:同类同信号 → 明确写"延续"
+    const prev = rows[index - 1];
+    const continuation = Boolean(prev && prev.category === category && prev.tone === tone && prev.signals.join() === signals.join());
+    const rotation = (year + category.length) % 3;
+    const keyword = ANNUAL_KEYWORD[category][rotation % ANNUAL_KEYWORD[category].length];
+    const opportunity = ANNUAL_OPPORTUNITY[category][(rotation + (tone === "caution" ? 1 : 0)) % ANNUAL_OPPORTUNITY[category].length];
+    const watch = ANNUAL_WATCH[category][(rotation + 1) % ANNUAL_WATCH[category].length];
+    const theme = continuation
+      ? `延续上年「${ANNUAL_KEYWORD[category][((year - 1 + category.length) % 3) % ANNUAL_KEYWORD[category].length]}」的主题，${signals.length ? `新增变化来自${signals.map((s) => SIGNAL_NOTE[s]).join("、")}。` : "结构上没有新的强信号，重在执行深度。"}`
+      : `${ganzhi}年${category}主事，${signals.length ? `关键信号是${signals.map((s) => SIGNAL_NOTE[s]).join("、")}。` : "没有与原局形成强互动，以大运背景下的常规节奏为主。"}`;
+    const adviceTail = score >= 70 ? "适合把资源集中在最重要的目标上。" : score < 50 ? "适合控制变量、少做加法，先稳住基本盘。" : "适合按既定节奏推进，不必激进也不必收缩。";
+    const advice = `${DAYUN_ADVICE[category][rotation % DAYUN_ADVICE[category].length]}${adviceTail}`;
+    return {
+      ...rest, keyword, theme, basis, opportunity, watch, advice, continuation,
+      dayunGanzhi: step.ganzhi,
+      dayunRange: step.startYear + "–" + step.endYear,
+      dayunShift,
+    };
   });
+
+  // 相邻去重:正文相似度>70% 或 关键词+建议相同 → 轮换候选;仍近则标记延续
+  for (let i = 1; i < annual.length; i += 1) {
+    const prev = annual[i - 1], cur = annual[i];
+    const bodyA = cur.theme + cur.opportunity + cur.watch + cur.advice;
+    const bodyB = prev.theme + prev.opportunity + prev.watch + prev.advice;
+    if (textSimilarity(bodyA, bodyB) > 0.7 || (cur.keyword === prev.keyword && cur.advice === prev.advice)) {
+      const pool = ANNUAL_OPPORTUNITY[cur.focus];
+      cur.opportunity = pool[(pool.indexOf(cur.opportunity) + 1) % pool.length];
+      const watchPool = ANNUAL_WATCH[cur.focus];
+      cur.watch = watchPool[(watchPool.indexOf(cur.watch) + 1) % watchPool.length];
+      const keyPool = ANNUAL_KEYWORD[cur.focus];
+      cur.keyword = keyPool[(keyPool.indexOf(cur.keyword) + 1) % keyPool.length];
+      if (cur.category === prev.category && cur.focus === prev.focus && !cur.theme.startsWith("延续")) {
+        cur.theme = cur.tone === prev.tone ? `延续上年「${prev.keyword}」的主题，力量结构相近，差异主要在执行重点。` : `延续上年「${prev.keyword}」的主题，节奏由${prev.tone === "good" ? "顺势" : prev.tone === "caution" ? "调整" : "平稳"}转向${cur.tone === "good" ? "顺势" : cur.tone === "caution" ? "调整" : "平稳"}。`;
+      }
+    }
+  }
 
   return {
     summary: {
@@ -272,7 +421,7 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
       family: { summary: "家庭影响主要从年柱与月柱进入，既塑造安全感，也塑造面对规则与责任的方式。", details: familyDetails },
       wellbeing: { summary: "五行最需要关注的是长期失衡，而不是机械地“缺什么补什么”。", details: wellbeingDetails },
     },
-    dayun: chart.daYun.steps.map((step) => dayunInsight(step, dayMaster, favorable, cautious)),
+    dayun: chart.daYun.steps.map((step, index) => dayunInsight(step, dayMaster, favorable, cautious, index, branches)),
     annual,
     advice: [
       "优先发展" + favorable.join("、") + "所代表的环境与能力，让喜用力量在现实中有落点。",
