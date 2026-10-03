@@ -1611,3 +1611,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-secondary-button { color: var(--mf-ink); border-color: rgba(255, 235, 242, 0.20); }
 .mf-how article p, .mf-section-heading > p { color: #bdaeb4; }
 
+
+/* 深色:首页头部登录按钮(原为墨色底) */
+.mf-home-header-cta { color: #fff; background: linear-gradient(135deg, #c64b73, #8e2f51); box-shadow: 0 8px 18px rgb(198 75 115 / 30%); }
