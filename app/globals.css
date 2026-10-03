@@ -4970,6 +4970,17 @@ select:focus-visible {
 .mf-workspace-shell .mf-bz-account-button { border-color: var(--bz-red-bright); background: var(--bz-paper-warm); color: var(--bz-red-bright); }
 .mf-workspace-shell .mf-primary-button { background: linear-gradient(135deg, #a84265, #702443); }
 .mf-workspace-shell .mf-secondary-button { border-color: var(--bz-line-strong); background: var(--bz-card); color: var(--bz-ink); }
+.mf-workspace-shell .mf-workspace-detail-topbar > span,
+.mf-workspace-shell .mf-workspace-detail-topbar .mf-back-link { color: var(--bz-muted); }
+.mf-workspace-shell .mf-kicker,
+.mf-workspace-shell .mf-detail-tagline { color: var(--bz-red-bright); }
+.mf-workspace-shell .mf-detail-tagline { color: #e56a82; }
+.mf-workspace-shell .mf-detail-copy h1,
+.mf-workspace-shell .mf-profile-basis,
+.mf-workspace-shell .mf-detail-description p { color: var(--bz-ink); }
+.mf-workspace-shell .mf-detail-hint,
+.mf-workspace-shell .mf-bazi-note { color: var(--bz-muted); }
+.mf-workspace-shell .mf-detail-description { border-color: var(--bz-line); background: var(--bz-card); }
 .mf-workspace-shell .mf-mobile-menu-trigger { color: var(--bz-ink); background: rgb(255 255 255 / 6%); }
 .mf-workspace-shell .mf-mobile-menu-trigger:focus-visible { outline-color: rgb(212 80 106 / 45%); }
 .mf-workspace-shell .mf-mobile-menu-dialog[open] { color: var(--bz-ink); background: #14101d; box-shadow: 24px 0 60px rgb(0 0 0 / 55%); }
