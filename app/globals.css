@@ -5754,3 +5754,46 @@ select:focus-visible {
 .mf-zr-advice li { color: var(--bz-ink); }
 .mf-zr-advice li::before { background: rgb(198 75 115 / 18%); color: var(--bz-red-bright); }
 .mf-zr-note { color: #897980; }
+
+/* ===== 深色:星盘报告浅色卡 -> 深紫灰表面 ===== */
+.mf-detail-astro-cta { border-color: var(--bz-line-strong); background: var(--bz-card); color: var(--bz-ink); box-shadow: none; }
+.mf-detail-astro-cta:hover { background: var(--bz-card-raised, #261b22); }
+.mf-astro-card { background: var(--bz-card); color: var(--bz-ink); border: 1px solid var(--bz-line); }
+.mf-astro-wheel { border-color: rgb(222 107 145 / 30%); background: radial-gradient(circle, #1a1522 0 28%, #221a2c 29% 30%, #191422 31% 57%, #2c2138 58% 59%, #171221 60% 100%); box-shadow: inset 0 0 45px rgb(198 75 115 / 8%), 0 18px 42px rgb(0 0 0 / 40%); }
+.mf-astro-wheel .ring { border-color: rgb(255 235 242 / 12%); }
+.mf-astro-wheel .ring.two { border-color: rgb(255 235 242 / 18%); }
+.mf-astro-wheel .axis { background: rgb(255 235 242 / 10%); }
+.mf-astro-zodiac { color: #a995ca; }
+.mf-astro-planet { border-color: rgb(222 107 145 / 45%); background: var(--bz-selected); color: var(--bz-red-bright); box-shadow: 0 3px 8px rgb(0 0 0 / 35%); }
+.mf-astro-planet-list > div { border-color: var(--bz-line); background: var(--bz-paper-warm); }
+.mf-astro-planet-list b { color: var(--bz-ink); }
+.mf-astro-planet-list span { color: #897980; }
+.mf-astro-big-three article { border-color: var(--bz-line); background: linear-gradient(145deg, var(--bz-card-raised, #261b22), var(--bz-paper-warm)); }
+.mf-astro-big-three span { color: #897980; }
+.mf-astro-big-three b { color: var(--bz-ink); }
+.mf-astro-big-three p { color: var(--bz-muted); }
+.mf-astro-balance h3 { color: var(--bz-ink); }
+.mf-astro-balance span, .mf-astro-balance small { color: #897980; }
+.mf-astro-balance i { background: rgb(255 255 255 / 8%); }
+.mf-astro-balance i b { background: linear-gradient(90deg, #c64b73, #de6b91); }
+.mf-astro-sections article { border-color: var(--bz-line); background: var(--bz-paper-warm); }
+.mf-astro-sections h3 { color: var(--bz-red-bright); }
+.mf-astro-sections p { color: var(--bz-ink); }
+.mf-astro-sections ul { color: var(--bz-muted); }
+.mf-astro-aspects article { border-left-color: #6d5a80; background: var(--bz-paper-warm); }
+.mf-astro-aspects article.is-strength { border-left-color: var(--bz-green); }
+.mf-astro-aspects article.is-growth { border-left-color: var(--bz-gold); }
+.mf-astro-aspects b { color: var(--bz-ink); }
+.mf-astro-aspects span { color: #897980; }
+.mf-astro-aspects p { color: var(--bz-muted); }
+.mf-astro-houses article { border-color: var(--bz-line); background: var(--bz-paper-warm); }
+.mf-astro-houses article > span { background: var(--bz-selected); color: var(--bz-red-bright); }
+.mf-astro-houses b { color: var(--bz-ink); }
+.mf-astro-houses small { color: #897980; }
+.mf-astro-houses p { color: var(--bz-muted); }
+.mf-astro-special article { background: var(--bz-selected); }
+.mf-astro-special span { color: #897980; }
+.mf-astro-special b { color: var(--bz-ink); }
+.mf-astro-special p { color: var(--bz-muted); }
+.mf-astro-source { color: #897980; }
+.mf-zr-relation-grid article small { color: #897980; }
