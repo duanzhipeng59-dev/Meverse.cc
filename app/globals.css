@@ -5674,3 +5674,19 @@ select:focus-visible {
 .mf-hist-entry small { color: var(--bz-muted); font-size: 11.5px; }
 .mf-hist-entry > span { grid-row: 1 / span 2; align-self: center; color: var(--bz-muted); }
 .mf-hist-entry:hover { background: #fdf8f4; }
+
+/* ============ AI追问·持久化对话 ============ */
+.mf-zr-ask-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mf-zr-ask-head .mf-zr-card-title { flex: 1; }
+.mf-zr-ask-clear { padding: 5px 12px; border: 1px solid #d9cdf0; border-radius: 999px; background: #fdfbff; color: #8a4fae; font-size: 12px; cursor: pointer; }
+.mf-zr-ask-clear:hover { background: #6b4fd8; color: #fff; border-color: #6b4fd8; }
+.mf-zr-ask-older { justify-self: center; padding: 6px 16px; border: 1px dashed #d9cdf0; border-radius: 999px; background: transparent; color: #8a4fae; font-size: 12px; cursor: pointer; }
+.mf-zr-ask-older:disabled { opacity: 0.5; cursor: default; }
+.mf-zr-ask-time { display: block; margin-top: 2px; font-size: 10.5px; color: #b3abc7; }
+.mf-zr-ask-msg.is-failed p { border-color: #e6c9c4; background: #fdf6f5; }
+.mf-zr-ask-msg.is-failed { max-width: 94%; }
+.mf-zr-ask-retry { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.mf-zr-ask-retry small { color: #b3261e; font-size: 11px; }
+.mf-zr-ask-retry button { padding: 3px 12px; border: 1px solid #b3261e; border-radius: 999px; background: transparent; color: #b3261e; font-size: 12px; cursor: pointer; }
+.mf-zr-ask-retry button:hover:not(:disabled) { background: #b3261e; color: #fff; }
+.mf-zr-ask-retry button:disabled { opacity: 0.5; cursor: default; }

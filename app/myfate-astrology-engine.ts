@@ -173,3 +173,26 @@ export async function getAstrologyReport(input: { name: string; birthDate: strin
     specialPoints,
   };
 }
+
+// 星盘报告纯文本摘要:追问接口的权威上下文(与报告页同源)。
+export function formatAstrologyReport(report: AstrologyReport): string {
+  const lines: string[] = [];
+  lines.push(`三主星:${report.bigThree.map(item => `${item.label}${item.sign}`).join(" · ")}`);
+  lines.push(`盘面信息:${report.chartMeta.map(item => `${item.label}=${item.value}`).join(" · ")}${report.timeKnown ? "" : "(时辰未知,宫位相关内容仅供参考)"}`);
+  lines.push("星体落座:");
+  for (const planet of report.planets) {
+    lines.push(`${planet.label}落${planet.sign} ${planet.degree.toFixed(1)}°${planet.house ? ` 第${planet.house}宫` : ""}${planet.retrograde ? " 逆行" : ""}${planet.dignity ? ` ${planet.dignity}` : ""}:${planet.text}`);
+  }
+  lines.push(`元素分布:${report.elements.map(item => `${item.label}${item.value}%`).join(" · ")};模式分布:${report.modalities.map(item => `${item.label}${item.value}%`).join(" · ")}`);
+  lines.push("主要相位:");
+  for (const aspect of report.aspects) lines.push(`${aspect.title}(${aspect.orb.toFixed(1)}°):${aspect.text}`);
+  if (report.patterns.length) {
+    lines.push("星盘格局:");
+    for (const pattern of report.patterns) lines.push(`${pattern.title}(${pattern.planets}):${pattern.text}`);
+  }
+  lines.push("宫位:");
+  for (const house of report.houses) lines.push(`第${house.house}宫 ${house.sign}(主题:${house.topic})`);
+  lines.push("解读板块:");
+  for (const section of report.sections) lines.push(`${section.title}:${section.summary} 依据:${section.evidence.join(";")}`);
+  return lines.join("\n");
+}

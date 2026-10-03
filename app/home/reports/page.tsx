@@ -15,6 +15,10 @@ const FILTERS = [
   { id: "astrology", label: "星盘解读" },
 ] as const;
 
+function entryAskText(askCount: number) {
+  return askCount > 0 ? `已追问${askCount}次` : "暂无追问";
+}
+
 function relativeTime(iso: string) {
   const date = new Date(iso);
   const now = new Date();
@@ -34,7 +38,7 @@ type StarGroup = {
   name: string;
   role: string;
   portraitSrc: string;
-  entries: Array<{ type: StarReportType; viewCount: number; lastViewedAt: string }>;
+  entries: Array<{ type: StarReportType; viewCount: number; askCount: number; lastViewedAt: string }>;
   latestAt: string;
 };
 
@@ -52,7 +56,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
       group = { starId: view.starId, name: view.name, role: view.role, portraitSrc: view.portraitSrc, entries: [], latestAt: view.lastViewedAt };
       groups.set(view.starId, group);
     }
-    group.entries.push({ type: view.reportType, viewCount: view.viewCount, lastViewedAt: view.lastViewedAt });
+    group.entries.push({ type: view.reportType, viewCount: view.viewCount, askCount: view.askCount, lastViewedAt: view.lastViewedAt });
     if (view.lastViewedAt > group.latestAt) group.latestAt = view.lastViewedAt;
   }
   const allGroups = [...groups.values()]
@@ -116,7 +120,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                   key={entry.type}
                 >
                   <b>{REPORT_LABELS[entry.type]}</b>
-                  <small>{relativeTime(entry.lastViewedAt)} · 看过 {entry.viewCount} 次</small>
+                  <small>{relativeTime(entry.lastViewedAt)} · 看过 {entry.viewCount} 次 · {entryAskText(entry.askCount)}</small>
                   <span aria-hidden="true">→</span>
                 </Link>
               ))}

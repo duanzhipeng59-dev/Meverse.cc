@@ -2,7 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type ChatEntry = { role: "user" | "assistant"; content: string };
+type AskEntry = {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+  status: "sending" | "completed" | "failed";
+  createdAt: string;
+};
+
+function timeOf(iso: string) {
+  const date = new Date(iso);
+  const now = new Date();
+  const day = date.toDateString() === now.toDateString() ? "今天" : date.toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
+  return `${day} ${date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
+}
 
 export default function StarAskPanel({
   starId,
@@ -17,7 +30,10 @@ export default function StarAskPanel({
   metered?: boolean;
   reportType?: "bazi" | "astrology";
 }) {
-  const [entries, setEntries] = useState<ChatEntry[]>([]);
+  const [entries, setEntries] = useState<AskEntry[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,70 +41,148 @@ export default function StarAskPanel({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [entries, loading]);
+    let active = true;
+    void fetch(`/api/myfate/star-report-ask?starId=${encodeURIComponent(starId)}&type=${reportType}`, { cache: "no-store" })
+      .then((response) => (response.ok ? (response.json() as Promise<{ messages?: AskEntry[]; hasMore?: boolean }>) : null))
+      .then((data) => {
+        if (!active || !data) return;
+        setEntries(data.messages ?? []);
+        setHasMore(Boolean(data.hasMore));
+        setLoaded(true);
+      })
+      .catch(() => { if (active) setLoaded(true); });
+    return () => { active = false; };
+  }, [starId, reportType]);
 
-  async function ask(question: string) {
+  useEffect(() => {
+    if (entries.length) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [entries.length, loading]);
+
+  async function loadOlder() {
+    const oldest = entries[0]?.id;
+    if (!oldest || loadingOlder) return;
+    setLoadingOlder(true);
+    try {
+      const response = await fetch(`/api/myfate/star-report-ask?starId=${encodeURIComponent(starId)}&type=${reportType}&before=${oldest}`, { cache: "no-store" });
+      const data = await response.json() as { messages?: AskEntry[]; hasMore?: boolean };
+      setEntries((prev) => [...(data.messages ?? []), ...prev]);
+      setHasMore(Boolean(data.hasMore));
+    } catch { /* 保持现状 */ } finally {
+      setLoadingOlder(false);
+    }
+  }
+
+  async function ask(question: string, retryOf?: number) {
     const text = question.trim();
     if (!text || loading) return;
     setError("");
     setInput("");
-    const history = entries.slice(-12);
-    setEntries((prev) => [...prev, { role: "user", content: text }]);
+    const optimisticId = retryOf ?? -Date.now();
+    const optimistic: AskEntry = { id: optimisticId, role: "user", content: text, status: "sending", createdAt: new Date().toISOString() };
+    if (retryOf) {
+      setEntries((prev) => prev.map((entry) => (entry.id === retryOf ? { ...entry, status: "sending" } : entry)));
+    } else {
+      setEntries((prev) => [...prev, optimistic]);
+    }
     setLoading(true);
     try {
       const response = await fetch("/api/myfate/star-report-ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ starId, history, question: text, reportType }),
+        body: JSON.stringify({ starId, reportType, question: text, retryOf }),
       });
       if (response.status === 401) {
         window.location.reload();
         return;
       }
       if (response.status === 402) {
+        if (!retryOf) setEntries((prev) => prev.filter((entry) => entry.id !== optimisticId));
         setError("追问额度不足：每 1 次解读附赠 10 次追问，请先购买解读套餐。");
         setTimeout(() => { window.location.href = "/home/upgrade"; }, 2200);
         return;
       }
-      if (response.status === 503) throw new Error("暂时无法回答，请稍后再试。");
-      if (!response.ok) throw new Error("追问失败，请稍后再试。");
-      const body = await response.json() as { answer?: string; asksRemaining?: number | null };
-      if (!body.answer) throw new Error("追问失败，请稍后再试。");
+      const body = await response.json() as { answer?: string; asksRemaining?: number | null; messageId?: number };
+      if (!response.ok || !body.answer) {
+        if (body.messageId) {
+          // 服务端已留存失败问题,替换为可重试记录
+          setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, id: body.messageId as number, status: "failed" } : entry)));
+        } else if (!retryOf) {
+          setEntries((prev) => [...prev.slice(0, -1), { ...optimistic, status: "failed" }]);
+        } else {
+          setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
+        }
+        setError("回答失败，请点击该问题重试。");
+        return;
+      }
       if (metered && typeof body.asksRemaining === "number") setAsksRemaining(body.asksRemaining);
-      setEntries((prev) => [...prev, { role: "assistant", content: body.answer as string }]);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "追问失败，请稍后再试。");
+      const answerAt = new Date().toISOString();
+      setEntries((prev) => {
+        const marked = prev.map((entry) => (entry.id === optimisticId ? { ...entry, id: body.messageId && body.messageId > 0 ? body.messageId : entry.id, status: "completed" as const } : entry));
+        return [...marked, { id: -Date.now() - 1, role: "assistant", content: body.answer as string, status: "completed", createdAt: answerAt }];
+      });
+    } catch {
+      setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
+      setError("网络异常，请重试。");
     } finally {
       setLoading(false);
     }
   }
 
+  async function clearChat() {
+    if (!window.confirm("清空这份报告的追问记录？报告正文不受影响。")) return;
+    setEntries([]);
+    setHasMore(false);
+    await fetch(`/api/myfate/star-report-ask?starId=${encodeURIComponent(starId)}&type=${reportType}`, { method: "DELETE" }).catch(() => undefined);
+  }
+
+  const hasHistory = entries.length > 0;
+
   return (
     <section className="mf-zr-card mf-zr-ask">
-      <h2 className="mf-zr-card-title">✦ AI追问</h2>
-      <p className="mf-zr-ask-sub">基于 {starName} 的{reportType === "astrology" ? "本命星盘" : "完整八字盘与生辰画像"}，继续问你想了解的{metered && typeof asksRemaining === "number" ? ` · 剩余追问 ${asksRemaining} 次` : ""}</p>
+      <div className="mf-zr-ask-head">
+        <h2 className="mf-zr-card-title">✦ AI追问</h2>
+        {hasHistory ? (
+          <button type="button" className="mf-zr-ask-clear" onClick={() => void clearChat()}>清空对话</button>
+        ) : null}
+      </div>
+      <p className="mf-zr-ask-sub">
+        {hasHistory ? "继续上次的对话" : "关于这份报告，你还想了解什么？"}
+        {metered && typeof asksRemaining === "number" ? ` · 剩余追问 ${asksRemaining} 次` : ""}
+      </p>
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
-        {entries.map((entry, index) => (
-          <div className={`mf-zr-ask-msg ${entry.role}`} key={index}>
-            <p>{entry.content}</p>
-          </div>
-        ))}
+        {loaded && hasMore ? (
+          <button type="button" className="mf-zr-ask-older" disabled={loadingOlder} onClick={() => void loadOlder()}>
+            {loadingOlder ? "正在加载…" : "查看更早的消息"}
+          </button>
+        ) : null}
         {loading ? (
           <div className="mf-zr-ask-msg assistant">
             <p className="mf-zr-ask-typing">正在推演<i>…</i></p>
           </div>
         ) : null}
+        {entries.map((entry) => (
+          <div className={`mf-zr-ask-msg ${entry.role} ${entry.status === "failed" ? "is-failed" : ""}`} key={entry.id}>
+            <p>{entry.content}</p>
+            {entry.status === "failed" ? (
+              <div className="mf-zr-ask-retry">
+                <small>回答失败</small>
+                <button type="button" disabled={loading} onClick={() => void ask(entry.content, entry.id > 0 ? entry.id : undefined)}>重新生成</button>
+              </div>
+            ) : (
+              <small className="mf-zr-ask-time">{timeOf(entry.createdAt)}</small>
+            )}
+          </div>
+        ))}
       </div>
 
-      {entries.some((entry) => entry.role === "assistant") ? null : (
+      {!hasHistory ? (
         <div className="mf-zr-ask-chips">
           {suggestions.map((item) => (
             <button type="button" key={item} onClick={() => void ask(item)} disabled={loading}>{item}</button>
           ))}
         </div>
-      )}
+      ) : null}
 
       {error ? <p className="mf-zr-ask-error" role="alert">{error}</p> : null}
 

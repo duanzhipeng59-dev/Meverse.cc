@@ -315,6 +315,7 @@ export type StarReportView = {
   role: string;
   portraitSrc: string;
   reportType: StarReportType;
+  askCount: number;
   viewCount: number;
   lastViewedAt: string;
 };
@@ -324,7 +325,7 @@ export async function getStarReportViews(userId: string): Promise<StarReportView
   try {
     const { data, error } = await createSupabaseAdminClient()
       .from("star_report_views")
-      .select("star_id, report_type, view_count, last_viewed_at, celebrity_profiles!inner(name, role, portrait_url, published)")
+      .select("star_id, report_type, view_count, last_viewed_at, ask_conversations(message_count), celebrity_profiles!inner(name, role, portrait_url, published)")
       .eq("user_id", userId)
       .order("last_viewed_at", { ascending: false })
       .limit(120);
@@ -334,6 +335,7 @@ export async function getStarReportViews(userId: string): Promise<StarReportView
       report_type: StarReportType;
       view_count: number;
       last_viewed_at: string;
+      ask_conversations: { message_count: number } | null;
       celebrity_profiles: { name: string; role: string; portrait_url: string; published: boolean } | null;
     }>)
       .filter((row) => row.celebrity_profiles?.published)
@@ -343,6 +345,7 @@ export async function getStarReportViews(userId: string): Promise<StarReportView
         role: row.celebrity_profiles!.role,
         portraitSrc: row.celebrity_profiles!.portrait_url,
         reportType: row.report_type === "astrology" ? "astrology" : "bazi",
+        askCount: Math.floor((row.ask_conversations?.message_count ?? 0) / 2),
         viewCount: row.view_count,
         lastViewedAt: row.last_viewed_at,
       }));
