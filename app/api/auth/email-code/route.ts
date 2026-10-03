@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { createSupabaseAdminClient } from "../server";
+import { clientIpFrom, emailCodeRateLimit } from "./rate-limit";
 import {
   apiError,
   buildVerificationEmail,
@@ -15,6 +16,12 @@ export async function POST(request: Request) {
     const payload = (await request.json()) as { email?: string };
     const email = normalizeEmail(payload.email ?? "");
     if (!isValidEmail(email)) return apiError("invalid_email", 400);
+
+    // 应用层冷却:同邮箱/同 IP 60 秒内只发一次(防验证码邮件轰炸)
+    const limit = emailCodeRateLimit(`${email}|${clientIpFrom(request)}`);
+    if (!limit.allowed) {
+      return apiError("code_too_frequent", 429);
+    }
 
     const admin = createSupabaseAdminClient();
     const generated = await admin.auth.admin.generateLink({

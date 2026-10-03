@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getSessionUser } from "../../auth/server";
 import { getCelebrityReportPrompt } from "../../../myfate-stars-server";
 import { generateReportText } from "./model-provider";
 import {
@@ -29,6 +30,10 @@ const requestSchema = z.discriminatedUnion("reportType", [
 ]);
 
 export async function POST(request: Request) {
+  // 生成报告消耗模型调用费用,必须登录(与其余 AI 接口一致)
+  const { user } = await getSessionUser(request);
+  if (!user) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
+
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "INVALID_REQUEST" }, { status: 400 });
 
