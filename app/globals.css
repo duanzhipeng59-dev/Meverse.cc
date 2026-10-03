@@ -5797,3 +5797,10 @@ select:focus-visible {
 .mf-astro-special p { color: var(--bz-muted); }
 .mf-astro-source { color: #897980; }
 .mf-zr-relation-grid article small { color: #897980; }
+
+/* 深色:报告章节头/目录 */
+.mf-zr-section-head { border-bottom-color: var(--bz-line); }
+.mf-zr-section-head > span { background: rgb(198 75 115 / 16%); color: var(--bz-red-bright); }
+.mf-zr-section-head h2 { color: var(--bz-ink); }
+.mf-zr-section-head p { color: #897980; }
+.mf-zr-toc a:hover { color: #fff; background: var(--bz-red); }
