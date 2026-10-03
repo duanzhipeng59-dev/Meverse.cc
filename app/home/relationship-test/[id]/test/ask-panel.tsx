@@ -39,13 +39,14 @@ export default function StarAskPanel({
   const [error, setError] = useState("");
   const [asksRemaining, setAsksRemaining] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     let active = true;
     void fetch(`/api/myfate/star-report-ask?starId=${encodeURIComponent(starId)}&type=${reportType}`, { cache: "no-store" })
       .then((response) => (response.ok ? (response.json() as Promise<{ messages?: AskEntry[]; hasMore?: boolean }>) : null))
       .then((data) => {
-        if (!active || !data) return;
+        if (!active || !data || dirtyRef.current) return;
         setEntries(data.messages ?? []);
         setHasMore(Boolean(data.hasMore));
         setLoaded(true);
@@ -75,6 +76,7 @@ export default function StarAskPanel({
   async function ask(question: string, retryOf?: number) {
     const text = question.trim();
     if (!text || loading) return;
+    dirtyRef.current = true;
     setError("");
     setInput("");
     const optimisticId = retryOf ?? -Date.now();
@@ -158,11 +160,6 @@ export default function StarAskPanel({
             {loadingOlder ? "正在加载…" : "查看更早的消息"}
           </button>
         ) : null}
-        {loading ? (
-          <div className="mf-zr-ask-msg assistant">
-            <p className="mf-zr-ask-typing">正在推演<i>…</i></p>
-          </div>
-        ) : null}
         {entries.map((entry) => (
           <div className={`mf-zr-ask-msg ${entry.role} ${entry.status === "failed" ? "is-failed" : ""}`} key={entry.id}>
             <p>{entry.content}</p>
@@ -176,6 +173,11 @@ export default function StarAskPanel({
             )}
           </div>
         ))}
+        {loading ? (
+          <div className="mf-zr-ask-msg assistant">
+            <p className="mf-zr-ask-typing">正在推演<i>…</i></p>
+          </div>
+        ) : null}
       </div>
 
       {!hasHistory ? (
