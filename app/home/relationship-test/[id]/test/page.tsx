@@ -63,9 +63,9 @@ function DocIndent({ label, content }: { label: string; content: string }) {
   );
 }
 
-export default async function StarReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
+export default async function StarReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; prev?: string }> }) {
   const { id } = await params;
-  const { from } = await searchParams;
+  const { from, prev } = await searchParams;
   const user = await requirePageUser(`/home/relationship-test/${id}/test`);
   const star = await getPublishedStar(id);
   if (!star) notFound();
@@ -102,11 +102,14 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const consult = CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
   const allStars = await getPublishedStarList();
   const others = allStars.filter((item) => item.id !== id).slice(0, 8);
+  // 经"继续探索"从其他报告跳入时,返回按钮回上一份报告;否则回探索页
+  const prevStarId = prev && allStars.some((item) => item.id === prev) ? prev : null;
+  const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : undefined;
   const currentAge = Number.isFinite(Number(star.birthDate.slice(0, 4))) ? new Date().getFullYear() - Number(star.birthDate.slice(0, 4)) : null;
 
   return (
     <div className="mf-zr">
-      <ReportTopbar starId={id} fromReports={from === "reports"} title={topbarTitle} subtitle={topbarSubtitle} />
+      <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={topbarTitle} subtitle={topbarSubtitle} />
 
       <div className="mf-zr-overview">
       <header className="mf-zr-hero">
@@ -254,29 +257,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
       </section>
 
-      {/* ── ✚ 健康 · 文档型 ── */}
-      <section className="mf-zr-card mf-doc" id="c-health">
-        <div className="mf-doc-head"><i aria-hidden="true">✚</i><h2>健康</h2></div>
-        <DocIndent label="身体薄弱环节" content={consult.health.organs.join("；")} />
-        <DocIndent label="急性/慢性信号" content={consult.health.acute} />
-        <DocIndent label="心理健康倾向" content={consult.health.mental} />
-      </section>
-
-      {/* ── ❀ 子女 · 文档型 ── */}
-      <section className="mf-zr-card mf-doc" id="c-children">
-        <div className="mf-doc-head"><i aria-hidden="true">❀</i><h2>子女</h2></div>
-        <DocIndent label="子女缘分" content={consult.children.fate} />
-        <DocIndent label="性别倾向" content={consult.children.gender} />
-        <DocIndent label="子女关系" content={consult.children.relation} />
-      </section>
-
-      {/* ── ⊹ 六亲 · 文档型 ── */}
-      <section className="mf-zr-card mf-doc" id="c-kin">
-        <div className="mf-doc-head"><i aria-hidden="true">⊹</i><h2>六亲</h2></div>
-        <DocIndent label="父亲" content={consult.family.father.replace("偏财", "偏财(父星)")} />
-        <DocIndent label="母亲" content={consult.family.mother.replace("印星", "印星(母星)")} />
-        <DocIndent label="兄弟姐妹/同辈" content={consult.family.siblings.replace("比劫", "比劫(同辈星)")} />
-      </section>
+      {/* ── ✚ 健康 / ❀ 子女 / ⊹ 六亲 章节已下线 ── */}
 
       <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} /></div>
 
@@ -285,7 +266,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
           <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
           <div className="mf-detail-others-row">
             {others.map((item) => (
-              <Link className="mf-detail-others-card" href={`/home/relationship-test/${item.id}/test`} key={item.id}>
+              <Link className="mf-detail-others-card" href={`/home/relationship-test/${item.id}/test?prev=${id}`} key={item.id}>
                 <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${item.portraitSrc}")` }} role="img" aria-label={item.name} />
                 <b>{item.name}</b>
               </Link>

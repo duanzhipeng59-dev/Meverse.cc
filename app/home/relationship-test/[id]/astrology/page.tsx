@@ -48,7 +48,7 @@ export default async function AstrologyReportPage({ params, searchParams }: { pa
     console.error("Failed to build astrology report", error);
     return (
       <div className="mf-astro">
-        <ReportTopbar starId={id} fromReports={from === "reports"} />
+        <ReportTopbar fromReports={from === "reports"} />
         <section className="mf-astro-error"><span>✦</span><h1>星盘正在重新校准</h1><p>计算服务暂时没有返回完整盘面，请稍后刷新重试。</p><Link className="mf-primary-button" href={`/home/relationship-test/${id}/astrology`}>重新生成</Link></section>
       </div>
     );
@@ -60,7 +60,7 @@ export default async function AstrologyReportPage({ params, searchParams }: { pa
 
   return (
     <div className="mf-astro">
-      <ReportTopbar starId={id} fromReports={from === "reports"} />
+      <ReportTopbar fromReports={from === "reports"} />
 
       <header className="mf-astro-hero">
         <Image src={star.portraitSrc} alt={star.name} width={92} height={112} sizes="92px" unoptimized />
