@@ -66,136 +66,83 @@ function yearGanZhi(year: number) {
 export type ConsultReport = ReturnType<typeof buildConsultReport>;
 
 // 人生运势曲线:7-80 岁逐年趋势(由大运打分插值+确定性微波动生成)
-export type FortunePoint = {
-  age: number;
+// 人生运势:以"人生阶段"为单位的趋势叙事(每段大运一个阶段),前端再平滑插值成曲线。
+// 阶段趋势由相邻大运分差判定,避免逐岁随机波动造成的"心电图"观感。
+export type FortuneStage = {
+  startAge: number;
+  endAge: number;
   score: number;
-  career: number;
-  wealth: number;
-  love: number;
-  tag: string;
-  summary: string;
+  trend: "up" | "steady" | "down";
+  label: string;
 };
 
-export type FortuneCurveData = {
-  points: FortunePoint[];
-  peak: FortunePoint;
-  low: FortunePoint;
-};
-
-export type FortuneCurves = {
-  overview: FortuneCurveData;
-  career: FortuneCurveData;
-  wealth: FortuneCurveData;
-  love: FortuneCurveData;
-};
+export type FortuneStageSet = Record<"overview" | "career" | "wealth" | "love", FortuneStage[]>;
 
 const FORTUNE_KEYWORDS: Record<string, string> = {
-  顺势: "突破 · 扩张 · 收获", 稳步: "积累 · 节奏 · 沉淀", 平稳: "平衡 · 观察 · 过渡", 调整: "防守 · 整理 · 蓄力",
+  up: "突破 · 扩张 · 收获",
+  steady: "积累 · 节奏 · 沉淀",
+  down: "防守 · 整理 · 蓄力",
 };
-
-function fortuneBand(score: number) {
-  if (score >= 75) return "顺势";
-  if (score >= 60) return "稳步";
-  if (score >= 45) return "平稳";
-  return "调整";
-}
-
-function interpControls(controls: Array<{ age: number; value: number }>, age: number) {
-  if (!controls.length) return 55;
-  const sorted = [...controls].sort((a, b) => a.age - b.age);
-  if (age <= sorted[0].age) return sorted[0].value;
-  if (age >= sorted[sorted.length - 1].age) return sorted[sorted.length - 1].value;
-  const nextIndex = sorted.findIndex((c) => c.age >= age);
-  const prev = sorted[nextIndex - 1];
-  const next = sorted[nextIndex];
-  return prev.value + ((next.value - prev.value) * (age - prev.age)) / (next.age - prev.age);
-}
 
 function parseAgeMid(ageText: string) {
   const match = ageText.match(/(\d+)–(\d+)/);
   return match ? Math.round((Number(match[1]) + Number(match[2])) / 2) : 40;
 }
 
-// 四维运势曲线:事业/财富/感情由各自大运阶段插值,总览为三者加权;每个年龄带标签与一句解读。
-export function buildFortuneCurves(inputs: {
+// 输入:事业大运打分 / 财富大运趋势 / 感情大运标签 → 输出四个维度的阶段序列
+export function buildFortuneStages(inputs: {
   careerLifetime: Array<{ age: string; score: number }>;
   wealthLifetime: Array<{ age: string; trend: string }>;
   loveMarriage: Array<{ age: string; tag: string }>;
-}): FortuneCurves {
+}): FortuneStageSet {
   const TREND_SCORE: Record<string, number> = { "强劲 ↑↑": 85, "向好 ↑": 72, "平稳 →": 60, "承压 ↓": 48 };
   const LOVE_SCORE: Record<string, number> = { 婚恋窗口: 85, 平稳期: 55, 动荡期: 42 };
 
-  const careerControls = inputs.careerLifetime.map((item) => ({ age: parseAgeMid(item.age), value: item.score }));
-  const wealthControls = inputs.wealthLifetime.map((item) => ({ age: parseAgeMid(item.age), value: TREND_SCORE[item.trend] ?? 60 }));
-  const loveControls = inputs.loveMarriage.map((item) => ({ age: parseAgeMid(item.age), value: LOVE_SCORE[item.tag] ?? 55 }));
-
-  const SUMMARY: Record<string, Record<string, string>> = {
-    overview: {
-      顺势: "整体势能强劲，事业与财富容易同步上行，是主动出击、放大成果的窗口期。",
-      稳步: "节奏稳健向上，适合持续推进核心目标，把积累变成可见的成果。",
-      平稳: "整体平顺无波，适合观察与微调方向，为下一个阶段做准备。",
-      调整: "变化与消耗偏多，宜控制风险、整理手头事务，先稳住基本盘。",
-    },
-    career: {
-      顺势: "事业处于明显上升通道，争取核心项目与更大话语权正当其时。",
-      稳步: "事业稳步推进，适合深化专业能力并扩大影响范围。",
-      平稳: "事业以守为攻，把流程与团队打磨好就是进展。",
-      调整: "事业遇到阶段性阻力，减少多头出击，先解决最关键的一件事。",
-    },
-    wealth: {
-      顺势: "财富积累明显加速，收入与资产都有上行的空间，可适度进取。",
-      稳步: "财务稳中有进，现金流健康，适合按计划定投与储蓄。",
-      平稳: "财务收支平衡，保持现有节奏即可，不必刻意求变。",
-      调整: "财务承压，优先守现金、降杠杆，避免大额冲动投入。",
-    },
-    love: {
-      顺势: "感情浓度高，关系容易升温或走进新阶段，值得投入心力。",
-      稳步: "感情平稳向好，相处的默契在日常里慢慢加深。",
-      平稳: "感情进入平淡期，增加一点仪式感就能有效保鲜。",
-      调整: "感情波动偏多，多沟通少较真，给彼此留出缓冲。",
-    },
-  };
-
-  function makePoints(scoreFor: (age: number) => { score: number; career: number; wealth: number; love: number }, summaryKey: keyof (typeof SUMMARY)) {
-    const points: FortunePoint[] = [];
-    for (let age = 7; age <= 80; age += 1) {
-      const values = scoreFor(age);
-      const score = Math.max(35, Math.min(92, Math.round(values.score)));
-      const band = fortuneBand(score);
-      points.push({
-        age,
-        score,
-        career: Math.round(values.career),
-        wealth: Math.round(values.wealth),
-        love: Math.round(values.love),
-        tag: band === "顺势" ? "顺势期" : band === "稳步" ? "成长期" : band === "平稳" ? "平稳期" : "调整期",
-        summary: SUMMARY[summaryKey][band],
-      });
-    }
-    let peak = points[0];
-    let low = points[0];
-    for (const point of points) {
-      if (point.score > peak.score) peak = point;
-      if (point.score < low.score) low = point;
-    }
-    return { points, peak, low };
+  function toStages(items: Array<{ age: string; value: number }>): FortuneStage[] {
+    return items.map((item, index) => {
+      const match = item.age.match(/(\d+)–(\d+)/);
+      const startAge = match ? Math.max(7, Number(match[1])) : 7;
+      const endAge = match ? Math.min(80, Number(match[2])) : 80;
+      const prev = index > 0 ? items[index - 1].value : item.value;
+      const diff = item.value - prev;
+      const trend: "up" | "steady" | "down" = diff >= 8 ? "up" : diff <= -8 ? "down" : "steady";
+      return { startAge, endAge, score: item.value, trend, label: trend === "up" ? "上升期" : trend === "down" ? "回落期" : "平稳期" };
+    });
   }
 
-  const wave = (age: number) => Math.sin(age * 1.9) * 2.2 + Math.sin(age * 0.7) * 1.4;
+  const careerItems = inputs.careerLifetime.map((item) => ({ age: item.age, value: item.score }));
+  const wealthItems = inputs.wealthLifetime.map((item) => ({ age: item.age, value: TREND_SCORE[item.trend] ?? 60 }));
+  const loveItems = inputs.loveMarriage.map((item) => ({ age: item.age, value: LOVE_SCORE[item.tag] ?? 55 }));
 
-  const overview = makePoints((age) => {
-    const career = interpControls(careerControls, age);
-    const wealth = interpControls(wealthControls, age);
-    const love = interpControls(loveControls, age);
-    return { score: career * 0.4 + wealth * 0.35 + love * 0.25 + wave(age), career, wealth, love };
-  }, "overview");
+  const career = toStages(careerItems);
+  const wealth = toStages(wealthItems);
+  const love = toStages(loveItems);
 
-  const career = makePoints((age) => ({ score: interpControls(careerControls, age) + wave(age), career: interpControls(careerControls, age), wealth: interpControls(wealthControls, age), love: interpControls(loveControls, age) }), "career");
-  const wealth = makePoints((age) => ({ score: interpControls(wealthControls, age) + wave(age), career: interpControls(careerControls, age), wealth: interpControls(wealthControls, age), love: interpControls(loveControls, age) }), "wealth");
-  const love = makePoints((age) => ({ score: interpControls(loveControls, age) + wave(age), career: interpControls(careerControls, age), wealth: interpControls(wealthControls, age), love: interpControls(loveControls, age) }), "love");
+  // 总览:阶段边界取事业(主轴),分数为三维度加权
+  const overview = career.map((stage, index) => {
+    const wealthMatch = wealth.find((w) => w.startAge === stage.startAge) ?? wealth[ wealth.length - 1 ];
+    const loveMatch = love.find((l) => l.startAge === stage.startAge) ?? love[ love.length - 1 ];
+    const score = Math.round(stage.score * 0.4 + (wealthMatch?.score ?? 60) * 0.35 + (loveMatch?.score ?? 55) * 0.25);
+    const prevScore = index > 0 ? Math.round(career[index - 1].score * 0.4 + (wealth.find((w) => w.startAge === career[index - 1].startAge)?.score ?? 60) * 0.35 + (love.find((l) => l.startAge === career[index - 1].startAge)?.score ?? 55) * 0.25) : score;
+    const diff = score - prevScore;
+    const trend: "up" | "steady" | "down" = diff >= 6 ? "up" : diff <= -6 ? "down" : "steady";
+    return { ...stage, score, trend, label: trend === "up" ? "上升期" : trend === "down" ? "回落期" : "平稳期" };
+  });
 
   return { overview, career, wealth, love };
 }
+
+// 阶段序列 → 7-80 岁逐岁采样(阶段内平滑过渡,不做随机波动)
+export function sampleFortuneStages(stages: FortuneStage[]): Array<{ age: number; score: number; trend: "up" | "steady" | "down"; label: string }> {
+  const points: Array<{ age: number; score: number; trend: "up" | "steady" | "down"; label: string }> = [];
+  if (!stages.length) return points;
+  for (let age = 7; age <= 80; age += 1) {
+    const stage = stages.find((s) => age >= s.startAge && age <= s.endAge) ?? (age < stages[0].startAge ? stages[0] : stages[stages.length - 1]);
+    points.push({ age, score: stage.score, trend: stage.trend, label: stage.label });
+  }
+  return points;
+}
+
 // 文档型章节:重点词由结构化字段提供,前端不做字符串猜测
 export type RichParagraph = { content: string; highlights: string[] };
 export type LabeledParagraph = { label: string; content: string };
