@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import StarAskPanel from "../../../relationship-test/[id]/test/ask-panel";
+import StarAskFloat from "../../../relationship-test/[id]/test/star-ask-float";
 import ReportTopbar from "../../../../report-topbar";
 import ReportToc from "../../../../report-toc";
 import DualGenerating from "./dual-generating";
@@ -141,7 +141,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
             </section>
 
             <div id="d-ask">
-              <StarAskPanel starId={report.id} starName={`${starA.name} × ${starB.name}`} suggestions={ASK_SUGGESTIONS} metered={metered} reportType="dual" />
+              <StarAskFloat starId={report.id} starName={`${starA.name} × ${starB.name}`} suggestions={ASK_SUGGESTIONS} metered={metered} reportType="dual" />
             </div>
 
             <p className="mf-zr-note">本报告基于公开出生资料与八字合盘规则生成,评分与结论由确定性引擎与 AI 解读共同产出,仅用于娱乐和自我探索,不代表当事人的现实关系或真实态度。</p>
