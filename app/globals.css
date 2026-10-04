@@ -6019,3 +6019,40 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-dual-generate { width: 100%; }
 }
 
+
+/* ── 实战派咨询报告:符号章节头 + 时间轴 + 流年列表 ── */
+.mf-cs-head { display: flex; align-items: center; gap: 12px; min-height: 52px; margin-bottom: 14px; padding: 0 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card-raised); }
+.mf-cs-head i { color: var(--bz-red-bright); font-style: normal; font-size: 17px; }
+.mf-cs-head h2 { margin: 0; color: var(--bz-ink); font: 700 20px/1.3 var(--font-serif-display); letter-spacing: .08em; }
+.mf-cs-head span { margin-left: auto; color: var(--bz-faint); font-size: 10px; font-weight: 700; letter-spacing: .24em; }
+.mf-cs-kv { margin: 0 0 6px; display: grid; gap: 9px; }
+.mf-cs-kv > div { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 11px 13px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-paper-warm); }
+.mf-cs-kv dt { color: var(--bz-red-bright); font-size: 12px; font-weight: 650; }
+.mf-cs-kv dd { margin: 0; color: var(--bz-ink); font-size: 13px; line-height: 1.75; }
+.mf-cs-kv dd b { color: var(--bz-red-bright); }
+.mf-cs-p { margin: 0 0 10px; color: var(--bz-ink); font-size: 13.5px; line-height: 1.85; }
+.mf-cs-p b { color: var(--bz-red-bright); }
+.mf-cs-range { padding: 2px 8px; border-radius: 6px; background: var(--bz-selected); color: var(--bz-red-bright); font-size: 15px; letter-spacing: .02em; }
+.mf-cs-disclaimer { margin: 0 0 10px; padding: 9px 12px; border-left: 2px solid var(--bz-gold); border-radius: 0 8px 8px 0; background: rgb(210 163 92 / 8%); color: var(--bz-muted); font-size: 11.5px; line-height: 1.7; }
+.mf-cs-timeline { display: grid; gap: 8px; }
+.mf-cs-timeline > div { display: grid; grid-template-columns: 52px 1fr auto; align-items: baseline; gap: 4px 10px; padding: 11px 14px; border: 1px solid var(--bz-line); border-left: 3px solid var(--bz-line); border-radius: 10px; background: var(--bz-card); }
+.mf-cs-timeline > div.is-current { border-left-color: var(--bz-red); }
+.mf-cs-timeline b { grid-row: span 1; color: var(--bz-ink); font: 700 16px/1.1 var(--font-serif-display); letter-spacing: .06em; }
+.mf-cs-timeline span { color: var(--bz-muted); font-size: 11.5px; }
+.mf-cs-timeline em { font-style: normal; color: var(--bz-red-bright); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.mf-cs-timeline p { grid-column: 1 / -1; margin: 2px 0 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
+.mf-cs-years { display: grid; gap: 7px; }
+.mf-cs-years > div { display: grid; grid-template-columns: 46px 1fr auto; align-items: baseline; gap: 4px 10px; padding: 10px 13px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-paper-warm); }
+.mf-cs-years b { color: var(--bz-ink); font: 700 17px/1 Georgia, serif; }
+.mf-cs-years span { color: var(--bz-muted); font-size: 12px; }
+.mf-cs-years em { font-style: normal; font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+.mf-cs-years > div.is-good { border-left: 3px solid var(--bz-green); }
+.mf-cs-years > div.is-good em { color: var(--bz-green); }
+.mf-cs-years > div.is-warn { border-left: 3px solid var(--bz-error); }
+.mf-cs-years > div.is-warn em { color: var(--bz-error); }
+.mf-cs-years p { grid-column: 1 / -1; margin: 2px 0 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
+@media (max-width: 640px) {
+  .mf-cs-kv > div { grid-template-columns: 78px 1fr; }
+  .mf-cs-years > div { grid-template-columns: 42px 1fr auto; }
+  .mf-cs-years span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
