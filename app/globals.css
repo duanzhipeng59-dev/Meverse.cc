@@ -6302,7 +6302,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 @media (max-width: 640px) {
   .mf-explore { padding: 0 18px 44px; }
-  .mf-explore-nav { margin-top: -30px; }
+  .mf-explore .mf-explore-nav { margin-top: -30px; }
   .mf-explore-head h1 { font-size: clamp(30px, 8.6vw, 36px); white-space: normal; }
   .mf-explore-head p { font-size: 16px; margin-top: 12px; }
   .mf-explore-nav { margin-top: 34px; }
