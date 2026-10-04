@@ -6293,7 +6293,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @keyframes mf-explorefade { from { opacity: 0; } }
 .mf-explore-card { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 14px; background: #171014; color: inherit; text-decoration: none; isolation: isolate; }
 .mf-explore-card::after { content: ""; position: absolute; inset: auto 0 0; height: 45%; background: linear-gradient(to bottom, transparent 55%, rgb(0 0 0 / 55%)); z-index: 1; pointer-events: none; }
-.mf-explore-card .mf-bz-cover-img { transition: transform .38s ease, filter .38s ease; }
+.mf-explore-card .mf-bz-cover-img { object-position: center 22%; transition: transform .38s ease, filter .38s ease; }
 .mf-explore-card:hover .mf-bz-cover-img { transform: scale(1.018); filter: brightness(1.05); }
 .mf-explore-copy { position: absolute; left: 26px; bottom: 22px; z-index: 2; display: grid; gap: 5px; }
 .mf-explore-copy b { color: #fff; font: 500 30px/1.1 var(--font-serif-display); letter-spacing: .02em; }
