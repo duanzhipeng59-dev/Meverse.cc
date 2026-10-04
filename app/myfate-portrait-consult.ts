@@ -224,7 +224,7 @@ export function buildConsultReport(chart: BaziChart, profile: BaziLifeProfile, r
       disclaimer: "以下为纯天赋计算值,未考虑地域/家庭/社会等因素影响,仅供参考。",
       range: wealthRange,
       rangeRich: {
-        content: `你的财富量级在 ${wealthRange} 之间。${wealthReason}。`,
+        content: `TA 的财富量级在 ${wealthRange} 之间。${wealthReason}。`,
         highlights: [wealthRange],
       } as RichParagraph,
       reason: wealthReason,
