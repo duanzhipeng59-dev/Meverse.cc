@@ -6290,11 +6290,3 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-zr-paper .mf-zr-ask-retry { background: var(--pp-soft); color: var(--pp-text); }
 .mf-zr-paper .mf-zr-ask input, .mf-zr-paper .mf-zr-ask textarea { background: #fff; border-color: var(--pp-line); color: var(--pp-ink); }
 .mf-zr-paper .mf-zr-ask .mf-primary-button { background: linear-gradient(135deg, var(--pp-red), #D96A8F); }
-
-/* 浅色报告加载骨架(与浅色纸张一致) */
-.mf-skel-bazi { background: #FCFAF8; max-width: 880px; margin: 0 auto; color: var(--pp-text, #4E4649); }
-.mf-skel-bazi .skel-bar, .mf-skel-bazi .skel-line, .mf-skel-bazi .skel-portrait, .mf-skel-bazi .mf-skel-pillars i { background: #EFE9EB; }
-.mf-skel-bazi .skel-line, .mf-skel-bazi .skel-bar { border-radius: 6px; }
-.mf-skel-bazi .mf-skel-card { background: #fff; border: 1px solid #EEE8EA; border-radius: 12px; padding: 16px; }
-.mf-skel-bazi .mf-skel-status, .mf-skel-bazi .mf-skel-patience { color: #8A7F83; }
-@media (max-width: 640px) { .mf-skel-bazi { margin: 0; border-radius: 0; } }
