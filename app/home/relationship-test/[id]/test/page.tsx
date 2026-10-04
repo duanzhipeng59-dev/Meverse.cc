@@ -97,12 +97,19 @@ export default async function StarReportPage({ params, searchParams }: { params:
       <ReportTopbar starId={id} fromReports={from === "reports"} />
 
       <header className="mf-zr-hero">
-        <Image src={star.portraitSrc} alt={star.name} width={108} height={134} sizes="108px" unoptimized />
+        <Image src={star.portraitSrc} alt={star.name} width={96} height={120} sizes="96px" unoptimized />
         <div className="mf-zr-hero-copy">
           <span className="mf-zr-kicker">AI BIRTH PORTRAIT · {star.role}</span>
           <h1>{star.name} 的 AI 生辰画像</h1>
-          <p>{profile.summary.statement}</p>
-          <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {hasExactBirthTime ? "已按出生时刻校准" : "时辰暂按正午估算,涉及时辰的结论可信度略降"}</small>
+          <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {hasExactBirthTime ? "已按出生时刻校准" : "时辰暂按正午估算"}</small>
+        </div>
+        <div className="mf-zr-hero-pillars" aria-label="四柱">
+          {report.pillars.map((pillar) => (
+            <span className={pillar.label === "日柱" ? "is-day" : ""} key={pillar.label}>
+              <small>{pillar.label.replace("柱", "")}</small>
+              <b>{pillar.ganzhi[0]}{pillar.ganzhi[1]}</b>
+            </span>
+          ))}
         </div>
       </header>
 

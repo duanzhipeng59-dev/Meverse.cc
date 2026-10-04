@@ -6142,3 +6142,21 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-zr .mf-zr-ask .mf-primary-button { background: linear-gradient(135deg, #C64270, #D96A8F); }
 .mf-zr .mf-zr-ask-older { color: #7A55D9; }
 .mf-zr .mf-zr-ask-retry { background: #fff; }
+
+/* 报告头:横向排列(头像|标题信息|四柱) */
+.mf-zr-hero { display: flex; align-items: center; gap: 22px; }
+.mf-zr-hero .mf-zr-hero-copy { flex: 1; min-width: 0; }
+.mf-zr-hero-pillars { flex-shrink: 0; display: flex; gap: 8px; }
+.mf-zr-hero-pillars > span { display: grid; justify-items: center; gap: 4px; min-width: 62px; padding: 9px 10px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-card-raised); }
+.mf-zr-hero-pillars > span.is-day { border-color: var(--bz-red); background: var(--bz-selected); }
+.mf-zr-hero-pillars small { color: var(--bz-muted); font-size: 10.5px; letter-spacing: .1em; }
+.mf-zr-hero-pillars b { color: var(--bz-ink); font: 700 17px/1.2 var(--font-serif-display); letter-spacing: .12em; }
+.mf-zr-hero-pillars > span.is-day b { color: var(--bz-red-bright); }
+@media (max-width: 640px) {
+  .mf-zr-hero { flex-wrap: wrap; gap: 14px; }
+  .mf-zr-hero .mf-zr-hero-copy { flex: 1 1 calc(100% - 110px); }
+  .mf-zr-hero-pillars { flex: 1 1 100%; justify-content: space-between; }
+  .mf-zr-hero-pillars > span { flex: 1; min-width: 0; padding: 7px 4px; }
+  .mf-zr-hero-pillars > span + span { margin-left: 0; }
+  .mf-zr-hero-pillars b { font-size: 15px; letter-spacing: .06em; }
+}
