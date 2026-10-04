@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-import StarAskFloat from "./star-ask-float";
+import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
@@ -301,7 +301,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <DocIndent label="兄弟姐妹/同辈" content={consult.family.siblings.replace("比劫", "比劫(同辈星)")} />
       </section>
 
-      <StarAskFloat starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} />
+      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} /></div>
 
       <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
     </div>

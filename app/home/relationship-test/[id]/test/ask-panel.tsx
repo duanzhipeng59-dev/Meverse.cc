@@ -17,9 +17,7 @@ function timeOf(iso: string) {
   return `${day} ${date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-// AI 追问:右下角悬浮按钮 + 竖版对话面板。
-// 首次提问由服务端把报告全文+问题发给 DeepSeek(可换模型);历史按用户+报告持久化。
-export default function StarAskFloat({
+export default function StarAskPanel({
   starId,
   starName,
   suggestions,
@@ -32,7 +30,6 @@ export default function StarAskFloat({
   metered?: boolean;
   reportType?: "bazi" | "astrology" | "dual";
 }) {
-  const [open, setOpen] = useState(false);
   const [entries, setEntries] = useState<AskEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -59,8 +56,8 @@ export default function StarAskFloat({
   }, [starId, reportType]);
 
   useEffect(() => {
-    if (open && entries.length) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [entries.length, loading, open]);
+    if (entries.length) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [entries.length, loading]);
 
   async function loadOlder() {
     const oldest = entries[0]?.id;
@@ -109,6 +106,7 @@ export default function StarAskFloat({
       const body = await response.json() as { answer?: string; asksRemaining?: number | null; messageId?: number };
       if (!response.ok || !body.answer) {
         if (body.messageId) {
+          // 服务端已留存失败问题,替换为可重试记录
           setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, id: body.messageId as number, status: "failed" } : entry)));
         } else if (!retryOf) {
           setEntries((prev) => [...prev.slice(0, -1), { ...optimistic, status: "failed" }]);
@@ -140,91 +138,74 @@ export default function StarAskFloat({
   }
 
   const hasHistory = entries.length > 0;
-  const greeting = `已经阅读完「${starName}」的报告——从性格底色、事业财富，到感情节奏和未来几年都梳理完了。想深入了解哪一部分？直接问我就好。`;
 
   return (
-    <>
-      {!open ? (
-        <button className="mf-askfab" type="button" aria-label="打开 AI 追问" onClick={() => setOpen(true)}>
-          <i aria-hidden="true">✦</i>
-          <span>AI 追问</span>
-        </button>
+    <section className="mf-zr-card mf-zr-ask">
+      <div className="mf-zr-ask-head">
+        <h2 className="mf-zr-card-title">✦ AI追问</h2>
+        {hasHistory ? (
+          <button type="button" className="mf-zr-ask-clear" onClick={() => void clearChat()}>清空对话</button>
+        ) : null}
+      </div>
+      {!hasHistory || (metered && typeof asksRemaining === "number") ? (
+        <p className="mf-zr-ask-sub">
+          {!hasHistory ? "关于这份报告，你还想了解什么？" : ""}
+          {hasHistory && metered && typeof asksRemaining === "number" ? `剩余追问 ${asksRemaining} 次` : ""}
+        </p>
       ) : null}
 
-      {open ? (
-        <div className="mf-askpanel" role="dialog" aria-label={`关于 ${starName} 的 AI 追问`}>
-          <header className="mf-askpanel-head">
-            <div>
-              <b>✦ AI 追问</b>
-              <small>{starName} · 基于报告解答{metered && typeof asksRemaining === "number" ? ` · 剩余 ${asksRemaining} 次` : ""}</small>
-            </div>
-            <div className="mf-askpanel-head-actions">
-              {hasHistory ? (
-                <button type="button" aria-label="清空对话" onClick={() => void clearChat()}>清空</button>
-              ) : null}
-              <button type="button" aria-label="关闭对话" onClick={() => setOpen(false)}>×</button>
-            </div>
-          </header>
-
-          <div className="mf-askpanel-log" ref={scrollRef}>
-            {loaded && hasMore ? (
-              <button type="button" className="mf-askpanel-older" disabled={loadingOlder} onClick={() => void loadOlder()}>
-                {loadingOlder ? "正在加载…" : "查看更早的消息"}
-              </button>
-            ) : null}
-            {loaded && !hasHistory ? (
-              <div className="mf-askpanel-msg assistant">
-                <p>{greeting}</p>
+      <div className="mf-zr-ask-log" ref={scrollRef}>
+        {loaded && hasMore ? (
+          <button type="button" className="mf-zr-ask-older" disabled={loadingOlder} onClick={() => void loadOlder()}>
+            {loadingOlder ? "正在加载…" : "查看更早的消息"}
+          </button>
+        ) : null}
+        {entries.map((entry) => (
+          <div className={`mf-zr-ask-msg ${entry.role} ${entry.status === "failed" ? "is-failed" : ""}`} key={entry.id}>
+            <p>{entry.content}</p>
+            {entry.status === "failed" ? (
+              <div className="mf-zr-ask-retry">
+                <small>回答失败</small>
+                <button type="button" disabled={loading} onClick={() => void ask(entry.content, entry.id > 0 ? entry.id : undefined)}>重新生成</button>
               </div>
-            ) : null}
-            {entries.map((entry) => (
-              <div className={`mf-askpanel-msg ${entry.role} ${entry.status === "failed" ? "is-failed" : ""}`} key={entry.id}>
-                <p>{entry.content}</p>
-                {entry.status === "failed" ? (
-                  <div className="mf-askpanel-retry">
-                    <small>回答失败</small>
-                    <button type="button" disabled={loading} onClick={() => void ask(entry.content, entry.id > 0 ? entry.id : undefined)}>重新生成</button>
-                  </div>
-                ) : (
-                  <small>{timeOf(entry.createdAt)}</small>
-                )}
-              </div>
-            ))}
-            {loading ? (
-              <div className="mf-askpanel-msg assistant">
-                <p className="is-typing">正在推演<i>…</i></p>
-              </div>
-            ) : null}
+            ) : (
+              <small className="mf-zr-ask-time">{timeOf(entry.createdAt)}</small>
+            )}
           </div>
+        ))}
+        {loading ? (
+          <div className="mf-zr-ask-msg assistant">
+            <p className="mf-zr-ask-typing">正在推演<i>…</i></p>
+          </div>
+        ) : null}
+      </div>
 
-          {!hasHistory ? (
-            <div className="mf-askpanel-chips">
-              {suggestions.map((item) => (
-                <button type="button" key={item} onClick={() => void ask(item)} disabled={loading}>{item}</button>
-              ))}
-            </div>
-          ) : null}
-
-          {error ? <p className="mf-askpanel-error" role="alert">{error}</p> : null}
-
-          <form
-            className="mf-askpanel-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void ask(input);
-            }}
-          >
-            <input
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              placeholder="输入你想追问的问题…"
-              maxLength={500}
-              disabled={loading}
-            />
-            <button type="submit" disabled={loading || !input.trim()} aria-label="发送">↑</button>
-          </form>
+      {!hasHistory ? (
+        <div className="mf-zr-ask-chips">
+          {suggestions.map((item) => (
+            <button type="button" key={item} onClick={() => void ask(item)} disabled={loading}>{item}</button>
+          ))}
         </div>
       ) : null}
-    </>
+
+      {error ? <p className="mf-zr-ask-error" role="alert">{error}</p> : null}
+
+      <form
+        className="mf-zr-ask-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void ask(input);
+        }}
+      >
+        <input
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          placeholder="输入你想追问的问题…"
+          maxLength={500}
+          disabled={loading}
+        />
+        <button type="submit" disabled={loading || !input.trim()}>追问</button>
+      </form>
+    </section>
   );
 }
