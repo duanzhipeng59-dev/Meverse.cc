@@ -7,6 +7,7 @@ import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
 import { buildConsultReport } from "../../../../myfate-portrait-consult";
+import { CONSULT_OVERRIDES } from "../../../../myfate-consult-overrides";
 import { getCelebrityVedicBirth, getPublishedStar, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
 import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
@@ -90,7 +91,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
   });
   const report = buildStarBaziReport(chart);
   const profile = buildBaziLifeProfile(chart);
-  const consult = buildConsultReport(chart, profile, report);
+  // 人工精校内容优先(RM),其余明星走模板引擎
+  const consult = CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
 
   return (
     <div className="mf-zr">
