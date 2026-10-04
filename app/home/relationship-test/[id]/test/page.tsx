@@ -248,7 +248,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
         <h3 className="mf-doc-sub">近期感情流年</h3>
         <div className="mf-cs-years">
-          {consult.love.years.map((year) => (
+          {consult.love.years.slice(0, 10).map((year) => (
             <div className={year.warn ? "is-warn" : year.prob >= 45 ? "is-good" : ""} key={year.year}>
               <b>{year.year}</b><span>{year.ganzhi}年 · 缘分概率</span><em>{year.prob}%</em>
               <p>{year.note}</p>

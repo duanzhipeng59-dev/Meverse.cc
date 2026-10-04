@@ -8,14 +8,14 @@ import { useAuth } from "../auth-context";
 const menuItems = [
   {
     icon: "heart",
-    label: "明星解读",
+    label: "偶像档案",
     description: "浏览偶像资料与档案",
     href: "/home/relationship-test",
   },
   {
     icon: "dual",
-    label: "双星合盘",
-    description: "两位明星的关系解读",
+    label: "偶像合盘",
+    description: "两位偶像的关系解读",
     href: "/home/dual-star-match",
   },
   {
