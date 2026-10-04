@@ -112,6 +112,15 @@ export function buildFortuneCurveControls(inputs: {
     if (first.age > 7) controls.unshift({ age: 7, score: first.score, trend: 'steady' as const, label: '平稳期' });
     if (last.age < 80) controls.push({ age: 80, score: last.score, trend: 'steady' as const, label: '平稳期' });
   }
+  // 精简到 4-6 个主要趋势变化:合并分数接近(|差|<7)的相邻控制点
+  const merged: FortuneControl[] = [];
+  for (const control of controls) {
+    const prev = merged[merged.length - 1];
+    if (prev && Math.abs(control.score - prev.score) < 7) continue;
+    merged.push(control);
+  }
+  controls.length = 0;
+  controls.push(...merged);
   return controls.map((control, index) => {
     const prev = index > 0 ? controls[index - 1].score : control.score;
     const diff = control.score - prev;

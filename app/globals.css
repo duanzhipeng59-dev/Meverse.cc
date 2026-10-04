@@ -6245,3 +6245,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-fortune-story p { margin: 0 0 5px; color: #b3a8d4; font-size: 13px; line-height: 1.7; }
 .mf-fortune-story small { color: #8d7fa8; font-size: 11px; }
 .mf-fortune-footnote { margin: 10px 0 0; color: #6d6380; font-size: 12px; text-align: center; }
+
+/* 运势曲线精简版:两层标签 + 曲线主体 */
+.mf-fortune-label.is-sub { fill: #8d7fa8; font-size: 13px; font-weight: 500; }
+.mf-fortune .mf-fortune-stage { margin-top: 6px; }
