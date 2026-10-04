@@ -2,7 +2,6 @@ import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
-import ReportToc from "../../../../report-toc";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
@@ -115,18 +114,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
       </header>
 
-      <ReportToc items={[
-        { id: "c-portrait", label: "人生画像" },
-        { id: "c-pattern", label: "格局" },
-        { id: "c-edu", label: "学业" },
-        { id: "c-career", label: "事业" },
-        { id: "c-wealth", label: "财富" },
-        { id: "c-love", label: "感情" },
-        { id: "c-health", label: "健康" },
-        { id: "c-children", label: "子女" },
-        { id: "c-kin", label: "六亲" },
-        { id: "ask", label: "AI 追问" },
-      ]} />
+
 
       {/* ── ◐ 人生画像 · 文档型 ── */}
       <section className="mf-zr-card mf-doc" id="c-portrait">
