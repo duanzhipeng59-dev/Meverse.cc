@@ -40,6 +40,31 @@ export default function StarAskPanel({
   const [asksRemaining, setAsksRemaining] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
+  // 逐字呈现:最新的 AI 回答打字机输出
+  const [typedId, setTypedId] = useState<number | null>(null);
+  const [typedText, setTypedText] = useState("");
+  const typerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (typerRef.current !== null) window.clearInterval(typerRef.current);
+  }, []);
+
+  function startTyping(id: number, fullText: string) {
+    if (typerRef.current !== null) window.clearInterval(typerRef.current);
+    setTypedId(id);
+    setTypedText("");
+    let index = 0;
+    typerRef.current = window.setInterval(() => {
+      index += 2; // 每帧 2 字,约 30 字/秒
+      setTypedText(fullText.slice(0, index));
+      if (index >= fullText.length) {
+        window.clearInterval(typerRef.current!);
+        typerRef.current = null;
+        setTypedId(null);
+      }
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    }, 65);
+  }
 
   useEffect(() => {
     let active = true;
@@ -118,10 +143,12 @@ export default function StarAskPanel({
       }
       if (metered && typeof body.asksRemaining === "number") setAsksRemaining(body.asksRemaining);
       const answerAt = new Date().toISOString();
+      const answerId = -Date.now() - 1;
       setEntries((prev) => {
         const marked = prev.map((entry) => (entry.id === optimisticId ? { ...entry, id: body.messageId && body.messageId > 0 ? body.messageId : entry.id, status: "completed" as const } : entry));
-        return [...marked, { id: -Date.now() - 1, role: "assistant", content: body.answer as string, status: "completed", createdAt: answerAt }];
+        return [...marked, { id: answerId, role: "assistant", content: body.answer as string, status: "completed", createdAt: answerAt }];
       });
+      startTyping(answerId, body.answer as string);
     } catch {
       setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
       setError("网络异常，请重试。");
@@ -149,12 +176,17 @@ export default function StarAskPanel({
       </div>
       {!hasHistory || (metered && typeof asksRemaining === "number") ? (
         <p className="mf-zr-ask-sub">
-          {!hasHistory ? "关于这份报告，你还想了解什么？" : ""}
+
           {hasHistory && metered && typeof asksRemaining === "number" ? `剩余追问 ${asksRemaining} 次` : ""}
         </p>
       ) : null}
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
+        {loaded && !hasHistory ? (
+          <div className="mf-zr-ask-msg assistant">
+            <p>{`已经阅读完「${starName}」的报告——从性格底色、事业财富，到感情节奏和未来几年都梳理完了。想深入了解哪一部分？直接问我就好。`}</p>
+          </div>
+        ) : null}
         {loaded && hasMore ? (
           <button type="button" className="mf-zr-ask-older" disabled={loadingOlder} onClick={() => void loadOlder()}>
             {loadingOlder ? "正在加载…" : "查看更早的消息"}
@@ -162,7 +194,7 @@ export default function StarAskPanel({
         ) : null}
         {entries.map((entry) => (
           <div className={`mf-zr-ask-msg ${entry.role} ${entry.status === "failed" ? "is-failed" : ""}`} key={entry.id}>
-            <p>{entry.content}</p>
+            <p>{entry.id === typedId ? <>{typedText}<i className="mf-ask-caret" aria-hidden="true" /></> : entry.content}</p>
             {entry.status === "failed" ? (
               <div className="mf-zr-ask-retry">
                 <small>回答失败</small>

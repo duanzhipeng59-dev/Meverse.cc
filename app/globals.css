@@ -6262,3 +6262,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 640px) {
   .mf-zr-overview .mf-zr-hero { padding-top: 10px; }
 }
+
+/* 追问打字机光标 */
+.mf-ask-caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; background: var(--bz-red-bright); vertical-align: -0.15em; animation: mf-caret .8s steps(1) infinite; }
+@keyframes mf-caret { 50% { opacity: 0; } }
