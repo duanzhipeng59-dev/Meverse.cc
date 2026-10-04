@@ -6266,3 +6266,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* 追问打字机光标 */
 .mf-ask-caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; background: var(--bz-red-bright); vertical-align: -0.15em; animation: mf-caret .8s steps(1) infinite; }
 @keyframes mf-caret { 50% { opacity: 0; } }
+
+/* 问候语气泡:靠右,深色底(区别于用户的酒红渐变) */
+.mf-zr-ask-msg.user.is-greeting p { background: var(--bz-selected); border-bottom-right-radius: 14px; border-bottom-left-radius: 4px; }
+.mf-zr-ask-msg.user.is-greeting { text-align: left; }
