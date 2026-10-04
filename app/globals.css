@@ -6312,3 +6312,9 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-explore-copy b { font-size: 24px; }
   .mf-explore-copy span { font-size: 12.5px; }
 }
+
+/* 探索导航:固定吸附在顶部栏下方,滚动时常驻 */
+.mf-explore-nav { position: sticky; top: 0; z-index: 30; background: #0D090B; }
+@media (max-width: 900px) {
+  .mf-explore-nav { top: calc(64px + env(safe-area-inset-top)); }
+}
