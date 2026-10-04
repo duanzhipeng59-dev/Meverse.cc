@@ -123,6 +123,7 @@ export function buildConsultReport(chart: BaziChart, profile: BaziLifeProfile, r
   else if (wealthGod >= 2.5) wealthRange = "800万–2000万(须借势:搭平台与合伙人才能兑现)";
   else wealthRange = "600万–1500万";
   const wealthTrend = (step: (typeof dayunScored)[number]) => (step.score >= 78 ? "强劲 ↑↑" : step.score >= 68 ? "向好 ↑" : step.score >= 55 ? "平稳 →" : "承压 ↓");
+  const wealthReason = `${profile.summary.strength}${wealthGod >= 2 ? "+财星成色足" : wealthGod >= 1 ? "+财星有成色" : "+财星偏弱(靠技能与平台变现)"},${dayunScored.slice(0, 4).some((x) => x.score >= 75) ? "且中年有大运推力" : "大运推力中等,靠复利积累"}`;
 
   // ── 流年标签 ──
   const wealthTag = (score: number) => score >= 70 ? "扩张窗口·可加码" : score >= 50 ? "稳健进账·守节奏" : score >= 40 ? "现金为王·防套牢" : "收缩防御·忌杠杆";
@@ -198,6 +199,10 @@ export function buildConsultReport(chart: BaziChart, profile: BaziLifeProfile, r
     },
     pattern: {
       monthGrid: `月令${monthZhi}(${ZHI_WUXING[monthZhi]}旺),透干比例约 ${Math.round((chart.wuXing[ZHI_WUXING[monthZhi]] / 8) * 100)}%——${topGod}格局,职业依托:${GOD_DESC[topGod]}`,
+      monthGridRich: {
+        content: `TA 的月令是${monthZhi}（${ZHI_WUXING[monthZhi]}旺），透干比例约 ${Math.round((chart.wuXing[ZHI_WUXING[monthZhi]] / 8) * 100)}%，格局落在「${topGod}格局」——职业依托：${GOD_DESC[topGod]}。`,
+        highlights: [monthZhi, topGod + "格局"],
+      } as RichParagraph,
       structures: profile.relations.slice(0, 2).map((rel) => ({ rel: rel.title, text: rel.text })),
     },
     education: {
@@ -218,7 +223,11 @@ export function buildConsultReport(chart: BaziChart, profile: BaziLifeProfile, r
     wealth: {
       disclaimer: "以下为纯天赋计算值,未考虑地域/家庭/社会等因素影响,仅供参考。",
       range: wealthRange,
-      reason: `${profile.summary.strength}${wealthGod >= 2 ? "+财星成色足" : wealthGod >= 1 ? "+财星有成色" : "+财星偏弱(靠技能与平台变现)"},${dayunScored.slice(0, 4).some((s) => s.score >= 75) ? "且中年有大运推力" : "大运推力中等,靠复利积累"}`,
+      rangeRich: {
+        content: `你的财富量级在 ${wealthRange} 之间。${wealthReason}。`,
+        highlights: [wealthRange],
+      } as RichParagraph,
+      reason: wealthReason,
       source: `${wealthGod >= 2.5 ? "偏财型:机会财、项目财占比高" : "正财型:稳定现金流为主"}${siblingGod >= 2 ? ";合伙忌讳:必须先谈退出机制,不做口头合伙" : ";合伙可行,但账目要透明"}`,
       lifetime: dayunScored.map((step) => ({ ganzhi: step.ganzhi, age: step.ageText, trend: wealthTrend(step), note: step.tone === "good" ? "可加大投入、配置资产" : step.tone === "caution" ? "现金流优先,降杠杆" : "稳步积累,不贪快" })),
       years: profile.annual.map((year) => ({ year: year.year, ganzhi: year.ganzhi, tag: wealthTag(year.score), note: year.opportunity })),

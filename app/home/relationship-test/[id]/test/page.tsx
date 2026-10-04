@@ -136,13 +136,13 @@ export default async function StarReportPage({ params, searchParams }: { params:
         ))}
       </section>
 
-      {/* ── ❖ 格局 ── */}
-      <section className="mf-zr-card" id="c-pattern">
-        <div className="mf-cs-head"><i>❖</i><h2>格局</h2><span>STRUCTURE</span></div>
-        <p className="mf-cs-p"><b>月令格局:</b>{consult.pattern.monthGrid}</p>
-        <h3 className="mf-zr-sub">命盘结构特征</h3>
+      {/* ── ❖ 格局 · 文档型 ── */}
+      <section className="mf-zr-card mf-doc" id="c-pattern">
+        <div className="mf-doc-head"><i aria-hidden="true">❖</i><h2>格局</h2></div>
+        <DocRich label="月令格局" data={consult.pattern.monthGridRich} />
+        <h3 className="mf-doc-sub">命盘结构特征</h3>
         {consult.pattern.structures.map((item) => (
-          <p className="mf-cs-p" key={item.rel}><b>{item.rel}:</b>{item.text}</p>
+          <DocIndent key={item.rel} label={item.rel} content={item.text} />
         ))}
         <details className="mf-l3-basis"><summary>查看完整四柱排盘</summary>
           <div className="mf-zr-chart-grid">
@@ -176,27 +176,23 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </details>
       </section>
 
-      {/* ── ✎ 学业 ── */}
-      <section className="mf-zr-card" id="c-edu">
-        <div className="mf-cs-head"><i>✎</i><h2>学业</h2><span>EDUCATION</span></div>
-        <dl className="mf-cs-kv">
-          <div><dt>学历评估</dt><dd>{consult.education.degree}</dd></div>
-          <div><dt>适合专业</dt><dd>{consult.education.majors.join(" / ")}</dd></div>
-          <div><dt>考运关键节点</dt><dd>利考试考证:{consult.education.examGood.join("、") || "近十年印星流年偏少,重在积累"}{consult.education.examBad.length ? `;易分心内耗:${consult.education.examBad.join("、")}` : ""}</dd></div>
-        </dl>
+      {/* ── ✎ 学业 · 文档型 ── */}
+      <section className="mf-zr-card mf-doc" id="c-edu">
+        <div className="mf-doc-head"><i aria-hidden="true">✎</i><h2>学业</h2></div>
+        <DocIndent label="学历评估" content={consult.education.degree} />
+        <DocIndent label="适合专业" content={`推荐方向：${consult.education.majors.join("；")}。`} />
+        <DocIndent label="考运关键节点" content={`利于考试考证的年份：${consult.education.examGood.join("、") || "近十年印星流年偏少，重在平时积累"}。${consult.education.examBad.length ? `容易分心内耗的年份：${consult.education.examBad.join("、")}——这段时间别把重要考试压上去。` : ""}`} />
       </section>
 
-      {/* ── ◈ 事业 ── */}
-      <section className="mf-zr-card" id="c-career">
-        <div className="mf-cs-head"><i>◈</i><h2>事业</h2><span>CAREER</span></div>
-        <p className="mf-cs-p"><b>职业方向:</b>{consult.career.direction}</p>
-        <p className="mf-cs-p"><b>管理与领导力:</b>{consult.career.management}</p>
-        <dl className="mf-cs-kv">
-          <div><dt>贵人</dt><dd>{consult.career.guiren.replace("贵人:", "")}</dd></div>
-          <div><dt>小人</dt><dd>{consult.career.xiaoren.replace("小人:", "")}</dd></div>
-          <div><dt>与上级关系</dt><dd>{consult.career.boss.replace("与上级:", "")}</dd></div>
-        </dl>
-        <h3 className="mf-zr-sub">一生事业轨迹</h3>
+      {/* ── ◈ 事业 · 文档型(时间轴保留) ── */}
+      <section className="mf-zr-card mf-doc" id="c-career">
+        <div className="mf-doc-head"><i aria-hidden="true">◈</i><h2>事业</h2></div>
+        <DocIndent label="职业方向" content={consult.career.direction} />
+        <DocIndent label="管理与领导力" content={consult.career.management} />
+        <DocIndent label="贵人" content={consult.career.guiren.replace("贵人:", "")} />
+        <DocIndent label="小人" content={consult.career.xiaoren.replace("小人:", "")} />
+        <DocIndent label="与上级关系" content={consult.career.boss.replace("与上级:", "")} />
+        <h3 className="mf-doc-sub">一生事业轨迹</h3>
         <div className="mf-cs-timeline">
           {consult.career.lifetime.map((step) => (
             <div className={step.current ? "is-current" : ""} key={step.ganzhi + step.years}>
@@ -205,7 +201,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
             </div>
           ))}
         </div>
-        <h3 className="mf-zr-sub">近期流年事业</h3>
+        <h3 className="mf-doc-sub">近期流年事业</h3>
         <div className="mf-cs-years">
           {consult.career.years.map((year) => (
             <div className={year.score < 40 ? "is-warn" : year.score >= 70 ? "is-good" : ""} key={year.year}>
@@ -216,13 +212,13 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
       </section>
 
-      {/* ── ✦ 财富 ── */}
-      <section className="mf-zr-card" id="c-wealth">
-        <div className="mf-cs-head"><i>✦</i><h2>财富</h2><span>WEALTH</span></div>
-        <p className="mf-cs-disclaimer">{consult.wealth.disclaimer}</p>
-        <p className="mf-cs-p"><b>一生财富高度:</b>你的财富量级在 <b className="mf-cs-range">{consult.wealth.range}</b> 之间。{consult.wealth.reason}。</p>
-        <p className="mf-cs-p"><b>主要获财方式:</b>{consult.wealth.source}。</p>
-        <h3 className="mf-zr-sub">一生财富大运</h3>
+      {/* ── ✦ 财富 · 文档型(时间轴保留) ── */}
+      <section className="mf-zr-card mf-doc" id="c-wealth">
+        <div className="mf-doc-head"><i aria-hidden="true">✦</i><h2>财富</h2></div>
+        <p className="mf-doc-disclaimer">{consult.wealth.disclaimer}</p>
+        <DocRich label="一生财富高度" data={consult.wealth.rangeRich} />
+        <DocIndent label="主要获财方式" content={`${consult.wealth.source}。`} />
+        <h3 className="mf-doc-sub">一生财富大运</h3>
         <div className="mf-cs-timeline">
           {consult.wealth.lifetime.map((step) => (
             <div key={step.ganzhi + step.age}>
@@ -231,7 +227,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
             </div>
           ))}
         </div>
-        <h3 className="mf-zr-sub">近期流年财富</h3>
+        <h3 className="mf-doc-sub">近期流年财富</h3>
         <div className="mf-cs-years">
           {consult.wealth.years.map((year) => (
             <div key={year.year}>
@@ -242,16 +238,16 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
       </section>
 
-      {/* ── ♡ 感情 ── */}
-      <section className="mf-zr-card" id="c-love">
-        <div className="mf-cs-head"><i>♡</i><h2>感情</h2><span>RELATIONSHIP</span></div>
-        <h3 className="mf-zr-sub">配偶特征</h3>
-        <dl className="mf-zr-kv">
-          {consult.love.spouse.map((item) => <div key={item.label}><dt>{item.label}</dt><dd>{item.text}</dd></div>)}
-        </dl>
-        <p className="mf-cs-p"><b>对方家庭:</b>{consult.love.family}</p>
-        <p className="mf-cs-p"><b>婚姻稳定性:</b>{consult.love.stability}</p>
-        <h3 className="mf-zr-sub">一生婚恋大运</h3>
+      {/* ── ♡ 感情 · 文档型(时间轴保留) ── */}
+      <section className="mf-zr-card mf-doc" id="c-love">
+        <div className="mf-doc-head"><i aria-hidden="true">♡</i><h2>感情</h2></div>
+        <h3 className="mf-doc-sub">配偶特征</h3>
+        {consult.love.spouse.map((item) => (
+          <DocIndent key={item.label} label={item.label} content={item.text} />
+        ))}
+        <DocIndent label="对方家庭" content={consult.love.family} />
+        <DocIndent label="婚姻稳定性" content={consult.love.stability} />
+        <h3 className="mf-doc-sub">一生婚恋大运</h3>
         <div className="mf-cs-timeline">
           {consult.love.lifetime.map((step) => (
             <div key={step.ganzhi + step.age}>
@@ -260,7 +256,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
             </div>
           ))}
         </div>
-        <h3 className="mf-zr-sub">近期感情流年</h3>
+        <h3 className="mf-doc-sub">近期感情流年</h3>
         <div className="mf-cs-years">
           {consult.love.years.map((year) => (
             <div className={year.warn ? "is-warn" : year.prob >= 45 ? "is-good" : ""} key={year.year}>
@@ -271,35 +267,29 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
       </section>
 
-      {/* ── ✚ 健康 ── */}
-      <section className="mf-zr-card" id="c-health">
-        <div className="mf-cs-head"><i>✚</i><h2>健康</h2><span>HEALTH</span></div>
-        <dl className="mf-cs-kv">
-          <div><dt>身体薄弱环节</dt><dd>{consult.health.organs.join(";")}</dd></div>
-          <div><dt>急性/慢性信号</dt><dd>{consult.health.acute}</dd></div>
-          <div><dt>心理健康倾向</dt><dd>{consult.health.mental}</dd></div>
-        </dl>
-        <p className="mf-cs-disclaimer">健康模块基于传统五行对应文化的提示,不构成医学诊断建议。</p>
+      {/* ── ✚ 健康 · 文档型 ── */}
+      <section className="mf-zr-card mf-doc" id="c-health">
+        <div className="mf-doc-head"><i aria-hidden="true">✚</i><h2>健康</h2></div>
+        <DocIndent label="身体薄弱环节" content={consult.health.organs.join("；")} />
+        <DocIndent label="急性/慢性信号" content={consult.health.acute} />
+        <DocIndent label="心理健康倾向" content={consult.health.mental} />
+        <p className="mf-doc-disclaimer">健康模块基于传统五行对应文化的提示,不构成医学诊断建议。</p>
       </section>
 
-      {/* ── ❀ 子女 ── */}
-      <section className="mf-zr-card" id="c-children">
-        <div className="mf-cs-head"><i>❀</i><h2>子女</h2><span>CHILDREN</span></div>
-        <dl className="mf-cs-kv">
-          <div><dt>子女缘分</dt><dd>{consult.children.fate}</dd></div>
-          <div><dt>性别倾向</dt><dd>{consult.children.gender}</dd></div>
-          <div><dt>子女关系</dt><dd>{consult.children.relation}</dd></div>
-        </dl>
+      {/* ── ❀ 子女 · 文档型 ── */}
+      <section className="mf-zr-card mf-doc" id="c-children">
+        <div className="mf-doc-head"><i aria-hidden="true">❀</i><h2>子女</h2></div>
+        <DocIndent label="子女缘分" content={consult.children.fate} />
+        <DocIndent label="性别倾向" content={consult.children.gender} />
+        <DocIndent label="子女关系" content={consult.children.relation} />
       </section>
 
-      {/* ── ⊹ 六亲 ── */}
-      <section className="mf-zr-card" id="c-kin">
-        <div className="mf-cs-head"><i>⊹</i><h2>六亲</h2><span>FAMILY TIES</span></div>
-        <dl className="mf-cs-kv">
-          <div><dt>父亲</dt><dd>{consult.family.father.replace("偏财", "偏财(父星)")}</dd></div>
-          <div><dt>母亲</dt><dd>{consult.family.mother.replace("印星", "印星(母星)")}</dd></div>
-          <div><dt>兄弟姐妹/同辈</dt><dd>{consult.family.siblings.replace("比劫", "比劫(同辈星)")}</dd></div>
-        </dl>
+      {/* ── ⊹ 六亲 · 文档型 ── */}
+      <section className="mf-zr-card mf-doc" id="c-kin">
+        <div className="mf-doc-head"><i aria-hidden="true">⊹</i><h2>六亲</h2></div>
+        <DocIndent label="父亲" content={consult.family.father.replace("偏财", "偏财(父星)")} />
+        <DocIndent label="母亲" content={consult.family.mother.replace("印星", "印星(母星)")} />
+        <DocIndent label="兄弟姐妹/同辈" content={consult.family.siblings.replace("比劫", "比劫(同辈星)")} />
       </section>
 
       <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} /></div>
