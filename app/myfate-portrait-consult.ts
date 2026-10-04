@@ -65,82 +65,59 @@ function yearGanZhi(year: number) {
 
 export type ConsultReport = ReturnType<typeof buildConsultReport>;
 
-// 人生运势曲线:7-80 岁逐年趋势(由大运打分插值+确定性微波动生成)
-// 人生运势:以"人生阶段"为单位的趋势叙事(每段大运一个阶段),前端再平滑插值成曲线。
-// 阶段趋势由相邻大运分差判定,避免逐岁随机波动造成的"心电图"观感。
-export type FortuneStage = {
-  startAge: number;
-  endAge: number;
+// 人生运势曲线:7-9 个阶段控制点(大运打分的加权综合),前端平滑插值成山脉式趋势。
+// 分数挂在各阶段中点,阶段之间连续过渡——不做逐岁随机波动,也不做阶梯平台。
+export type FortuneControl = {
+  age: number;
   score: number;
   trend: "up" | "steady" | "down";
   label: string;
 };
 
-export type FortuneStageSet = Record<"overview" | "career" | "wealth" | "love", FortuneStage[]>;
-
-const FORTUNE_KEYWORDS: Record<string, string> = {
-  up: "突破 · 扩张 · 收获",
-  steady: "积累 · 节奏 · 沉淀",
-  down: "防守 · 整理 · 蓄力",
-};
-
-function parseAgeMid(ageText: string) {
-  const match = ageText.match(/(\d+)–(\d+)/);
-  return match ? Math.round((Number(match[1]) + Number(match[2])) / 2) : 40;
-}
-
-// 输入:事业大运打分 / 财富大运趋势 / 感情大运标签 → 输出四个维度的阶段序列
-export function buildFortuneStages(inputs: {
+export function buildFortuneCurveControls(inputs: {
   careerLifetime: Array<{ age: string; score: number }>;
   wealthLifetime: Array<{ age: string; trend: string }>;
   loveMarriage: Array<{ age: string; tag: string }>;
-}): FortuneStageSet {
+}): FortuneControl[] {
   const TREND_SCORE: Record<string, number> = { "强劲 ↑↑": 85, "向好 ↑": 72, "平稳 →": 60, "承压 ↓": 48 };
   const LOVE_SCORE: Record<string, number> = { 婚恋窗口: 85, 平稳期: 55, 动荡期: 42 };
 
-  function toStages(items: Array<{ age: string; value: number }>): FortuneStage[] {
-    return items.map((item, index) => {
-      const match = item.age.match(/(\d+)–(\d+)/);
-      const startAge = match ? Math.max(7, Number(match[1])) : 7;
-      const endAge = match ? Math.min(80, Number(match[2])) : 80;
-      const prev = index > 0 ? items[index - 1].value : item.value;
-      const diff = item.value - prev;
-      const trend: "up" | "steady" | "down" = diff >= 8 ? "up" : diff <= -8 ? "down" : "steady";
-      return { startAge, endAge, score: item.value, trend, label: trend === "up" ? "上升期" : trend === "down" ? "回落期" : "平稳期" };
-    });
+  function parseRange(ageText: string) {
+    const match = ageText.match(/(\d+)–(\d+)/);
+    return match ? { start: Math.max(7, Number(match[1])), end: Math.min(80, Number(match[2])) } : { start: 7, end: 80 };
   }
 
-  const careerItems = inputs.careerLifetime.map((item) => ({ age: item.age, value: item.score }));
-  const wealthItems = inputs.wealthLifetime.map((item) => ({ age: item.age, value: TREND_SCORE[item.trend] ?? 60 }));
-  const loveItems = inputs.loveMarriage.map((item) => ({ age: item.age, value: LOVE_SCORE[item.tag] ?? 55 }));
+  const wealthStages = inputs.wealthLifetime.map((item) => ({ ...parseRange(item.age), value: TREND_SCORE[item.trend] ?? 60 }));
+  const loveStages = inputs.loveMarriage.map((item) => ({ ...parseRange(item.age), value: LOVE_SCORE[item.tag] ?? 55 }));
 
-  const career = toStages(careerItems);
-  const wealth = toStages(wealthItems);
-  const love = toStages(loveItems);
+  function valueAt(stages: Array<{ start: number; end: number; value: number }>, age: number) {
+    const hit = stages.find((s) => age >= s.start && age <= s.end);
+    if (hit) return hit.value;
+    return age < stages[0].start ? stages[0].value : stages[stages.length - 1].value;
+  }
 
-  // 总览:阶段边界取事业(主轴),分数为三维度加权
-  const overview = career.map((stage, index) => {
-    const wealthMatch = wealth.find((w) => w.startAge === stage.startAge) ?? wealth[ wealth.length - 1 ];
-    const loveMatch = love.find((l) => l.startAge === stage.startAge) ?? love[ love.length - 1 ];
-    const score = Math.round(stage.score * 0.4 + (wealthMatch?.score ?? 60) * 0.35 + (loveMatch?.score ?? 55) * 0.25);
-    const prevScore = index > 0 ? Math.round(career[index - 1].score * 0.4 + (wealth.find((w) => w.startAge === career[index - 1].startAge)?.score ?? 60) * 0.35 + (love.find((l) => l.startAge === career[index - 1].startAge)?.score ?? 55) * 0.25) : score;
-    const diff = score - prevScore;
+  const controls: FortuneControl[] = [];
+  const careerStages = inputs.careerLifetime
+    .map((item) => ({ ...parseRange(item.age), score: item.score }))
+    .sort((a, b) => a.start - b.start);
+  for (const stage of careerStages) {
+    if (stage.end < 7 || stage.start > 80) continue;
+    const mid = Math.round((Math.max(stage.start, 7) + Math.min(stage.end, 80)) / 2);
+    const score = Math.round(stage.score * 0.4 + valueAt(wealthStages, mid) * 0.35 + valueAt(loveStages, mid) * 0.25);
+    controls.push({ age: mid, score, trend: 'steady' as const, label: '平稳期' });
+  }
+  if (controls.length) {
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (first.age > 7) controls.unshift({ age: 7, score: first.score, trend: 'steady' as const, label: '平稳期' });
+    if (last.age < 80) controls.push({ age: 80, score: last.score, trend: 'steady' as const, label: '平稳期' });
+  }
+  return controls.map((control, index) => {
+    const prev = index > 0 ? controls[index - 1].score : control.score;
+    const diff = control.score - prev;
     const trend: "up" | "steady" | "down" = diff >= 6 ? "up" : diff <= -6 ? "down" : "steady";
-    return { ...stage, score, trend, label: trend === "up" ? "上升期" : trend === "down" ? "回落期" : "平稳期" };
+    return { ...control, trend, label: trend === "up" ? "上升期" : trend === "down" ? "回落期" : "平稳期" };
   });
-
-  return { overview, career, wealth, love };
-}
-
-// 阶段序列 → 7-80 岁逐岁采样(阶段内平滑过渡,不做随机波动)
-export function sampleFortuneStages(stages: FortuneStage[]): Array<{ age: number; score: number; trend: "up" | "steady" | "down"; label: string }> {
-  const points: Array<{ age: number; score: number; trend: "up" | "steady" | "down"; label: string }> = [];
-  if (!stages.length) return points;
-  for (let age = 7; age <= 80; age += 1) {
-    const stage = stages.find((s) => age >= s.startAge && age <= s.endAge) ?? (age < stages[0].startAge ? stages[0] : stages[stages.length - 1]);
-    points.push({ age, score: stage.score, trend: stage.trend, label: stage.label });
-  }
-  return points;
 }
 
 // 文档型章节:重点词由结构化字段提供,前端不做字符串猜测
