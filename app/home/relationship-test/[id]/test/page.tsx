@@ -83,7 +83,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
     gender: birth?.gender === "female" ? "female" : "male",
     city: {
       id,
-      name: birth?.birthPlace || "首尔",
+      name: birth?.birthPlace || "首尔 · 韩国",
       lat: birth?.lat ?? 37.57,
       lon: birth?.lon ?? 126.98,
       tz: birth?.tz ?? "Asia/Seoul",
@@ -105,7 +105,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-zr-hero-copy">
           <span className="mf-zr-kicker">AI BIRTH PORTRAIT · {star.role}</span>
           <h1>{star.name} 的 AI 生辰画像</h1>
-          <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {hasExactBirthTime ? "已按出生时刻校准" : "时辰暂按正午估算"}</small>
+          <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已按出生时刻校准" : "时辰暂按正午估算"}</small>
         </div>
         <div className="mf-zr-hero-pillars" aria-label="四柱">
           {report.pillars.map((pillar) => (

@@ -274,7 +274,7 @@ export async function getStarBaziBrief(id: string): Promise<{ headline: string; 
       birthDate: birth.birthDate,
       birthTime: birth.birthTime,
       gender: birth.gender === "female" ? "female" : "male",
-      city: { id: birth.starId, name: birth.birthPlace || "首尔", lat: birth.lat, lon: birth.lon, tz: birth.tz },
+      city: { id: birth.starId, name: birth.birthPlace || "首尔 · 韩国", lat: birth.lat, lon: birth.lon, tz: birth.tz },
     });
     return { headline: buildStarBaziHeadline(chart), brief: buildStarBaziBrief(chart) };
   } catch (error) {
