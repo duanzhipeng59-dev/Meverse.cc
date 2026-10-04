@@ -103,7 +103,19 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
         <dl className="mf-sum-rows">
           <div><dt>核心优势</dt><dd>{profile.portrait.strength}</dd></div>
+          <div><dt>隐藏矛盾</dt><dd>{profile.portrait.tension}</dd></div>
+          <div><dt>人生课题</dt><dd>{profile.portrait.lesson}</dd></div>
         </dl>
+        <h3 className="mf-zr-sub">五维速览</h3>
+        <div className="mf-dims">
+          {profile.dimensions.map((dim) => (
+            <div className="mf-dim" key={dim.key}>
+              <div className="mf-dim-head"><b>{dim.label}</b><em>{dim.level}</em></div>
+              <p>{dim.explain}</p>
+              <details className="mf-l3-basis"><summary>命理依据</summary><p>{dim.basis}</p></details>
+            </div>
+          ))}
+        </div>
       </section>
 
       <ReportToc items={[
@@ -163,6 +175,17 @@ export default async function StarReportPage({ params, searchParams }: { params:
       <section className="mf-zr-card" id="wellbeing">
         <div className="mf-zr-section-head"><span>06</span><div><h2>身心与回血方式</h2><p>内在矛盾、消耗点与休息方法</p></div></div>
         <Layers layer={profile.areas.wellbeing} />
+        <h3 className="mf-zr-sub">四句话总结</h3>
+        <ol className="mf-zr-advice">{profile.advice.map((item) => <li key={item}>{item}</li>)}</ol>
+        <details className="mf-l3-basis">
+          <summary>TA 的命局作用关系与神煞</summary>
+          <div className="mf-zr-relation-grid">
+            {profile.relations.map((relation, index) => <article className={`is-${relation.tone === "good" ? "good" : relation.tone === "caution" ? "caution" : ""}`} key={relation.title + index}><b>{relation.title}</b><p>{relation.text}</p></article>)}
+          </div>
+          <div className="mf-zr-relation-grid">
+            {report.portrait.shenSha.map((item) => <article key={item.label}><b>{item.label}</b><p>{item.text.replace(`${item.label}：`, "")}</p></article>)}
+          </div>
+        </details>
       </section>
 
       <section className="mf-zr-card" id="future">
