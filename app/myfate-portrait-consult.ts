@@ -294,7 +294,7 @@ export function buildConsultReport(chart: BaziChart, profile: BaziLifeProfile, r
       reason: wealthReason,
       source: `${wealthGod >= 2.5 ? "偏财型:机会财、项目财占比高" : "正财型:稳定现金流为主"}${siblingGod >= 2 ? ";合伙忌讳:必须先谈退出机制,不做口头合伙" : ";合伙可行,但账目要透明"}`,
       lifetime: dayunScored.map((step) => ({ ganzhi: step.ganzhi, age: step.ageText, trend: wealthTrend(step), note: step.tone === "good" ? "可加大投入、配置资产" : step.tone === "caution" ? "现金流优先,降杠杆" : "稳步积累,不贪快" })),
-      years: profile.annual.map((year) => ({ year: year.year, ganzhi: year.ganzhi, tag: wealthTag(year.score), note: year.opportunity })),
+      years: profile.annual.map((year) => ({ year: year.year, ganzhi: year.ganzhi, score: year.score, tag: wealthTag(year.score), note: year.opportunity })),
     },
     love: {
       spouse: report.love.spouseTraits,

@@ -220,8 +220,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <h3 className="mf-doc-sub">近期流年财富</h3>
         <div className="mf-cs-years">
           {consult.wealth.years.map((year) => (
-            <div key={year.year}>
-              <b>{year.year}</b>
+            <div className={year.score < 40 ? "is-warn" : year.score >= 70 ? "is-good" : ""} key={year.year}>
+              <b>{year.year}</b><em>{year.score}分</em>
               <p>{year.note}</p>
             </div>
           ))}
