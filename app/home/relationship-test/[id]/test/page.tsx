@@ -80,7 +80,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const currentDayun = profile.dayun.find((step) => step.current) ?? profile.dayun[0];
 
   return (
-    <div className="mf-zr">
+    <div className="mf-zr mf-zr-paper">
       <ReportTopbar starId={id} fromReports={from === "reports"} />
 
       <header className="mf-zr-hero">
@@ -88,7 +88,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-zr-hero-copy">
           <span className="mf-zr-kicker">AI BIRTH PORTRAIT · {star.role}</span>
           <h1>{star.name} 的 AI 生辰画像</h1>
-          <p>{profile.summary.statement}</p>
+          <p className="mf-paper-tagline">{profile.portrait.headline}</p>
+          <div className="mf-paper-tags">{profile.portrait.keywords.map((k) => <span key={k}>{k}</span>)}</div>
           <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {hasExactBirthTime ? "已按出生时刻校准" : "时辰暂按正午估算,涉及时辰的结论可信度略降"}</small>
         </div>
       </header>
@@ -118,14 +119,13 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <ReportToc items={[
-        { id: "summary", label: "快速认识" },
-        { id: "who", label: "TA 是什么样的人" },
-        { id: "love", label: "如何表达感情" },
-        { id: "match", label: "适合怎样的关系" },
-        { id: "career", label: "事业与财富" },
-        { id: "stuck", label: "容易卡在哪" },
-        { id: "future", label: "未来几年" },
-        { id: "chart-full", label: "完整命盘" },
+        { id: "summary", label: "总览" },
+        { id: "who", label: "性格" },
+        { id: "love", label: "感情" },
+        { id: "career", label: "事业" },
+        { id: "wellbeing", label: "身心" },
+        { id: "stages", label: "人生阶段" },
+        { id: "future", label: "未来十年" },
         { id: "ask", label: "AI 追问" },
       ]} />
 
@@ -172,8 +172,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <Layers layer={profile.areas.wealth} />
       </section>
 
-      <section className="mf-zr-card" id="stuck">
-        <div className="mf-zr-section-head"><span>06</span><div><h2>TA 容易卡在哪里</h2><p>内在矛盾、消耗点与回血方式</p></div></div>
+      <section className="mf-zr-card" id="wellbeing">
+        <div className="mf-zr-section-head"><span>06</span><div><h2>身心与回血方式</h2><p>内在矛盾、消耗点与休息方法</p></div></div>
         <Layers layer={profile.areas.wellbeing} />
         <h3 className="mf-zr-sub">四句话总结</h3>
         <ol className="mf-zr-advice">{profile.advice.map((item) => <li key={item}>{item}</li>)}</ol>
@@ -253,58 +253,93 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
       </section>
 
-      <section className="mf-zr-card" id="chart-full">
-        <div className="mf-zr-section-head"><span>08</span><div><h2>完整命盘</h2><p>专业排盘数据,供深入核对</p></div></div>
+      <section className="mf-zr-card" id="stages">
+        <div className="mf-zr-section-head"><span>08</span><div><h2>人生阶段与命盘</h2><p>排盘数据与十年阶段,供深入核对</p></div></div>
         <div className="mf-chart-brief">
           <div><small>性格底色(日主)</small><b>{report.dayMaster}{profile.summary.dayElement} · {profile.summary.yinYang}</b></div>
           <div><small>出生季节(月令)</small><b>{profile.summary.season}</b></div>
           <div><small>人生主剧本(格局)</small><b>{profile.summary.pattern}</b></div>
         </div>
-        <details className="mf-l3-basis mf-chart-full">
-          <summary>查看专业排盘(四柱/十神/五行/大运)</summary>
-          <div className="mf-zr-chart-grid">
-            {report.pillars.map((pillar) => (
-              <div className={`mf-zr-pillar-col ${pillar.label === "日柱" ? "is-day" : ""}`} key={pillar.label}>
-                <small>{pillar.label}</small>
-                <em>{pillar.shiShenGan}</em>
-                <div className="mf-zr-ganzhi"><b>{pillar.ganzhi[0]}</b><b>{pillar.ganzhi[1]}</b></div>
-                <small>{pillar.hideGan.map((gan, index) => `${gan}·${pillar.hideShiShen[index] ?? ""}`).join(" / ")}</small>
-                <small>{pillar.naYin} · {pillar.diShi}</small>
-                <small>旬空 {pillar.xunKong}</small>
+
+        <h3 className="mf-zr-sub">四柱排盘</h3>
+        <div className="mf-zr-chart-grid">
+          {report.pillars.map((pillar) => (
+            <div className={`mf-zr-pillar-col ${pillar.label === "日柱" ? "is-day" : ""}`} key={pillar.label}>
+              <small>{pillar.label}</small>
+              <em>{pillar.shiShenGan}</em>
+              <div className="mf-zr-ganzhi"><b>{pillar.ganzhi[0]}</b><b>{pillar.ganzhi[1]}</b></div>
+              <small>{pillar.hideGan.map((gan, index) => `${gan}·${pillar.hideShiShen[index] ?? ""}`).join(" / ")}</small>
+              <small>{pillar.naYin} · {pillar.diShi}</small>
+              <small>旬空 {pillar.xunKong}</small>
+            </div>
+          ))}
+        </div>
+        <div className="mf-zr-foundation">
+          <div><small>能量状态(旺衰)</small><b>{profile.summary.strength}</b></div>
+          <div><small>喜用五行</small><b>{profile.summary.favorable.join("、")}</b></div>
+          <div><small>需节制五行</small><b>{profile.summary.cautious.join("、")}</b></div>
+        </div>
+
+        <h3 className="mf-zr-sub">五行分布</h3>
+        <div className="mf-zr-wuxing">
+          {(() => {
+            const max = Math.max(1, ...Object.values(report.wuXing));
+            const plain: Record<string, string> = { 木: "爱规划、肯慢慢长", 火: "有热度、说干就干", 土: "稳得住、能扛事", 金: "有主见、干脆利落", 水: "脑子活、会看形势" };
+            return Object.entries(report.wuXing).map(([element, count]) => (
+              <div className="mf-zr-wx" data-el={element} key={element}>
+                <span>{element}</span><div className="mf-zr-wx-bar"><i style={{ width: `${Math.round((count / max) * 100)}%` }} /></div><small>{count}</small>
+                <p className="mf-wx-plain">{plain[element]}</p>
               </div>
-            ))}
+            ));
+          })()}
+        </div>
+
+        <h3 className="mf-zr-sub">十神力量分组</h3>
+        <div className="mf-god-groups">
+          {(() => {
+            const lead = profile.tenGods.filter((g) => g.level === "主导");
+            const mid = profile.tenGods.filter((g) => g.level === "明显");
+            const rest = profile.tenGods.filter((g) => g.level !== "主导" && g.level !== "明显");
+            const groups = [
+              { title: "主导力量", gods: lead, note: "推着 TA 走的引擎" },
+              { title: "辅助力量", gods: mid.length ? mid : profile.tenGods.slice(1, 3), note: "幕后起作用的调节器" },
+              { title: "偏弱力量", gods: rest, note: "存在感弱,但并非缺点" },
+            ].filter((group) => group.gods.length);
+            return groups.map((group) => (
+              <div className="mf-god-group" key={group.title}>
+                <b>{group.title}<small>{group.note}</small></b>
+                {group.gods.map((god) => (
+                  <div key={god.name}>
+                    <span>{god.name}</span>
+                    <p>{god.reading}</p>
+                  </div>
+                ))}
+              </div>
+            ));
+          })()}
+        </div>
+
+        <h3 className="mf-zr-sub">一生大运</h3>
+        <div className="mf-dayun-timeline">
+          {profile.dayun.map((step) => (
+            <details className={`mf-dayun-item ${step.current ? "is-current" : ""}`} key={step.ganzhi + step.yearText} open={step.current}>
+              <summary>
+                <b>{step.ganzhi}</b>
+                <span>{step.ageText} · {step.yearText}</span>
+                {step.current ? <em>当前</em> : null}
+              </summary>
+              <p>{step.theme}</p>
+            </details>
+          ))}
+        </div>
+
+        <details className="mf-l3-basis mf-chart-full">
+          <summary>查看更多专业数据(神煞/作用关系/精确时辰)</summary>
+          <div className="mf-zr-relation-grid">
+            {profile.relations.map((relation, index) => <article key={relation.title + index}><b>{relation.title}</b><p>{relation.text}</p></article>)}
           </div>
-          <div className="mf-zr-foundation">
-            <div><small>能量状态(旺衰)</small><b>{profile.summary.strength}</b></div>
-            <div><small>喜用五行</small><b>{profile.summary.favorable.join("、")}</b></div>
-            <div><small>需节制五行</small><b>{profile.summary.cautious.join("、")}</b></div>
-          </div>
-          <div className="mf-zr-wuxing">
-            {(() => {
-              const max = Math.max(1, ...Object.values(report.wuXing));
-              return Object.entries(report.wuXing).map(([element, count]) => (
-                <div className="mf-zr-wx" data-el={element} key={element}>
-                  <span>{element}</span><div className="mf-zr-wx-bar"><i style={{ width: `${Math.round((count / max) * 100)}%` }} /></div><small>{count}</small>
-                </div>
-              ));
-            })()}
-          </div>
-          <h4 className="mf-zr-sub">十神结构</h4>
-          <div className="mf-zr-god-grid">
-            {profile.tenGods.map((god) => (
-              <article key={god.name} className={god.level === "主导" ? "is-primary" : ""}>
-                <div><b>{god.name}</b><span>{god.level}</span></div>
-                <small>{god.keywords.join(" · ")}</small><p>{god.reading}</p>
-              </article>
-            ))}
-          </div>
-          <h4 className="mf-zr-sub">一生大运</h4>
-          <div className="mf-zr-dayun-detail">
-            {profile.dayun.map((step) => (
-              <article className={`is-${step.tone} ${step.current ? "is-current" : ""}`} key={step.ganzhi + step.yearText}>
-                <div><b>{step.ganzhi}</b><span>{step.ageText}</span>{step.current ? <em>当前大运</em> : null}</div><small>{step.yearText}</small><p>{step.theme}</p>
-              </article>
-            ))}
+          <div className="mf-zr-relation-grid">
+            {report.portrait.shenSha.map((item) => <article key={item.label}><b>{item.label}</b><p>{item.text.replace(`${item.label}：`, "")}</p></article>)}
           </div>
           <p className="mf-zr-chart-note">真太阳时 {chart.trueSolar.adjustedTime}({chart.trueSolar.city},共校正 {chart.trueSolar.totalCorrectionMin} 分钟)· 起运 {chart.daYun.startText}</p>
         </details>
