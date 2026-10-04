@@ -93,6 +93,11 @@ export default async function StarReportPage({ params, searchParams }: { params:
   });
   const report = buildStarBaziReport(chart);
   const profile = buildBaziLifeProfile(chart);
+  // 顶栏身份块:"RM · 金南俊" + 四柱干支
+  const roleDash = star.role.indexOf("-");
+  const personName = roleDash > 0 ? star.role.slice(roleDash + 1).trim() : "";
+  const topbarTitle = personName ? `${star.name} · ${personName}` : star.name;
+  const topbarSubtitle = report.pillars.map((pillar) => `${pillar.ganzhi[0]}${pillar.ganzhi[1]}`).join(" ");
   // 人工精校内容优先(RM),其余明星走模板引擎
   const consult = CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
   const allStars = await getPublishedStarList();
@@ -101,7 +106,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
   return (
     <div className="mf-zr">
-      <ReportTopbar starId={id} fromReports={from === "reports"} />
+      <ReportTopbar starId={id} fromReports={from === "reports"} title={topbarTitle} subtitle={topbarSubtitle} />
 
       <div className="mf-zr-overview">
       <header className="mf-zr-hero">

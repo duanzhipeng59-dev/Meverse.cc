@@ -5351,6 +5351,12 @@ select:focus-visible {
 .mf-zr-topbar .mf-back-link { display: inline-flex; align-items: center; gap: 5px; color: #c9bcc2; }
 .mf-zr-topbar .mf-back-link:hover { color: #f7f0f2; }
 .mf-topbar-label-short { display: none; }
+/* 顶栏身份块返回按钮:← + 名字/四柱 双行 */
+.mf-zr-topbar .mf-back-arrow { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; font-size: 15px; color: #a89ea8; transition: color .2s ease, transform .2s ease; }
+.mf-zr-topbar .mf-back-link:hover .mf-back-arrow { color: #f7f0f2; transform: translateX(-2px); }
+.mf-zr-topbar .mf-topbar-id { display: flex; flex-direction: column; gap: 3px; line-height: 1.2; text-align: left; min-width: 0; }
+.mf-zr-topbar .mf-topbar-id b { color: #ece7ef; font-size: 14px; font-weight: 600; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-zr-topbar .mf-topbar-id small { color: #7b7390; font-size: 11px; letter-spacing: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* 报告页共享视觉变量:两类报告同体系(深黑红底 + 玫红强调 + 暖白文字) */
 .mf-zr, .mf-astro { --mf-rep-hero-bg: linear-gradient(150deg, #231319, #170f13); --mf-rep-hero-border: rgba(198, 75, 115, 0.16); --mf-rep-topbar-h: 60px; }
 
