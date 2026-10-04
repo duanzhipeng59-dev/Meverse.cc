@@ -6153,10 +6153,12 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-zr-hero-pillars b { color: var(--bz-ink); font: 700 17px/1.2 var(--font-serif-display); letter-spacing: .12em; }
 .mf-zr-hero-pillars > span.is-day b { color: var(--bz-red-bright); }
 @media (max-width: 640px) {
-  .mf-zr-hero { flex-wrap: wrap; gap: 14px; }
-  .mf-zr-hero .mf-zr-hero-copy { flex: 1 1 calc(100% - 110px); }
+  .mf-zr-hero { flex-direction: row; flex-wrap: wrap; align-items: center; text-align: left; gap: 12px 14px; }
+  .mf-zr-hero img { width: 72px; height: 90px; }
+  .mf-zr-hero .mf-zr-hero-copy { flex: 1 1 0; min-width: 0; text-align: left; }
+  .mf-zr-hero .mf-zr-hero-copy h1 { font-size: 21px; text-align: left; }
+  .mf-zr-hero .mf-zr-hero-copy .mf-zr-kicker { display: block; white-space: normal; }
   .mf-zr-hero-pillars { flex: 1 1 100%; justify-content: space-between; }
   .mf-zr-hero-pillars > span { flex: 1; min-width: 0; padding: 7px 4px; }
-  .mf-zr-hero-pillars > span + span { margin-left: 0; }
   .mf-zr-hero-pillars b { font-size: 15px; letter-spacing: .06em; }
 }
