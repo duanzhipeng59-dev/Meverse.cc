@@ -153,36 +153,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
         {consult.pattern.structures.map((item) => (
           <DocIndent key={item.rel} label={item.rel} content={item.text} />
         ))}
-        <details className="mf-l3-basis"><summary>查看完整四柱排盘</summary>
-          <div className="mf-zr-chart-grid">
-            {report.pillars.map((pillar) => (
-              <div className={`mf-zr-pillar-col ${pillar.label === "日柱" ? "is-day" : ""}`} key={pillar.label}>
-                <small>{pillar.label}</small>
-                <em>{pillar.shiShenGan}</em>
-                <div className="mf-zr-ganzhi"><b>{pillar.ganzhi[0]}</b><b>{pillar.ganzhi[1]}</b></div>
-                <small>{pillar.hideGan.map((gan, index) => `${gan}·${pillar.hideShiShen[index] ?? ""}`).join(" / ")}</small>
-                <small>{pillar.naYin} · {pillar.diShi}</small>
-                <small>旬空 {pillar.xunKong}</small>
-              </div>
-            ))}
-          </div>
-          <div className="mf-zr-foundation">
-            <div><small>能量状态</small><b>{profile.summary.strength}</b></div>
-            <div><small>喜用五行</small><b>{profile.summary.favorable.join("、")}</b></div>
-            <div><small>需节制</small><b>{profile.summary.cautious.join("、")}</b></div>
-          </div>
-          <div className="mf-zr-wuxing">
-            {(() => {
-              const max = Math.max(1, ...Object.values(report.wuXing));
-              return Object.entries(report.wuXing).map(([element, count]) => (
-                <div className="mf-zr-wx" data-el={element} key={element}>
-                  <span>{element}</span><div className="mf-zr-wx-bar"><i style={{ width: `${Math.round((count / max) * 100)}%` }} /></div><small>{count}</small>
-                </div>
-              ));
-            })()}
-          </div>
-          <p className="mf-zr-chart-note">真太阳时 {chart.trueSolar.adjustedTime}({chart.trueSolar.city},校正 {chart.trueSolar.totalCorrectionMin} 分钟)· 起运 {chart.daYun.startText}</p>
-        </details>
       </section>
 
       {/* ── ✎ 学业 · 文档型 ── */}
@@ -224,7 +194,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
       {/* ── ✦ 财富 · 文档型(时间轴保留) ── */}
       <section className="mf-zr-card mf-doc" id="c-wealth">
         <div className="mf-doc-head"><i aria-hidden="true">✦</i><h2>财富</h2></div>
-        <p className="mf-doc-disclaimer">{consult.wealth.disclaimer}</p>
         <DocRich label="一生财富高度" data={consult.wealth.rangeRich} />
         <DocIndent label="主要获财方式" content={`${consult.wealth.source}。`} />
         <h3 className="mf-doc-sub">一生财富大运</h3>
@@ -282,7 +251,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <DocIndent label="身体薄弱环节" content={consult.health.organs.join("；")} />
         <DocIndent label="急性/慢性信号" content={consult.health.acute} />
         <DocIndent label="心理健康倾向" content={consult.health.mental} />
-        <p className="mf-doc-disclaimer">健康模块基于传统五行对应文化的提示,不构成医学诊断建议。</p>
       </section>
 
       {/* ── ❀ 子女 · 文档型 ── */}
