@@ -6202,3 +6202,13 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-askpanel-form input:focus { border-color: rgba(198, 66, 112, .5); }
 .mf-askpanel-form button { flex-shrink: 0; width: 42px; height: 42px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #C64270, #A63A60); color: #fff; font-size: 17px; cursor: pointer; }
 .mf-askpanel-form button:disabled { opacity: .5; cursor: default; }
+
+/* ── 人生运势曲线卡 ── */
+.mf-fortune { border: 1px solid rgb(139 111 216 / 35%); border-radius: 16px; background: linear-gradient(160deg, #17121f, #100d16); }
+.mf-fortune-head h2 { display: flex; align-items: center; gap: 8px; margin: 0; color: #B9A6EE; font: 700 18px/1.3 var(--font-serif-display); }
+.mf-fortune-head h2 i { color: #9B7FE8; font-style: normal; font-size: 15px; }
+.mf-fortune-head p { margin: 7px 0 0; color: #7d7291; font-size: 12px; }
+.mf-fortune-stage { position: relative; margin-top: 10px; }
+.mf-fortune-svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.mf-fortune-label { fill: #B9A6EE; font-size: 17px; font-weight: 600; }
+.mf-fortune-tip { position: absolute; transform: translateX(-50%); padding: 5px 12px; border: 1px solid rgb(139 111 216 / 50%); border-radius: 999px; background: #221a33; color: #D8CCF5; font-size: 12px; font-weight: 650; white-space: nowrap; pointer-events: none; }

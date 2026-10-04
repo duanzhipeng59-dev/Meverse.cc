@@ -65,6 +65,48 @@ function yearGanZhi(year: number) {
 
 export type ConsultReport = ReturnType<typeof buildConsultReport>;
 
+// 人生运势曲线:7-80 岁逐年趋势(由大运打分插值+确定性微波动生成)
+export type FortuneCurve = {
+  points: Array<{ age: number; score: number }>;
+  peak: { age: number; score: number };
+  low: { age: number; score: number };
+};
+
+// 由事业大运打分生成 7-80 岁逐年运势曲线(控制点线性插值 + 确定性温和波动)
+export function buildFortuneCurve(lifetime: Array<{ age: string; score: number }>): FortuneCurve {
+  const controls = lifetime
+    .map((item) => {
+      const match = item.age.match(/(\d+)–(\d+)/);
+      const start = match ? Number(match[1]) : 0;
+      const end = match ? Number(match[2]) : 0;
+      return { age: Math.round((start + end) / 2), score: item.score };
+    })
+    .sort((a, b) => a.age - b.age);
+  if (!controls.length) return { points: [], peak: { age: 0, score: 0 }, low: { age: 0, score: 0 } };
+  const points: Array<{ age: number; score: number }> = [];
+  for (let age = 7; age <= 80; age += 1) {
+    let base: number;
+    if (age <= controls[0].age) base = controls[0].score;
+    else if (age >= controls[controls.length - 1].age) base = controls[controls.length - 1].score;
+    else {
+      const nextIndex = controls.findIndex((c) => c.age >= age);
+      const prev = controls[nextIndex - 1];
+      const next = controls[nextIndex];
+      const t = (age - prev.age) / (next.age - prev.age);
+      base = prev.score + (next.score - prev.score) * t;
+    }
+    const wave = Math.sin(age * 1.9) * 2.4 + Math.sin(age * 0.7) * 1.6;
+    points.push({ age, score: Math.max(35, Math.min(92, Math.round(base + wave))) });
+  }
+  let peak = points[0];
+  let low = points[0];
+  for (const point of points) {
+    if (point.score > peak.score) peak = point;
+    if (point.score < low.score) low = point;
+  }
+  return { points, peak, low };
+}
+
 // 文档型章节:重点词由结构化字段提供,前端不做字符串猜测
 export type RichParagraph = { content: string; highlights: string[] };
 export type LabeledParagraph = { label: string; content: string };
