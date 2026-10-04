@@ -12,6 +12,8 @@ import { getCelebrityVedicBirth, getPublishedStar, hasStarReportView, recordStar
 import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
 import { requirePageUser } from "../../../../require-page-user";
+import Link from "next/link";
+import { getPublishedStarList, type StarListItem } from "../../../../myfate-stars-server";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +95,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const profile = buildBaziLifeProfile(chart);
   // 人工精校内容优先(RM),其余明星走模板引擎
   const consult = CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
+  const allStars = await getPublishedStarList();
+  const others = allStars.filter((item) => item.id !== id).slice(0, 8);
   const currentAge = Number.isFinite(Number(star.birthDate.slice(0, 4))) ? new Date().getFullYear() - Number(star.birthDate.slice(0, 4)) : null;
 
   return (
@@ -270,6 +274,20 @@ export default async function StarReportPage({ params, searchParams }: { params:
       </section>
 
       <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} /></div>
+
+      {others.length ? (
+        <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">
+          <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
+          <div className="mf-detail-others-row">
+            {others.map((item) => (
+              <Link className="mf-detail-others-card" href={`/home/relationship-test/${item.id}/test`} key={item.id}>
+                <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${item.portraitSrc}")` }} role="img" aria-label={item.name} />
+                <b>{item.name}</b>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
     </div>
