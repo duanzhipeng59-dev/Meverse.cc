@@ -5426,7 +5426,7 @@ select:focus-visible {
 .mf-zr-ask-msg.assistant p { background: var(--bz-paper-warm); border: 1px solid var(--bz-line); border-bottom-left-radius: 4px; }
 .mf-zr-ask-typing i { display: inline-block; animation: mf-zr-blink 1.2s infinite ease-in-out; font-style: normal; }
 @keyframes mf-zr-blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
-.mf-zr-ask-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mf-zr-ask-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .mf-zr-ask-chips button { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--bz-line-strong); background: transparent; color: var(--bz-red-bright); font-size: 13px; cursor: pointer; transition: all 0.15s ease; }
 .mf-zr-ask-chips button:hover:not(:disabled) { background: var(--bz-red); color: #fff; border-color: var(--bz-red); }
 .mf-zr-ask-chips button:disabled { opacity: 0.5; cursor: default; }
