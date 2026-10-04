@@ -119,7 +119,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
       <div className="mf-explore-grid" ref={gridRef} key={`${cat}-${query}`}>
         {pageStars.map((star, index) => (
-          <Link className="mf-explore-card" href={`${basePath}/${star.id}`} key={star.id}>
+          <Link className="mf-explore-card" href={`${basePath}/${star.id}/test`} key={star.id}>
             <PortraitImg
               src={star.portraitSrc}
               alt={`${star.name}的人物肖像`}
