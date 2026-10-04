@@ -118,7 +118,7 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
         ) : null}
         {/* 轻浮层:hover 时节点附近 */}
         {tipPoint && !selectedPoint ? (
-          <div className="mf-fortune-tip" style={{ left: `${Math.min(70, Math.max(3, (tipX / W) * 100 - 10))}%` }}>
+          <div className="mf-fortune-tip" style={{ left: `min(max(${((tipX / W) * 100).toFixed(1)}%, 6px), calc(100% - 172px))` }}>
             <b>{tipPoint.age}岁 · {tipLabel}｜{tipPoint.score}</b>
             <span>事业 ↑　财富 →　感情 →</span>
           </div>
