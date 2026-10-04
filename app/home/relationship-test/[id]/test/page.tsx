@@ -20,6 +20,46 @@ const ASK_SUGGESTIONS = [
   "和 TA 相处最需要注意什么？",
 ];
 
+
+// ── 文档型章节组件(连续阅读,重点词由结构化 highlights 提供) ──
+function Highlighted({ content, highlights }: { content: string; highlights: string[] }) {
+  let parts: Array<{ text: string; hl: boolean }> = [{ text: content, hl: false }];
+  for (const hl of highlights) {
+    const next: Array<{ text: string; hl: boolean }> = [];
+    for (const part of parts) {
+      if (part.hl || !part.text.includes(hl)) {
+        next.push(part);
+        continue;
+      }
+      const segments = part.text.split(hl);
+      segments.forEach((seg, i) => {
+        if (seg) next.push({ text: seg, hl: false });
+        if (i < segments.length - 1) next.push({ text: hl, hl: true });
+      });
+    }
+    parts = next;
+  }
+  return <>{parts.map((part, index) => part.hl ? <b className="mf-doc-hl" key={index}>{part.text}</b> : <span key={index}>{part.text}</span>)}</>;
+}
+
+function DocRich({ label, data }: { label: string; data: { content: string; highlights: string[] } }) {
+  return (
+    <p className="mf-doc-p">
+      {label ? <b className="mf-doc-label">{label}：</b> : null}
+      <Highlighted content={data.content} highlights={data.highlights} />
+    </p>
+  );
+}
+
+function DocIndent({ label, content }: { label: string; content: string }) {
+  return (
+    <p className="mf-doc-indent">
+      <b>{label}：</b>
+      {content}
+    </p>
+  );
+}
+
 export default async function StarReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
   const { id } = await params;
   const { from } = await searchParams;
@@ -79,23 +119,21 @@ export default async function StarReportPage({ params, searchParams }: { params:
         { id: "ask", label: "AI 追问" },
       ]} />
 
-      {/* ── 人生画像 ── */}
-      <section className="mf-zr-card" id="c-portrait">
-        <div className="mf-cs-head"><i>✧</i><h2>人生画像</h2><span>PORTFOLIO</span></div>
-        <dl className="mf-cs-kv">
-          <div><dt>旺衰定性</dt><dd>{consult.portrait.strengthLine}</dd></div>
-          <div><dt>核心道法</dt><dd><b>「{consult.portrait.dao.name}」</b>——{consult.portrait.dao.explain}</dd></div>
-          <div><dt>喜神</dt><dd>{consult.portrait.favorable.elements} —— {consult.portrait.favorable.meaning}</dd></div>
-          <div><dt>忌神</dt><dd>{consult.portrait.unfavorable.elements} —— {consult.portrait.unfavorable.meaning}</dd></div>
-        </dl>
-        <h3 className="mf-zr-sub">神煞底色</h3>
-        <dl className="mf-cs-kv">
-          {consult.portrait.shenSha.map((item) => (
-            <div key={item.name}><dt>{item.name} · {item.value}</dt><dd>{item.meaning}</dd></div>
-          ))}
-        </dl>
-        <h3 className="mf-zr-sub">性格与行为模式</h3>
-        <p className="mf-cs-p">{consult.portrait.temperament}</p>
+      {/* ── ◐ 人生画像 · 文档型 ── */}
+      <section className="mf-zr-card mf-doc" id="c-portrait">
+        <div className="mf-doc-head"><i aria-hidden="true">◐</i><h2>人生画像</h2></div>
+        <DocRich label="旺衰定性" data={consult.portrait.strength} />
+        <DocRich label="道法与喜忌" data={consult.portrait.dao} />
+        <DocIndent label={consult.portrait.favorable.label} content={consult.portrait.favorable.content} />
+        <DocIndent label={consult.portrait.unfavorable.label} content={consult.portrait.unfavorable.content} />
+        {consult.portrait.neutral ? <DocIndent label={consult.portrait.neutral.label} content={consult.portrait.neutral.content} /> : null}
+        <h3 className="mf-doc-sub">神煞底色</h3>
+        {consult.portrait.shenSha.map((item) => (
+          <DocIndent key={item.label} label={item.label} content={item.content} />
+        ))}
+        {consult.portrait.temperament.map((para, index) => (
+          <DocRich key={index} label={index === 0 ? "性格与行为模式" : ""} data={para} />
+        ))}
       </section>
 
       {/* ── ❖ 格局 ── */}

@@ -53,7 +53,6 @@ export default function CelebrityDetail({
           <h1>{star.name}</h1>
           {baziHeadline ? <p className="mf-detail-tagline">{baziHeadline}</p> : <p className="mf-detail-tagline">“{star.tagline}”</p>}
           <p className="mf-profile-basis">出生日期 {star.birthDate}</p>
-          {star.traits.length ? <div className="mf-detail-traits" aria-label="人物特质">{star.traits.map((trait) => <span key={trait}>{trait}</span>)}</div> : null}
           <div className="mf-detail-description">
             <span className="mf-detail-section-label">PERSONA NOTES</span>
             <h2>人物解读</h2>

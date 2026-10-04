@@ -65,6 +65,10 @@ function yearGanZhi(year: number) {
 
 export type ConsultReport = ReturnType<typeof buildConsultReport>;
 
+// 文档型章节:重点词由结构化字段提供,前端不做字符串猜测
+export type RichParagraph = { content: string; highlights: string[] };
+export type LabeledParagraph = { label: string; content: string };
+
 export function buildConsultReport(chart: BaziChart, profile: BaziLifeProfile, report: StarBaziReport, currentYear = new Date().getFullYear()) {
   const dayMaster = chart.dayMaster;
   const dayEl = GAN_WUXING[dayMaster];
@@ -146,17 +150,51 @@ export function buildConsultReport(chart: BaziChart, profile: BaziLifeProfile, r
 
   return {
     portrait: {
-      strengthLine: `日主${dayMaster}(${dayEl}),判定为${profile.summary.strength}——${profile.summary.strength === "身强" ? "能扛事、能担财,主动进攻型底盘" : profile.summary.strength === "身弱" ? "感知敏锐、以巧破力,借势型底盘" : "攻守平衡,适应型底盘"}`,
-      favorable: { elements: favorable.join("、"), meaning: `${favorable.join("、")}属性的人、环境与赛道是助力来源(对应${favorable.map((el) => elementGod(el, dayEl)).join("、")})` },
-      unfavorable: { elements: cautious.join("、"), meaning: `${cautious.join("、")}过旺的环境是消耗来源,遇到要降速、设边界` },
-      dao: { name: daoName, explain: daoExplain },
-      shenSha: [
-        { name: "驿马", value: hasYiMa ? `原局见${yiMaZhi}(驿马)` : "原局驿马不显", meaning: hasYiMa ? "动能强:跨境、跨城、频繁出差反而出机会,越动越旺" : "安居型发展:主场作战更能积累,频繁换环境反而耗" },
-        { name: "羊刃", value: hasYangRen ? `原局见${yangRenZhi}(羊刃)` : "原局无羊刃", meaning: hasYangRen ? "爆发力强但易走极端:早年财务与情绪的大起大落多与此有关,需要纪律约束" : "性格不带刀,冲突处理偏缓和,极端行为风险低" },
-        { name: "桃花", value: hasTaoHua ? `原局见${taoHuaZhi}(桃花)` : "原局桃花不显", meaning: hasTaoHua ? "异性缘是双刃剑:魅力即流量,但桃花年要防烂桃花干扰主线" : "感情走质量路线:不走量,认定后反而稳定" },
-        { name: "贵人位", value: guiRenPos >= 0 ? `${["年柱(长辈/上级)", "月柱(同辈/平台)", "日柱(配偶/合伙人)", "时柱(晚辈/学生)"][guiRenPos]}藏贵人` : "贵人藏于日常", meaning: guiRenPos >= 0 ? "这个位置的人是关键助力,遇到要抓住" : "贵人多为暗中相助,平时结善缘即可" },
-      ],
-      temperament: `外在呈现:${visibleStems.slice(0, 2).join("、")}挂在天干——别人看到的样子;内在内核:${hiddenCore.slice(0, 2).join("、")}藏在日支——只有亲近的人才知道的样子。两者的落差,就是 TA 的魅力与拧巴所在。`,
+      strength: {
+        content: `TA属于${profile.summary.strength}格局（日主${dayMaster}${dayEl}）。五行最喜${favorable.join("和")}，最忌${cautious.join("和")}——喜的是${profile.summary.favorable.includes("水") ? "滋润与弹性" : "助力"}，忌的是过载。`,
+        highlights: [profile.summary.strength + "格局", dayMaster + dayEl, ...favorable, ...cautious],
+      } as RichParagraph,
+      dao: {
+        content: `TA的核心道法是「${daoName}」——${daoExplain}。`,
+        highlights: [daoName],
+      } as RichParagraph,
+      favorable: {
+        label: "喜神",
+        content: `${favorable.join("、")}（${favorable.map((el) => elementGod(el, dayEl)).join("、")}）——${favorable.join("、")}属性的人、环境与赛道是助力来源，主动靠近会让状态和财运同步变好。`,
+      } as LabeledParagraph,
+      unfavorable: {
+        label: "忌神",
+        content: `${cautious.join("、")}（${cautious.map((el) => elementGod(el, dayEl)).join("、")}）——${cautious.join("、")}过旺的环境是消耗来源，遇到要降速、设边界，别硬扛。`,
+      } as LabeledParagraph,
+      neutral: (() => {
+        const all: Element[] = ["木", "火", "土", "金", "水"];
+        const neutralEls = all.filter((el) => !favorable.includes(el) && !cautious.includes(el));
+        if (!neutralEls.length) return null;
+        return {
+          label: "闲神",
+          content: `${neutralEls.join("、")}——不站队的力量，顺其自然即可；${neutralEls.join("、")}属性的人和事对 TA 影响中性，不必刻意趋避。`,
+        } as LabeledParagraph;
+      })(),
+      shenSha: ([
+        hasYiMa ? { label: "驿马", content: `原局见${yiMaZhi}——动能强，跨境、跨城、频繁出差反而出机会，越动越旺。` } : null,
+        hasYangRen ? { label: "羊刃", content: `原局见${yangRenZhi}——爆发力强但易走极端，早年财务与情绪的大起大落多与此有关，需要纪律约束。` } : null,
+        hasTaoHua ? { label: "桃花", content: `原局见${taoHuaZhi}——异性缘是双刃剑：魅力即流量，但桃花年要防烂桃花干扰主线。` } : null,
+        { label: "贵人", content: guiRenPos >= 0 ? `${["年柱（长辈/上级）", "月柱（同辈/平台）", "日柱（配偶/合伙人）", "时柱（晚辈/学生）"][guiRenPos]}藏贵人——这个位置的人是关键助力，遇到要抓住。` : "贵人多藏于日常，平时结善缘即可。" },
+      ].filter(Boolean) as LabeledParagraph[]),
+      temperament: [
+        {
+          content: `外在表现：${visibleStems.slice(0, 2).join("、")}挂在天干——这是别人第一眼看到的 TA，看起来${topGod === "官杀" ? "克制可靠" : topGod === "财星" ? "务实精明" : topGod === "食伤" ? "鲜活有想法" : topGod === "印星" ? "沉静有书卷气" : "独立有冲劲"}。`,
+          highlights: visibleStems.slice(0, 2),
+        },
+        {
+          content: `内在动力：日支藏着${hiddenCore.slice(0, 2).join("、")}——只有亲近的人才知道的内核，两者的落差就是 TA 的魅力与拧巴所在。`,
+          highlights: hiddenCore.slice(0, 2),
+        },
+        {
+          content: `压力反应：${topGod === "官杀" ? "压力全揽自己身上，表面平静、内里紧绷。" : topGod === "财星" ? "对不确定极度敏感，先算账再谈感情。" : topGod === "食伤" ? "情绪需要出口，憋着就容易上火冲动。" : topGod === "印星" ? "先想清楚再行动，想不通就停摆。" : "不服输，越被质疑越要证明自己。"}`,
+          highlights: [],
+        },
+      ] as RichParagraph[],
     },
     pattern: {
       monthGrid: `月令${monthZhi}(${ZHI_WUXING[monthZhi]}旺),透干比例约 ${Math.round((chart.wuXing[ZHI_WUXING[monthZhi]] / 8) * 100)}%——${topGod}格局,职业依托:${GOD_DESC[topGod]}`,

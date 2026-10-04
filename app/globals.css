@@ -6021,10 +6021,24 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 
 /* ── 实战派咨询报告:符号章节头 + 时间轴 + 流年列表 ── */
-.mf-cs-head { display: flex; align-items: center; gap: 12px; min-height: 52px; margin-bottom: 14px; padding: 0 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card-raised); }
+.mf-cs-head { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--bz-line); }
 .mf-cs-head i { color: var(--bz-red-bright); font-style: normal; font-size: 17px; }
 .mf-cs-head h2 { margin: 0; color: var(--bz-ink); font: 700 20px/1.3 var(--font-serif-display); letter-spacing: .08em; }
 .mf-cs-head span { margin-left: auto; color: var(--bz-faint); font-size: 10px; font-weight: 700; letter-spacing: .24em; }
+.mf-cs-lead { margin-bottom: 22px; }
+.mf-cs-lead span, .mf-cs-doctrine small { display: block; margin-bottom: 8px; color: var(--bz-red-bright); font-size: 12px; font-weight: 700; }
+.mf-cs-lead p, .mf-cs-doctrine p { margin: 0; color: var(--bz-ink); font-size: 14px; line-height: 1.9; }
+.mf-cs-doctrine { margin: 0 0 24px; padding: 18px 20px; border-left: 3px solid #7a55d9; background: rgb(122 85 217 / 7%); }
+.mf-cs-doctrine b { display: block; margin-bottom: 8px; color: #b99cff; font: 700 19px/1.4 var(--font-serif-display); }
+.mf-cs-energy { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 18px 0; border-block: 1px solid var(--bz-line); }
+.mf-cs-energy > div { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
+.mf-cs-energy b { color: var(--bz-red-bright); font-size: 12px; }
+.mf-cs-energy span { color: var(--bz-ink); font-size: 13px; font-weight: 700; }
+.mf-cs-energy p { grid-column: 1 / -1; margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.75; }
+.mf-cs-insight-grid { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+.mf-cs-insight-grid > div { padding: 14px 0; border-bottom: 1px solid var(--bz-line); }
+.mf-cs-insight-grid dt { margin-bottom: 6px; color: var(--bz-red-bright); font-size: 12.5px; font-weight: 700; }
+.mf-cs-insight-grid dd { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.75; }
 .mf-cs-kv { margin: 0 0 6px; display: grid; gap: 9px; }
 .mf-cs-kv > div { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 11px 13px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-paper-warm); }
 .mf-cs-kv dt { color: var(--bz-red-bright); font-size: 12px; font-weight: 650; }
@@ -6052,7 +6066,28 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-cs-years > div.is-warn em { color: var(--bz-error); }
 .mf-cs-years p { grid-column: 1 / -1; margin: 2px 0 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
 @media (max-width: 640px) {
+  .mf-cs-energy, .mf-cs-insight-grid { grid-template-columns: 1fr; }
   .mf-cs-kv > div { grid-template-columns: 78px 1fr; }
   .mf-cs-years > div { grid-template-columns: 42px 1fr auto; }
   .mf-cs-years span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* ── 文档型章节(人生画像样板):暖白连续阅读,无内部卡片 ── */
+.mf-doc { --doc-ink: #211C1E; --doc-text: #4E4649; --doc-faint: #8A7F83; --doc-red: #C64270; --doc-purple: #7A55D9; --doc-line: #EEE8EA; --doc-lilac: #F5F1FC; background: #FCFAF8; border: 0; border-radius: 16px; color: var(--doc-text); padding: 0 clamp(20px, 3.5vw, 38px) 26px; }
+.mf-doc-head { display: flex; align-items: center; gap: 10px; min-height: 60px; margin: 0 -6px 16px; border-bottom: 1px solid var(--doc-line); }
+.mf-doc-head i { color: var(--doc-purple); font-style: normal; font-size: 18px; }
+.mf-doc-head h2 { margin: 0; color: var(--doc-purple); font: 700 22px/1.3 var(--font-serif-display); letter-spacing: .06em; }
+.mf-doc-p { margin: 0 0 14px; color: var(--doc-text); font-size: 15.5px; line-height: 1.85; }
+.mf-doc-p:last-child { margin-bottom: 0; }
+.mf-doc-label, .mf-doc-hl { color: var(--doc-red); font-weight: 700; }
+.mf-doc-indent { margin: 0 0 14px 20px; color: var(--doc-text); font-size: 15px; line-height: 1.85; }
+.mf-doc-indent:last-child { margin-bottom: 0; }
+.mf-doc-indent b { color: var(--doc-red); font-weight: 700; margin-right: 4px; }
+.mf-doc-sub { margin: 18px 0 12px; color: var(--doc-red); font-size: 16px; font-weight: 700; }
+@media (max-width: 640px) {
+  .mf-doc { padding: 0 18px 20px; border-radius: 14px; }
+  .mf-doc-head { min-height: 56px; }
+  .mf-doc-head h2 { font-size: 20px; }
+  .mf-doc-p { font-size: 15px; line-height: 1.75; }
+  .mf-doc-indent { margin-left: 12px; font-size: 15px; line-height: 1.75; }
 }
