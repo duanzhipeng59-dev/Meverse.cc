@@ -6265,3 +6265,50 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* 问候语气泡:靠右,深色底(区别于用户的酒红渐变) */
 .mf-zr-ask-msg.user.is-greeting p { background: var(--bz-selected); border-bottom-right-radius: 14px; border-bottom-left-radius: 4px; }
 .mf-zr-ask-msg.user.is-greeting { text-align: left; }
+
+/* ══════════ 人物探索页 · 极简画廊(替代旧列表 UI) ══════════ */
+.mf-explore { background: #0D090B; background-image: radial-gradient(ellipse 60% 40% at 85% 0%, rgb(90 35 60 / 8%), transparent); border-radius: 0; padding: clamp(40px, 7vw, 76px) clamp(20px, 5vw, 56px) 60px; display: flex; flex-direction: column; width: 100%; }
+.mf-explore-head h1 { margin: 0; color: #F5EEF1; font: 500 clamp(30px, 4.2vw, 56px)/1.15 var(--font-serif-display); letter-spacing: .02em; white-space: nowrap; }
+.mf-explore-head h1 .is-accent { color: #DFA0B6; }
+.mf-explore-head p { margin: 14px 0 0; color: rgb(210 195 210 / 55%); font-size: 17px; font-weight: 400; letter-spacing: .06em; }
+
+.mf-explore-nav { display: flex; justify-content: space-between; align-items: flex-end; height: 56px; margin: clamp(36px, 5vw, 56px) 0 0; border-bottom: 1px solid rgb(255 255 255 / 18%); }
+.mf-explore-tabs { display: flex; align-items: flex-end; gap: clamp(20px, 3vw, 34px); height: 100%; }
+.mf-explore-tabs button { position: relative; height: 100%; padding: 0 2px 14px; border: 0; background: none; color: rgb(255 255 255 / 45%); font-size: 15.5px; font-weight: 500; cursor: pointer; transition: color .2s ease; }
+.mf-explore-tabs button:hover { color: rgb(255 255 255 / 75%); }
+.mf-explore-tabs button.is-active { color: rgb(255 255 255 / 95%); }
+.mf-explore-tabs button.is-active::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); bottom: -1px; width: 32px; height: 2px; border-radius: 2px; background: #DFA0B6; }
+.mf-explore-searchopen { flex-shrink: 0; display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 6px; border: 0; border-radius: 999px; background: none; color: rgb(255 255 255 / 80%); cursor: pointer; }
+.mf-explore-searchopen:hover { color: #fff; background: rgb(255 255 255 / 6%); }
+.mf-explore-searchopen svg { width: 23px; height: 23px; }
+.mf-explore-searchrow { display: flex; align-items: center; gap: 12px; width: 100%; height: 100%; color: rgb(255 255 255 / 80%); animation: mf-searchin .25s ease; }
+@keyframes mf-searchin { from { opacity: 0; transform: translateY(4px); } }
+.mf-explore-searchrow svg { flex-shrink: 0; width: 22px; height: 22px; }
+.mf-explore-searchrow input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; color: #F5EEF1; font-size: 16px; outline: none; }
+.mf-explore-searchrow input::placeholder { color: rgb(255 255 255 / 40%); }
+.mf-explore-searchrow input::-webkit-search-cancel-button { display: none; }
+.mf-explore-searchrow button { flex-shrink: 0; border: 0; background: none; color: rgb(255 255 255 / 70%); font-size: 20px; cursor: pointer; padding: 4px 6px; }
+
+.mf-explore-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 22px; margin: 30px 0 0; animation: mf-explorefade .22s ease; }
+@keyframes mf-explorefade { from { opacity: 0; } }
+.mf-explore-card { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 14px; background: #171014; color: inherit; text-decoration: none; isolation: isolate; }
+.mf-explore-card::after { content: ""; position: absolute; inset: auto 0 0; height: 45%; background: linear-gradient(to bottom, transparent 55%, rgb(0 0 0 / 55%)); z-index: 1; pointer-events: none; }
+.mf-explore-card .mf-bz-cover-img { transition: transform .38s ease, filter .38s ease; }
+.mf-explore-card:hover .mf-bz-cover-img { transform: scale(1.018); filter: brightness(1.05); }
+.mf-explore-copy { position: absolute; left: 26px; bottom: 22px; z-index: 2; display: grid; gap: 5px; }
+.mf-explore-copy b { color: #fff; font: 500 30px/1.1 var(--font-serif-display); letter-spacing: .02em; }
+.mf-explore-copy span { color: rgb(255 255 255 / 72%); font-size: 14.5px; letter-spacing: .04em; }
+.mf-explore-empty { margin: 30px 0; color: rgb(255 255 255 / 45%); font-size: 14px; text-align: center; }
+
+@media (max-width: 640px) {
+  .mf-explore { padding: 30px 18px 44px; }
+  .mf-explore-head h1 { font-size: clamp(30px, 8.6vw, 36px); white-space: normal; }
+  .mf-explore-head p { font-size: 16px; margin-top: 12px; }
+  .mf-explore-nav { margin-top: 34px; }
+  .mf-explore-tabs { gap: 18px; }
+  .mf-explore-tabs button { font-size: 14.5px; padding-bottom: 12px; }
+  .mf-explore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
+  .mf-explore-copy { left: 14px; bottom: 13px; gap: 3px; }
+  .mf-explore-copy b { font-size: 24px; }
+  .mf-explore-copy span { font-size: 12.5px; }
+}
