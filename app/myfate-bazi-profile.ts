@@ -129,6 +129,9 @@ function level(value: number, max: number) {
   return "不显";
 }
 
+// 章节三层结构:结论(白话) → 现实表现 → 优势/提醒 → 命理依据(默认折叠)
+export type AreaLayer = { conclusion: string; behaviors: string[]; good: string; watch: string; basis: string[] };
+
 export type BaziLifeProfile = {
   summary: {
     dayElement: Element;
@@ -143,14 +146,24 @@ export type BaziLifeProfile = {
   tenGods: Array<{ name: string; value: number; level: string; keywords: string[]; reading: string }>;
   relations: Array<{ title: string; text: string; tone: Tone }>;
   lifeStages: Array<{ label: string; scope: string; ganzhi: string; diShi: string; text: string }>;
+  // 快速认识 TA:一句话画像 + 关键词 + 优势/矛盾/课题
+  portrait: {
+    headline: string;
+    keywords: string[];
+    strength: string;
+    tension: string;
+    lesson: string;
+  };
+  // 五维画像:直观倾向标签 + 现实解释 + 命理依据
+  dimensions: Array<{ key: string; label: string; level: string; explain: string; basis: string }>;
   areas: {
-    personality: { summary: string; details: string[] };
-    talent: { summary: string; details: string[] };
-    career: { summary: string; details: string[] };
-    wealth: { summary: string; details: string[] };
-    relationship: { summary: string; details: string[] };
-    family: { summary: string; details: string[] };
-    wellbeing: { summary: string; details: string[] };
+    personality: AreaLayer;
+    talent: AreaLayer;
+    career: AreaLayer;
+    wealth: AreaLayer;
+    relationship: AreaLayer;
+    family: AreaLayer;
+    wellbeing: AreaLayer;
   };
   dayun: Array<{
     ganzhi: string; ageText: string; yearText: string; tone: Tone; current: boolean;
@@ -274,39 +287,6 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
     return { label: pillar.label, scope, ganzhi: pillar.ganzhi, diShi: pillar.diShi, text: stageText + "十二长生落“" + pillar.diShi + "”，显示该领域的能量节奏。" };
   });
 
-  const personalityDetails = [
-    CATEGORY_READING[topGod],
-    "性格底色是「" + dayMaster + "·" + dayElement + "」——" + ELEMENT_NATURE[dayElement] + "。命盘里" + topGod + "的力量最突出,也就是" + GOD_PLAIN[topGod] + "。",
-    strength === "身强" ? "自己想干嘛就能干起来,不太需要别人推;要修炼的是听劝、给别人留位置。" : strength === "身弱" ? "心思细、会看脸色,擅长借别人的势;找个稳的平台和靠谱的队友,优势会翻倍。" : "能量不多不少,适应力强;关键是早点定下主线,别什么都试。",
-  ];
-  const talentDetails = [
-    topGod + "主导、" + secondGod + "辅助，天赋组合落在“" + CATEGORY_KEYWORDS[topGod].join("、") + "”与“" + CATEGORY_KEYWORDS[secondGod].join("、") + "”。",
-    "五行中" + dominantElement + "气最显，" + ELEMENT_NATURE[dominantElement] + "会成为外界最容易看见的能力。",
-    missingElements.length ? "命局中" + missingElements.join("、") + "不显，不等于缺点；更适合通过环境、伙伴和方法补足。" : "五行均有落点，能力结构较完整，适合做跨领域整合。",
-  ];
-  const careerSummary = "事业更适合“" + CAREER_BY_GOD[topGod] + "”，而不是长期停留在低反馈、低自主的消耗环境。";
-  const careerDetails = [
-    "月柱" + chart.pillars[1].ganzhi + "为事业底色，月干十神为" + chart.pillars[1].shiShenGan + "，说明社会角色往往从这类能力起步。",
-    "喜用五行是" + favorable.join("、") + "，选择能强化" + favorable.map((element) => ELEMENT_NATURE[element]).join("与") + "的团队与项目更顺势。",
-    "官杀力量为“" + level(counts.官杀, maxGod) + "”，" + (counts.官杀 >= 2 ? "对目标和责任并不回避，适合逐步承担更大影响范围。" : "比起头衔，更需要通过真实成果建立位置。"),
-  ];
-  const wealthSummary = WEALTH_BY_GOD[topGod];
-  const wealthDetails = [
-    "财星五行为" + wealthElement + "，命局财星权重约" + counts.财星.toFixed(1) + "，属于“" + level(counts.财星, maxGod) + "”。",
-    favorable.includes(wealthElement) ? "财星属于喜用，资源与成果容易反过来增强状态，适合建立长期复利。" : cautious.includes(wealthElement) ? "财星属于需要节制的力量，机会增多时也要管理透支、承诺和现金流压力。" : "财星作用中性，财富表现更依赖所处大运与执行方式。",
-    "比劫权重约" + counts.比劫.toFixed(1) + "；比劫偏旺时，合伙、借贷和人情支出更需要事先定规则。",
-  ];
-  const familyDetails = [
-    "年柱" + chart.pillars[0].ganzhi + "承载原生环境印记，纳音为" + chart.pillars[0].naYin + "。",
-    "月柱" + chart.pillars[1].ganzhi + "连接成长环境与社会规则，藏干为" + chart.pillars[1].hideGan.join("、") + "。",
-    "印星权重约" + counts.印星.toFixed(1) + "，" + (counts.印星 >= 2 ? "安全感和长辈影响较深，成长中要逐步形成自己的判断。" : "更习惯靠亲身经验建立安全感，独立性通常发展得较早。"),
-  ];
-  const wellbeingDetails = [
-    ELEMENT_CARE[dominantElement] + "。",
-    missingElements.length ? ELEMENT_CARE[missingElements[0]] + "；这是传统五行生活提示，不等同于医学诊断。" : "五行分布完整，保持稳定睡眠、饮食与运动，比追求单一“补五行”更重要。",
-    cautious.map((element) => element + "气过旺时易表现为" + ELEMENT_NATURE[element] + "失衡").join("；") + "。",
-  ];
-
   const branches = chart.pillars.map((pillar) => pillar.ganzhi[1]);
   const dayunSteps = chart.daYun.steps;
   const annual = Array.from({ length: 10 }, (_, index) => {
@@ -403,6 +383,117 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
     }
   }
 
+  // ── 快速认识 TA:摘要 + 五维(确定性映射,白话输出) ──
+  const strengthText = strength === "身强" ? "有主见、有干劲" : strength === "身弱" ? "敏感细腻、擅长借力" : "均衡适应";
+  const tensionMap: Record<string, string> = {
+    比劫: "很想自己做主,却又在意同伴的认可——容易被\u201c争一口气\u201d推着走",
+    印星: "渴望被保护和理解,但又不好意思开口求助——习惯自己消化",
+    食伤: "内心有很多想法想表达,又怕说错话被评判——输出与自我审查拉扯",
+    财星: "想把每件事落到实处,又怕结果不如预期——务实与焦虑并存",
+    官杀: "希望被认可为可靠的人,却常常把压力全揽在自己身上——责任与疲惫并存",
+  };
+  const lessonMap: Record<string, string> = {
+    比劫: "学会与人共赢,而不是事事亲力亲为",
+    印星: "把学到的用出来,别停留在准备阶段",
+    食伤: "给表达一个稳定出口,同时学会收着说",
+    财星: "在追求结果和经营关系之间找到平衡",
+    官杀: "学会承担责任的同时照顾好自己",
+  };
+  const portrait = {
+    headline: "TA 是一个" + strengthText + "的人,骨子里靠" + topGod + "(" + GOD_PLAIN[topGod].split("(")[0] + ")吃饭;" + tensionMap[topGod] + "。",
+    keywords: [...CATEGORY_KEYWORDS[topGod].slice(0, 2), CATEGORY_KEYWORDS[secondGod][0]],
+    strength: "核心优势是把「" + CATEGORY_KEYWORDS[topGod].slice(0, 2).join("、") + "」变成实打实的成果",
+    tension: tensionMap[topGod] + ";同时又" + tensionMap[secondGod].toLowerCase(),
+    lesson: lessonMap[topGod] + "。对 TA 来说,这不是短板,而是把天赋用好的前提。",
+  };
+
+  const dimLevel = (value: number) => (value >= 2 ? "偏高" : value >= 1 ? "中等" : "偏低");
+  const dimensions = [
+    {
+      key: "emotion", label: "情绪表达",
+      level: dimLevel(counts.食伤),
+      explain: counts.食伤 >= 2 ? "心事基本写在脸上,想法憋不住,情绪来得快去得也快。" : counts.食伤 >= 1 ? "该表达时会表达,但重要的事会先在心里过一遍。" : "习惯把情绪收着,不熟的人很难看出 TA 的真实感受。",
+      basis: "命盘中\u201c食伤\u201d(表达与输出的力量)权重约 " + counts.食伤.toFixed(1),
+    },
+    {
+      key: "action", label: "行动力",
+      level: dimLevel(counts.比劫 + counts.官杀),
+      explain: counts.比劫 + counts.官杀 >= 3 ? "想到就做,闲不住,压力反而能激发行动。" : counts.比劫 + counts.官杀 >= 2 ? "该冲的时候冲得起来,但也知道留余地。" : "偏谋定而后动,节奏慢半拍但稳。",
+      basis: "\u201c比劫\u201d(自主行动力)+\u201c官杀\u201d(外部推力)合计约 " + (counts.比劫 + counts.官杀).toFixed(1),
+    },
+    {
+      key: "relation", label: "关系需求",
+      level: dimLevel(counts.财星 + spouseCount),
+      explain: counts.财星 + spouseCount >= 2.5 ? "很在意亲密关系,愿意为关系投入和改变。" : counts.财星 + spouseCount >= 1 ? "需要关系,但更需要空间,黏太紧会想逃。" : "对关系顺其自然,一个人也能过得很好。",
+      basis: "\u201c财星\u201d(关系与现实的连接)+配偶星信号合计约 " + (counts.财星 + spouseCount).toFixed(1),
+    },
+    {
+      key: "pressure", label: "压力承受",
+      level: counts.官杀 >= 1.5 && counts.印星 >= 1 ? "高" : counts.官杀 >= 1.5 ? "偏高但紧绷" : counts.印星 >= 1.5 ? "中等偏稳" : "偏低",
+      explain: counts.官杀 >= 1.5 && counts.印星 >= 1 ? "扛得住大事,而且有自我修复的渠道,越压越强。" : counts.官杀 >= 1.5 ? "能扛事,但容易硬撑,需要主动给自己松绑。" : counts.印星 >= 1.5 ? "压力面前偏防御,靠想通来化解,而不是硬顶。" : "对高压环境敏感,适合节奏可控的工作方式。",
+      basis: "\u201c官杀\u201d(压力)约 " + counts.官杀.toFixed(1) + ",\u201c印星\u201d(化解与滋养)约 " + counts.印星.toFixed(1),
+    },
+    {
+      key: "boundary", label: "自我边界",
+      level: counts.比劫 >= counts.食伤 ? "清晰" : "弹性",
+      explain: counts.比劫 >= counts.食伤 ? "原则感强,不喜欢的事会明确拒绝,界限分得清。" : "边界偏软,容易为别人让步,事后又觉得委屈。",
+      basis: "\u201c比劫\u201d(自我)约 " + counts.比劫.toFixed(1) + " vs \u201c食伤\u201d(输出与迎合)约 " + counts.食伤.toFixed(1),
+    },
+  ];
+
+  // ── 章节三层结构(结论/表现/优劣/依据) ──
+  const areas = {
+    personality: {
+      conclusion: "台面上的 TA 靠" + topGod + "(" + GOD_PLAIN[topGod].split("(")[0] + ")打天下,心里的天平由" + secondGod + "把关——两者配合好,才是 TA 真正的优势。",
+      behaviors: [CATEGORY_READING[topGod], strength === "身强" ? "自己想干嘛就能干起来,不太需要别人推。" : strength === "身弱" ? "心思细、会看脸色,擅长借别人的势。" : "能量不多不少,什么环境都能适应。", "性格底色是「" + dayMaster + "·" + dayElement + "」——" + ELEMENT_NATURE[dayElement] + "。"],
+      good: "把" + CATEGORY_KEYWORDS[topGod].slice(0, 2).join("和") + "用在长期的事情上,TA 会越做越顺、越来越有底气。",
+      watch: tensionMap[topGod] + "——太用力时,记得提醒 TA 停一下。",
+      basis: ["十神权重:" + topGod + " " + ranked[0][1].toFixed(1) + "(最强)、" + secondGod + " " + ranked[1][1].toFixed(1), "日主" + dayMaster + "属" + dayElement + ",生于" + monthBranch + "月(" + monthElement + "当令)", "同党力量合计 " + support + ",判定为" + strength],
+    },
+    talent: {
+      conclusion: "最值钱的天赋是一个组合:「" + CATEGORY_KEYWORDS[topGod][0] + "」+「" + CATEGORY_KEYWORDS[secondGod][0] + "」——单拎出来不稀奇,放一起是独家牌。",
+      behaviors: ["TA 天然的注意力会放在" + CATEGORY_KEYWORDS[topGod][0] + "上,做这类事几乎不用逼自己。", "遇到" + CATEGORY_KEYWORDS[secondGod][0] + "类的问题,TA 的直觉常常比旁人快。", missingElements.length ? "命局里" + missingElements.join("、") + "不显——不等于缺点,TA 更适合靠伙伴和方法补齐这块。" : "五行都有落点,能力结构比较完整,适合做跨领域整合。"],
+      good: "找一条能把两种能力串起来的主线,优势会被成倍放大。",
+      watch: "别贪多——同时追三四个方向,这个组合优势反而发挥不出来。",
+      basis: [topGod + "主导、" + secondGod + "辅助(权重 " + ranked[0][1].toFixed(1) + " / " + ranked[1][1].toFixed(1) + ")", "五行最旺:" + dominantElement + "(" + ELEMENT_NATURE[dominantElement] + ")"],
+    },
+    career: {
+      conclusion: "TA 适合" + CAREER_BY_GOD[topGod] + ",而不是长期待在低反馈、低自主的消耗型环境里。",
+      behaviors: ["事业底色看月柱" + chart.pillars[1].ganzhi + "——起步往往从" + chart.pillars[1].shiShenGan + "这类能力开始。", counts.官杀 >= 2 ? "对目标和责任不怵,适合逐步接更大的摊子。" : "比起头衔,TA 更需要靠真实成果建立位置。", "顺的环境:能强化" + favorable.join("、") + "气质的团队和项目,TA 做起来更顺。"],
+      good: "在能自主推进、能看见反馈的位置上,TA 的成长速度会明显快于同龄人。",
+      watch: "长期没有自主权的环境会把 TA 的劲头磨没;高压环境待太久容易内耗。",
+      basis: ["月柱" + chart.pillars[1].ganzhi + ",月干十神" + chart.pillars[1].shiShenGan, "官杀(责任与考核)权重约 " + counts.官杀.toFixed(1) + ",\u201c" + level(counts.官杀, maxGod) + "\u201d", "喜用:" + favorable.join("、") + " / 需节制:" + cautious.join("、")],
+    },
+    wealth: {
+      conclusion: WEALTH_BY_GOD[topGod],
+      behaviors: ["命盘里财星(" + wealthElement + "属性)权重约 " + counts.财星.toFixed(1) + "——" + (counts.财星 >= 2 ? "对钱和资源的嗅觉一直在线。" : counts.财星 >= 1 ? "该精打细算的时候不含糊。" : "对钱不算执着,更在意事情本身。"), favorable.includes(wealthElement) ? "财运和状态互相带动——状态越好越能赚到钱。" : cautious.includes(wealthElement) ? "机会多的时候反而要防透支,现金流要留余地。" : "财富表现更多取决于所处阶段和做事方式。", counts.比劫 >= 2 ? "合伙、借贷、担保这类事,TA 要多留个心眼。" : "合伙和人情往来这块,TA 处理得相对稳妥。"],
+      good: favorable.includes(wealthElement) ? "顺着喜用方向做长期积累,复利会很可观。" : "把主业做扎实,收入结构越简单越稳。",
+      watch: cautious.includes(wealthElement) ? "越想快速翻身越容易踩坑,远离高杠杆。" : "大额支出设个 48 小时冷静期,能避开大部分坑。",
+      basis: ["财星五行" + wealthElement + ",权重 " + counts.财星.toFixed(1) + "(", level(counts.财星, maxGod) + ")", "财星与喜忌关系:" + (favorable.includes(wealthElement) ? "属喜用" : cautious.includes(wealthElement) ? "属需节制" : "中性"), "比劫权重 " + counts.比劫.toFixed(1)],
+    },
+    relationship: {
+      conclusion: relationText,
+      behaviors: ["TA 容易被自带「" + ELEMENT_NATURE[spouseElement] + "」气质的人吸引。", "亲密关系里,TA 会不自觉表现出" + chart.pillars[2].hideShiShen.join("、") + "这些隐藏需求。", "感情节奏不只看个人,还要结合大运流年——对的窗口期里,关系推进会顺畅很多。"],
+      good: spouseCount >= 2.5 ? "感情议题存在感强,只要学会筛选,容易遇到高质量的关系。" : "感情节奏偏慢但稳,确定下来的关系往往走得远。",
+      watch: spouseCount >= 2.5 ? "选择多不代表都要接住——明确自己要什么,反而更容易遇到对的。" : "别用\u201c再观察观察\u201d拖过窗口期,重要的人要主动一点。",
+      basis: ["配偶星:" + spouseCategory + "(" + spouseElement + "属性),权重约 " + spouseCount.toFixed(1), "夫妻宫(日支)" + dayBranch + ",藏干" + chart.pillars[2].hideGan.join("、"), "判断说明:配偶星看缘分类型,夫妻宫看相处模式,两者结合才完整"],
+    },
+    family: {
+      conclusion: "家庭对 TA 的影响,主要从年柱(原生环境)和月柱(成长规则)两条线进入。",
+      behaviors: [counts.印星 >= 2 ? "长辈的影响比较深,家里的话 TA 会认真掂量。" : "TA 更习惯自己拿主意,独立得比较早。", "年柱" + chart.pillars[0].ganzhi + "、月柱" + chart.pillars[1].ganzhi + "——这两段能量塑造了 TA 面对规则和责任的方式。", "藏干" + chart.pillars[1].hideGan.join("、") + "——成长中学到的分寸感,至今在起作用。"],
+      good: counts.印星 >= 2 ? "家庭是 TA 的补给站,遇事有人商量是 TA 的隐形资产。" : "早早练出了独立解决问题的能力,不依赖任何人。",
+      watch: counts.印星 >= 2 ? "别让家里的期待完全覆盖自己的判断,大事最后要自己拍板。" : "太习惯自己扛,重要决定也可以听听家人的意见。",
+      basis: ["年柱" + chart.pillars[0].ganzhi + ",纳音" + chart.pillars[0].naYin, "月柱" + chart.pillars[1].ganzhi + ",藏干" + chart.pillars[1].hideGan.join("、"), "印星(家庭与庇护)权重约 " + counts.印星.toFixed(1)],
+    },
+    wellbeing: {
+      conclusion: "TA 的回血方式有讲究:" + ELEMENT_CARE[dominantElement] + "。",
+      behaviors: [ELEMENT_CARE[dominantElement] + "。", missingElements.length ? "另外," + ELEMENT_CARE[missingElements[0]] + "——这块是 TA 容易忽略的短板。" : "五行分布完整,保持规律作息就够用了。", cautious.map((element) => element + "气过旺时容易" + (element === "火" ? "上火失眠" : element === "水" ? "疲惫拖延" : element === "木" ? "纠结内耗" : element === "金" ? "紧绷较真" : "思虑过重")).join(";") + "。"],
+      good: "顺着 TA 的五行气质安排休息方式,恢复效率比硬扛高得多。",
+      watch: "连续高压两周以上,身体会先替 TA 按暂停键——别等信号出现才休息。",
+      basis: ["最旺五行:" + dominantElement + "(" + ELEMENT_NATURE[dominantElement] + ")", missingElements.length ? "缺失五行:" + missingElements.join("、") : "五行俱全", "说明:五行生活提示属传统文化视角,不构成医学建议"],
+    },
+  };
+
   return {
     summary: {
       dayElement,
@@ -417,15 +508,9 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
     tenGods,
     relations: buildRelations(chart),
     lifeStages,
-    areas: {
-      personality: { summary: "台面上的 TA 靠" + topGod + "(" + GOD_PLAIN[topGod].split("(")[0] + ")打天下,心里的天平由" + secondGod + "把关;两者配合好,才是真正的优势。", details: personalityDetails },
-      talent: { summary: "最值钱的天赋是一个组合:「" + CATEGORY_KEYWORDS[topGod][0] + "」加上「" + CATEGORY_KEYWORDS[secondGod][0] + "」——单拎出来不稀奇,放在一起就是 TA 的独家牌。", details: talentDetails },
-      career: { summary: "一句话:" + careerSummary, details: careerDetails },
-      wealth: { summary: wealthSummary, details: wealthDetails },
-      relationship: { summary: relationText, details: ["配偶星属" + spouseElement + "，关系里更容易被具有" + ELEMENT_NATURE[spouseElement] + "特质的人吸引。", "夫妻宫坐" + dayBranch + "，藏干" + chart.pillars[2].hideGan.join("、") + "，亲密关系会触发" + chart.pillars[2].hideShiShen.join("、") + "等内在需求。", "关系质量不只看配偶星，还要结合夫妻宫、大运和流年共同判断。"] },
-      family: { summary: "家庭影响主要从年柱与月柱进入，既塑造安全感，也塑造面对规则与责任的方式。", details: familyDetails },
-      wellbeing: { summary: "五行最需要关注的是长期失衡，而不是机械地“缺什么补什么”。", details: wellbeingDetails },
-    },
+    portrait,
+    dimensions,
+    areas,
     dayun: chart.daYun.steps.map((step, index) => dayunInsight(step, dayMaster, favorable, cautious, index, branches)),
     annual,
     advice: [

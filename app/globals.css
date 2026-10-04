@@ -6019,3 +6019,93 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-dual-generate { width: 100%; }
 }
 
+
+/* ── 生辰报告三层阅读结构:结论→表现→优劣→折叠依据 ───────────────────── */
+.mf-l3-conclusion { margin: 0 0 12px; padding: 13px 16px; border-left: 3px solid var(--bz-red); border-radius: 0 12px 12px 0; background: var(--bz-selected); color: var(--bz-ink); font: 650 14.5px/1.7 inherit; line-height: 1.7; }
+.mf-l3-behaviors { margin: 0 0 14px; padding: 0; list-style: none; display: grid; gap: 7px; }
+.mf-l3-behaviors li { position: relative; padding-left: 18px; color: var(--bz-muted); font-size: 13px; line-height: 1.75; }
+.mf-l3-behaviors li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 6px; height: 6px; border-radius: 999px; background: var(--bz-red); opacity: .75; }
+.mf-l3-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+.mf-l3-pair > div { padding: 12px 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-paper-warm); }
+.mf-l3-pair b { display: block; margin-bottom: 5px; font-size: 12px; letter-spacing: .04em; }
+.mf-l3-pair .is-good b { color: var(--bz-green); }
+.mf-l3-pair .is-watch b { color: var(--bz-gold); }
+.mf-l3-pair p { margin: 0; color: var(--bz-ink); font-size: 12.5px; line-height: 1.7; }
+.mf-l3-basis { margin-top: 10px; border: 1px dashed var(--bz-line-strong); border-radius: 10px; }
+.mf-l3-basis summary { cursor: pointer; padding: 10px 14px; color: var(--bz-red-bright); font-size: 12.5px; font-weight: 650; list-style: none; user-select: none; }
+.mf-l3-basis summary::-webkit-details-marker { display: none; }
+.mf-l3-basis summary::after { content: " ▾"; font-size: 10px; }
+.mf-l3-basis[open] summary::after { content: " ▴"; }
+.mf-l3-basis ul { margin: 0; padding: 0 16px 12px 30px; display: grid; gap: 6px; }
+.mf-l3-basis li { color: var(--bz-muted); font-size: 12px; line-height: 1.7; }
+.mf-l3-basis > p { margin: 0; padding: 0 16px 12px; color: var(--bz-muted); font-size: 12px; line-height: 1.7; }
+
+/* 快速认识 TA:摘要 + 五维 */
+.mf-sum-headline { margin: 0; color: var(--bz-ink); font: 650 15px/1.8 inherit; line-height: 1.8; }
+.mf-sum-keywords { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 14px; }
+.mf-sum-keywords span { padding: 6px 14px; border: 1px solid rgba(198, 75, 115, .4); border-radius: 999px; background: rgb(198 75 115 / 12%); color: var(--bz-red-bright); font-size: 12.5px; font-weight: 650; }
+.mf-sum-rows { margin: 0 0 4px; display: grid; gap: 10px; }
+.mf-sum-rows > div { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 11px 13px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-paper-warm); }
+.mf-sum-rows dt { color: var(--bz-muted); font-size: 12px; font-weight: 650; }
+.mf-sum-rows dd { margin: 0; color: var(--bz-ink); font-size: 12.5px; line-height: 1.7; }
+.mf-dims { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mf-dim { padding: 13px 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-dim-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+.mf-dim-head b { color: var(--bz-ink); font-size: 13.5px; }
+.mf-dim-head em { padding: 3px 10px; border-radius: 999px; background: rgb(198 75 115 / 14%); color: var(--bz-red-bright); font-size: 11px; font-style: normal; font-weight: 650; }
+.mf-dim > p { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
+.mf-dim details { margin-top: 8px; border: 0; }
+
+/* 流年新卡 + 十年总览 */
+.mf-decade { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(96px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+.mf-decade::-webkit-scrollbar { display: none; }
+.mf-decade a { display: grid; gap: 3px; padding: 10px 12px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-card); text-decoration: none; }
+.mf-decade a:hover { border-color: var(--bz-red); }
+.mf-decade b { color: var(--bz-ink); font: 700 17px/1 Georgia, serif; }
+.mf-decade span { overflow: hidden; color: var(--bz-muted); font-size: 10.5px; text-overflow: ellipsis; white-space: nowrap; }
+.mf-decade em { font-size: 10.5px; font-style: normal; font-weight: 650; }
+.mf-decade a.is-good em { color: var(--bz-green); }
+.mf-decade a.is-neutral em { color: var(--bz-gold); }
+.mf-decade a.is-warn em, .mf-decade a.is-caution em { color: var(--bz-red-bright); }
+.mf-decade a.is-good { border-top: 2px solid var(--bz-green); }
+.mf-decade a.is-neutral { border-top: 2px solid var(--bz-gold); }
+.mf-decade a.is-warn { border-top: 2px solid var(--bz-red); }
+.mf-decade a.is-caution { border-top: 2px solid var(--bz-error); }
+.mf-decade-legend { margin: 8px 0 0; color: #8d7f86; font-size: 11.5px; line-height: 1.8; }
+.mf-decade-legend i { font-style: normal; font-weight: 650; }
+.mf-decade-legend .is-good { color: var(--bz-green); }
+.mf-decade-legend .is-neutral { color: var(--bz-gold); }
+.mf-decade-legend .is-warn, .mf-decade-legend .is-caution { color: var(--bz-red-bright); }
+.mf-year2-list { display: grid; gap: 10px; }
+.mf-year2 { padding: 13px 15px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); scroll-margin-top: 112px; }
+.mf-year2.is-good { border-left: 3px solid var(--bz-green); }
+.mf-year2.is-neutral { border-left: 3px solid var(--bz-gold); }
+.mf-year2.is-warn { border-left: 3px solid var(--bz-red); }
+.mf-year2.is-caution { border-left: 3px solid var(--bz-error); }
+.mf-year2-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.mf-year2-head b { font: 700 18px/1 Georgia, serif; color: var(--bz-ink); }
+.mf-year2-head span { color: var(--bz-ink); font-size: 12.5px; font-weight: 600; }
+.mf-year2-head em { margin-left: auto; display: inline-flex; align-items: baseline; gap: 5px; font-style: normal; font-weight: 650; font-size: 12px; }
+.mf-year2-head em i { color: #8d7f86; font-style: normal; font-size: 11px; }
+.mf-year2.is-good em { color: var(--bz-green); }
+.mf-year2.is-neutral em { color: var(--bz-gold); }
+.mf-year2.is-warn em, .mf-year2.is-caution em { color: var(--bz-red-bright); }
+.mf-year2-theme { margin: 8px 0 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.75; }
+.mf-year2-detail p { margin: 0 0 8px; color: var(--bz-muted); font-size: 12px; line-height: 1.7; }
+.mf-year2-detail b { color: var(--bz-ink); margin-right: 6px; font-weight: 650; }
+
+/* 完整命盘:默认简报 + 折叠排盘 */
+.mf-chart-brief { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 6px; }
+.mf-chart-brief > div { display: grid; gap: 5px; padding: 13px 15px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-paper-warm); }
+.mf-chart-brief small { color: #8d7f86; font-size: 11px; }
+.mf-chart-brief b { color: var(--bz-ink); font-size: 13.5px; }
+.mf-chart-full > summary { font-size: 13px; }
+.mf-chart-full .mf-zr-sub { margin: 16px 0 8px; padding-left: 16px; }
+
+@media (max-width: 640px) {
+  .mf-l3-pair { grid-template-columns: 1fr; }
+  .mf-dims { grid-template-columns: 1fr; }
+  .mf-chart-brief { grid-template-columns: 1fr; }
+  .mf-year2-head { flex-wrap: nowrap; }
+  .mf-year2-head span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
