@@ -38,8 +38,8 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
       }
       pts.push({ age, score: Math.round(score), x: 0, y: 0 });
     }
-    const minScore = Math.min(...pts.map((p) => p.score)) - 8;
-    const maxScore = Math.max(...pts.map((p) => p.score)) + 8;
+    const minScore = Math.min(...pts.map((p) => p.score)) - 3;
+    const maxScore = Math.max(...pts.map((p) => p.score)) + 3;
     for (const p of pts) {
       p.x = PAD_X + ((p.age - 7) / 73) * (W - PAD_X * 2);
       p.y = PAD_TOP + (1 - (p.score - minScore) / (maxScore - minScore)) * (H - PAD_TOP - PAD_BOTTOM);
@@ -47,13 +47,24 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
     return pts;
   }, [controls]);
 
+  const smoothed = useMemo(() => {
+    // 3 点移动平均:滤掉插值残差的小锯齿,保留阶段级趋势转折
+    return samples.map((p, i) => {
+      if (i === 0 || i === samples.length - 1) return p;
+      const prev = samples[i - 1];
+      const next = samples[i + 1];
+      return { ...p, y: (prev.y + p.y * 2 + next.y) / 4 };
+    });
+  }, [samples]);
+
   const line = useMemo(() => {
-    let d = `M ${samples[0].x} ${samples[0].y}`;
+    const pts = smoothed;
+    let d = `M ${pts[0].x} ${pts[0].y}`;
     for (let i = 0; i < samples.length - 1; i += 1) {
-      const p0 = samples[Math.max(0, i - 1)];
-      const p1 = samples[i];
-      const p2 = samples[i + 1];
-      const p3 = samples[Math.min(samples.length - 1, i + 2)];
+      const p0 = pts[Math.max(0, i - 1)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(pts.length - 1, i + 2)];
       const c1x = p1.x + (p2.x - p0.x) / 7;
       const c1y = p1.y + (p2.y - p0.y) / 7;
       const c2x = p2.x - (p3.x - p1.x) / 7;
@@ -62,17 +73,17 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
     }
     return d;
   }, [samples]);
-  const area = `${line} L ${samples[samples.length - 1].x} ${H - PAD_BOTTOM + 10} L ${samples[0].x} ${H - PAD_BOTTOM + 10} Z`;
+  const area = `${line} L ${smoothed[smoothed.length - 1].x} ${H - PAD_BOTTOM + 10} L ${smoothed[0].x} ${H - PAD_BOTTOM + 10} Z`;
 
-  const peak = samples.reduce<Sample>((best, p) => (p.score > best.score ? p : best), samples[0]);
-  const low = samples.reduce<Sample>((best, p) => (p.score < best.score ? p : best), samples[0]);
-  const current = currentAge !== null ? samples.reduce<Sample | null>((best, p) => {
+  const peak = smoothed.reduce<Sample>((best, p) => (p.score > best.score ? p : best), smoothed[0]);
+  const low = smoothed.reduce<Sample>((best, p) => (p.score < best.score ? p : best), smoothed[0]);
+  const current = currentAge !== null ? smoothed.reduce<Sample | null>((best, p) => {
     if (!best || Math.abs(p.age - currentAge) < Math.abs(best.age - currentAge)) return p;
     return best;
   }, null) : null;
 
-  const hoverPoint = hoverAge !== null ? samples.find((p) => p.age === hoverAge) ?? null : null;
-  const selectedPoint = selectedAge !== null ? samples.find((p) => p.age === selectedAge) ?? null : null;
+  const hoverPoint = hoverAge !== null ? smoothed.find((p) => p.age === hoverAge) ?? null : null;
+  const selectedPoint = selectedAge !== null ? smoothed.find((p) => p.age === selectedAge) ?? null : null;
 
   // 点击节点的阶段解读(叙事句):按控制点趋势
   const selectedStage = selectedAge !== null ? controls.find((c) => selectedAge >= c.age - 5 && selectedAge <= c.age + 5) ?? controls.reduce((best, c) => (Math.abs(c.age - (selectedAge ?? 0)) < Math.abs(best.age - (selectedAge ?? 0)) ? c : best), controls[0]) : null;
@@ -82,7 +93,7 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
     const rect = svgRef.current?.getBoundingClientRect();
     if (!rect) return null;
     const x = ((clientX - rect.left) / rect.width) * W;
-    const nearest = samples.reduce<Sample>((best, p) => (Math.abs(p.x - x) < Math.abs(best.x - x) ? p : best), samples[0]);
+    const nearest = smoothed.reduce<Sample>((best, p) => (Math.abs(p.x - x) < Math.abs(best.x - x) ? p : best), smoothed[0]);
     return nearest.age;
   }
 
@@ -107,8 +118,8 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
         ) : null}
         {/* 轻浮层:hover 时节点附近 */}
         {tipPoint && !selectedPoint ? (
-          <div className="mf-fortune-tip" style={{ left: `${Math.min(64, Math.max(2, (tipX / W) * 100 - 12))}%`, top: 0 }}>
-            <b>{tipPoint.age}岁 · {tipLabel}｜综合 {tipPoint.score}</b>
+          <div className="mf-fortune-tip" style={{ left: `${Math.min(70, Math.max(3, (tipX / W) * 100 - 10))}%` }}>
+            <b>{tipPoint.age}岁 · {tipLabel}｜{tipPoint.score}</b>
             <span>事业 ↑　财富 →　感情 →</span>
           </div>
         ) : null}
@@ -121,27 +132,27 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
         >
           <defs>
             <linearGradient id="mf-fortune-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8B6FD8" stopOpacity="0.16" />
+              <stop offset="0%" stopColor="#8B6FD8" stopOpacity="0.08" />
               <stop offset="100%" stopColor="#8B6FD8" stopOpacity="0" />
             </linearGradient>
           </defs>
-          {current ? <line x1={current.x} y1={PAD_TOP - 16} x2={current.x} y2={H - PAD_BOTTOM + 8} stroke="#B9A6EE" strokeWidth="1.5" strokeDasharray="5 7" opacity="0.45" /> : null}
+          {current ? <line x1={current.x} y1={PAD_TOP - 16} x2={current.x} y2={H - PAD_BOTTOM + 8} stroke="#B9A6EE" strokeWidth="1.5" strokeDasharray="5 7" opacity="0.3" /> : null}
           <path d={area} fill="url(#mf-fortune-fill)" stroke="none" />
           <path d={line} fill="none" stroke="#9B7FE8" strokeWidth="3" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
           {/* 关键节点:小圆点 + 短标签 */}
           {peak.age !== current?.age ? (
             <>
               <circle cx={peak.x} cy={peak.y} r="5" fill="#FCFAF8" stroke="#9B7FE8" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-              <text x={peak.x} y={peak.y - 12} textAnchor="middle" className="mf-fortune-label">{peak.age}岁 高点</text>
+              <text x={peak.x} y={peak.y - 14} textAnchor="middle" className="mf-fortune-label">{peak.age}岁 高点</text>
             </>
           ) : null}
           {low.age !== peak.age && low.age !== current?.age ? (
             <>
               <circle cx={low.x} cy={low.y} r="5" fill="#FCFAF8" stroke="#9B7FE8" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-              <text x={low.x} y={low.y + 20} textAnchor="middle" className="mf-fortune-label">{low.age}岁 低点</text>
+              <text x={low.x} y={low.y + 22} textAnchor="middle" className="mf-fortune-label">{low.age}岁 低点</text>
             </>
           ) : null}
-          {current ? <circle cx={current.x} cy={current.y} r="5.5" fill="#8B6FD8" stroke="#E4DBF8" strokeWidth="2" vectorEffect="non-scaling-stroke" /> : null}
+          {current ? <circle cx={current.x} cy={current.y} r="5" fill="#FCFAF8" stroke="#8B6FD8" strokeWidth="2.5" vectorEffect="non-scaling-stroke" /> : null}
           {hoverPoint ? <circle cx={hoverPoint.x} cy={hoverPoint.y} r="5" fill="#C64270" stroke="#fff" strokeWidth="1.5" vectorEffect="non-scaling-stroke" /> : null}
         </svg>
       </div>
