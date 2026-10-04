@@ -182,7 +182,7 @@ export default function StarAskPanel({
       ) : null}
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
-        {loaded && !hasHistory ? (
+        {loaded ? (
           <div className="mf-zr-ask-msg assistant">
             <p>{`已经阅读完「${starName}」的报告——从性格底色、事业财富，到感情节奏和未来几年都梳理完了。想深入了解哪一部分？直接问我就好。`}</p>
           </div>
