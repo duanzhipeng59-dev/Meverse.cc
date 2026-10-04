@@ -5414,7 +5414,7 @@ select:focus-visible {
 
 /* ============ 正缘报告·追问命理师 ============ */
 .mf-zr-ask { display: grid; gap: 14px; padding: 20px 18px 18px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); scroll-margin-top: 108px; }
-.mf-zr-ask .mf-zr-card-title { color: #eceaf2; }
+.mf-zr-ask .mf-zr-card-title { color: var(--bz-red-bright); }
 .mf-zr-ask-msg.assistant p { color: #eceaf2; }
 .mf-zr-ask-typing { color: #b9b3c9; }
 .mf-zr-ask-sub { margin: 0; color: #897980; font-size: 13.5px; }
@@ -6061,7 +6061,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-cs-timeline p { grid-column: 1 / -1; margin: 2px 0 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
 .mf-cs-years { display: grid; gap: 7px; }
 .mf-cs-years > div { display: grid; grid-template-columns: 46px 1fr auto; align-items: baseline; gap: 4px 10px; padding: 10px 13px; border: 1px solid var(--bz-line); border-radius: 10px; background: var(--bz-paper-warm); }
-.mf-cs-years b { color: var(--bz-ink); font: 700 17px/1 Georgia, serif; }
+.mf-cs-years b { color: var(--bz-ink); font-weight: 700; font-size: 16px; line-height: 1; }
 .mf-cs-years span { color: var(--bz-muted); font-size: 12px; }
 .mf-cs-years em { font-style: normal; font-weight: 700; font-size: 12.5px; white-space: nowrap; }
 .mf-cs-years > div.is-good { border-left: 3px solid var(--bz-green); }
