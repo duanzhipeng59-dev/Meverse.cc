@@ -105,7 +105,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         </div>
         <div className="mf-zr-hero-pillars" aria-label="四柱">
           {report.pillars.map((pillar) => (
-            <span className={pillar.label === "日柱" ? "is-day" : ""} key={pillar.label}>
+            <span key={pillar.label}>
               <small>{pillar.label.replace("柱", "")}</small>
               <b>{pillar.ganzhi[0]}{pillar.ganzhi[1]}</b>
             </span>
