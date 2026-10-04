@@ -50,7 +50,6 @@ export default function CelebrityDetail({
           <span className="mf-kicker">{star.role}</span>
           <h1>{star.name}</h1>
           <div className="mf-detail-description">
-            <span className="mf-detail-section-label">PERSONA NOTES</span>
             <h2>人物解读</h2>
             <p>{baziBrief || star.description}</p>
           </div>
