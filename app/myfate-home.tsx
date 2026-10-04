@@ -109,14 +109,14 @@ export default async function MyfateHome() {
             <div><span className="mf-kicker">解读说明</span><h2>从选择偶像，到读懂 TA 的生辰画像</h2></div>
           </div>
           <div className="mf-how-grid">
-            <article><span>01</span><h3>选择 TA</h3><p>在明星解读中按 80后 / 90后 / 00后 筛选或直接搜索名字，找到你关心的那位偶像。</p></article>
+            <article><span>01</span><h3>选择 TA</h3><p>在偶像档案中按分类浏览或直接搜索名字，找到你关心的那位偶像。</p></article>
             <article><span>02</span><h3>打开 AI 生辰画像</h3><p>系统按 TA 的公开出生资料排盘，呈现性格天赋、事业财富、关系家庭、身心节律与大运流年。</p></article>
             <article><span>03</span><h3>继续追问</h3><p>报告下方可以直接提问，解读会基于 TA 的盘面继续展开，越问越细。</p></article>
           </div>
           <div className="mf-how-dual">
             <Link href="/home/dual-star-match">
-              <b>双星合盘</b>
-              <span>选择任意两位明星，解读他们之间的吸引、互动与关系课题。</span>
+              <b>偶像合盘</b>
+              <span>选择任意两位偶像，解读他们之间的吸引、互动与关系课题。</span>
               <i aria-hidden="true">→</i>
             </Link>
           </div>

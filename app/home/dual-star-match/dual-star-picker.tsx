@@ -103,7 +103,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
   return (
     <div className="mf-dual">
       <header className="mf-dual-head">
-        <span className="mf-kicker">双星合盘</span>
+        <span className="mf-kicker">偶像合盘</span>
         <h1>两位明星,一段关系动力</h1>
       </header>
 
@@ -153,7 +153,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
             ) : null}
             <div className="mf-dual-actions">
               <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => generate(false)}>
-                {creating ? "正在创建…" : "生成双星合盘报告"}
+                {creating ? "正在创建…" : "生成偶像合盘报告"}
               </button>
               <button className="mf-dual-ghost" type="button" onClick={() => setPicking("A")}>更换 A</button>
               <button className="mf-dual-ghost" type="button" onClick={() => setPicking("B")}>更换 B</button>

@@ -99,9 +99,6 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
           <h1>已解锁报告</h1>
           <p>自动记录你打开过的报告，按最近浏览排序。</p>
         </div>
-        {visibleGroups.length ? (
-          <div className="mf-hist-count"><strong>{visibleGroups.length}</strong><span>位明星</span></div>
-        ) : null}
       </header>
 
       <nav className="mf-hist-tabs" aria-label="报告类型筛选">
@@ -170,11 +167,11 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
                   </span>
                   <div>
                     <strong>{report.nameA} × {report.nameB}</strong>
-                    <small>双星合盘</small>
+                    <small>偶像合盘</small>
                   </div>
                 </Link>
                 <Link className="mf-hist-entry" href={`/home/dual-star-match/reports/${report.id}`}>
-                  <b>双星合盘报告</b>
+                  <b>偶像合盘报告</b>
                   <small>{relativeTime(report.createdAt)} · {report.status === "ready" ? "已生成" : report.status === "failed" ? "生成失败" : "生成中"}</small>
                   <span aria-hidden="true">→</span>
                 </Link>

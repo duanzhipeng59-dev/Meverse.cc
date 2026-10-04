@@ -6,7 +6,7 @@ import { getPublishedStar } from "../../myfate-stars-server";
 import { isUpgradesEnabled } from "../../myfate-settings";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "双星合盘" };
+export const metadata: Metadata = { title: "偶像合盘" };
 
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
