@@ -36,5 +36,5 @@ export default async function RelationshipTargetPage({ params }: { params: Promi
     getOptionalPageUser(`/home/relationship-test/${id}`),
   ]);
   const unlockedTypes = user ? await getStarReportViewTypes(user.id, id) : [];
-  return <CelebrityDetail star={star} backHref="/home" workspace others={others} baziBrief={bazi.brief} baziHeadline={bazi.headline} unlockedReportTypes={unlockedTypes} />;
+  return <CelebrityDetail star={star} backHref="/home" workspace others={others} baziBrief={bazi.brief} unlockedReportTypes={unlockedTypes} />;
 }

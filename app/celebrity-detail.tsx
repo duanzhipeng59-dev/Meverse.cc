@@ -8,7 +8,6 @@ export default function CelebrityDetail({
   workspace = false,
   others = [],
   baziBrief = "",
-  baziHeadline = "",
   unlockedReportTypes = [],
 }: {
   star: StarProfile;
@@ -16,7 +15,6 @@ export default function CelebrityDetail({
   workspace?: boolean;
   others?: Array<Pick<StarProfile, "id" | "name" | "portraitSrc">>;
   baziBrief?: string;
-  baziHeadline?: string;
   unlockedReportTypes?: Array<"bazi" | "astrology">;
 }) {
   return (
@@ -51,8 +49,6 @@ export default function CelebrityDetail({
         <section className="mf-detail-copy">
           <span className="mf-kicker">{star.role}</span>
           <h1>{star.name}</h1>
-          {baziHeadline ? <p className="mf-detail-tagline">{baziHeadline}</p> : <p className="mf-detail-tagline">“{star.tagline}”</p>}
-          <p className="mf-profile-basis">出生日期 {star.birthDate}</p>
           <div className="mf-detail-description">
             <span className="mf-detail-section-label">PERSONA NOTES</span>
             <h2>人物解读</h2>
