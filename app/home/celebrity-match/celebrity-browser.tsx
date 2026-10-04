@@ -73,16 +73,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
   return (
     <div className="mf-explore">
-      <header className="mf-explore-head">
-        <h1>读懂 TA 的人生<span className="is-accent">节奏</span></h1>
-        <p>从生辰，看见一个人。</p>
-      </header>
-
-      <header className="mf-explore-head">
-        <h1>读懂 TA 的人生<span className="is-accent">节奏</span></h1>
-        <p>从生辰，看见一个人。</p>
-      </header>
-
       <div className="mf-explore-nav">
         {!searchOpen ? (
           <>
@@ -124,6 +114,13 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
           </div>
         )}
       </div>
+
+      <header className="mf-explore-head">
+        <h1>读懂 TA 的人生<span className="is-accent">节奏</span></h1>
+        <p>从生辰，看见一个人。</p>
+      </header>
+
+
 
       <div className="mf-explore-grid" ref={gridRef} key={`${cat}-${query}`}>
         {pageStars.map((star, index) => (
