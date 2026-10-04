@@ -99,6 +99,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
     <div className="mf-zr">
       <ReportTopbar starId={id} fromReports={from === "reports"} />
 
+      <div className="mf-zr-overview">
       <header className="mf-zr-hero">
         <Image src={star.portraitSrc} alt={star.name} width={96} height={120} sizes="96px" unoptimized />
         <div className="mf-zr-hero-copy">
@@ -118,13 +119,14 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
 
 
-      {/* ── 人生运势曲线 ── */}
+      {/* ── 人生运势曲线(与人物信息同属深色概览区) ── */}
       <FortuneCurveCard
         careerLifetime={consult.career.lifetime}
         wealthLifetime={consult.wealth.lifetime}
         loveMarriage={report.love.marriageLuck.map((item) => ({ age: item.ageText, tag: item.tag }))}
         currentAge={currentAge}
       />
+      </div>
 
       {/* ── ◐ 人生画像 · 文档型 ── */}
       <section className="mf-zr-card mf-doc" id="c-portrait">
