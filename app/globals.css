@@ -5070,7 +5070,8 @@ select:focus-visible {
 @media (max-width: 1080px) { .mf-bz-discover-grid, .mf-hist-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 980px) {
   .mf-bz-discover { padding: 20px 18px 18px; }
-  .mf-bz-discover-grid, .mf-hist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .mf-hist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .mf-bz-discover-grid { grid-template-columns: 1fr; gap: 22px; }
   .mf-bz-discover-head aside { display: none; }
   .mf-bz-discover-head h1 { font-size: clamp(24px, 5.6vw, 30px); }
   .mf-bz-discover-tabs button { padding: 8px 13px; font-size: 12px; }
@@ -5185,8 +5186,6 @@ select:focus-visible {
 .mf-bz-side-block li::before { content: "✦"; position: absolute; left: 0; color: var(--bz-red); font-size: 9px; top: 3px; }
 
 /* ── 发现页卡片 · 全幅人像设计(mf-bz-star-cover)──────────────────────── */
-.mf-bz-discover-head h1 { position: relative; display: inline-flex; align-items: flex-start; gap: 8px; }
-.mf-bz-sparkle { color: #d8a0b4; font-size: 0.45em; line-height: 1; font-style: normal; margin-top: 2px; }
 .mf-bz-discover-tabs button { border: 0; background: var(--bz-card); box-shadow: 0 1px 4px rgb(36 23 25 / 5%); }
 .mf-bz-discover-tabs button.is-active { background: var(--bz-red); color: #fff; box-shadow: 0 6px 16px rgb(139 30 45 / 24%); }
 .mf-bz-discover-tabs button:hover:not(.is-active) { background: #f6f1ea; }
