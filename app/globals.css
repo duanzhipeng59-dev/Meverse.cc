@@ -6164,12 +6164,12 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 }
 
 /* ── AI 追问:右下角悬浮按钮 + 竖版对话面板 ── */
-.mf-askfab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 65; display: grid; justify-items: center; gap: 2px; width: 62px; height: 62px; border: 0; border-radius: 999px; background: linear-gradient(145deg, #C64270, #8E2F51); color: #fff; cursor: pointer; box-shadow: 0 12px 30px rgb(198 66 112 / 45%); }
+.mf-askfab { position: fixed; right: 26px; bottom: calc(26px + env(safe-area-inset-bottom)); z-index: 65; display: grid; justify-items: center; gap: 2px; width: 56px; height: 56px; border: 0; border-radius: 999px; background: linear-gradient(145deg, #C64270, #8E2F51); color: #fff; cursor: pointer; box-shadow: 0 12px 30px rgb(198 66 112 / 45%); }
 .mf-askfab i { font-style: normal; font-size: 18px; line-height: 1; }
 .mf-askfab span { font-size: 10px; font-weight: 700; letter-spacing: .04em; }
 .mf-askfab:hover { transform: translateY(-2px); }
 
-.mf-askpanel { position: fixed; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 66; display: flex; flex-direction: column; width: min(380px, calc(100vw - 20px)); height: min(640px, calc(100dvh - 96px)); box-sizing: border-box; border: 1px solid #EEE8EA; border-radius: 18px; background: #FCFAF8; box-shadow: 0 24px 70px rgb(0 0 0 / 45%); overflow: hidden; }
+.mf-askpanel { position: fixed; right: 26px; bottom: calc(94px + env(safe-area-inset-bottom)); z-index: 66; display: flex; flex-direction: column; width: min(340px, calc(100vw - 52px)); height: min(520px, calc(100dvh - 200px)); box-sizing: border-box; border: 1px solid #EEE8EA; border-radius: 18px; background: #FCFAF8; box-shadow: 0 24px 70px rgb(0 0 0 / 45%); overflow: hidden; }
 .mf-askpanel-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #EEE8EA; background: #F5F1FC; }
 .mf-askpanel-head b { display: block; color: #7A55D9; font-size: 14px; }
 .mf-askpanel-head small { display: block; margin-top: 2px; color: #8A7F83; font-size: 11px; }
