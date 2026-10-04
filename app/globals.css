@@ -6127,3 +6127,18 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-doc .mf-cs-years > div.is-warn em { color: #B4424E; }
 .mf-doc .mf-cs-years p { color: var(--doc-text); }
 .mf-doc #ask .mf-zr-ask { background: #fff; border: 1px solid var(--doc-line); }
+
+/* 生辰报告(文档模式)内的 AI 追问浅色化 */
+.mf-zr .mf-zr-ask { background: var(--pp-soft, #F7F2F5); border: 1px solid var(--pp-line, #EEE8EA); color: var(--doc-text, #4E4649); border-radius: 14px; }
+.mf-zr .mf-zr-ask .mf-zr-card-title, .mf-zr .mf-zr-ask-head h2 { color: #211C1E; }
+.mf-zr .mf-zr-ask-sub { color: #8A7F83; }
+.mf-zr .mf-zr-ask-log .mf-zr-ask-msg { background: #fff; border-color: var(--pp-line, #EEE8EA); }
+.mf-zr .mf-zr-ask-msg.user { border-color: rgba(198, 66, 112, .35); }
+.mf-zr .mf-zr-ask-msg p { color: #4E4649; }
+.mf-zr .mf-zr-ask-time, .mf-zr .mf-zr-ask-clear { color: #8A7F83; }
+.mf-zr .mf-zr-ask-chips button { border-color: rgba(198, 66, 112, .4); color: #C64270; background: #fff; }
+.mf-zr .mf-zr-ask-chips button:hover:not(:disabled) { background: #C64270; color: #fff; }
+.mf-zr .mf-zr-ask input, .mf-zr .mf-zr-ask textarea { background: #fff; border-color: var(--pp-line, #EEE8EA); color: #211C1E; }
+.mf-zr .mf-zr-ask .mf-primary-button { background: linear-gradient(135deg, #C64270, #D96A8F); }
+.mf-zr .mf-zr-ask-older { color: #7A55D9; }
+.mf-zr .mf-zr-ask-retry { background: #fff; }
