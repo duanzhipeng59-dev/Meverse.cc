@@ -7,7 +7,6 @@ import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
 import { buildConsultReport } from "../../../../myfate-portrait-consult";
 import { CONSULT_OVERRIDES } from "../../../../myfate-consult-overrides";
-import { buildFortuneCurve } from "../../../../myfate-portrait-consult";
 import FortuneCurveCard from "../../../../fortune-curve";
 import { getCelebrityVedicBirth, getPublishedStar, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
 import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
@@ -94,7 +93,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const profile = buildBaziLifeProfile(chart);
   // 人工精校内容优先(RM),其余明星走模板引擎
   const consult = CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
-  const fortune = buildFortuneCurve(consult.career.lifetime);
   const currentAge = Number.isFinite(Number(star.birthDate.slice(0, 4))) ? new Date().getFullYear() - Number(star.birthDate.slice(0, 4)) : null;
 
   return (
@@ -121,7 +119,12 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
 
       {/* ── 人生运势曲线 ── */}
-      <FortuneCurveCard points={fortune.points} currentAge={currentAge} />
+      <FortuneCurveCard
+        careerLifetime={consult.career.lifetime}
+        wealthLifetime={consult.wealth.lifetime}
+        loveMarriage={report.love.marriageLuck.map((item) => ({ age: item.ageText, tag: item.tag }))}
+        currentAge={currentAge}
+      />
 
       {/* ── ◐ 人生画像 · 文档型 ── */}
       <section className="mf-zr-card mf-doc" id="c-portrait">

@@ -6212,3 +6212,15 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-fortune-svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
 .mf-fortune-label { fill: #B9A6EE; font-size: 17px; font-weight: 600; }
 .mf-fortune-tip { position: absolute; transform: translateX(-50%); padding: 5px 12px; border: 1px solid rgb(139 111 216 / 50%); border-radius: 999px; background: #221a33; color: #D8CCF5; font-size: 12px; font-weight: 650; white-space: nowrap; pointer-events: none; }
+
+/* 运势曲线:维度切换 + 详情卡 */
+.mf-fortune-tabs { display: flex; gap: 6px; margin: 12px 0 4px; }
+.mf-fortune-tabs button { padding: 7px 16px; border: 1px solid rgb(139 111 216 / 35%); border-radius: 999px; background: transparent; color: #9d8fc4; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.mf-fortune-tabs button.is-active { border-color: #9B7FE8; background: rgb(139 111 216 / 18%); color: #D8CCF5; }
+.mf-fortune-card { position: absolute; top: -6px; z-index: 3; width: min(250px, 62%); display: grid; gap: 6px; padding: 12px 14px; border: 1px solid rgb(139 111 216 / 50%); border-radius: 12px; background: #1d1630; box-shadow: 0 14px 36px rgb(0 0 0 / 55%); }
+.mf-fortune-card > b { color: #D8CCF5; font-size: 13.5px; }
+.mf-fortune-card-rows { display: grid; gap: 3px; }
+.mf-fortune-card-rows span { color: #9d8fc4; font-size: 11.5px; }
+.mf-fortune-card-rows b { color: #E4DBF8; font-weight: 700; }
+.mf-fortune-card-keys { color: #C6A9F0; font-size: 11.5px; }
+.mf-fortune-card-summary { margin: 2px 0 0; padding-top: 6px; border-top: 1px dashed rgb(139 111 216 / 35%); color: #b3a8d4; font-size: 11.5px; line-height: 1.65; }
