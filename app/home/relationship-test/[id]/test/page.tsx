@@ -117,7 +117,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-zr-hero-copy">
           <span className="mf-zr-kicker">AI BIRTH PORTRAIT · {star.role}</span>
           <h1>{star.name} 的 AI 生辰画像</h1>
-          <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已按出生时刻校准" : "时辰暂按正午估算"}</small>
+          <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已校准" : "时辰暂按正午估算"}</small>
         </div>
         <div className="mf-zr-hero-pillars" aria-label="四柱">
           {report.pillars.map((pillar) => (
@@ -187,7 +187,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-cs-timeline">
           {consult.career.lifetime.map((step) => (
             <div className={step.current ? "is-current" : ""} key={step.ganzhi + step.years}>
-              <b>{step.ganzhi}</b><span>{step.age} · {step.years}</span><em>{step.score}分</em>
+              <b>{step.ganzhi}</b><span>{step.age.replace(/^约/, "")}</span><em>{step.score}分</em>
               <p>{step.note}</p>
             </div>
           ))}
@@ -196,7 +196,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-cs-years">
           {consult.career.years.map((year) => (
             <div className={year.score < 40 ? "is-warn" : year.score >= 70 ? "is-good" : ""} key={year.year}>
-              <b>{year.year}</b><span>{year.ganzhi} · {year.tag}</span><em>{year.score}分</em>
+              <b>{year.year}</b><span>{year.ganzhi}</span><em>{year.score}分</em>
               <p>{year.action}</p>
             </div>
           ))}
@@ -212,7 +212,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-cs-timeline">
           {consult.wealth.lifetime.map((step) => (
             <div key={step.ganzhi + step.age}>
-              <b>{step.ganzhi}</b><span>{step.age}</span><em>{step.trend}</em>
+              <b>{step.ganzhi}</b><span>{step.age.replace(/^约/, "")}</span><em>{step.trend}</em>
               <p>{step.note}</p>
             </div>
           ))}
@@ -221,7 +221,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-cs-years">
           {consult.wealth.years.map((year) => (
             <div key={year.year}>
-              <b>{year.year}</b><span>{year.ganzhi} · {year.tag}</span>
+              <b>{year.year}</b><span>{year.ganzhi}</span>
               <p>{year.note}</p>
             </div>
           ))}
@@ -241,7 +241,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-cs-timeline">
           {consult.love.lifetime.map((step) => (
             <div key={step.ganzhi + step.age}>
-              <b>{step.ganzhi}</b><span>{step.age}</span><em>{step.tag}</em>
+              <b>{step.ganzhi}</b><span>{step.age.replace(/^约/, "")}</span><em>{step.tag}</em>
               <p>{step.note}</p>
             </div>
           ))}
@@ -250,7 +250,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-cs-years">
           {consult.love.years.slice(0, 10).map((year) => (
             <div className={year.warn ? "is-warn" : year.prob >= 45 ? "is-good" : ""} key={year.year}>
-              <b>{year.year}</b><span>{year.ganzhi}年 · 缘分概率</span><em>{year.prob}%</em>
+              <b>{year.year}</b><span>{year.ganzhi}年</span><em>缘分概率 {year.prob}%</em>
               <p>{year.note}</p>
             </div>
           ))}
