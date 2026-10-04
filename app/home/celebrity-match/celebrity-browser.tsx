@@ -7,6 +7,15 @@ import type { StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
 
 const PAGE_SIZE = 6;
+
+// "BTS 成员-金南俊" → "金南俊 · BTS";无 "-" 的角色原样返回
+function formatRole(role: string) {
+  const dashIndex = role.indexOf("-");
+  if (dashIndex <= 0) return role;
+  const group = role.slice(0, dashIndex).replace(" 成员", "").trim();
+  const person = role.slice(dashIndex + 1).trim();
+  return person ? `${person} · ${group || role}` : role;
+}
 const LIST_STATE_KEY = "myfate_star_list_v1";
 
 
@@ -86,13 +95,9 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
       <header className="mf-bz-discover-head">
         <div>
           <span>CELEBRITY READING</span>
-          <h1>读懂 TA 的天赋与人生节奏<i className="mf-bz-sparkle" aria-hidden="true">✦</i></h1>
-          <p>从公开生辰信息出发，浏览人物档案，选择生辰画像或双人关系解读。</p>
+          <h1>读懂 TA 的人生节奏</h1>
+          <p>从公开生辰信息出发，探索人物档案与关系解读</p>
         </div>
-        <aside aria-label="已收录人数">
-          <strong>{stars.length}</strong>
-          <small>位明星档案</small>
-        </aside>
       </header>
       <div className="mf-bz-discover-tools">
         <label className="mf-bz-discover-search">
@@ -102,18 +107,13 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
           </svg>
           <input
             type="search"
-            placeholder="搜索明星或组合"
+            placeholder="搜索明星"
             value={query}
             onChange={(event) => { setQuery(event.target.value); setPage(1); }}
-            aria-label="搜索明星或组合"
+            aria-label="搜索明星"
           />
         </label>
 
-      </div>
-
-      <div className="mf-bz-discover-summary" aria-live="polite">
-        <span>共 {filtered.length} 位</span>
-        {query ? <button type="button" onClick={() => setQuery("")}>清除搜索</button> : null}
       </div>
 
       <div className="mf-bz-discover-grid" ref={gridRef}>
@@ -128,12 +128,9 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
               alt={`${star.name}的人物肖像`}
               priority={index < 2}
             />
-            <div className="mf-bz-cover-overlay">
-              <div className="mf-bz-cover-copy">
-                <strong>{star.name}</strong>
-                <span>{star.role}</span>
-              </div>
-              <span className="mf-bz-cover-go" aria-hidden="true">→</span>
+            <div className="mf-bz-cover-copy">
+              <strong>{star.name}</strong>
+              <span>{formatRole(star.role)}</span>
             </div>
           </Link>
         ))}
