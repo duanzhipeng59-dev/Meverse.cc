@@ -36,10 +36,14 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
   if (!report || report.userId !== user.id) notFound();
   const [starA, starB, metered] = await Promise.all([getPublishedStar(report.starA), getPublishedStar(report.starB), isUpgradesEnabled()]);
   if (!starA || !starB) notFound();
+  // 顶栏固定格式:「← A · 中文名 & B · 中文名」,顺序与 hero 一致
+  const personOf = (role: string) => (role.includes("-") ? role.split("-")[1].trim() : "");
+  const idOf = (star: { name: string; role: string }) => `${star.name}${personOf(star.role) ? ` · ${personOf(star.role)}` : ""}`;
+  const topbarTitle = `${idOf(starA)} & ${idOf(starB)}`;
 
   return (
     <div className="mf-zr">
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回偶像合盘" />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回偶像合盘" title={topbarTitle} />
 
       {report.status !== "ready" ? (
         <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={starA.portraitSrc} portraitB={starB.portraitSrc} />
