@@ -174,6 +174,8 @@ export async function POST(request: Request) {
       temperature: 0.8,
       maxTokens: 1200,
     });
+    // 模型偶发输出 markdown 星号(加粗/斜体/列表),统一清洗后再落库与返回
+    const answer = generation.content.replaceAll("*", "");
 
     // 成功后落库并扣 1 次追问(免费模式不扣)
     let asksRemaining: number | null = null;
@@ -188,10 +190,10 @@ export async function POST(request: Request) {
 
     let userMessageId: number;
     if (retryOf) {
-      await completeRetry(conversation.id, retryOf, generation.content);
+      await completeRetry(conversation.id, retryOf, answer);
       userMessageId = retryOf;
     } else {
-      await appendExchange(conversation.id, session.user.id, finalQuestion, generation.content);
+      await appendExchange(conversation.id, session.user.id, finalQuestion, answer);
       userMessageId = 0;
       // 消息增多后滚动维护摘要,保证上下文不随历史无限膨胀
       void summarizeIfNeeded({ ...conversation, messageCount: conversation.messageCount + 2 }, async (older, previous) => {
@@ -208,7 +210,7 @@ export async function POST(request: Request) {
       }).catch(() => undefined);
     }
 
-    return Response.json({ answer: generation.content, asksRemaining, userMessageId, conversationId });
+    return Response.json({ answer, asksRemaining, userMessageId, conversationId });
   } catch (error) {
     // 生成失败:保留用户问题为 failed 供前端重试(未扣费,重试成功才扣)
     if (!retryOf && question) {

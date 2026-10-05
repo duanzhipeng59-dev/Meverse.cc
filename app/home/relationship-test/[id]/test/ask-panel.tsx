@@ -17,6 +17,11 @@ function timeOf(iso: string) {
   return `${day} ${date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
+// 早期落库的回答可能残留 markdown 星号,展示前统一清洗
+function cleanText(text: string) {
+  return text.replaceAll("*", "");
+}
+
 export default function StarAskPanel({
   starId,
   starName,
@@ -72,7 +77,7 @@ export default function StarAskPanel({
       .then((response) => (response.ok ? (response.json() as Promise<{ messages?: AskEntry[]; hasMore?: boolean }>) : null))
       .then((data) => {
         if (!active || !data || dirtyRef.current) return;
-        setEntries(data.messages ?? []);
+        setEntries((data.messages ?? []).map((entry) => ({ ...entry, content: cleanText(entry.content) })));
         setHasMore(Boolean(data.hasMore));
         setLoaded(true);
       })
@@ -91,7 +96,7 @@ export default function StarAskPanel({
     try {
       const response = await fetch(`/api/myfate/star-report-ask?starId=${encodeURIComponent(starId)}&type=${reportType}&before=${oldest}`, { cache: "no-store" });
       const data = await response.json() as { messages?: AskEntry[]; hasMore?: boolean };
-      setEntries((prev) => [...(data.messages ?? []), ...prev]);
+      setEntries((prev) => [...(data.messages ?? []).map((entry) => ({ ...entry, content: cleanText(entry.content) })), ...prev]);
       setHasMore(Boolean(data.hasMore));
     } catch { /* 保持现状 */ } finally {
       setLoadingOlder(false);
@@ -146,9 +151,9 @@ export default function StarAskPanel({
       const answerId = -Date.now() - 1;
       setEntries((prev) => {
         const marked = prev.map((entry) => (entry.id === optimisticId ? { ...entry, id: body.messageId && body.messageId > 0 ? body.messageId : entry.id, status: "completed" as const } : entry));
-        return [...marked, { id: answerId, role: "assistant", content: body.answer as string, status: "completed", createdAt: answerAt }];
+        return [...marked, { id: answerId, role: "assistant", content: cleanText(body.answer as string), status: "completed", createdAt: answerAt }];
       });
-      startTyping(answerId, body.answer as string);
+      startTyping(answerId, cleanText(body.answer as string));
     } catch {
       setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
       setError("网络异常，请重试。");
