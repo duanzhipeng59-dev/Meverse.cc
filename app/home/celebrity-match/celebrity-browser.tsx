@@ -9,13 +9,21 @@ import PortraitImg from "../../portrait-img";
 const PAGE_SIZE = 6;
 
 const CATS = [
-  { key: "rec", label: "推荐" },
-  { key: "singer", label: "歌手" },
-  { key: "actor", label: "演员" },
-  { key: "group", label: "组合" },
+  { key: "all", label: "全部" },
+  { key: "hybe", label: "HYBE" },
+  { key: "jyp", label: "JYP" },
+  { key: "sm", label: "SM" },
+  { key: "yg", label: "YG" },
 ] as const;
 
 type CatKey = (typeof CATS)[number]["key"];
+
+const AGENCY_KEYWORDS: Record<Exclude<CatKey, "all">, RegExp> = {
+  hybe: /HYBE|BIGHIT|BIG HIT|PLEDIS|SOURCE|KOZ/i,
+  jyp: /JYP/i,
+  sm: /SM|S\.M\./i,
+  yg: /YG/i,
+};
 
 // "BTS 成员-金南俊" → 中文名"金南俊"
 function personName(role: string) {
@@ -24,16 +32,14 @@ function personName(role: string) {
 }
 
 function inCategory(star: StarListItem, key: CatKey) {
-  if (key === "rec") return true;
-  const cats = star.categories ?? [];
-  if (key === "singer") return cats.some((c) => c.includes("歌手"));
-  if (key === "actor") return cats.some((c) => c.includes("演员") || c.includes("戏剧"));
-  return /成员/.test(star.role) || cats.some((c) => /组合|团体|BTS|SEVENTEEN|CORTIS/i.test(c));
+  if (key === "all") return true;
+  const pattern = AGENCY_KEYWORDS[key];
+  return (star.categories ?? []).some((c) => pattern.test(c)) || pattern.test(star.role);
 }
 
 // 人物探索:品牌标题 + 分类/搜索导航 + 人物画廊。搜索是导航的一部分,默认收起。
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarListItem[]; basePath?: string }) {
-  const [cat, setCat] = useState<CatKey>("rec");
+  const [cat, setCat] = useState<CatKey>("all");
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);

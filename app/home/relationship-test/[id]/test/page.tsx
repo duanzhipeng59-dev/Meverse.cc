@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
@@ -7,6 +6,7 @@ import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
 import { buildConsultReport } from "../../../../myfate-portrait-consult";
 import { CONSULT_OVERRIDES } from "../../../../myfate-consult-overrides";
+import { getConsultOverride } from "../../../../myfate-consult-override-store";
 import FortuneCurveCard from "../../../../fortune-curve";
 import { getCelebrityVedicBirth, getPublishedStar, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
 import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
@@ -98,8 +98,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const personName = roleDash > 0 ? star.role.slice(roleDash + 1).trim() : "";
   const topbarTitle = personName || star.name;
   const topbarSubtitle = report.pillars.map((pillar) => `${pillar.ganzhi[0]}${pillar.ganzhi[1]}`).join(" ");
-  // 人工精校内容优先(RM),其余明星走模板引擎
-  const consult = CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
+  // 报告内容优先级:后台精校(consult_overrides 表) > 代码精校(RM) > 模板引擎
+  const consult = (await getConsultOverride(id)) ?? CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
   const allStars = await getPublishedStarList();
   const others = allStars.filter((item) => item.id !== id).slice(0, 8);
   // 经"继续探索"从其他报告跳入时,返回按钮回上一份报告;否则回探索页
@@ -113,7 +113,9 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
       <div className="mf-zr-overview">
       <header className="mf-zr-hero">
-        <Image src={star.portraitSrc} alt={personName || star.name} width={96} height={120} sizes="96px" unoptimized />
+        {/* 原生 img 直连原图:保持肖像原比例,不走按宽高裁切的图片转换 */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={star.portraitSrc} alt={personName || star.name} />
         <div className="mf-zr-hero-copy">
           <h1>{personName || star.name} 的 AI 生辰画像</h1>
           <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已校准" : "时辰暂按正午估算"}</small>

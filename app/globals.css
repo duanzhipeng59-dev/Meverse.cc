@@ -5063,7 +5063,7 @@ select:focus-visible {
 .mf-bz-star-traits i { padding: 4px 9px; border: 1px solid #f0e6d8; border-radius: 999px; background: #faf5ec; color: #8a6d2f; font-style: normal; font-size: 10.5px; }
 .mf-bz-star-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #f0eadf; color: var(--bz-red); font-size: 12.5px; font-weight: 700; }
 .mf-bz-discover-empty { grid-column: 1 / -1; margin: 0; padding: 40px 0; color: var(--bz-muted); font-size: 13px; text-align: center; }
-.mf-bz-discover-pagination { display: flex; align-items: center; justify-content: center; gap: 20px; }
+.mf-bz-discover-pagination { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--bz-line); }
 .mf-bz-discover-pagination button { padding: 9px 16px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: var(--bz-card); color: var(--bz-ink); font-size: 12.5px; font-weight: 650; cursor: pointer; }
 .mf-bz-discover-pagination button:disabled { opacity: 0.45; cursor: default; }
 .mf-bz-discover-pagination span { color: var(--bz-muted); font-size: 12px; }
@@ -6375,7 +6375,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 @media (max-width: 640px) {
   .mf-explore { padding: 0 18px 44px; }
-  .mf-explore .mf-explore-nav { margin-top: -30px; }
+  .mf-explore .mf-explore-nav { margin-top: -30px; margin-left: -34px; margin-right: -34px; padding-left: 34px; padding-right: 34px; }
   .mf-explore-head h1 { font-size: clamp(30px, 8.6vw, 36px); white-space: normal; }
   .mf-explore-head p { font-size: 16px; margin-top: 12px; }
   .mf-explore-nav { margin-top: 34px; }
@@ -6411,3 +6411,23 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-history-row em[data-status="ready"] { color: var(--bz-green); background: rgb(114 181 138 / 12%); }
 .mf-dual-history-row em[data-status="generating"] { color: var(--bz-gold); background: rgb(210 163 92 / 12%); }
 .mf-dual-history-row em[data-status="failed"] { color: var(--bz-error); background: rgb(224 109 124 / 12%); }
+
+/* 报告页加载:全屏闪灰 */
+.mf-fullload { position: fixed; inset: 0; z-index: 60; background: #0f0b0e; }
+.mf-fullload::after { content: ""; position: absolute; inset: 0; background: rgb(255 235 242 / 5%); animation: mf-fullload-pulse 1.2s ease-in-out infinite; }
+@keyframes mf-fullload-pulse { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mf-fullload::after { animation: none; opacity: 0.4; } }
+
+/* 报告 hero:人物肖像保持原比例(高度随图,不裁切),文案与人物信息对齐图片顶部 */
+.mf-zr .mf-zr-hero { align-items: flex-start; }
+.mf-zr .mf-zr-hero img { height: auto; }
+
+/* 报告加载骨架:顶栏轮廓(吸顶满宽,左返回+身份块,右分享胶囊;浅色微光保证深底可见) */
+.mf-skel-topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; height: 60px; box-sizing: border-box; margin: calc(-1 * clamp(16px, 3vw, 32px)) calc(-1 * clamp(16px, 3vw, 32px)) 16px; padding: 0 clamp(16px, 3vw, 32px); background: var(--bz-paper); border-bottom: 1px solid var(--bz-line); }
+.mf-skel-astrology .mf-skel-topbar { background: #14101d; }
+.mf-skel-backarrow { flex-shrink: 0; width: 26px; height: 16px; border-radius: 6px; }
+.mf-skel-backid { display: grid; gap: 7px; min-width: 0; }
+.mf-skel-backid .skel-bar { height: 12px; }
+.mf-skel-share { flex-shrink: 0; width: 72px; height: 34px; border-radius: 999px; margin-left: auto; }
+.mf-skel-topbar .skel-bar, .mf-skel-topbar .mf-skel-share, .mf-skel-topbar .mf-skel-backarrow { background: linear-gradient(100deg, transparent 20%, rgb(255 235 242 / 9%) 40%, rgb(255 235 242 / 9%) 60%, transparent 80%); background-size: 220% 100%; animation: mf-skel-shimmer 1.4s infinite linear; }
+@media (prefers-reduced-motion: reduce) { .mf-skel-topbar .skel-bar, .mf-skel-topbar .mf-skel-share, .mf-skel-topbar .mf-skel-backarrow { animation: none; } }

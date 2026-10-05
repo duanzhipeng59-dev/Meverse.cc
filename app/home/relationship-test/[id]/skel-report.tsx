@@ -2,7 +2,12 @@
 export default function SkelReport({ theme }: { theme: "bazi" | "astrology" }) {
   return (
     <div className={`mf-skel mf-skel-${theme}`} aria-busy="true" aria-label="正在读取命盘数据">
-      <div className="mf-skel-topbar"><i className="skel-bar w-24" /><i className="skel-bar w-20" /></div>
+      {/* 顶栏轮廓:吸顶满宽,左=返回+身份块,右=分享胶囊 */}
+      <div className="mf-skel-topbar">
+        <span className="mf-skel-backarrow" aria-hidden="true" />
+        <span className="mf-skel-backid"><i className="skel-bar w-24" /><i className="skel-bar w-20" /></span>
+        <i className="mf-skel-share" />
+      </div>
       <div className="mf-skel-hero">
         <i className="skel-portrait" />
         <div className="mf-skel-hero-copy">
