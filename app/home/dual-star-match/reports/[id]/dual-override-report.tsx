@@ -2,7 +2,6 @@
 // 结构=双人身份卡头部/总览/沟通冲突/双向影响/六个判断/未来节奏/最终建议。
 import Image from "next/image";
 import StarAskPanel from "../../../relationship-test/[id]/test/ask-panel";
-import ReportToc from "../../../../report-toc";
 import type { DualOverrideContent } from "../../../../myfate-dual-overrides";
 
 export type DualIdCard = {
@@ -55,16 +54,6 @@ export default function DualOverrideReport({ content, people, reportId, metered 
           </article>
         </div>
       </header>
-
-      <ReportToc items={[
-        { id: "d-overview", label: "总览" },
-        { id: "d-communication", label: "沟通" },
-        { id: "d-influence", label: "影响" },
-        { id: "d-judgments", label: "判断" },
-        ...(hasRhythm ? [{ id: "d-timeline", label: "节奏" }] : []),
-        { id: "d-advice", label: "建议" },
-        { id: "d-ask", label: "AI 追问" },
-      ]} />
 
       <section className="mf-zr-card" id="d-overview">
         <div className="mf-zr-section-head"><span>01</span><div><h2>关系总览</h2><p>关系的核心底色、支撑与消耗点</p></div></div>

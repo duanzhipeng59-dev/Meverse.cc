@@ -36,9 +36,12 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
   if (!report || report.userId !== user.id) notFound();
   const [starA, starB, metered] = await Promise.all([getPublishedStar(report.starA), getPublishedStar(report.starB), isUpgradesEnabled()]);
   if (!starA || !starB) notFound();
+  // 结构化固定要求:顶栏与卡片只用中文名(从 role 解析),不显示英文艺名
+  const personOf = (role: string) => (role.includes("-") ? role.split("-")[1].trim() : "");
+
   return (
     <div className="mf-zr">
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回偶像合盘" title={`${starA.name} & ${starB.name}`} />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回偶像合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} />
 
       {report.status !== "ready" ? (
         <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={starA.portraitSrc} portraitB={starB.portraitSrc} />
@@ -46,21 +49,17 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
         // 精校内容优先:命中组合直接渲染定稿文案,不走 AI 生成结构
         const override = getDualOverride(report.starA, report.starB);
         if (override) {
-          // 头部双人身份卡:各自排盘取四柱与出生信息
+          // 头部双人身份卡:各自排盘取四柱与出生信息;固定要求只用中文名、不显示「已校准」
           const [birthA, birthB] = await Promise.all([getCelebrityVedicBirth(report.starA), getCelebrityVedicBirth(report.starB)]);
-          const formatRole = (role: string) => {
-            if (!role.includes("-")) return role;
-            const [group, person] = role.split("-").map((part) => part.trim());
-            return `${person} · ${group.replace(" 成员", "")}`;
-          };
           const people = [starA, starB].map((star, index) => {
             const birth = index === 0 ? birthA : birthB;
             const chart = birth ? buildDualChart(birth).chart : null;
+            const [group = "", person = ""] = star.role.split("-").map((part) => part.trim());
             return {
-              name: star.name,
-              role: formatRole(star.role),
+              name: person || star.name,
+              role: group.replace(" 成员", ""),
               portrait: star.portraitSrc,
-              birthLine: `出生 · ${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace ?? ""}${birth?.birthTime ? " · 已校准" : ""}`,
+              birthLine: `出生 · ${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace ?? ""}`,
               pillars: chart ? chart.pillars.map((pillar) => ({ label: pillar.label.replace("柱", ""), ganzhi: pillar.ganzhi })) : [],
             };
           }) as [DualIdCard, DualIdCard];
