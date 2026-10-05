@@ -6071,9 +6071,15 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 640px) {
   .mf-dual-duo { grid-template-columns: 1fr; gap: 10px; }
   .mf-dual-duo-x { display: none; }
-  .mf-dual-id-card { padding: 11px 12px; gap: 11px; }
-  .mf-dual-id-card img { width: 54px; height: 70px; }
-  .mf-dual-id-head b { font-size: 14.5px; }
+  .mf-dual-id-card { padding: 14px 16px; gap: 14px; }
+  .mf-dual-id-card img { width: 68px; height: 87px; }
+  .mf-dual-id-head b { font-size: 16px; }
+  .mf-dual-id-head span { font-size: 12px; }
+  .mf-dual-id-info > small { font-size: 12px; }
+  .mf-dual-id-pillars { gap: 7px; }
+  .mf-dual-id-pillars > span { padding: 7px 6px; }
+  .mf-dual-id-pillars small { font-size: 10px; }
+  .mf-dual-id-pillars b { font-size: 14.5px; }
 }
 @media (max-width: 640px) {
   .mf-dual-relation { grid-template-columns: 1fr auto 1fr; gap: 8px; padding: 14px 10px; }
