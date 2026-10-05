@@ -78,28 +78,28 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="mf-fortune-svg" aria-hidden="true">
           <defs>
             <linearGradient id="mf-fortune-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8B6FD8" stopOpacity="0.08" />
-              <stop offset="100%" stopColor="#8B6FD8" stopOpacity="0" />
+              <stop offset="0%" stopColor="#C64B73" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="#C64B73" stopOpacity="0" />
             </linearGradient>
           </defs>
-          {current ? <line x1={current.x} y1={PAD_TOP - 14} x2={current.x} y2={H - PAD_BOTTOM + 8} stroke="#B9A6EE" strokeWidth="1.5" strokeDasharray="5 7" opacity="0.3" /> : null}
+          {current ? <line x1={current.x} y1={PAD_TOP - 14} x2={current.x} y2={H - PAD_BOTTOM + 8} stroke="#DE6B91" strokeWidth="1.5" strokeDasharray="5 7" opacity="0.3" /> : null}
           <path d={area} fill="url(#mf-fortune-fill)" stroke="none" />
-          <path d={line} fill="none" stroke="#9B7FE8" strokeWidth="3" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <path d={line} fill="none" stroke="#DE6B91" strokeWidth="3" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
           {peak.age !== current?.age ? (
             <>
-              <circle cx={peak.x} cy={peak.y} r="5" fill="#FCFAF8" stroke="#9B7FE8" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+              <circle cx={peak.x} cy={peak.y} r="5" fill="#F7F0F2" stroke="#DE6B91" strokeWidth="2" vectorEffect="non-scaling-stroke" />
               <text x={peak.x} y={peak.y - 24} textAnchor="middle" className="mf-fortune-label">{peak.age}岁</text>
               <text x={peak.x} y={peak.y - 10} textAnchor="middle" className="mf-fortune-label is-sub">阶段高点</text>
             </>
           ) : null}
           {low.age !== peak.age && low.age !== current?.age ? (
             <>
-              <circle cx={low.x} cy={low.y} r="5" fill="#FCFAF8" stroke="#9B7FE8" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+              <circle cx={low.x} cy={low.y} r="5" fill="#F7F0F2" stroke="#DE6B91" strokeWidth="2" vectorEffect="non-scaling-stroke" />
               <text x={low.x} y={low.y + 24} textAnchor="middle" className="mf-fortune-label">{low.age}岁</text>
               <text x={low.x} y={low.y + 38} textAnchor="middle" className="mf-fortune-label is-sub">阶段低点</text>
             </>
           ) : null}
-          {current ? <circle cx={current.x} cy={current.y} r="4.5" fill="#FCFAF8" stroke="#8B6FD8" strokeWidth="2" vectorEffect="non-scaling-stroke" /> : null}
+          {current ? <circle cx={current.x} cy={current.y} r="4.5" fill="#F7F0F2" stroke="#C64B73" strokeWidth="2" vectorEffect="non-scaling-stroke" /> : null}
         </svg>
       </div>
     </section>
