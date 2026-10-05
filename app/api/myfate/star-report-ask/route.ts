@@ -61,7 +61,7 @@ async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "d
     const nameB = starB?.name ?? report.starB;
     const content = report.content as { summary?: string; sections?: Record<string, { title?: string; paragraphs?: string[] }>; basis?: Array<{ term?: string; plain?: string }>; scores?: Record<string, number>; future_rhythm?: { supportive_periods?: Array<{ start_year: number; end_year: number; label: string; detail: string }>; pressure_periods?: Array<{ start_year: number; end_year: number; label: string; detail: string }> }; available_time_range?: { start_year: number; end_year: number } | null } | null;
     const lines: string[] = [
-      `这是「${nameA} × ${nameB}」偶像合盘报告。关系画像:${report.summary}`,
+      `这是「${nameA} × ${nameB}」双人合盘报告。关系画像:${report.summary}`,
     ];
     if (content?.scores) lines.push("评分(相对趋势):" + Object.entries(content.scores).map(([k, v]) => `${k}=${v}`).join(" "));
     for (const section of Object.values(content?.sections ?? {})) {

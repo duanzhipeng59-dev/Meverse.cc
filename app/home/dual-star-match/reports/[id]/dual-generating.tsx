@@ -75,17 +75,17 @@ export default function DualGenerating({ reportId, nameA, nameB, portraitA, port
       {failed ? (
         <>
           <p className="mf-dual-status-title">报告生成没有成功</p>
-          <p className="mf-dual-status-note">额度已自动退回。可以重新生成（不会重复扣费），或返回偶像合盘重新选择。</p>
+          <p className="mf-dual-status-note">额度已自动退回。可以重新生成（不会重复扣费），或返回双人合盘重新选择。</p>
           <div className="mf-dual-actions">
             <button className="mf-primary-button mf-dual-generate" type="button" disabled={retrying} onClick={retry}>
               {retrying ? "正在重新生成…" : "重新生成"}
             </button>
-            <Link className="mf-dual-ghost" href="/home/dual-star-match">返回偶像合盘</Link>
+            <Link className="mf-dual-ghost" href="/home/dual-star-match">返回双人合盘</Link>
           </div>
         </>
       ) : (
         <>
-          <p className="mf-dual-status-title"><i className="mf-launch-spinner" aria-hidden="true" />正在生成偶像合盘报告</p>
+          <p className="mf-dual-status-title"><i className="mf-launch-spinner" aria-hidden="true" />正在生成双人合盘报告</p>
           <p className="mf-dual-status-note">{PHASES[phase]}</p>
           <p className="mf-dual-status-note is-soft">报告会在后台继续生成，完成后可在浏览记录中查看。你可以放心离开这个页面。</p>
         </>

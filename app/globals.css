@@ -4995,7 +4995,7 @@ select:focus-visible {
 .mf-hero-copy h1 em { font-style: normal; }
 
 /* ── 首页 · 颜色统一到酒红体系(保留玻璃门面版式)────────────────────── */
-.mf-home-header-cta { background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); box-shadow: 0 8px 18px rgb(139 30 45 / 22%); }
+.mf-home-header-cta { background: transparent; box-shadow: none; }
 .mf-home-header .mf-nav a:hover { background: rgb(139 30 45 / 7%); }
 .mf-home-eyebrow { color: var(--bz-red); border-color: rgb(139 30 45 / 14%); }
 .mf-home-eyebrow span { color: var(--bz-red); }
@@ -5009,7 +5009,7 @@ select:focus-visible {
 .mf-how-grid span { color: var(--bz-red); font: 700 20px/1 var(--font-serif-display); font-style: normal; }
 .mf-star-card-bottom b { color: var(--bz-red); }
 .mf-star-card-bottom span { color: var(--bz-muted); }
-.mf-header-cta { border-color: var(--bz-line-strong); color: var(--bz-ink); }
+.mf-header-cta { border-color: rgb(198 75 115 / 45%); color: var(--bz-red-bright); background: transparent; }
 .mf-header, .mf-test-header { background: rgb(255 254 252 / 78%); }
 .mf-footer p { color: #a8a29e; }
 
@@ -5456,7 +5456,7 @@ select:focus-visible {
 
 /* 首页 hero 的主 CTA:与 logo 同色调 */
 .mf-home-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; width: auto; background: linear-gradient(145deg, #a84265, #64233e); box-shadow: 0 8px 22px rgba(122, 41, 78, 0.28); }
-@media (max-width: 640px) { .mf-home-cta { margin-left: auto; } }
+@media (max-width: 640px) { .mf-home-cta { display: flex; margin-left: auto; } }
 
 /* 个人中心:解读/追问次数统计卡 */
 .mf-profile-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
@@ -6370,8 +6370,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-explore-card .mf-bz-cover-img { object-position: center 22%; transition: transform .38s ease, filter .38s ease; }
 .mf-explore-card:hover .mf-bz-cover-img { transform: scale(1.018); filter: brightness(1.05); }
 .mf-explore-copy { position: absolute; left: 26px; bottom: 22px; z-index: 2; display: grid; gap: 5px; }
-.mf-explore-copy b { color: #fff; font: 500 30px/1.1 var(--font-serif-display); letter-spacing: .02em; }
-.mf-explore-copy span { color: rgb(255 255 255 / 72%); font-size: 14.5px; letter-spacing: .04em; }
+.mf-explore-copy b { color: #fff; font: 500 27px/1.15 var(--font-serif-display); letter-spacing: .03em; }
 .mf-explore-empty { margin: 30px 0; color: rgb(255 255 255 / 45%); font-size: 14px; text-align: center; }
 
 @media (max-width: 640px) {
@@ -6396,3 +6395,19 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 }
 /* PC 端探索页:压缩工作区顶部内边距,让导航紧贴顶栏 */
 .mf-workspace-content:has(.mf-explore) { padding-top: 26px; }
+
+/* ── 双人合盘:历史合盘横条(选择页下方) ── */
+.mf-dual-history-zone { margin-top: 18px; gap: 12px; }
+.mf-dual-history-zone h2 { margin: 0; color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
+.mf-dual-history-list { display: grid; gap: 8px; }
+.mf-dual-history-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); text-decoration: none; transition: border-color .2s ease; }
+.mf-dual-history-row:hover { border-color: var(--bz-red); }
+.mf-dual-history-avatars { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.mf-dual-history-avatars img { width: 30px; height: 39px; border-radius: 6px; object-fit: cover; border: 1px solid var(--bz-line); }
+.mf-dual-history-avatars i { font-style: normal; color: var(--bz-red-bright); font-size: 10px; }
+.mf-dual-history-row b { min-width: 0; color: var(--bz-ink); font-size: 13.5px; font-weight: 650; }
+.mf-dual-history-row small { margin-left: auto; color: var(--bz-faint); font-size: 11px; white-space: nowrap; }
+.mf-dual-history-row em { flex-shrink: 0; font-style: normal; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.mf-dual-history-row em[data-status="ready"] { color: var(--bz-green); background: rgb(114 181 138 / 12%); }
+.mf-dual-history-row em[data-status="generating"] { color: var(--bz-gold); background: rgb(210 163 92 / 12%); }
+.mf-dual-history-row em[data-status="failed"] { color: var(--bz-error); background: rgb(224 109 124 / 12%); }

@@ -18,15 +18,11 @@ export default async function MyfateHome() {
   return (
     <div className="mf-page">
       <header className="mf-header mf-home-header">
-        <Link className="mf-brand" href="/" aria-label="Myfate 首页">
-          <span className="mf-brand-mark">M</span>
-          <span>Myfate</span>
-        </Link>
+        <Link className="mf-brand" href="/" aria-label="Myfate 首页">Myfate</Link>
         <nav className="mf-nav" aria-label="主导航">
           <Link href="/#stars">解读对象</Link>
-          <a href="#how-it-works">解读说明</a>
         </nav>
-        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/relationship-test" anonymousChildren="登录">工作台</AuthEntryLink>
+        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/profile" anonymousChildren="登录">个人中心</AuthEntryLink>
       </header>
 
       <main>
@@ -74,58 +70,10 @@ export default async function MyfateHome() {
             </div>
           </div>
         </section>
-
-        <section className="mf-stars-section" id="stars">
-          <div className="mf-section-heading">
-            <div>
-              <span className="mf-kicker">AI 生辰画像预览</span>
-              <h2>这一刻，你想了解谁？</h2>
-            </div>
-            <p>60 位偶像的 AI 生辰画像已就绪，登录即可打开。</p>
-          </div>
-
-          <div className="mf-star-grid">
-            {stars.slice(0, 6).map((star, index) => (
-              <article className="mf-star-card mf-home-star-card" key={star.id}>
-                <div
-                  className="mf-star-portrait"
-                  style={{ "--portrait-image": `url("${star.portraitSrc}")` } as React.CSSProperties}
-                >
-                  <span className="mf-star-number">0{index + 1}</span>
-                  <div className="mf-star-overlay">
-                    <h3>{star.name}</h3>
-                  </div>
-                </div>
-                <div className="mf-star-card-bottom">
-                  <span>{star.role}</span>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="mf-how" id="how-it-works">
-          <div className="mf-section-heading">
-            <div><span className="mf-kicker">解读说明</span><h2>从选择偶像，到读懂 TA 的生辰画像</h2></div>
-          </div>
-          <div className="mf-how-grid">
-            <article><span>01</span><h3>选择 TA</h3><p>在偶像档案中按分类浏览或直接搜索名字，找到你关心的那位偶像。</p></article>
-            <article><span>02</span><h3>打开 AI 生辰画像</h3><p>系统按 TA 的公开出生资料排盘，呈现性格天赋、事业财富、关系家庭、身心节律与大运流年。</p></article>
-            <article><span>03</span><h3>继续追问</h3><p>报告下方可以直接提问，解读会基于 TA 的盘面继续展开，越问越细。</p></article>
-          </div>
-          <div className="mf-how-dual">
-            <Link href="/home/dual-star-match">
-              <b>偶像合盘</b>
-              <span>选择任意两位偶像，解读他们之间的吸引、互动与关系课题。</span>
-              <i aria-hidden="true">→</i>
-            </Link>
-          </div>
-        </section>
       </main>
 
       <footer className="mf-footer">
         <Link className="mf-brand" href="/"><span className="mf-brand-mark">M</span><span>Myfate</span></Link>
-        <p>分析内容基于八字命理（四柱、十神、大运）生成，出生时辰为正午近似，仅供文化娱乐参考，不构成科学结论、现实关系判断或专业建议。</p>
       </footer>
     </div>
   );

@@ -2,28 +2,28 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
 
 const menuItems = [
   {
     icon: "heart",
-    label: "偶像档案",
-    description: "浏览偶像资料与档案",
+    label: "生辰画像",
+    description: "TA 的生辰命理画像",
     href: "/home/relationship-test",
   },
   {
     icon: "dual",
-    label: "偶像合盘",
-    description: "两位偶像的关系解读",
+    label: "双人合盘",
+    description: "两位偶像的八字合盘",
     href: "/home/dual-star-match",
   },
-  {
-    icon: "report",
-    label: "浏览记录",
-    description: "看过的报告",
-    href: "/home/reports",
-  },
+];
+
+// 手机端底部导航:两个一级 Tab(个人中心固定在顶栏右上角)
+const tabItems = [
+  { icon: "heart", label: "生辰画像", href: "/home/relationship-test" },
+  { icon: "dual", label: "双人合盘", href: "/home/dual-star-match" },
 ];
 
 function HeartIcon() {
@@ -43,15 +43,6 @@ function UserIcon() {
   );
 }
 
-function ReportIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M7 3.75h7l3 3V20.25H7z" />
-      <path d="M14 3.75v3h3M10 11h4M10 14.5h4" />
-    </svg>
-  );
-}
-
 function UpgradeIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -62,8 +53,8 @@ function UpgradeIcon() {
 }
 
 function MenuIcon({ icon }: { icon: string }) {
-  if (icon === "report") return <ReportIcon />;
   if (icon === "dual") return <DualIcon />;
+  if (icon === "user") return <UserIcon />;
   return <HeartIcon />;
 }
 
@@ -89,67 +80,27 @@ export default function WorkspaceShell({ children, upgradesEnabled = true }: { c
   const pathname = usePathname();
   const router = useRouter();
   const { status, markSignedOut } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
-  const mobileMenuRef = useRef<HTMLDialogElement>(null);
-  const closeTimerRef = useRef<number | null>(null);
   const isDetail = pathname.split("/").filter(Boolean).length > 2;
   const loginHref = `/login?next=${encodeURIComponent(pathname)}&from=${encodeURIComponent(pathname)}`;
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
-  useEffect(() => () => {
-    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
-  }, []);
-
-  // 桌面侧栏路由预热:点击菜单时骨架立即接管(动态页 RSC 需要数百毫秒,不预热会滞留旧页)
+  // 路由预热:点击菜单/Tab 时骨架立即接管(动态页 RSC 需要数百毫秒,不预热会滞留旧页)
   useEffect(() => {
-    for (const item of menuItems) router.prefetch(item.href);
+    for (const item of [...menuItems, ...tabItems]) router.prefetch(item.href);
   }, [router]);
-
-  function openMobileMenu() {
-    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
-    setMobileMenuClosing(false);
-    // 打开抽屉时预热菜单路由:点击后 loading 骨架立即接管,旧页面不再滞留闪现
-    for (const item of menuItems) router.prefetch(item.href);
-    if (!mobileMenuRef.current?.open) {
-      mobileMenuRef.current?.showModal();
-      setMobileMenuOpen(true);
-    }
-  }
-
-  function closeMobileMenu() {
-    const dialog = mobileMenuRef.current;
-    if (!dialog?.open || mobileMenuClosing) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      dialog.close();
-      setMobileMenuOpen(false);
-      return;
-    }
-    setMobileMenuClosing(true);
-    closeTimerRef.current = window.setTimeout(() => {
-      dialog.close();
-      setMobileMenuOpen(false);
-      setMobileMenuClosing(false);
-      closeTimerRef.current = null;
-    }, 240);
-  }
 
   return (
     <div className={isDetail ? "mf-workspace-shell is-detail" : "mf-workspace-shell"}>
       <header className="mf-workspace-mobile-bar">
-        <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页">
-          <span className="mf-brand-mark">M</span>
-          <span>Myfate</span>
-        </Link>
-        <button
-          className="mf-mobile-menu-trigger"
-          type="button"
-          aria-label="打开工作台菜单"
-          aria-haspopup="dialog"
-          aria-expanded={mobileMenuOpen}
-          onClick={openMobileMenu}
+        <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页">Myfate</Link>
+        <Link
+          className={pathname === "/home/profile" ? "mf-mobile-profile-btn is-active" : "mf-mobile-profile-btn"}
+          href="/home/profile"
+          aria-label="个人中心"
+          aria-current={pathname === "/home/profile" ? "page" : undefined}
         >
-          <span /><span /><span />
-        </button>
+          个人中心
+        </Link>
       </header>
 
       <aside className="mf-workspace-sidebar">
@@ -160,23 +111,20 @@ export default function WorkspaceShell({ children, upgradesEnabled = true }: { c
 
         <div className="mf-workspace-label">探索</div>
         <nav className="mf-workspace-nav" aria-label="工作台主菜单">
-          {menuItems.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link
-                className={active ? "mf-workspace-nav-item active" : "mf-workspace-nav-item"}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                key={item.href}
-              >
-                <span className="mf-workspace-nav-icon"><MenuIcon icon={item.icon} /></span>
-                <span>
-                  <strong>{item.label}</strong>
-                  <small>{item.description}</small>
-                </span>
-              </Link>
-            );
-          })}
+          {menuItems.map((item) => (
+            <Link
+              className={isActive(item.href) ? "mf-workspace-nav-item active" : "mf-workspace-nav-item"}
+              href={item.href}
+              aria-current={isActive(item.href) ? "page" : undefined}
+              key={item.href}
+            >
+              <span className="mf-workspace-nav-icon"><MenuIcon icon={item.icon} /></span>
+              <span>
+                <strong>{item.label}</strong>
+                <small>{item.description}</small>
+              </span>
+            </Link>
+          ))}
         </nav>
 
         <div className="mf-workspace-account" aria-label="账户选项">
@@ -218,96 +166,23 @@ export default function WorkspaceShell({ children, upgradesEnabled = true }: { c
         </div>
       </aside>
 
-      <dialog
-        className={mobileMenuClosing ? "mf-mobile-menu-dialog is-closing" : "mf-mobile-menu-dialog"}
-        ref={mobileMenuRef}
-        aria-label="工作台菜单"
-        onClose={() => {
-          setMobileMenuOpen(false);
-          setMobileMenuClosing(false);
-        }}
-        onCancel={(event) => {
-          event.preventDefault();
-          closeMobileMenu();
-        }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) closeMobileMenu();
-        }}
-      >
-        <div className="mf-mobile-menu-panel">
-          <div className="mf-mobile-menu-heading">
-            <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页" onClick={() => mobileMenuRef.current?.close()}>
-              <span className="mf-brand-mark">M</span>
-              <span>Myfate</span>
-            </Link>
-            <button type="button" aria-label="关闭工作台菜单" autoFocus onClick={closeMobileMenu}>×</button>
-          </div>
-
-          <div className="mf-workspace-label">探索</div>
-          <nav className="mf-workspace-nav" aria-label="手机端工作台主菜单">
-            {menuItems.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  className={active ? "mf-workspace-nav-item active" : "mf-workspace-nav-item"}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => mobileMenuRef.current?.close()}
-                  key={item.href}
-                >
-                  <span className="mf-workspace-nav-icon"><MenuIcon icon={item.icon} /></span>
-                  <span><strong>{item.label}</strong><small>{item.description}</small></span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="mf-mobile-menu-account">
-            {upgradesEnabled ? (
-            <Link
-              className={pathname === "/home/upgrade" ? "active" : undefined}
-              href="/home/upgrade"
-              aria-current={pathname === "/home/upgrade" ? "page" : undefined}
-              onClick={() => mobileMenuRef.current?.close()}
-            >
-              <span className="mf-workspace-nav-icon"><UpgradeIcon /></span>
-              <span>订阅升级</span>
-            </Link>
-            ) : null}
-            <Link
-              className={pathname === "/home/profile" ? "active" : undefined}
-              href="/home/profile"
-              aria-current={pathname === "/home/profile" ? "page" : undefined}
-              onClick={() => mobileMenuRef.current?.close()}
-            >
-              <span className="mf-workspace-nav-icon"><UserIcon /></span>
-              <span>个人中心</span>
-            </Link>
-            {status === "authenticated" ? (
-              <button
-                type="button"
-                onClick={() => {
-                  mobileMenuRef.current?.close();
-                  markSignedOut();
-                  router.replace("/");
-                }}
-              >
-                <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
-                <span>退出登录</span>
-              </button>
-            ) : (
-              <Link href={loginHref} onClick={() => mobileMenuRef.current?.close()}>
-                <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
-                <span>登录</span>
-              </Link>
-            )}
-          </div>
-        </div>
-      </dialog>
-
       <main className="mf-workspace-main">
         {children}
       </main>
+
+      <nav className="mf-mobile-tabbar" aria-label="底部导航">
+        {tabItems.map((item) => (
+          <Link
+            className={isActive(item.href) ? "mf-mobile-tab is-active" : "mf-mobile-tab"}
+            href={item.href}
+            aria-current={isActive(item.href) ? "page" : undefined}
+            key={item.href}
+          >
+            <span className="mf-mobile-tab-icon"><MenuIcon icon={item.icon} /></span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }

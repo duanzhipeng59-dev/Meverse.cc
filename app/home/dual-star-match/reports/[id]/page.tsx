@@ -41,7 +41,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="mf-zr">
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回偶像合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回双人合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} />
 
       {report.status !== "ready" ? (
         <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={starA.portraitSrc} portraitB={starB.portraitSrc} />

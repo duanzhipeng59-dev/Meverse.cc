@@ -113,10 +113,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-home-header-cta {
   min-height: 42px;
   padding: 0 19px;
-  border: 0;
-  color: white;
-  background: var(--mf-ink);
-  box-shadow: 0 8px 18px rgba(37, 27, 34, .16);
+  border: 1px solid rgb(198 75 115 / 45%);
+  color: var(--bz-red-bright);
+  background: transparent;
+  box-shadow: none;
   transition: transform 180ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms ease;
 }
 
@@ -1551,13 +1551,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
 /* ===== 全站深色:首页/公开页 myfate.css 固定浅色修正 ===== */
 .mf-page, .mf-test-page, .mf-result-page {
   background:
-    radial-gradient(circle at 86% 5%, rgb(198 75 115 / 9%), transparent 28rem),
-    radial-gradient(circle at 12% 40%, rgb(210 163 92 / 5%), transparent 30rem),
-    #0f0b0e;
+    radial-gradient(circle at 86% 5%, rgb(198 75 115 / 7%), transparent 26rem),
+    radial-gradient(circle at 12% 40%, rgb(210 163 92 / 4%), transparent 28rem),
+    #0a0709;
 }
 .mf-home-header { border-color: rgba(255, 235, 242, 0.12); background: rgb(21 16 20 / 72%); box-shadow: 0 12px 34px rgb(0 0 0 / 35%), inset 0 1px 0 rgb(255 255 255 / 6%); }
-.mf-header-cta { border-color: var(--bz-line-strong); color: var(--bz-ink); }
-.mf-header-cta:hover { border-color: var(--bz-red-bright); color: var(--bz-red-bright); }
+.mf-header-cta { border-color: rgb(198 75 115 / 45%); color: var(--bz-red-bright); background: transparent; }
+.mf-header-cta:hover { border-color: var(--bz-red-bright); }
 .mf-home-eyebrow { border-color: rgb(198 75 115 / 30%); color: var(--bz-red-bright); background: rgb(198 75 115 / 10%); }
 .mf-home-fate-map { border-color: rgba(255, 235, 242, 0.12); background: radial-gradient(circle at 50% 55%, rgb(198 75 115 / 12%), transparent 34%), rgb(28 21 26 / 88%); box-shadow: 0 25px 65px rgb(0 0 0 / 45%); }
 .mf-home-fate-map-heading > small { color: #897980; }
@@ -1613,5 +1613,20 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-how article p, .mf-section-heading > p { color: #bdaeb4; }
 
 
-/* 深色:首页头部登录按钮(原为墨色底) */
-.mf-home-header-cta { color: #fff; background: linear-gradient(135deg, #c64b73, #8e2f51); box-shadow: 0 8px 18px rgb(198 75 115 / 30%); }
+/* 深色:首页头部按钮统一线框样式(透明底+酒红描边+主站色字) */
+.mf-home-header-cta { color: var(--bz-red-bright); background: transparent; border: 1px solid rgb(198 75 115 / 45%); box-shadow: none; }
+
+/* ── 手机端底部导航 Tab(替代汉堡抽屉;桌面隐藏,报告详情页隐藏;个人中心在顶栏右上角) ── */
+.mf-mobile-tabbar { display: none; }
+.mf-mobile-profile-btn { display: none; }
+@media (max-width: 800px) {
+  .mf-mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(2, 1fr); height: calc(58px + env(safe-area-inset-bottom)); box-sizing: border-box; padding: 0 8px env(safe-area-inset-bottom); border-top: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .mf-mobile-tab { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 3px; color: var(--mf-muted); text-decoration: none; font-size: 10.5px; font-weight: 600; letter-spacing: .04em; }
+  .mf-mobile-tab-icon { display: grid; place-items: center; width: 40px; height: 26px; }
+  .mf-mobile-tab-icon svg { width: 21px; height: 21px; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .mf-mobile-tab.is-active { color: var(--bz-red-bright, #DE6B91); }
+  .mf-mobile-profile-btn { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; margin-left: auto; border-radius: 999px; border: 1px solid rgb(198 75 115 / 45%); background: transparent; color: var(--bz-red-bright, #DE6B91); text-decoration: none; font-size: 11.5px; font-weight: 600; }
+  .mf-mobile-profile-btn.is-active { border-color: var(--bz-red-bright, #DE6B91); }
+  .mf-workspace-shell:not(.is-detail) .mf-workspace-main { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
+  .mf-workspace-shell.is-detail .mf-mobile-tabbar { display: none; }
+}

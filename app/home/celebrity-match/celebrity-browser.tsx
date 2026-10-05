@@ -126,8 +126,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
               priority={index < 2}
             />
             <div className="mf-explore-copy">
-              <b>{star.name}</b>
-              {personName(star.role) ? <span>{personName(star.role)}</span> : null}
+              <b>{personName(star.role) || star.name}</b>
             </div>
           </Link>
         ))}

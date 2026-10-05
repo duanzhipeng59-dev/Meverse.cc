@@ -40,11 +40,6 @@ export default function WorkspaceProfile({ upgradesEnabled = true }: { upgradesE
 
   return (
     <div className="mf-bz-profile">
-      <header className="mf-bz-profile-head">
-        <h1>个人中心</h1>
-        <p>管理你的账号信息</p>
-      </header>
-
       {status === "authenticated" && upgradesEnabled ? (
         <section className="mf-profile-stats" aria-label="额度统计">
           <div>

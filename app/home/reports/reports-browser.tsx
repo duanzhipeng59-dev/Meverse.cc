@@ -167,11 +167,11 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
                   </span>
                   <div>
                     <strong>{report.nameA} × {report.nameB}</strong>
-                    <small>偶像合盘</small>
+                    <small>双人合盘</small>
                   </div>
                 </Link>
                 <Link className="mf-hist-entry" href={`/home/dual-star-match/reports/${report.id}`}>
-                  <b>偶像合盘报告</b>
+                  <b>双人合盘报告</b>
                   <small>{relativeTime(report.createdAt)} · {report.status === "ready" ? "已生成" : report.status === "failed" ? "生成失败" : "生成中"}</small>
                   <span aria-hidden="true">→</span>
                 </Link>

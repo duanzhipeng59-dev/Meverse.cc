@@ -103,8 +103,8 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
   return (
     <div className="mf-dual">
       <header className="mf-dual-head">
-        <span className="mf-kicker">偶像合盘</span>
-        <h1>两位明星,一段关系动力</h1>
+        <span className="mf-kicker">双人合盘</span>
+        <h1>两位偶像,一份关系解读</h1>
       </header>
 
       <section className="mf-dual-relation" aria-label="双人关系卡">
@@ -140,7 +140,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
       </section>
 
       <div className="mf-dual-cta-zone">
-        <p className="mf-dual-value">报告将从 <b>吸引力、情绪连接、沟通方式、冲突模式、合作互补、长期潜力</b> 与 <b>未来三年时间线</b> 等维度分析两人的关系动力。</p>
+        <p className="mf-dual-value">报告从 <b>关系底色、日常沟通与冲突、双向影响</b>，到 <b>六个关键判断、未来关系节奏与最终建议</b>，逐层解读两人的相处动力与经营方式。</p>
         {bothReady ? (
           <>
             <p className="mf-dual-meta">{slotA!.name}（{slotA!.birthDate.replaceAll("-", ".")} · {slotA!.birthPlace}） × {slotB!.name}（{slotB!.birthDate.replaceAll("-", ".")} · {slotB!.birthPlace}）</p>
@@ -153,7 +153,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
             ) : null}
             <div className="mf-dual-actions">
               <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => generate(false)}>
-                {creating ? "正在创建…" : "生成偶像合盘报告"}
+                {creating ? "正在创建…" : "生成双人合盘报告"}
               </button>
               <button className="mf-dual-ghost" type="button" onClick={() => setPicking("A")}>更换 A</button>
               <button className="mf-dual-ghost" type="button" onClick={() => setPicking("B")}>更换 B</button>

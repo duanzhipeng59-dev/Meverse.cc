@@ -93,10 +93,10 @@ export default async function StarReportPage({ params, searchParams }: { params:
   });
   const report = buildStarBaziReport(chart);
   const profile = buildBaziLifeProfile(chart);
-  // 顶栏身份块:"RM · 金南俊" + 四柱干支
+  // 顶栏身份块:中文名(固定要求不显示英文艺名) + 四柱干支
   const roleDash = star.role.indexOf("-");
   const personName = roleDash > 0 ? star.role.slice(roleDash + 1).trim() : "";
-  const topbarTitle = personName ? `${star.name} · ${personName}` : star.name;
+  const topbarTitle = personName || star.name;
   const topbarSubtitle = report.pillars.map((pillar) => `${pillar.ganzhi[0]}${pillar.ganzhi[1]}`).join(" ");
   // 人工精校内容优先(RM),其余明星走模板引擎
   const consult = CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
@@ -113,10 +113,9 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
       <div className="mf-zr-overview">
       <header className="mf-zr-hero">
-        <Image src={star.portraitSrc} alt={star.name} width={96} height={120} sizes="96px" unoptimized />
+        <Image src={star.portraitSrc} alt={personName || star.name} width={96} height={120} sizes="96px" unoptimized />
         <div className="mf-zr-hero-copy">
-          <span className="mf-zr-kicker">AI BIRTH PORTRAIT · {star.role}</span>
-          <h1>{star.name} 的 AI 生辰画像</h1>
+          <h1>{personName || star.name} 的 AI 生辰画像</h1>
           <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已校准" : "时辰暂按正午估算"}</small>
         </div>
         <div className="mf-zr-hero-pillars" aria-label="四柱">

@@ -10,13 +10,13 @@ export const REPORT_LABELS: Partial<Record<StarReportType, string>> = {
 export const FILTERS: Array<{ id: ReportFilter; label: string }> = [
   { id: "all", label: "全部" },
   { id: "bazi", label: "生辰画像" },
-  { id: "dual", label: "偶像合盘" },
+  { id: "dual", label: "双人合盘" },
 ];
 
 export const EMPTY_COPY: Record<ReportFilter, { title: string; hint: string }> = {
-  all: { title: "还没有浏览记录", hint: "去偶像档案打开一份报告，它会自动出现在这里。" },
-  bazi: { title: "还没有浏览过生辰画像", hint: "在偶像档案点开一位偶像，记录会出现在这里。" },
-  dual: { title: "还没有生成过偶像合盘", hint: "在「偶像合盘」选择两位偶像生成报告，记录会出现在这里。" },
+  all: { title: "还没有浏览记录", hint: "去生辰画像打开一份报告，它会自动出现在这里。" },
+  bazi: { title: "还没有浏览过生辰画像", hint: "在生辰画像点开一位偶像，记录会出现在这里。" },
+  dual: { title: "还没有生成过双人合盘", hint: "在「双人合盘」选择两位偶像生成报告，记录会出现在这里。" },
 };
 
 export type StarGroup = {
