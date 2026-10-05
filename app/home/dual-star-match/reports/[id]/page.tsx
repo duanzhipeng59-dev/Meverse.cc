@@ -5,8 +5,11 @@ import StarAskPanel from "../../../relationship-test/[id]/test/ask-panel";
 import ReportTopbar from "../../../../report-topbar";
 import ReportToc from "../../../../report-toc";
 import DualGenerating from "./dual-generating";
+import DualOverrideReport, { type DualIdCard } from "./dual-override-report";
+import { getDualOverride } from "../../../../myfate-dual-overrides";
 import { getDualReport } from "../../../../myfate-dual-server";
-import { getPublishedStar } from "../../../../myfate-stars-server";
+import { getPublishedStar, getCelebrityVedicBirth } from "../../../../myfate-stars-server";
+import { buildDualChart } from "../../../../myfate-dual-engine";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
 import { requirePageUser } from "../../../../require-page-user";
 import { dualReportSchema, type DualReportContent } from "../../../../myfate-dual-generator";
@@ -40,21 +43,55 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
 
       {report.status !== "ready" ? (
         <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={starA.portraitSrc} portraitB={starB.portraitSrc} />
-      ) : (() => {
+      ) : (async () => {
+        // 精校内容优先:命中组合直接渲染定稿文案,不走 AI 生成结构
+        const override = getDualOverride(report.starA, report.starB);
+        if (override) {
+          // 头部双人身份卡:各自排盘取四柱与出生信息
+          const [birthA, birthB] = await Promise.all([getCelebrityVedicBirth(report.starA), getCelebrityVedicBirth(report.starB)]);
+          const formatRole = (role: string) => {
+            if (!role.includes("-")) return role;
+            const [group, person] = role.split("-").map((part) => part.trim());
+            return `${person} · ${group.replace(" 成员", "")}`;
+          };
+          const people = [starA, starB].map((star, index) => {
+            const birth = index === 0 ? birthA : birthB;
+            const chart = birth ? buildDualChart(birth).chart : null;
+            return {
+              name: star.name,
+              role: formatRole(star.role),
+              portrait: star.portraitSrc,
+              birthLine: `出生 · ${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace ?? ""}${birth?.birthTime ? " · 已校准" : ""}`,
+              pillars: chart ? chart.pillars.map((pillar) => ({ label: pillar.label.replace("柱", ""), ganzhi: pillar.ganzhi })) : [],
+            };
+          }) as [DualIdCard, DualIdCard];
+          return (
+            <DualOverrideReport
+              content={override}
+              people={people}
+              reportId={report.id}
+              metered={metered}
+            />
+          );
+        }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();
         const content: DualReportContent = parsed.data;
         // 评分唯一来源:引擎在创建时落库的结构分
         const scores = report.scores ?? {};
-        const sectionDefs: Array<{ no: string; field: keyof DualReportContent["sections"]; sub: string; anchor: string }> = [
+        const sectionDefs: Array<{ no: string; field: "attraction" | "communication" | "intimacy" | "conflict" | "career" | "longterm"; sub: string; anchor: string }> = [
           { no: "02", field: "attraction", sub: "吸引点、化学反应与落差", anchor: "d-attraction" },
           { no: "03", field: "communication", sub: "表达差异与情绪需求", anchor: "d-communication" },
           { no: "04", field: "intimacy", sub: "亲近质地与需求匹配", anchor: "d-intimacy" },
           { no: "05", field: "conflict", sub: "摩擦位置与处理方法", anchor: "d-conflict" },
           { no: "06", field: "career", sub: "协作方式与互补点", anchor: "d-career" },
           { no: "07", field: "longterm", sub: "关系持续的条件", anchor: "d-longterm" },
-          { no: "08", field: "timeline", sub: "未来三年关系节奏窗口", anchor: "d-timeline" },
         ];
+        // 未来关系节奏:双方流年交集为空或无阶段时整块隐藏;旧版报告回退到时间线章节
+        const rhythm = content.future_rhythm;
+        const hasRhythm = Boolean(rhythm && (rhythm.supportive_periods.length > 0 || rhythm.pressure_periods.length > 0));
+        const legacyTimeline = content.sections.timeline;
+        const timeRange = content.available_time_range;
         return (
           <>
             <header className="mf-dual-report-hero">
@@ -86,7 +123,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
               { id: "d-conflict", label: "冲突" },
               { id: "d-career", label: "事业" },
               { id: "d-longterm", label: "长期" },
-              { id: "d-timeline", label: "时间线" },
+              ...(hasRhythm || legacyTimeline ? [{ id: "d-timeline", label: hasRhythm ? "节奏" : "时间线" }] : []),
               { id: "d-ask", label: "AI 追问" },
             ]} />
 
@@ -127,6 +164,54 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
                 </section>
               );
             })}
+
+            {hasRhythm && rhythm ? (
+              <section className="mf-zr-card" id="d-timeline">
+                <div className="mf-zr-section-head">
+                  <span>08</span>
+                  <div>
+                    <h2>未来关系节奏</h2>
+                    <p>{timeRange ? `双方可分析区间 ${timeRange.start_year}–${timeRange.end_year} · 由两人大运流年数据交集确定` : "双方大运流年窗口"}</p>
+                  </div>
+                </div>
+                <div className="mf-dual-rhythm">
+                  {([
+                    ["支持阶段", rhythm.supportive_periods],
+                    ["压力阶段", rhythm.pressure_periods],
+                  ] as const).map(([groupLabel, periods]) => periods.length > 0 ? (
+                    <div className={`mf-dual-rhythm-group${groupLabel === "压力阶段" ? " is-pressure" : ""}`} key={groupLabel}>
+                      <b>{groupLabel}</b>
+                      <div className="mf-dual-periods">
+                        {periods.map((period) => (
+                          <article className={`mf-dual-period${groupLabel === "压力阶段" ? " is-pressure" : ""}`} key={`${period.start_year}-${period.end_year}`}>
+                            <span>{period.start_year === period.end_year ? `${period.start_year}` : `${period.start_year}–${period.end_year}`}</span>
+                            <b>{period.label}</b>
+                            <p>{period.detail}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null)}
+                </div>
+                <p className="mf-zr-chart-note">阶段由双方原局、各自大运与流年触发共同归纳,只描述趋势窗口,不预测现实事件。</p>
+              </section>
+            ) : legacyTimeline ? (
+              <section className="mf-zr-card" id="d-timeline">
+                <div className="mf-zr-section-head"><span>08</span><div><h2>{legacyTimeline.headline}</h2><p>未来三年关系节奏窗口</p></div></div>
+                <ul className="mf-dual-evidence">
+                  {legacyTimeline.basis.map((line, index) => <li key={index}>依据 · {line}</li>)}
+                </ul>
+                <div className="mf-dual-directions">
+                  <article><b>A 对 B</b><p>{legacyTimeline.aToB}</p></article>
+                  <article><b>B 对 A</b><p>{legacyTimeline.bToA}</p></article>
+                </div>
+                <dl className="mf-dual-layers">
+                  <div><dt>相处表现</dt><dd>{legacyTimeline.behavior}</dd></div>
+                  <div><dt>风险提醒</dt><dd>{legacyTimeline.risk}</dd></div>
+                  <div><dt>行动建议</dt><dd>{legacyTimeline.advice}</dd></div>
+                </dl>
+              </section>
+            ) : null}
 
             <section className="mf-zr-card" id="d-basis">
               <div className="mf-zr-section-head"><span>09</span><div><h2>命理依据</h2><p>结论来自这些合盘结构,附白话解释与依据强度</p></div></div>

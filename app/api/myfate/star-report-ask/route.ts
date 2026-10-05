@@ -59,13 +59,23 @@ async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "d
     const [starA, starB] = await Promise.all([getPublishedStar(report.starA), getPublishedStar(report.starB)]);
     const nameA = starA?.name ?? report.starA;
     const nameB = starB?.name ?? report.starB;
-    const content = report.content as { summary?: string; sections?: Record<string, { title?: string; paragraphs?: string[] }>; basis?: Array<{ term?: string; plain?: string }>; scores?: Record<string, number> } | null;
+    const content = report.content as { summary?: string; sections?: Record<string, { title?: string; paragraphs?: string[] }>; basis?: Array<{ term?: string; plain?: string }>; scores?: Record<string, number>; future_rhythm?: { supportive_periods?: Array<{ start_year: number; end_year: number; label: string; detail: string }>; pressure_periods?: Array<{ start_year: number; end_year: number; label: string; detail: string }> }; available_time_range?: { start_year: number; end_year: number } | null } | null;
     const lines: string[] = [
       `这是「${nameA} × ${nameB}」偶像合盘报告。关系画像:${report.summary}`,
     ];
     if (content?.scores) lines.push("评分(相对趋势):" + Object.entries(content.scores).map(([k, v]) => `${k}=${v}`).join(" "));
     for (const section of Object.values(content?.sections ?? {})) {
       if (section?.title && section.paragraphs?.length) lines.push(`【${section.title}】` + section.paragraphs.join(" "));
+    }
+    const rhythm = content?.future_rhythm;
+    if (rhythm) {
+      const formatPeriod = (period: { start_year: number; end_year: number; label: string; detail: string }) => `${period.start_year}${period.start_year === period.end_year ? "" : `-${period.end_year}`}年 ${period.label}:${period.detail}`;
+      const range = content?.available_time_range;
+      const parts = [
+        ...(rhythm.supportive_periods ?? []).map((period) => `[支持]${formatPeriod(period)}`),
+        ...(rhythm.pressure_periods ?? []).map((period) => `[压力]${formatPeriod(period)}`),
+      ];
+      if (parts.length) lines.push(`【未来关系节奏${range ? `(可分析区间 ${range.start_year}-${range.end_year} 年,不得谈及区间外年份)` : ""}】` + parts.join(";"));
     }
     if (content?.basis?.length) lines.push("命理依据:" + content.basis.map((item) => `${item.term}(${item.plain})`).join(";"));
     return { name: `${nameA} × ${nameB}`, digest: lines.join("\n") };

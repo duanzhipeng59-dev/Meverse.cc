@@ -1,9 +1,11 @@
-// 双星合盘报告生成:结构引擎事实 → AI 翻译为章节文案。
-// 评分只由引擎在创建时算出并落库,AI 不得改分;失败退款按消费流水幂等执行。
+// 双星合盘报告生成:结构引擎事实 + 时间层结构化数据 → AI 翻译为章节文案与关系节奏。
+// 评分只由引擎在创建时算出并落库,AI 不得改分;时间范围由后端计算并硬性约束,
+// Gemini 只能在 available_time_range 内归纳阶段,输出越界由后端裁剪;失败退款按消费流水幂等执行。
 import { z } from "zod";
 import { createSupabaseAdminClient } from "./api/auth/server";
 import { generateChatText } from "./api/myfate/personalize/model-provider";
 import { buildDualChart, buildDualStructure, type DualStructure } from "./myfate-dual-engine";
+import { buildPersonTimeline, computeAvailableRange, futureRhythmSchema, personAnnualRange, sanitizeFutureRhythm, type AnnualLuckYear, type MajorLuckStep, type PersonTimeline, type YearRange } from "./myfate-dual-timeline";
 import { getCelebrityVedicBirth } from "./myfate-stars-server";
 
 const sectionSchema = z.object({
@@ -26,50 +28,138 @@ export const dualReportSchema = z.object({
     conflict: sectionSchema,
     career: sectionSchema,
     longterm: sectionSchema,
-    timeline: sectionSchema,
+    // 旧版报告的时间线章节,仅作历史数据兼容读取
+    timeline: sectionSchema.optional(),
   }),
+  future_rhythm: futureRhythmSchema.optional(),
+  available_time_range: z.object({ start_year: z.number().int(), end_year: z.number().int() }).nullable().optional(),
   basis: z.array(z.object({ term: z.string().min(2).max(40), plain: z.string().min(8).max(160), confidence: z.enum(["strong", "medium", "light"]).default("medium") })).min(4).max(10),
 });
 
 export type DualReportContent = z.infer<typeof dualReportSchema>;
 
-const SYSTEM_PROMPT = `你是资深命理文化编辑,为一份「双星命理合盘」报告撰写章节文案。铁律:
-1. 只使用输入中给出的命理结构事实,不得编造盘面数据、出生信息或关系事件;不得提及分数数字(评分由系统另置)。
+const SYSTEM_PROMPT = `你是资深命理文化编辑,为一份「双星命理合盘」报告撰写章节文案与未来关系节奏。铁律:
+1. 只使用输入 JSON 中给出的命理结构事实,不得编造盘面数据、出生信息或关系事件;不得提及分数数字(评分由系统另置)。
 2. 两位明星是公众人物,报告只解读命理模型中的互动倾向,绝不暗示现实恋爱、合作或私人关系;禁止"一定相爱/注定结婚/已经恋爱/必然分手"等断言,使用"倾向/可能/容易/更适合/需要留意"表达。
 3. 每个章节必须引用输入中对应的具体结构(合冲刑害、十神、五行、柱位),空泛句子会被拒稿。
-4. 语言:简体中文,克制、具体、有画面感;描述两位明星之间的互动,不对用户说话。
-5. 严格输出 JSON,不要任何 JSON 以外的文字。`;
+4. 时间铁律:只允许分析 available_time_range 内的年份;只允许使用输入中已有的大运与流年数据,不得自行补算、推导或引用范围之外的任何年份;不得将单方运势直接等同于双方关系结果。
+5. 未来节奏只能表达为关系环境、互动趋势、压力变化、支持度变化、相处节奏变化;禁止"某年一定结婚/一定分手/会出现第三者"等确定事件表述,应写"更适合讨论长期安排/压力可能明显增加/信任议题更值得关注"。
+6. 语言:简体中文,克制、具体、有画面感;描述两位明星之间的互动,不对用户说话。
+7. 严格输出 JSON,不要任何 JSON 以外的文字。`;
 
-const SECTION_SPECS: Array<{ key: keyof DualReportContent["sections"]; title: string; hint: string }> = [
+const SECTION_SPECS: Array<{ key: "attraction" | "communication" | "intimacy" | "conflict" | "career" | "longterm"; title: string; hint: string }> = [
   { key: "attraction", title: "核心吸引来源", hint: "两人容易被对方哪部分吸引、初期化学反应、吸引中的落差" },
   { key: "communication", title: "情绪与沟通方式", hint: "表达差异、谁更主动、谁更需要空间、易误解处与更适合的沟通方式" },
   { key: "intimacy", title: "亲密关系模式", hint: "亲近时的相处质地、依赖与独立、亲密需求是否匹配" },
   { key: "conflict", title: "冲突触发点", hint: "最容易摩擦的位置、典型表现、各自防御方式、更合适的处理方法" },
   { key: "career", title: "事业与资源协作", hint: "是否适合共同工作、能力互补、决策与权责、合作冲突点" },
   { key: "longterm", title: "长期关系潜力", hint: "关系持续的动力、靠近或疏远的原因、长期维持条件;不预测现实结果" },
-  { key: "timeline", title: "未来关系时间线", hint: "结合给出的流年窗口,描述未来三年关系节奏的可能变化(只描述趋势窗口)" },
 ];
 
-function POS(index: number) {
-  return ["年柱", "月柱", "日柱", "时柱"][index];
+function majorLuckJson(step: MajorLuckStep) {
+  return {
+    start_age: step.startAge,
+    end_age: step.endAge,
+    start_year: step.startYear,
+    end_year: step.endYear,
+    pillar: step.pillar,
+    heavenly_stem: step.heavenlyStem,
+    earthly_branch: step.earthlyBranch,
+    ten_god_stem: step.tenGodStem,
+    ten_god_branch: step.tenGodBranch,
+    relationships_with_natal_chart: step.relationshipsWithNatalChart,
+    extra_data: step.extraData,
+  };
 }
 
-function buildPrompt(s: DualStructure) {
-  const facts = [
-    `明星A:${s.starA.name},日主${s.starA.dayMaster}(${s.starA.dayElement}),${s.starA.strength},格局:${s.starA.pattern},喜用:${s.starA.favorable.join("、")},忌:${s.starA.cautious.join("、")},四柱:${s.starA.pillars.join(" ")}`,
-    `明星B:${s.starB.name},日主${s.starB.dayMaster}(${s.starB.dayElement}),${s.starB.strength},格局:${s.starB.pattern},喜用:${s.starB.favorable.join("、")},忌:${s.starB.cautious.join("、")},四柱:${s.starB.pillars.join(" ")}`,
-    `双向影响:${s.dayMasterBidirectional.aToB};${s.dayMasterBidirectional.bToA}`,
-    `天干互动:${s.ganCombinations.length ? s.ganCombinations.join(";") : "两人天干无明显五合"}`,
-    `地支互动:${s.branchInteractions.length ? s.branchInteractions.map((x) => `A ${POS(x.aPos)}${x.aZhi} × B ${POS(x.bPos)}${x.bZhi} ${x.type}——${x.meaning}`).join(";") : "两人四支柱支无明显合冲害破"}`,
-    `合局刑局:${s.combinations.length ? s.combinations.map((c) => `${c.type}(${c.branches.join("")})——${c.meaning}`).join(";") : "无跨盘合局刑局"}`,
-    `关系宫:${s.spousePalace.text}`,
-    `五行互济:${s.elementBalance.text}`,
-    `强弱:${s.strengthNote}`,
-    `藏干互动(择要):${s.hiddenGods.slice(0, 8).map((h) => `${h.side} ${h.pos} 藏干${h.hidden}(${h.god})`).join(";")}`,
-    `流年窗口:${s.luckWindow.map((w) => `${w.year} ${w.ganzhi}:${w.event}`).join(";") || "未来三年无强窗口信号"}`,
-  ].join("\n");
+function annualLuckJson(year: AnnualLuckYear) {
+  return {
+    year: year.year,
+    pillar: year.pillar,
+    heavenly_stem: year.heavenlyStem,
+    earthly_branch: year.earthlyBranch,
+    ten_god_stem: year.tenGodStem,
+    ten_god_branch: year.tenGodBranch,
+    relationships_with_natal_chart: year.relationshipsWithNatalChart,
+    relationships_with_major_luck: year.relationshipsWithMajorLuck,
+    extra_data: year.extraData,
+  };
+}
+
+function personJson(
+  star: DualStructure["starA"],
+  timeline: PersonTimeline,
+  crossStem: string[],
+  crossBranch: string[],
+  spousePalace: DualStructure["spousePalace"],
+  elementBalance: DualStructure["elementBalance"],
+  strengthNote: string,
+  hiddenGods: DualStructure["hiddenGods"],
+) {
+  return {
+    name: star.name,
+    natal_chart: {
+      four_pillars: { year: star.pillars[0], month: star.pillars[1], day: star.pillars[2], hour: star.pillars[3] },
+      day_master: star.dayMaster,
+      five_elements: timeline.fiveElements,
+      ten_gods: timeline.tenGods.map((pillar) => ({
+        position: pillar.position,
+        ganzhi: pillar.ganzhi,
+        stem_ten_god: pillar.stemTenGod,
+        hidden_ten_gods: pillar.hiddenTenGods,
+      })),
+      spouse_palace: { branch: star.pillars[2][1], interaction: spousePalace.text },
+      stems: timeline.stems,
+      branches: timeline.branches,
+      stem_relationships: crossStem,
+      branch_relationships: crossBranch,
+      extra_chart_data: {
+        strength: star.strength,
+        pattern: star.pattern,
+        favorable: star.favorable,
+        cautious: star.cautious,
+        element_balance: elementBalance.text,
+        strength_note: strengthNote,
+        hidden_gods: hiddenGods.map((h) => `${h.side} ${h.pos} 藏干${h.hidden}(${h.god})`),
+      },
+    },
+    major_luck: timeline.majorLuck.map(majorLuckJson),
+    annual_luck: timeline.annualLuck.map(annualLuckJson),
+  };
+}
+
+// 规格 Input:双方原局 + 大运 + 流年 + 双方可分析时间范围,全部确定性数据
+function buildGeminiInput(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null) {
+  const crossStem = s.ganCombinations;
+  const crossBranch = [
+    ...s.branchInteractions.map((x) => `A ${["年柱", "月柱", "日柱", "时柱"][x.aPos]}${x.aZhi} × B ${["年柱", "月柱", "日柱", "时柱"][x.bPos]}${x.bZhi} ${x.type}——${x.meaning}`),
+    ...s.combinations.map((c) => `${c.type}(${c.branches.join("")})——${c.meaning}`),
+  ];
+  return {
+    available_time_range: range ? { start_year: range.startYear, end_year: range.endYear } : null,
+    person_a: personJson(s.starA, timelineA, crossStem, crossBranch, s.spousePalace, s.elementBalance, s.strengthNote, s.hiddenGods),
+    person_b: personJson(s.starB, timelineB, crossStem, crossBranch, s.spousePalace, s.elementBalance, s.strengthNote, s.hiddenGods),
+  };
+}
+
+function buildPrompt(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null) {
+  const input = buildGeminiInput(s, timelineA, timelineB, range);
   const sections = SECTION_SPECS.map(({ key, title, hint }) => `"${key}": { "headline": "一句话结论(8-40字)", "basis": ["引用结构事实的依据,1-3条"], "aToB": "A 对 B 的影响(结合十神方向)", "bToA": "B 对 A 的影响", "behavior": "现实中可能出现的相处表现", "risk": "容易发生的问题", "advice": "如何相处更顺畅(可执行)" } /* ${title}: ${hint} */`).join(",\n    ");
-  return `${facts}
+  const rangeLine = range
+    ? `本次可分析时间范围为 ${range.startYear}-${range.endYear} 年(available_time_range)。future_rhythm 的所有阶段年份必须完全落在该范围内。`
+    : `本次 available_time_range 为 null(双方没有共同流年数据),future_rhythm 的两个数组都必须输出为空数组 []。`;
+  return `Input JSON(唯一事实来源):
+
+${JSON.stringify(input, null, 1)}
+
+${rangeLine}
+
+future_rhythm(未来关系节奏)规则:
+1. 分析顺序:双方原局关系 → 双方当前大运环境 → 双方具体流年触发 → 双方互动结果 → 归纳为关系阶段;禁止仅凭单方流年判断双方关系。
+2. 阶段压缩:把连续且关系特征相近的年份合并为一个阶段输出,不要逐年流水账;与前后年份明显不同的单年可以独立成阶段。
+3. supportive_periods 与 pressure_periods 各最多 3 个,优先选择变化最明显、对双方关系影响最大、最值得关注的阶段;不允许为凑满数量强行生成,没有就输出空数组。
+4. 每个阶段:label 为阶段概括(4-16字,如"关系压力集中阶段"/"关系调整节点");detail 描述该阶段双方关系环境与互动趋势(20-120字),只能使用"更适合/压力可能增加/议题更值得关注"等趋势表达。
+5. 不得输出早于 start_year 或晚于 end_year 的年份,不得补充或推导双方没有共同流年数据的年份。
 
 输出 JSON:
 {
@@ -78,9 +168,13 @@ function buildPrompt(s: DualStructure) {
   "sections": {
     ${sections}
   },
+  "future_rhythm": {
+    "supportive_periods": [ { "start_year": ${range ? range.startYear : 0}, "end_year": ${range ? range.startYear : 0}, "label": "阶段概括4-16字", "detail": "该阶段双方关系环境与互动趋势,20-120字" } ],
+    "pressure_periods": [ { "start_year": ${range ? range.startYear : 0}, "end_year": ${range ? range.startYear : 0}, "label": "阶段概括4-16字", "detail": "该阶段双方关系环境与互动趋势,20-120字" } ]
+  },
   "basis": [ { "term": "命理术语", "plain": "白话解释20-80字", "confidence": "strong|medium|light(按输入事实强度)" } ]
 }
-basis 至少 5 条,必须来自上面给出的结构事实,confidence 与事实强度一致。`;
+basis 至少 5 条,必须来自 Input JSON 中的结构事实,confidence 与事实强度一致。`;
 }
 
 function extractJson(text: string) {
@@ -90,13 +184,20 @@ function extractJson(text: string) {
   return text.slice(start, end + 1);
 }
 
-async function generateContent(s: DualStructure): Promise<DualReportContent> {
-  const prompt = buildPrompt(s);
+async function generateContent(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null): Promise<DualReportContent> {
+  const prompt = buildPrompt(s, timelineA, timelineB, range);
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const generation = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { temperature: 0.65, maxTokens: 12000 });
     try {
-      return dualReportSchema.parse(JSON.parse(extractJson(generation.content)));
+      const parsed = dualReportSchema.parse(JSON.parse(extractJson(generation.content)));
+      // 有可分析范围时 future_rhythm 必须存在,缺失视为无效输出触发重试
+      if (range && !parsed.future_rhythm) throw new Error("FUTURE_RHYTHM_MISSING");
+      return {
+        ...parsed,
+        future_rhythm: sanitizeFutureRhythm(parsed.future_rhythm ?? { supportive_periods: [], pressure_periods: [] }, range),
+        available_time_range: range ? { start_year: range.startYear, end_year: range.endYear } : null,
+      };
     } catch (error) {
       lastError = error;
     }
@@ -118,7 +219,14 @@ export async function runDualGeneration(reportId: string) {
     const dualA = buildDualChart(birthA);
     const dualB = buildDualChart(birthB);
     const structure = buildDualStructure(birthA, birthB, dualA.chart, dualB.chart, dualA.profile, dualB.profile);
-    const content = await generateContent(structure);
+    // 双方可分析时间范围 = 两人流年窗口交集;无交集时 range 为 null,报告不做时间节奏分析
+    const currentYear = new Date().getFullYear();
+    const rangeA = personAnnualRange(currentYear);
+    const rangeB = personAnnualRange(currentYear);
+    const range = computeAvailableRange(rangeA, rangeB);
+    const timelineA = buildPersonTimeline(dualA.chart, range ?? rangeA);
+    const timelineB = buildPersonTimeline(dualB.chart, range ?? rangeB);
+    const content = await generateContent(structure, timelineA, timelineB, range);
     const { error: updateError } = await supabase.from("dual_star_reports").update({
       status: "ready",
       keywords: content.keywords,

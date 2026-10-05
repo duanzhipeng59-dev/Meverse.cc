@@ -12,16 +12,23 @@ const GAN_WUXING: Record<string, Element> = { 甲: "木", 乙: "木", 丙: "火"
 const ZHI_WUXING: Record<string, Element> = { 子: "水", 丑: "土", 寅: "木", 卯: "木", 辰: "土", 巳: "火", 午: "火", 未: "土", 申: "金", 酉: "金", 戌: "土", 亥: "水" };
 const SHENG: Record<Element, Element> = { 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" };
 const KE: Record<Element, Element> = { 木: "土", 土: "水", 水: "火", 火: "金", 金: "木" };
-const LIU_HE: Record<string, string> = { 子: "丑", 丑: "子", 寅: "亥", 亥: "寅", 卯: "戌", 戌: "卯", 辰: "酉", 酉: "辰", 巳: "申", 申: "巳", 午: "未", 未: "午" };
-const CHONG: Record<string, string> = { 子: "午", 午: "子", 丑: "未", 未: "丑", 寅: "申", 申: "寅", 卯: "酉", 酉: "卯", 辰: "戌", 戌: "辰", 巳: "亥", 亥: "巳" };
-const HAI: Record<string, string> = { 子: "未", 未: "子", 丑: "午", 午: "丑", 寅: "巳", 巳: "寅", 卯: "辰", 辰: "卯", 申: "亥", 亥: "申", 酉: "戌", 戌: "酉" };
-const PO: Record<string, string> = { 子: "酉", 酉: "子", 丑: "辰", 辰: "丑", 寅: "亥", 亥: "寅", 卯: "午", 午: "卯", 巳: "申", 申: "巳", 未: "戌", 戌: "未" };
-const GAN_HE: Record<string, string> = { 甲: "己", 己: "甲", 乙: "庚", 庚: "乙", 丙: "辛", 辛: "丙", 丁: "壬", 壬: "丁", 戊: "癸", 癸: "戊" };
+export const LIU_HE: Record<string, string> = { 子: "丑", 丑: "子", 寅: "亥", 亥: "寅", 卯: "戌", 戌: "卯", 辰: "酉", 酉: "辰", 巳: "申", 申: "巳", 午: "未", 未: "午" };
+export const CHONG: Record<string, string> = { 子: "午", 午: "子", 丑: "未", 未: "丑", 寅: "申", 申: "寅", 卯: "酉", 酉: "卯", 辰: "戌", 戌: "辰", 巳: "亥", 亥: "巳" };
+export const HAI: Record<string, string> = { 子: "未", 未: "子", 丑: "午", 午: "丑", 寅: "巳", 巳: "寅", 卯: "辰", 辰: "卯", 申: "亥", 亥: "申", 酉: "戌", 戌: "酉" };
+export const PO: Record<string, string> = { 子: "酉", 酉: "子", 丑: "辰", 辰: "丑", 寅: "亥", 亥: "寅", 卯: "午", 午: "卯", 巳: "申", 申: "巳", 未: "戌", 戌: "未" };
+// 公历年份 → 干支(1984 甲子年起的六十甲子)
+export function yearToGanZhi(year: number): string {
+  const GAN_CYCLE = "甲乙丙丁戊己庚辛壬癸";
+  const ZHI_CYCLE = "子丑寅卯辰巳午未申酉戌亥";
+  const index = ((year - 1984) % 60 + 60) % 60;
+  return GAN_CYCLE[index % 10] + ZHI_CYCLE[index % 12];
+}
+export const GAN_HE: Record<string, string> = { 甲: "己", 己: "甲", 乙: "庚", 庚: "乙", 丙: "辛", 辛: "丙", 丁: "壬", 壬: "丁", 戊: "癸", 癸: "戊" };
 const ELEMENT_NATURE: Record<Element, string> = { 木: "生长与规划", 火: "表达与热度", 土: "稳定与承载", 金: "判断与边界", 水: "洞察与流动" };
-const POS_MEANING = ["年柱·社会背景层", "月柱·事业互动层", "日柱·亲密核心层", "时柱·长远深层"];
+export const POS_MEANING = ["年柱·社会背景层", "月柱·事业互动层", "日柱·亲密核心层", "时柱·长远深层"];
 const POS_WEIGHT = [0.8, 1, 1.4, 1];
 
-function tenGod(day: string, other: string): string {
+export function tenGod(day: string, other: string): string {
   const d = GAN_WUXING[day], o = GAN_WUXING[other];
   const samePolarity = GAN.indexOf(day) % 2 === GAN.indexOf(other) % 2;
   if (d === o) return samePolarity ? "比肩" : "劫财";
@@ -156,7 +163,6 @@ export function buildDualStructure(
   };
 
   // 关系窗口:未来三年流年支与对方日支的合冲 + 两人当前大运
-  const yearGanZhi = (year: number) => { const index = ((year - 1984) % 60 + 60) % 60; return GAN[index % 10] + "子丑寅卯辰巳午未申酉戌亥"[index % 12]; };
   const dayunA = chartA.daYun.steps.find((s) => s.current);
   const dayunB = chartB.daYun.steps.find((s) => s.current);
   const luckWindow: DualStructure["luckWindow"] = [];
@@ -169,13 +175,13 @@ export function buildDualStructure(
   }
   for (let i = 0; i < 3; i += 1) {
     const year = currentYear + i;
-    const zhi = yearGanZhi(year)[1];
+    const zhi = yearToGanZhi(year)[1];
     const hits: string[] = [];
     if (CHONG[zhi] === spouseA) hits.push(`流年支${zhi}冲 A 日支`);
     if (LIU_HE[zhi] === spouseA) hits.push(`流年支${zhi}合 A 日支`);
     if (CHONG[zhi] === spouseB) hits.push(`流年支${zhi}冲 B 日支`);
     if (LIU_HE[zhi] === spouseB) hits.push(`流年支${zhi}合 B 日支`);
-    if (hits.length) luckWindow.push({ year, ganzhi: yearGanZhi(year), event: hits.join("、") + ",关系节奏在该年变化感更明显", confidence: "medium" });
+    if (hits.length) luckWindow.push({ year, ganzhi: yearToGanZhi(year), event: hits.join("、") + ",关系节奏在该年变化感更明显", confidence: "medium" });
   }
 
   // 评分(引擎唯一来源):柱位加权信号汇总
