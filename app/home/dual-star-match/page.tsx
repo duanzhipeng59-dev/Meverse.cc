@@ -6,6 +6,7 @@ import DualStarPicker from "./dual-star-picker";
 import { getDualStarCandidates, getUserDualReports } from "../../myfate-dual-server";
 import { getPublishedStar } from "../../myfate-stars-server";
 import { isUpgradesEnabled } from "../../myfate-settings";
+import { portraitImage } from "../../myfate-image";
 import { getOptionalPageUser } from "../../require-page-user";
 
 export const dynamic = "force-dynamic";
@@ -46,9 +47,9 @@ export default async function DualStarMatchPage({ searchParams }: { searchParams
               return (
                 <Link className="mf-dual-history-row" href={`/home/dual-star-match/reports/${row.id}`} key={row.id}>
                   <span className="mf-dual-history-avatars">
-                    <Image src={row.portraitA} alt="" width={30} height={39} unoptimized />
+                    <Image src={portraitImage(row.portraitA, 120)} alt="" width={30} height={39} unoptimized />
                     <i aria-hidden="true">&amp;</i>
-                    <Image src={row.portraitB} alt="" width={30} height={39} unoptimized />
+                    <Image src={portraitImage(row.portraitB, 120)} alt="" width={30} height={39} unoptimized />
                   </span>
                   <b>{personOf(row.starA, row.nameA)} × {personOf(row.starB, row.nameB)}</b>
                   <small>{time}</small>

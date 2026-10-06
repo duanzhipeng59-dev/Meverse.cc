@@ -13,6 +13,7 @@ import { buildDualChart } from "../../../../myfate-dual-engine";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
 import { requirePageUser } from "../../../../require-page-user";
 import { dualReportSchema, type DualReportContent } from "../../../../myfate-dual-generator";
+import { portraitImage } from "../../../../myfate-image";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "AI双星命理合盘报告" };
@@ -44,7 +45,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
       <ReportTopbar backHref="/home/dual-star-match" backLabel="返回双人合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} />
 
       {report.status !== "ready" ? (
-        <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={starA.portraitSrc} portraitB={starB.portraitSrc} />
+        <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={portraitImage(starA.portraitSrc, 240)} portraitB={portraitImage(starB.portraitSrc, 240)} />
       ) : (async () => {
         // 精校内容优先:命中组合直接渲染定稿文案,不走 AI 生成结构
         const override = getDualOverride(report.starA, report.starB);
@@ -58,7 +59,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
             return {
               name: person || star.name,
               role: group.replace(" 成员", ""),
-              portrait: star.portraitSrc,
+              portrait: portraitImage(star.portraitSrc, 240),
               birthLine: `出生 · ${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace ?? ""}`,
               pillars: chart ? chart.pillars.map((pillar) => ({ label: pillar.label.replace("柱", ""), ganzhi: pillar.ganzhi })) : [],
             };
@@ -95,12 +96,12 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
             <header className="mf-dual-report-hero">
               <div className="mf-dual-report-people">
                 <figure>
-                  <Image src={starA.portraitSrc} alt={starA.name} width={92} height={112} unoptimized />
+                  <Image src={portraitImage(starA.portraitSrc, 240)} alt={starA.name} width={92} height={112} unoptimized />
                   <figcaption>{starA.name}</figcaption>
                 </figure>
                 <span aria-hidden="true">×</span>
                 <figure>
-                  <Image src={starB.portraitSrc} alt={starB.name} width={92} height={112} unoptimized />
+                  <Image src={portraitImage(starB.portraitSrc, 240)} alt={starB.name} width={92} height={112} unoptimized />
                   <figcaption>{starB.name}</figcaption>
                 </figure>
               </div>

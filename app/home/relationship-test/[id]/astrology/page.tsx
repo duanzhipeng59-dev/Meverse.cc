@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { portraitImage } from "../../../../myfate-image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
@@ -63,7 +64,7 @@ export default async function AstrologyReportPage({ params, searchParams }: { pa
       <ReportTopbar fromReports={from === "reports"} />
 
       <header className="mf-astro-hero">
-        <Image src={star.portraitSrc} alt={star.name} width={92} height={112} sizes="92px" unoptimized />
+        <Image src={portraitImage(star.portraitSrc, 240)} alt={star.name} width={92} height={112} sizes="92px" unoptimized />
         <div><span>WESTERN NATAL CHART</span><h1>{star.name} 的 AI 星盘解读</h1><p>从行星、宫位、相位与格局，理解 TA 的人格结构、情感方式和人生动力。</p><small>{star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔"} · {report.timeKnown ? "出生时间已确认" : "出生时间未确认，已隐藏上升与宫位结论"}</small></div>
       </header>
 

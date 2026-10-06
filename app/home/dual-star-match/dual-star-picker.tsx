@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../auth-context";
 import type { DualStarCandidate } from "../../myfate-dual-server";
+import { portraitImage } from "../../myfate-image";
 
 // 双星选择:顶部紧凑"双人关系卡"(头像A—连线—头像B),选完原地确认;面板手机双列网格。
 // 未登录可完成选择,点生成时走登录并在登录后保留(选择存 sessionStorage)。
@@ -111,7 +112,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
         <button className={slotA ? "mf-dual-node is-filled" : "mf-dual-node"} type="button" onClick={() => setPicking("A")} aria-label={slotA ? `更换明星 A（当前 ${slotA.name}）` : "选择明星 A"}>
           {slotA ? (<>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={slotA.portraitSrc} alt={`${slotA.name}的人物肖像`} />
+            <img src={portraitImage(slotA.portraitSrc, 360)} alt={`${slotA.name}的人物肖像`} />
             <b>{slotA.name}</b>
             <small>{slotA.role}</small>
           </>) : (<>
@@ -128,7 +129,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
         <button className={slotB ? "mf-dual-node is-filled" : "mf-dual-node"} type="button" onClick={() => setPicking("B")} aria-label={slotB ? `更换明星 B（当前 ${slotB.name}）` : "选择明星 B"}>
           {slotB ? (<>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={slotB.portraitSrc} alt={`${slotB.name}的人物肖像`} />
+            <img src={portraitImage(slotB.portraitSrc, 360)} alt={`${slotB.name}的人物肖像`} />
             <b>{slotB.name}</b>
             <small>{slotB.role}</small>
           </>) : (<>
@@ -190,7 +191,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
                     onClick={() => choose(candidate)}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={candidate.portraitSrc} alt={`${candidate.name}的人物肖像`} loading="lazy" />
+                    <img src={portraitImage(candidate.portraitSrc, 240)} alt={`${candidate.name}的人物肖像`} loading="lazy" />
                     <span><b>{candidate.name}</b><small>{candidate.role}</small></span>
                     <em>{used ? "已选择" : candidate.hasFullBirth ? "资料完整" : "资料待补充"}</em>
                   </button>

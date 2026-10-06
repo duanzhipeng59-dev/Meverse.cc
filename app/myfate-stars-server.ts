@@ -144,7 +144,19 @@ export async function getPublishedStarList(): Promise<StarListItem[]> {
     return items;
   } catch (error) {
     console.error("Failed to read published star list", error);
-    return listCache?.items ?? [];
+    // 构建机/极端故障时拿不到库:退回本地种子名单,保证 ISR 预渲染不产出空列表;运行时会再刷新。
+    return listCache?.items ?? stars.map((star) => ({
+      id: star.id,
+      name: star.name,
+      role: star.role,
+      birthDate: star.birthDate,
+      gender: star.gender ?? "unknown",
+      mbti: star.mbti ?? "",
+      categories: star.categories ?? [],
+      portraitSrc: star.portraitSrc,
+      createdAt: star.createdAt ?? "",
+      homepageFeatured: true,
+    }));
   }
 }
 

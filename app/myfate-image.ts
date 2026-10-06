@@ -1,7 +1,7 @@
-// Supabase Storage 图片转换地址:按展示尺寸输出 WebP 压缩版,替代直连原图。
-// 原图 875KB → 360w WebP 约 12KB;仅处理自家 storage 公开地址,外链原样返回。
+// 肖像图片地址:统一走本站 /portrait/ 同源代理(Cloudflare 边缘缓存),
+// 代理再取 Supabase 的 WebP 缩放版,替代直连 supabase.co 原图(对部分访客 2.4~3s/张)。
+// 原图 875KB → 360w WebP 约 12KB;仅处理自家 storage 公开地址,本地/外链原样返回。
 
-const RENDER_PREFIX = "/storage/v1/render/image/public/";
 const OBJECT_PREFIX = "/storage/v1/object/public/";
 
 // 卡片固定比例 3/3.9(10:13),与 .mf-bz-star-cover 的 aspect-ratio 一致。
@@ -15,13 +15,12 @@ function renderUrl(objectUrl: string, params: Record<string, string | number>) {
   } catch {
     return objectUrl;
   }
-  const path = url.pathname;
-  const marker = path.indexOf(OBJECT_PREFIX);
+  const marker = url.pathname.indexOf(OBJECT_PREFIX);
   if (marker < 0) return objectUrl;
-  const objectPath = path.slice(marker + OBJECT_PREFIX.length);
-  const render = new URL(url.origin + RENDER_PREFIX + objectPath);
-  for (const [key, value] of Object.entries(params)) render.searchParams.set(key, String(value));
-  return render.toString();
+  const objectPath = url.pathname.slice(marker + OBJECT_PREFIX.length);
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) query.set(key, String(value));
+  return `/portrait/${objectPath}?${query.toString()}`;
 }
 
 // 单尺寸转换地址(宽 360 起步,竖版海报按 10:13 裁切)。

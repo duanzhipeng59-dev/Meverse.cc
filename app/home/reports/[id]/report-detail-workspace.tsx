@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../auth-context";
 import { getStar } from "../../../myfate-data";
+import { portraitImage } from "../../../myfate-image";
 import MyfateAdvancedReport from "../../../myfate-advanced-report";
 import MyfateFormulaResult from "../../../myfate-formula-result";
 import { parseFormulaResult } from "../../../myfate-generated-test-types";
@@ -65,7 +66,7 @@ export default function ReportDetailWorkspace({
   const formulaStar = star ?? {
     id: report.starId,
     name: report.starName,
-    portraitSrc: report.starPortrait,
+    portraitSrc: portraitImage(report.starPortrait, 240),
   };
   const backHref = section === "personal-reading" ? "/home/personal-reading" : section === "relationship-test" || fromCelebrityWorkspace ? "/home/relationship-test" : "/home/reports";
   const backLabel = section === "personal-reading" ? "返回个人解读" : section === "relationship-test" || fromCelebrityWorkspace ? "返回明星合盘工作台" : "返回浏览记录";

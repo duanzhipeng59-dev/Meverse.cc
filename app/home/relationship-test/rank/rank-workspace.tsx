@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { validBirthDate } from "../../../myfate-progressive-profile";
 import { vedicCities } from "../../../myfate-cities";
+import { portraitImage } from "../../../myfate-image";
 
 type RankItem = {
   starId: string;
@@ -98,7 +99,7 @@ export default function RankWorkspace({ initialBirth, initialCity }: { initialBi
               {ranking.slice(0, 3).map((item, index) => (
                 <Link className={`mf-bz-rank-top ${index === 0 ? "is-first" : ""}`} href={`/home/relationship-test/${item.starId}/test?birth=${encodeURIComponent(`${birthDate} ${birthTime}`)}&city=${encodeURIComponent(birthCityId)}`} key={item.starId}>
                   <span className="mf-bz-rank-medal">{["🥇", "🥈", "🥉"][index]}</span>
-                  <img src={item.portraitSrc} alt="" />
+                  <img src={portraitImage(item.portraitSrc, 120)} alt="" />
                   <b>{item.name}</b>
                   <span>{item.role}</span>
                   <strong>{item.score}</strong>
@@ -111,7 +112,7 @@ export default function RankWorkspace({ initialBirth, initialCity }: { initialBi
                 <li key={item.starId}>
                   <Link href={`/home/relationship-test/${item.starId}/test?birth=${encodeURIComponent(`${birthDate} ${birthTime}`)}&city=${encodeURIComponent(birthCityId)}`}>
                     <b>{index + 4}</b>
-                    <img src={item.portraitSrc} alt="" />
+                    <img src={portraitImage(item.portraitSrc, 120)} alt="" />
                     <div><strong>{item.name}</strong><span>{item.role}</span></div>
                     <i>{item.score}</i>
                   </Link>

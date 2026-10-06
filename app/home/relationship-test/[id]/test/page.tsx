@@ -11,9 +11,10 @@ import FortuneCurveCard from "../../../../fortune-curve";
 import { getCelebrityVedicBirth, getPublishedStar, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
 import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
+import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
 import Link from "next/link";
-import { getPublishedStarList, type StarListItem } from "../../../../myfate-stars-server";
+import { getPublishedStarList } from "../../../../myfate-stars-server";
 
 export const dynamic = "force-dynamic";
 
@@ -113,9 +114,9 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
       <div className="mf-zr-overview">
       <header className="mf-zr-hero">
-        {/* 原生 img 直连原图:保持肖像原比例,不走按宽高裁切的图片转换 */}
+        {/* CSS 已按 108×134 object-fit:cover 裁切,直接用 240w WebP 缩放版,不再拉原图 */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={star.portraitSrc} alt={personName || star.name} />
+        <img src={portraitImage(star.portraitSrc, 240)} alt={personName || star.name} />
         <div className="mf-zr-hero-copy">
           <h1>{personName || star.name} 的 AI 生辰画像</h1>
           <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已校准" : "时辰暂按正午估算"}</small>
@@ -268,7 +269,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
           <div className="mf-detail-others-row">
             {others.map((item) => (
               <Link className="mf-detail-others-card" href={`/home/relationship-test/${item.id}/test?prev=${id}`} key={item.id}>
-                <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${item.portraitSrc}")` }} role="img" aria-label={item.name} />
+                <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${portraitImage(item.portraitSrc, 120)}")` }} role="img" aria-label={item.name} />
                 <b>{item.name}</b>
               </Link>
             ))}

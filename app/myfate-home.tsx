@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getHomepageStarList } from "./myfate-stars-server";
 import AuthEntryLink from "./auth-entry-link";
+import { portraitImage } from "./myfate-image";
 
-export const dynamic = "force-dynamic";
+// 首页数据只依赖"首页精选"名单,变化频率低;ISR 每 5 分钟后台刷新,访客直接拿缓存 HTML。
+export const revalidate = 300;
 
 export default async function MyfateHome() {
   const stars = await getHomepageStarList();
@@ -61,7 +63,7 @@ export default async function MyfateHome() {
                       <span
                         role="img"
                         aria-label={star.name}
-                        style={{ backgroundImage: `url("${star.portraitSrc}")` }}
+                        style={{ backgroundImage: `url("${portraitImage(star.portraitSrc, 120)}")` }}
                       />
                       <strong>{star.name}</strong>
                     </div>
@@ -86,7 +88,7 @@ export default async function MyfateHome() {
               >
                 <div
                   className="mf-star-portrait"
-                  style={{ "--portrait-image": `url("${star.portraitSrc}")` } as React.CSSProperties}
+                  style={{ "--portrait-image": `url("${portraitImage(star.portraitSrc, 520)}")` } as React.CSSProperties}
                 >
                   <div className="mf-star-overlay">
                     <h3>{star.name}</h3>

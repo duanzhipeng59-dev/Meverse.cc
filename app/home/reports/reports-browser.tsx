@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { portraitImage } from "../../myfate-image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   EMPTY_COPY,
@@ -138,7 +139,7 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
               <article className="mf-hist-card" key={group.starId}>
                 <Link className="mf-hist-card-head" href={`/home/relationship-test/${group.starId}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={group.portraitSrc} alt={`${group.name}的人物肖像`} loading="lazy" decoding="async" />
+                  <img src={portraitImage(group.portraitSrc, 120)} alt={`${group.name}的人物肖像`} loading="lazy" decoding="async" />
                   <div>
                     <strong>{group.name}</strong>
                     <small>{group.role}</small>
