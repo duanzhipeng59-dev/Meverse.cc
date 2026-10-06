@@ -120,6 +120,11 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <div className="mf-zr-hero-copy">
           <h1>{personName || star.name} 的 AI 生辰画像</h1>
           <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已校准" : "时辰暂按正午估算"}</small>
+          <div className="mf-zr-summary" aria-label="命盘核心摘要">
+            <span>{report.dayMaster}{profile.summary.dayElement}日主</span>
+            <span>{profile.summary.strength}</span>
+            <span>喜用 {profile.summary.favorable.join(" · ")}</span>
+          </div>
         </div>
         <div className="mf-zr-hero-pillars" aria-label="四柱">
           {report.pillars.map((pillar) => (
