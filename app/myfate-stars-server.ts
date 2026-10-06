@@ -118,10 +118,11 @@ const listSelection = "id,name,role,birth_date,gender,mbti,categories,portrait_u
 const LIST_CACHE_TTL_MS = 5 * 60_000;
 let listCache: { items: StarListItem[]; at: number } | null = null;
 const RESTORED_CORTIS_IDS = new Set(["james", "juhoon", "keonho", "seonghyeon"]);
-const HIDDEN_SEVENTEEN_IDS = new Set<string>([
+const RESTORED_SEVENTEEN_IDS = [
   "s-coups", "jeonghan", "joshua", "jun", "hoshi", "wonwoo", "woozi",
   "dk", "mingyu", "the8", "seungkwan", "vernon", "dino",
-]);
+] as const;
+const RESTORED_SEVENTEEN_FILTER = `published.eq.true,id.in.(${RESTORED_SEVENTEEN_IDS.join(",")})`;
 const CORTIS_CHINESE_NAMES: Record<string, string> = {
   james: "赵雨凡",
   juhoon: "金主训",
@@ -155,11 +156,11 @@ export async function getPublishedStarList(): Promise<StarListItem[]> {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
       .select(listSelection)
-      .eq("published", true)
+      .or(RESTORED_SEVENTEEN_FILTER)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
-    const items = ((data ?? []) as unknown as ListRow[]).filter((row) => !HIDDEN_SEVENTEEN_IDS.has(row.id)).map((row) => ({
+    const items = ((data ?? []) as unknown as ListRow[]).map((row) => ({
       id: row.id,
       name: row.name,
       role: row.role,
@@ -204,7 +205,7 @@ export async function getPublishedStars(): Promise<StarProfile[]> {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
       .select(profileSelection)
-      .eq("published", true)
+      .or(RESTORED_SEVENTEEN_FILTER)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
