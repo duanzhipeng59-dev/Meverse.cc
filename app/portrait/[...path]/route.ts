@@ -37,9 +37,16 @@ export async function GET(request: NextRequest, context: { params: Promise<{ pat
     }
   }
 
-  const upstreamResponse = await fetch(upstream.toString(), {
-    cf: { cacheEverything: true, cacheTtl: 2678400, cacheTtlByStatus: { "200-299": 2678400, "404": 60 } },
-  } as RequestInit);
+  // 上游 8 秒超时:Supabase 卡死时快速失败,不让访客请求无限挂起。
+  let upstreamResponse: Response;
+  try {
+    upstreamResponse = await fetch(upstream.toString(), {
+      signal: AbortSignal.timeout(8000),
+      cf: { cacheEverything: true, cacheTtl: 2678400, cacheTtlByStatus: { "200-299": 2678400, "404": 60 } },
+    } as RequestInit);
+  } catch {
+    return new NextResponse("Upstream timeout", { status: 504 });
+  }
   if (!upstreamResponse.ok) {
     return new NextResponse("Upstream unavailable", { status: 502 });
   }
