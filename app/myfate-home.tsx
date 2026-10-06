@@ -77,18 +77,22 @@ export default async function MyfateHome() {
             <div><span className="mf-kicker mf-kicker-spacer">AI 生辰画像预览</span></div>
           </div>
           <div className="mf-star-grid">
-            {stars.slice(0, 6).map((star, index) => (
-              <article className="mf-star-card mf-home-star-card" key={star.id}>
+            {stars.slice(0, 6).map((star) => (
+              <AuthEntryLink
+                className="mf-star-card mf-home-star-card"
+                href={`/home/relationship-test/${star.id}/test`}
+                anonymousFrom="/#stars"
+                key={star.id}
+              >
                 <div
                   className="mf-star-portrait"
                   style={{ "--portrait-image": `url("${star.portraitSrc}")` } as React.CSSProperties}
                 >
-                  <span className="mf-star-number">0{index + 1}</span>
                   <div className="mf-star-overlay">
                     <h3>{star.name}</h3>
                   </div>
                 </div>
-              </article>
+              </AuthEntryLink>
             ))}
           </div>
         </section>
