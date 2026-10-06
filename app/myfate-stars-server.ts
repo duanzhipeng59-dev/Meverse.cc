@@ -117,6 +117,27 @@ type ListRow = {
 const listSelection = "id,name,role,birth_date,gender,mbti,categories,portrait_url,created_at,homepage_featured,homepage_position";
 const LIST_CACHE_TTL_MS = 5 * 60_000;
 let listCache: { items: StarListItem[]; at: number } | null = null;
+const RESTORED_CORTIS_IDS = new Set(["james", "juhoon", "keonho", "seonghyeon"]);
+
+function restoredCortisListItems(): StarListItem[] {
+  return stars.filter((star) => RESTORED_CORTIS_IDS.has(star.id)).map((star) => ({
+    id: star.id,
+    name: star.name,
+    role: star.role,
+    birthDate: star.birthDate,
+    gender: star.gender ?? "unknown",
+    mbti: star.mbti ?? "",
+    categories: star.categories ?? ["CORTIS"],
+    portraitSrc: star.portraitSrc,
+    createdAt: star.createdAt ?? "",
+    homepageFeatured: true,
+  }));
+}
+
+function withRestoredCortis(items: StarListItem[]): StarListItem[] {
+  const present = new Set(items.map((item) => item.id));
+  return [...restoredCortisListItems().filter((item) => !present.has(item.id)), ...items];
+}
 
 export async function getPublishedStarList(): Promise<StarListItem[]> {
   if (listCache && Date.now() - listCache.at < LIST_CACHE_TTL_MS) return listCache.items;
@@ -140,8 +161,9 @@ export async function getPublishedStarList(): Promise<StarListItem[]> {
       createdAt: row.created_at,
       homepageFeatured: Boolean(row.homepage_featured),
     }));
-    listCache = { items, at: Date.now() };
-    return items;
+    const restoredItems = withRestoredCortis(items);
+    listCache = { items: restoredItems, at: Date.now() };
+    return restoredItems;
   } catch (error) {
     console.error("Failed to read published star list", error);
     // 构建机/极端故障时拿不到库:退回本地种子名单,保证 ISR 预渲染不产出空列表;运行时会再刷新。
@@ -213,7 +235,7 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
       .eq("published", true)
       .maybeSingle();
     if (error) throw error;
-    return data ? mapCelebrity(data as unknown as CelebrityRow) : undefined;
+    return data ? mapCelebrity(data as unknown as CelebrityRow) : RESTORED_CORTIS_IDS.has(id) ? getStar(id) : undefined;
   } catch (error) {
     console.error("Failed to read celebrity profile", error);
     return getStar(id);
