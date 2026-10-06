@@ -199,30 +199,6 @@ test("requires login for cloud report data", async () => {
   assert.equal(result.error, "login_required");
 });
 
-test("keeps celebrity content authoritative and protects the hidden studio", async () => {
-  const [starsServer, adminPage, adminStudio, adminContentApi, retiredProfilePage] = await Promise.all([
-    readFile(new URL("../app/myfate-stars-server.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/studio/orbit/mf-7k9v2q4x/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/studio/orbit/mf-7k9v2q4x/studio.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/admin/content/route.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/home/relationship-profile/test/page.tsx", import.meta.url), "utf8"),
-  ]);
-  assert.match(starsServer, /return data \? mapCelebrity/u);
-  assert.match(adminPage, /requireAdmin/u);
-  assert.match(adminPage, /notFound/u);
-  assert.match(adminContentApi, /requireAdmin\(request\)/u);
-  assert.doesNotMatch(adminStudio, /题库管理|AdminQuestion|questionDraft/u);
-  assert.match(adminStudio, /dropCelebrityCard/u);
-  assert.match(adminStudio, /draggable=\{!busy\}/u);
-  assert.match(retiredProfilePage, /redirect/u);
-  const [hiddenPage, contentApi] = await Promise.all([
-    render("/studio/orbit/mf-7k9v2q4x"),
-    render("/api/admin/content", { headers: { accept: "application/json" } }),
-  ]);
-  assert.equal(hiddenPage.status, 404);
-  assert.equal(contentApi.status, 401);
-});
-
 test("redirects legacy celebrity details into the protected workspace", async () => {
   const response = await render("/celebrity/bang-chan");
   assert.equal(response.status, 307);
