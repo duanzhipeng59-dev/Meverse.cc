@@ -118,6 +118,11 @@ const listSelection = "id,name,role,birth_date,gender,mbti,categories,portrait_u
 const LIST_CACHE_TTL_MS = 5 * 60_000;
 let listCache: { items: StarListItem[]; at: number } | null = null;
 const RESTORED_CORTIS_IDS = new Set(["james", "juhoon", "keonho", "seonghyeon"]);
+const RESTORED_SEVENTEEN_IDS = [
+  "s-coups", "jeonghan", "joshua", "jun", "hoshi", "wonwoo", "woozi",
+  "dk", "mingyu", "the8", "seungkwan", "vernon", "dino",
+] as const;
+const RESTORED_SEVENTEEN_FILTER = `published.eq.true,id.in.(${RESTORED_SEVENTEEN_IDS.join(",")})`;
 
 function restoredCortisListItems(): StarListItem[] {
   return stars.filter((star) => RESTORED_CORTIS_IDS.has(star.id)).map((star) => ({
@@ -145,7 +150,7 @@ export async function getPublishedStarList(): Promise<StarListItem[]> {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
       .select(listSelection)
-      .eq("published", true)
+      .or(RESTORED_SEVENTEEN_FILTER)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
@@ -232,7 +237,7 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
       .from("celebrity_profiles")
       .select(profileSelection)
       .eq("id", id)
-      .eq("published", true)
+      .or(RESTORED_SEVENTEEN_FILTER)
       .maybeSingle();
     if (error) throw error;
     return data ? mapCelebrity(data as unknown as CelebrityRow) : RESTORED_CORTIS_IDS.has(id) ? getStar(id) : undefined;
