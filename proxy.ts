@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-// ── 应用层 WAF(与 Vercel/Cloudflare 入口防护互补)──────────────────────────
+// ── 应用层 WAF(与 Cloudflare 入口防护互补)─────────────────────────────────
 // 1. 探针路径拦截:扫描器常打的路径直接 403,不进业务、不耗配额、降低日志噪音
 // 2. 攻击工具 UA 黑名单
 // 3. /api/* 每 IP 速率限制(edge isolate 内存实现,Vercel 多实例下为近似值)
@@ -63,7 +63,8 @@ function withSecurityHeaders(response: NextResponse) {
   return response;
 }
 
-export function middleware(request: NextRequest) {
+// vinext/Next.js 16 已弃用 middleware.ts,这里以 proxy.ts 提供同等逻辑。
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // 1. 探针路径(大小写不敏感)
@@ -119,6 +120,11 @@ export function middleware(request: NextRequest) {
   return withSecurityHeaders(NextResponse.next());
 }
 
+// 排除纯静态资源(vinext 生产产物位于 /assets/* 与 /_vinext/*,另有 _next/static|image 与站点静态文件),
+// 这些请求不进入应用层 WAF/安全头逻辑,由 CDN 直接服务。
+// /portrait/* 是动态图片路由,保留在匹配范围内以便补齐基础安全头;GET 不受 CSRF/限速影响,不阻塞图片流。
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|historical-figure.svg).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|_vinext|assets|favicon\.ico|favicon\.svg|historical-figure\.svg|robots\.txt).*)",
+  ],
 };
