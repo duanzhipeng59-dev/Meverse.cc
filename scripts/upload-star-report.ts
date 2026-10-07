@@ -22,6 +22,14 @@ const input = JSON.parse(readFileSync(file, "utf8")) as {
     createProfile?: boolean; publish?: boolean;
   };
   heroBadges: string[];
+  facts?: {
+    education?: string | null;
+    career?: { debutYear?: number | null; group?: string; roles?: string[]; tier?: string; achievements?: string[] };
+    timeline?: Array<{ year: number; event: string }>;
+    futureKnown?: Array<{ year: number; event: string }>;
+    relationship?: string;
+    notes?: string;
+  };
   report: Record<string, unknown>;
 };
 
@@ -161,6 +169,20 @@ function stripCounter(node: unknown, path: string): unknown {
 const cleanedReport = stripCounter(report, "report");
 
 // ── 结果 ──
+// AI 自搜的现实资料包:打印供人工复核(不入库)
+if (input.facts && Object.keys(input.facts).length) {
+  const f = input.facts;
+  console.log("\n──── AI 搜到的现实资料(请复核,不入库)────");
+  console.log(`  学历: ${f.education ?? "(未提供)"}`);
+  if (f.career) console.log(`  职业: ${f.career.group ?? "?"} · ${f.career.debutYear ?? "?"} 出道 · 定位 ${(f.career.roles ?? []).join("/")} · 档位 ${f.career.tier ?? "未取档"}`);
+  for (const t of f.timeline ?? []) console.log(`  大事 ${t.year}: ${t.event}${t.year < 1990 || t.year > 2035 ? `  ⚠ 年份存疑` : ""}`);
+  for (const t of f.futureKnown ?? []) console.log(`  已知日程 ${t.year}: ${t.event}`);
+  console.log(`  婚恋: ${f.relationship ?? "(未提供)"}`);
+  if (f.notes) console.log(`  备注: ${f.notes}`);
+  const tier = f.career?.tier;
+  if (!tier) warn.push("facts.career.tier 未取档,财富区间将依赖 AI 判断,建议人工核实");
+  else if (!["顶流", "一线", "二线", "新人上升期"].includes(tier)) errors.push(`facts.career.tier「${tier}」不在四档枚举内(顶流/一线/二线/新人上升期)`);
+}
 if (errors.length) {
   console.error(`\n✖ 校验失败 ${errors.length} 项:`);
   for (const e of errors) console.error(`  - ${e}`);
