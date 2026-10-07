@@ -71,7 +71,6 @@ export default function ReportDetailWorkspace({
   const backHref = section === "personal-reading" ? "/home/personal-reading" : section === "relationship-test" || fromCelebrityWorkspace ? "/home/relationship-test" : "/home/reports";
   const backLabel = section === "personal-reading" ? "返回个人解读" : section === "relationship-test" || fromCelebrityWorkspace ? "返回明星合盘工作台" : "返回浏览记录";
   const retestHref = report.starId === "personal-reading" ? "/home/personal-reading" : `/home/relationship-test/${report.starId}/test?restart=1`;
-  const continueTestHref = report.starId === "personal-reading" ? `/home/personal-reading/${report.id}` : `/home/relationship-test/${report.starId}/test?report=${encodeURIComponent(report.id)}`;
 
   if (report.starId === "personal-reading") {
     const baziDraft = parseBaziResult(reportText);
@@ -103,8 +102,8 @@ export default function ReportDetailWorkspace({
       <div className="mf-saved-report-detail mf-unified-advanced-report">
           <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>合盘分析生成中</span></div>
         <div className="mf-report-detail-state mf-ai-generation-state">
-          <span>✦</span><h1>正在生成吠陀合盘</h1><p>可以返回工作台后重新进入，系统会继续保留这份记录。</p>
-          <Link className="mf-primary-button" href={continueTestHref}>重新生成合盘</Link>
+          <span>✦</span><h1>这份记录未完成生成</h1><p>该生成流程已下线，这份记录会继续保留，可返回工作台体验现有合盘功能。</p>
+          <Link className="mf-primary-button" href="/home/dual-star-match">前往双人合盘</Link>
         </div>
       </div>
     );
@@ -126,11 +125,11 @@ export default function ReportDetailWorkspace({
     if (formulaResult) {
       return (
         <div className="mf-saved-report-detail mf-unified-advanced-report">
-          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{formulaResult.version === 4 ? "吠陀合盘分析" : formulaResult.version === 3 ? "合盘分析" : formulaResult.version === 2 ? "关系身份结果" : "历史正缘结果"}</span></div>
+          <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>{formulaResult.version === 3 ? "合盘分析" : formulaResult.version === 2 ? "关系身份结果" : "历史正缘结果"}</span></div>
           <MyfateFormulaResult
             star={formulaStar}
             result={formulaResult}
-            actions={<Link className="mf-primary-button" href={retestHref}>"重新合盘"</Link>}
+            actions={<Link className="mf-primary-button" href={retestHref}>重新合盘</Link>}
           />
         </div>
       );
@@ -159,14 +158,14 @@ export default function ReportDetailWorkspace({
   return (
     <div className="mf-saved-report-detail mf-unified-advanced-report">
       <div className="mf-saved-report-topbar"><Link className="mf-back-link" href={backHref}>← {backLabel}</Link><span>关系报告</span></div>
-      <div className="mf-report-detail-state mf-ai-generation-state">
-        <span>✦</span><h1>这份旧记录尚未完成</h1>
-        <p>现在无需答题，输入出生信息即可生成吠陀合盘。</p>
-        <div className="mf-generation-actions">
-          <Link className="mf-primary-button" href={continueTestHref}>重新合盘</Link>
-          <Link className="mf-secondary-button" href={backHref}>{backLabel}</Link>
+        <div className="mf-report-detail-state mf-ai-generation-state">
+          <span>✦</span><h1>这份旧记录尚未完成</h1>
+          <p>此生成流程已下线，这份记录会继续保留；可前往双人合盘体验现有功能。</p>
+          <div className="mf-generation-actions">
+            <Link className="mf-primary-button" href="/home/dual-star-match">前往双人合盘</Link>
+            <Link className="mf-secondary-button" href={backHref}>{backLabel}</Link>
+          </div>
         </div>
-      </div>
     </div>
   );
 }

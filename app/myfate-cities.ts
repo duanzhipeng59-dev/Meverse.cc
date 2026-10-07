@@ -69,9 +69,3 @@ export const vedicCities: VedicCity[] = [
   { id: "toronto", name: "多伦多", lat: 43.6532, lon: -79.3832, tz: "America/Toronto" },
   { id: "vancouver", name: "温哥华", lat: 49.2827, lon: -123.1207, tz: "America/Vancouver" },
 ];
-
-const cityById = new Map(vedicCities.map((city) => [city.id, city]));
-
-export function findVedicCity(id: string | null | undefined) {
-  return id ? cityById.get(id) : undefined;
-}
