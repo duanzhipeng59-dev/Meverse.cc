@@ -28,6 +28,17 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 
 不配置 `DEEPSEEK_API_KEY` 时，文字报告不会生成，页面会提示检查配置并重试。
 
+## 构建与部署
+
+当前本地和 Cloudflare 构建使用 vinext + Cloudflare Worker：
+
+- `npm run build` / `npm run start` 均使用 `vinext`，构建产物为 Cloudflare Worker（`worker/index.ts` 是入口，含 `/_vinext/image` 图片优化与 RSC 处理）。
+- `.openai/hosting.json` 声明了 Cloudflare 项目与 D1 绑定；`vite.config.ts` 的 Cloudflare 插件绑定同样来自该文件。
+- `/portrait/*` 肖像代理依赖 Cloudflare Cache API（`caches.default`）做边缘缓存。
+
+仓库仍保留 Vercel 配置，避免在无法确认线上平台时破坏现有部署。Vercel 环境没有
+Cloudflare `caches.default`，图片代理会依赖标准 HTTP CDN 缓存头。
+
 ## 本地运行
 
 要求 Node.js `>=22.13.0`。

@@ -5,7 +5,21 @@ import { PORTRAIT_SIZES, portraitImage, portraitSrcSet } from "./myfate-image";
 // 明星卡片肖像:WebP 响应式 + 懒加载 + 失败降级。事件处理器需要客户端组件。
 // 淡入不能成为显示的必要条件:缓存命中的图片在挂载时可能已 complete(不会再触发 onLoad),
 // 因此 ref 挂载时同步检查 complete 并直接标记 data-loaded。
-export default function PortraitImg({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) {
+export default function PortraitImg({
+  src,
+  alt,
+  priority = false,
+  sizes = PORTRAIT_SIZES,
+  width = 360,
+  height = 468,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+  sizes?: string;
+  width?: number;
+  height?: number;
+}) {
   return (
     <img
       className="mf-bz-cover-img"
@@ -15,10 +29,10 @@ export default function PortraitImg({ src, alt, priority = false }: { src: strin
       onLoad={(event) => { event.currentTarget.dataset.loaded = "1"; }}
       src={portraitImage(src, 360)}
       srcSet={portraitSrcSet(src)}
-      sizes={PORTRAIT_SIZES}
+      sizes={sizes}
       alt={alt}
-      width={360}
-      height={468}
+      width={width}
+      height={height}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "auto"}
       decoding="async"

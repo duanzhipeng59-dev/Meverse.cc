@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getHomepageStarList } from "./myfate-stars-server";
 import AuthEntryLink from "./auth-entry-link";
+import PortraitImg from "./portrait-img";
 import { portraitImage } from "./myfate-image";
 
 // 首页数据只依赖"首页精选"名单,变化频率低;ISR 每 5 分钟后台刷新,访客直接拿缓存 HTML。
@@ -79,17 +80,24 @@ export default async function MyfateHome() {
             <div><span className="mf-kicker mf-kicker-spacer">AI 生辰画像预览</span></div>
           </div>
           <div className="mf-star-grid">
-            {stars.slice(0, 6).map((star) => (
+            {stars.slice(0, 6).map((star, index) => (
               <AuthEntryLink
                 className="mf-star-card mf-home-star-card"
                 href={`/home/relationship-test/${star.id}/test`}
                 anonymousFrom="/#stars"
                 key={star.id}
               >
-                <div
-                  className="mf-star-portrait"
-                  style={{ "--portrait-image": `url("${portraitImage(star.portraitSrc, 520)}")` } as React.CSSProperties}
-                >
+                {/* 真实 <img> 取代原 background-image,支持懒加载与优先级;
+                    首屏仅前两张高优先级,其余进入视口附近再加载 */}
+                <div className="mf-star-portrait">
+                  <PortraitImg
+                    src={star.portraitSrc}
+                    alt={star.name}
+                    priority={index < 2}
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                    width={520}
+                    height={719}
+                  />
                   <div className="mf-star-overlay">
                     <h3>{star.name}</h3>
                   </div>

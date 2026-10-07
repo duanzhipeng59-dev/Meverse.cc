@@ -27,11 +27,14 @@ type AstroStyle = CSSProperties & { "--astro-angle": string; "--zodiac-index"?: 
 export default async function AstrologyReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
   const { id } = await params;
   const { from } = await searchParams;
+  // 权限先行;明星资料/出生资料/功能开关互不依赖,并行获取。
   const user = await requirePageUser(`/home/relationship-test/${id}/astrology`);
-  const star = await getPublishedStar(id);
+  const [star, birth, metered] = await Promise.all([
+    getPublishedStar(id),
+    getCelebrityVedicBirth(id),
+    isUpgradesEnabled(),
+  ]);
   if (!star) notFound();
-  const birth = await getCelebrityVedicBirth(id);
-  const metered = await isUpgradesEnabled();
   void recordStarReportView(user.id, id, "astrology");
 
   let report;
