@@ -1,6 +1,7 @@
 // 明星生辰报告上传:读取按 docs/star-report-upload.md 规范填写的 JSON,
 // 校验(结构/枚举/大运干支/highlights 子串/流年区间)→ 排盘补四柱与大运年份/当前步 → 入库。
 // 用法:npx tsx --env-file=.env.local scripts/upload-star-report.ts 报告.json [--dry]
+/* eslint-disable @typescript-eslint/no-explicit-any -- 校验外部提交的松散 JSON,逐字段判错 */
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { buildBaziChart } from "../app/myfate-bazi-engine";
@@ -153,6 +154,7 @@ if (errors.length) {
   for (const e of errors) console.error(`  - ${e}`);
   process.exit(1);
 }
+if (!chart) throw new Error("排盘不可用(出生资料未通过校验)");
 for (const w of warn) console.warn(`  ⚠ ${w}`);
 if (counterMarked.length) {
   console.warn(`  ⚠ 反常识归因条目 ${counterMarked.length} 处(盘面与事实方向相反的段落,请人工重点复核):`);
@@ -166,6 +168,7 @@ const enriched = JSON.parse(JSON.stringify(cleanedReport));
 for (const section of ["career", "wealth", "love"] as const) {
   for (const step of enriched[section].lifetime) {
     const engine = ENGINE_STEPS.get(step.ganzhi);
+    if (!engine) continue; // 校验阶段已保证干支合法,此处兜底
     step.years = `${engine.startYear}-${engine.endYear}`;
     step.current = engine.current;
   }
