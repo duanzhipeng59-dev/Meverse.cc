@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from "./api/auth/server";
 import { buildBaziChart } from "./myfate-bazi-engine";
 import { buildStarBaziBrief, buildStarBaziHeadline } from "./myfate-star-bazi-report";
 import { createDefaultCelebrityReportPrompt, getStar, stars, type StarProfile } from "./myfate-data";
+import { createServerCache } from "./server-cache";
 
 type CelebrityRow = {
   id: string;
@@ -28,7 +29,6 @@ type CelebrityRow = {
   birth_tz?: string | null;
   gender?: "male" | "female" | "other" | "unknown" | null;
   created_at?: string | null;
-  vedic_chart?: { structuredMd: string; summary: Record<string, unknown> } | null;
 };
 
 export type CelebrityVedicBirth = {
@@ -41,8 +41,6 @@ export type CelebrityVedicBirth = {
   lon: number;
   tz: string;
   gender: "male" | "female" | "other" | "unknown";
-  cachedChartMd: string | null;
-  cachedChartSummary: Record<string, unknown> | null;
 };
 
 const profileSelection = "id,name,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal,gender,created_at";
@@ -116,19 +114,73 @@ type ListRow = {
 
 const listSelection = "id,name,role,birth_date,gender,mbti,categories,portrait_url,created_at,homepage_featured,homepage_position";
 const LIST_CACHE_TTL_MS = 5 * 60_000;
-let listCache: { items: StarListItem[]; at: number } | null = null;
+const LIST_QUERY_TIMEOUT_MS = 2000;
 
-export async function getPublishedStarList(): Promise<StarListItem[]> {
-  if (listCache && Date.now() - listCache.at < LIST_CACHE_TTL_MS) return listCache.items;
-  try {
+// CORTIS 静态卡注入(库里暂无档案的成员走本地种子数据 + 中文名)与 SEVENTEEN 库内放行名单。
+const RESTORED_CORTIS_IDS = new Set(["james", "juhoon", "keonho", "seonghyeon"]);
+const RESTORED_SEVENTEEN_IDS = [
+  "s-coups", "jeonghan", "joshua", "jun", "hoshi", "wonwoo", "woozi",
+  "dk", "mingyu", "the8", "seungkwan", "vernon", "dino",
+] as const;
+const RESTORED_SEVENTEEN_FILTER = `published.eq.true,id.in.(${RESTORED_SEVENTEEN_IDS.join(",")})`;
+const CORTIS_CHINESE_NAMES: Record<string, string> = {
+  james: "赵雨凡",
+  juhoon: "金主训",
+  keonho: "安乾镐",
+  seonghyeon: "严成玹",
+};
+
+function restoredCortisListItems(): StarListItem[] {
+  return stars.filter((star) => RESTORED_CORTIS_IDS.has(star.id)).map((star) => ({
+    id: star.id,
+    name: CORTIS_CHINESE_NAMES[star.id] ?? star.name,
+    role: `CORTIS成员-${CORTIS_CHINESE_NAMES[star.id] ?? star.name}`,
+    birthDate: star.birthDate,
+    gender: star.gender ?? "unknown",
+    mbti: star.mbti ?? "",
+    categories: star.categories ?? ["CORTIS"],
+    portraitSrc: star.portraitSrc,
+    createdAt: star.createdAt ?? "",
+    homepageFeatured: true,
+  }));
+}
+
+function withRestoredCortis(items: StarListItem[]): StarListItem[] {
+  const present = new Set(items.map((item) => item.id));
+  return [...restoredCortisListItems().filter((item) => !present.has(item.id)), ...items];
+}
+
+function seedStarList(): StarListItem[] {
+  // 构建机/极端故障时拿不到库:退回本地种子名单,保证 ISR 预渲染不产出空列表;运行时会再刷新。
+  return stars.map((star) => ({
+    id: star.id,
+    name: star.name,
+    role: star.role,
+    birthDate: star.birthDate,
+    gender: star.gender ?? "unknown",
+    mbti: star.mbti ?? "",
+    categories: star.categories ?? [],
+    portraitSrc: star.portraitSrc,
+    createdAt: star.createdAt ?? "",
+    homepageFeatured: true,
+  }));
+}
+
+// 公开人物列表:同实例缓存 + 并发去重 + 2s 查询超时;失败时优先返回最近一次成功数据,再退种子名单。
+const starListCache = createServerCache<StarListItem[]>({
+  name: "celebrity_profiles.published_list",
+  ttlMs: LIST_CACHE_TTL_MS,
+  timeoutMs: LIST_QUERY_TIMEOUT_MS,
+  load: async () => {
+    if (!hasCloudConfig()) return seedStarList();
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
       .select(listSelection)
-      .eq("published", true)
+      .or(RESTORED_SEVENTEEN_FILTER)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
-    const items = ((data ?? []) as unknown as ListRow[]).map((row) => ({
+    return withRestoredCortis(((data ?? []) as unknown as ListRow[]).map((row) => ({
       id: row.id,
       name: row.name,
       role: row.role,
@@ -139,25 +191,13 @@ export async function getPublishedStarList(): Promise<StarListItem[]> {
       portraitSrc: row.portrait_url,
       createdAt: row.created_at,
       homepageFeatured: Boolean(row.homepage_featured),
-    }));
-    listCache = { items, at: Date.now() };
-    return items;
-  } catch (error) {
-    console.error("Failed to read published star list", error);
-    // 构建机/极端故障时拿不到库:退回本地种子名单,保证 ISR 预渲染不产出空列表;运行时会再刷新。
-    return listCache?.items ?? stars.map((star) => ({
-      id: star.id,
-      name: star.name,
-      role: star.role,
-      birthDate: star.birthDate,
-      gender: star.gender ?? "unknown",
-      mbti: star.mbti ?? "",
-      categories: star.categories ?? [],
-      portraitSrc: star.portraitSrc,
-      createdAt: star.createdAt ?? "",
-      homepageFeatured: true,
-    }));
-  }
+    })));
+  },
+  onError: (_error, stale) => stale ?? seedStarList(),
+});
+
+export async function getPublishedStarList(): Promise<StarListItem[]> {
+  return starListCache.get();
 }
 
 export async function getHomepageStarList(): Promise<StarListItem[]> {
@@ -172,7 +212,7 @@ export async function getPublishedStars(): Promise<StarProfile[]> {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
       .select(profileSelection)
-      .eq("published", true)
+      .or(RESTORED_SEVENTEEN_FILTER)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
@@ -213,7 +253,7 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
       .eq("published", true)
       .maybeSingle();
     if (error) throw error;
-    return data ? mapCelebrity(data as unknown as CelebrityRow) : undefined;
+    return data ? mapCelebrity(data as unknown as CelebrityRow) : RESTORED_CORTIS_IDS.has(id) ? getStar(id) : undefined;
   } catch (error) {
     console.error("Failed to read celebrity profile", error);
     return getStar(id);
@@ -241,7 +281,7 @@ export async function getCelebrityReportPrompt(id: string): Promise<string | und
   }
 }
 
-const vedicSelection = "id,name,birth_date,birth_time,birth_place,birth_lat,birth_lon,birth_tz,gender,vedic_chart";
+const vedicSelection = "id,name,birth_date,birth_time,birth_place,birth_lat,birth_lon,birth_tz,gender";
 
 export async function getCelebrityVedicBirth(id: string): Promise<CelebrityVedicBirth | undefined> {
   noStore();
@@ -265,16 +305,7 @@ export async function getCelebrityVedicBirth(id: string): Promise<CelebrityVedic
     lon: row.birth_lon,
     tz: row.birth_tz,
     gender: row.gender ?? "unknown",
-    cachedChartMd: row.vedic_chart?.structuredMd ?? null,
-    cachedChartSummary: row.vedic_chart?.summary ?? null,
   };
-}
-
-export async function cacheCelebrityVedicChart(id: string, structuredMd: string, summary: Record<string, unknown>) {
-  await createSupabaseAdminClient()
-    .from("celebrity_profiles")
-    .update({ vedic_chart: { structuredMd, summary } })
-    .eq("id", id);
 }
 
 // 详情页八字文案:标题下的一句命理印象 + 按钮上方的梗概,按出生资料实时排盘生成。
@@ -404,54 +435,4 @@ export async function incrementStarMatchCount(id: string) {
     .from("celebrity_profiles")
     .update({ match_count: ((data as { match_count: number }).match_count ?? 0) + 1 })
     .eq("id", id);
-}
-
-export async function hasCelebrityVedicData(id: string): Promise<boolean> {
-  noStore();
-  const { data } = await createSupabaseAdminClient()
-    .from("celebrity_profiles")
-    .select("id")
-    .eq("id", id)
-    .eq("published", true)
-    .not("birth_time", "is", null)
-    .not("birth_lat", "is", null)
-    .not("birth_tz", "is", null)
-    .maybeSingle();
-  return Boolean(data);
-}
-
-export type StarVedicSummary = {
-  lagna: string;
-  lagnaNakshatra: string;
-  moonSign: string;
-  moonNakshatra: string;
-  moonPada: number;
-  sunSign: string;
-};
-
-export async function getStarVedicSummary(id: string): Promise<StarVedicSummary | null> {
-  try {
-    const { data, error } = await createSupabaseAdminClient()
-      .from("celebrity_profiles")
-      .select("vedic_chart")
-      .eq("id", id)
-      .maybeSingle();
-    if (error || !data) return null;
-    const summary = (data as { vedic_chart?: { summary?: Record<string, unknown> } | null }).vedic_chart?.summary;
-    if (!summary) return null;
-    const pick = (key: string) => (typeof summary[key] === "string" ? (summary[key] as string) : "");
-    const lagna = pick("lagna");
-    const moonSign = pick("moonSign");
-    if (!lagna || !moonSign) return null;
-    return {
-      lagna,
-      lagnaNakshatra: pick("lagnaNakshatra"),
-      moonSign,
-      moonNakshatra: pick("moonNakshatra"),
-      moonPada: typeof summary.moonPada === "number" ? summary.moonPada : 1,
-      sunSign: pick("sunSign"),
-    };
-  } catch {
-    return null;
-  }
 }

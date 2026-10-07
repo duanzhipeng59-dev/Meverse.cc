@@ -25,12 +25,10 @@ test("server-renders the Myfate landing page with a workspace entry", async () =
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /Myfate/);
-  assert.match(html, /三柱的关系结构/u);
-  assert.match(html, /选择合盘对象/u);
-  assert.match(html, /查看合盘分析/u);
+  assert.match(html, /AI 生辰画像/u);
+  assert.match(html, /立即探索/u);
   assert.match(html, /\/home\/relationship-test/u);
-  assert.match(html, /基于传统文化典籍与固定规则生成/u);
-  assert.match(html, /不构成科学结论、现实关系判断或专业建议/u);
+  assert.match(html, /\/home\/dual-star-match/u);
   assert.doesNotMatch(html, /25 个关系情境|完成具体相处情境/u);
 });
 
@@ -38,40 +36,31 @@ test("server-renders relationship-test discovery inside the workspace", async ()
   const response = await render("/home/relationship-test");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /明星合盘/u);
+  assert.match(html, /生辰画像/u);
+  assert.match(html, /双人合盘/u);
   assert.match(html, /个人中心/u);
-  assert.match(html, /输入你的出生日期/u);
   assert.match(html, /Bang Chan/u);
-  assert.match(html, /\/login\?next=%2Fhome%2Frelationship-test&amp;from=%2Fhome%2Frelationship-test/u);
   assert.doesNotMatch(html, /关系情境|答题|计分/u);
 });
 
-test("requires login before opening a celebrity detail", async () => {
+test("retired star detail pages no longer resolve inside the workspace", async () => {
   const response = await render("/home/relationship-test/hyunjin");
-  assert.equal(response.status, 307);
-  const location = new URL(response.headers.get("location"));
-  assert.equal(location.pathname, "/login");
-  assert.equal(location.searchParams.get("next"), "/home/relationship-test");
-  assert.equal(location.searchParams.get("from"), "/home/relationship-test");
-  const html = await response.text();
-  assert.doesNotMatch(html, /Hyunjin|mf-workspace-detail/u);
+  assert.equal(response.status, 404);
 });
 
-test("requires login before opening the direct composite flow", async () => {
+test("requires login before opening the star report flow", async () => {
   const response = await render("/home/relationship-test/bang-chan/test");
   assert.equal(response.status, 307);
   const location = new URL(response.headers.get("location"));
   assert.equal(location.pathname, "/login");
-  assert.equal(location.searchParams.get("next"), "/home/relationship-test");
+  assert.equal(location.searchParams.get("next"), "/home/relationship-test/bang-chan/test");
 });
 
 test("server-renders the editable workspace profile", async () => {
   const response = await render("/home/profile");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /登录邮箱/u);
-  assert.match(html, /出生年月日/u);
-  assert.match(html, /地点/u);
+  assert.match(html, /个人中心/u);
   assert.doesNotMatch(html, /MBTI/u);
   assert.doesNotMatch(html, /保存资料/u);
 });
@@ -83,29 +72,6 @@ test("redirects the retired behavior questionnaire to the composite workspace", 
   const testResponse = await render("/home/relationship-profile/test");
   assert.equal(testResponse.status, 307);
   assert.equal(new URL(testResponse.headers.get("location")).pathname, "/home/relationship-test");
-});
-
-test("requires login and birth date before creating a cloud composite report", async () => {
-  const [celebrityDetail, celebrityEntry, compositeClient, compositeRoute, retiredProfileTest] = await Promise.all([
-    readFile(new URL("../app/celebrity-detail.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/home/celebrity-match/report-aware-entry.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-generated-test.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/myfate/composite/route.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/home/relationship-profile/test/page.tsx", import.meta.url), "utf8"),
-  ]);
-  assert.match(celebrityDetail, /三柱 \{star\.threePillars\}/u);
-  assert.doesNotMatch(celebrityDetail, /\{star\.mbti\}|\{star\.birthDate\}/u);
-  assert.match(celebrityEntry, /查看合盘报告|查看你与 TA 的合盘分析/u);
-  assert.match(compositeClient, /status === "anonymous"/u);
-  assert.match(compositeClient, /validBirthDate/u);
-  assert.match(compositeClient, /fetch\("\/api\/myfate\/composite"/u);
-  assert.match(compositeClient, /writeBasicProfile/u);
-  assert.doesNotMatch(compositeClient, /questions|answers|generated-tests/u);
-  assert.match(compositeRoute, /requireReportUser/u);
-  assert.match(compositeRoute, /analyzeThreePillars/u);
-  assert.match(compositeRoute, /user_id: session\.user\.id/u);
-  assert.match(compositeRoute, /status: "advanced"/u);
-  assert.match(retiredProfileTest, /redirect\("\/home\/relationship-test"\)/u);
 });
 
 test("uses server-verified email codes on the login page", async () => {
@@ -126,70 +92,45 @@ test("server-renders the cloud-backed report history workspace", async () => {
   const response = await render("/home/reports");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /我的报告/u);
-  assert.match(html, /明星三柱合盘与历史画像/u);
-  assert.match(html, /份历史报告/u);
+  assert.match(html, /已解锁报告/u);
+  assert.match(html, /按最近浏览排序/u);
 });
 
-test("renders package and single relationship upgrade options", async () => {
+test("requires login before buying upgrade packages", async () => {
   const response = await render("/home/upgrade");
-  assert.equal(response.status, 200);
-  const html = await response.text();
+  assert.equal(response.status, 307);
+  const location = new URL(response.headers.get("location"));
+  assert.equal(location.pathname, "/login");
+  assert.equal(location.searchParams.get("next"), "/home/upgrade");
   const upgradeSource = await readFile(new URL("../app/home/upgrade/upgrade-workspace.tsx", import.meta.url), "utf8");
-  assert.match(html, /订阅升级/u);
-  assert.match(html, /套餐购买/u);
-  assert.match(html, /按次购买/u);
-  assert.match(html, /体验版/u);
-  assert.match(html, /探索版/u);
-  assert.match(html, /深度版/u);
-  assert.match(html, /mf-upgrade-plan-price"><small>¥<\/small>89/u);
-  assert.match(html, /mf-upgrade-plan-price"><small>¥<\/small>239/u);
-  assert.match(html, /mf-upgrade-plan-price"><small>¥<\/small>499/u);
-  assert.match(html, /<strong>3 次关系合盘<\/strong>/u);
-  assert.match(html, /<strong>10 次关系合盘<\/strong>/u);
-  assert.match(html, /<strong>30 次关系合盘<\/strong>/u);
-  assert.match(html, /登录后购买/u);
-  assert.match(html, /一次购买，不自动续费/u);
-  assert.match(upgradeSource, /name: "单次合盘"[\s\S]*?price: 50[\s\S]*?uses: 1/u);
+  assert.match(upgradeSource, /name: "单次解读"[\s\S]*?price: 50[\s\S]*?uses: 1/u);
   assert.doesNotMatch(upgradeSource, /会员|按月发放|月度会员|年度会员/u);
 });
 
-test("uses a mobile drawer menu and keeps the empty reports state minimal", async () => {
-  const [workspaceShell, reportsWorkspace] = await Promise.all([
+test("uses sidebar and bottom tab navigation, keeps the empty reports state minimal", async () => {
+  const [workspaceShell, reportsBrowser] = await Promise.all([
     readFile(new URL("../app/home/workspace-shell.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/home/reports/reports-workspace.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/reports/reports-browser.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(workspaceShell, /打开工作台菜单/u);
-  assert.match(workspaceShell, /<dialog/u);
-  assert.match(workspaceShell, /手机端工作台主菜单/u);
+  assert.match(workspaceShell, /aria-label="工作台主菜单"/u);
+  assert.match(workspaceShell, /生辰画像[\s\S]*?双人合盘/u);
   assert.match(workspaceShell, /mf-workspace-account[\s\S]*?订阅升级[\s\S]*?个人中心/u);
-  assert.match(workspaceShell, /mf-mobile-menu-account[\s\S]*?订阅升级[\s\S]*?个人中心/u);
+  assert.match(workspaceShell, /aria-label="底部导航"[\s\S]*?mf-mobile-tab/u);
   assert.doesNotMatch(workspaceShell, /完善专属资料|完善个人资料提醒/u);
-  assert.doesNotMatch(reportsWorkspace, /开始关系画像/u);
+  assert.doesNotMatch(reportsBrowser, /开始关系画像/u);
 });
 
-test("saves, reuses, and manually deletes cloud composite reports", async () => {
-  const [compositeClient, compositeRoute, reportStorage, reportDetailApi, reportDetail, reportAwareEntry, reportsWorkspace, resultTypes] = await Promise.all([
-    readFile(new URL("../app/myfate-generated-test.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/myfate/composite/route.ts", import.meta.url), "utf8"),
+test("supports manual report deletion and keeps legacy formats score-free", async () => {
+  const [reportStorage, reportDetailApi, resultTypes] = await Promise.all([
     readFile(new URL("../app/myfate-report-storage.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/myfate/reports/[id]/route.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/home/reports/[id]/report-detail-workspace.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/home/celebrity-match/report-aware-entry.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/home/reports/reports-workspace.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-generated-test-types.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(compositeClient, /查看历史报告/u);
-  assert.match(compositeRoute, /myfate_reports/u);
-  assert.match(compositeRoute, /serializeFormulaResult/u);
   assert.match(reportStorage, /method: "DELETE"/u);
   assert.match(reportDetailApi, /\.eq\("user_id", session\.user\.id\)/u);
-  assert.match(reportDetail, /三柱合盘分析/u);
-  assert.match(reportAwareEntry, /查看合盘报告/u);
-  assert.match(reportsWorkspace, /window\.confirm/u);
-  assert.match(reportsWorkspace, /三柱合盘/u);
   assert.match(resultTypes, /MYFATE_COMPOSITE_V3/u);
   assert.doesNotMatch(resultTypes, /ThreePillarCompositeResult = \{[^}]*score:/su);
+  assert.doesNotMatch(resultTypes, /Vedic|vedic/u);
 });
 
 test("requires login for cloud report data", async () => {
@@ -205,42 +146,26 @@ test("redirects legacy celebrity details into the protected workspace", async ()
   assert.equal(new URL(response.headers.get("location")).pathname, "/home/relationship-test/bang-chan");
 });
 
-test("creates a direct server-side composite without questions or scores", async () => {
-  const [compositeClient, compositeRoute, formulaResult, resultTypes] = await Promise.all([
-    readFile(new URL("../app/myfate-generated-test.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/api/myfate/composite/route.ts", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-formula-result.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate-generated-test-types.ts", import.meta.url), "utf8"),
-  ]);
-  assert.match(compositeClient, /输入你的出生日期/u);
-  assert.match(compositeClient, /fetch\("\/api\/myfate\/composite"/u);
-  assert.doesNotMatch(compositeClient, /questions|answers|查看关系身份/u);
-  assert.match(compositeRoute, /analyzeThreePillars/u);
-  assert.match(compositeRoute, /dimensions:/u);
-  assert.match(compositeRoute, /score: 0/u);
-  assert.doesNotMatch(compositeRoute, /generateReportText|DEEPSEEK/u);
-  assert.match(formulaResult, /不进行分数、排名或好坏判定/u);
-  assert.match(formulaResult, /result\.dimensions/u);
-  assert.doesNotMatch(formulaResult, /result\.score|%/u);
-  assert.match(resultTypes, /version: 3/u);
-  assert.doesNotMatch(resultTypes, /ThreePillarCompositeResult = \{[^}]*score:/su);
-});
-
-test("rejects anonymous composite requests before reading private report data", async () => {
-  const response = await render("/api/myfate/composite", {
-    method: "POST",
-    headers: { "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify({ starId: "hyunjin", birthDate: "2000-01-01" }),
-  });
-  assert.equal(response.status, 401);
-  const result = await response.json();
-  assert.equal(result.error, "LOGIN_REQUIRED");
-});
-
-test("requires the configured model for a free-form report", async () => {
+test("blocks cross-origin mutations at the proxy", async () => {
   const response = await render("/api/myfate/personalize", {
     method: "POST",
     headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ action: "report", reportType: "celebrity-match", starId: "james" }),
+  });
+  assert.equal(response.status, 403);
+  const result = await response.json();
+  assert.equal(result.error, "cross_origin_blocked");
+});
+
+test("requires login before generating a free-form report", async () => {
+  const response = await render("/api/myfate/personalize", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json",
+      origin: "http://localhost",
+      "x-forwarded-host": "localhost",
+    },
     body: JSON.stringify({
       action: "report",
       reportType: "celebrity-match",
@@ -251,17 +176,25 @@ test("requires the configured model for a free-form report", async () => {
       }],
     }),
   });
-  assert.equal(response.status, 503);
+  assert.equal(response.status, 401);
   const result = await response.json();
-  assert.equal(result.error, "MODEL_NOT_CONFIGURED");
+  assert.equal(result.error, "LOGIN_REQUIRED");
 });
 
 test("ships local portraits and unified Myfate branding", async () => {
-  const [layout, css, packageJson] = await Promise.all([
+  // 品牌样式已拆分到 globals.css 与 public/route-css/*,断言在合并结果上进行
+  const [layout, packageJson] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/myfate.css", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
+  const cssFiles = [
+    "../app/globals.css",
+    "../public/route-css/public-home.css",
+    "../public/route-css/home.css",
+    "../public/route-css/login.css",
+    "../public/route-css/account.css",
+  ];
+  const css = (await Promise.all(cssFiles.map((file) => readFile(new URL(file, import.meta.url), "utf8")))).join("\n");
   assert.match(layout, /Myfate/);
   assert.match(css, /var\(--portrait-image\)/);
   assert.match(css, /prefers-reduced-motion/);
