@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./myfate.css";
-import { AuthProvider } from "./auth-context";
-import { LanguageProvider } from "./language-context";
 
 export const metadata: Metadata = {
   title: {
@@ -23,6 +20,8 @@ export const metadata: Metadata = {
   },
 };
 
+// 根布局保持纯服务端:认证/语言 Provider 只挂到真正需要的子布局,
+// 公开首页因此不再请求 /api/auth/session,也不加载 i18n 翻译数据。
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,11 +33,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg?v=7" type="image/svg+xml" />
         <link rel="shortcut icon" href="/favicon.svg?v=7" type="image/svg+xml" />
       </head>
-      <body>
-        <LanguageProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </LanguageProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

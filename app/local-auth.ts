@@ -5,6 +5,13 @@ export type LocalUser = {
 
 const SESSION_KEY = "myfate-auth-session:v1";
 const USERS_KEY = "myfate-local-users:v1";
+// 同文档内登录/登出后广播,供免会话请求的入口组件(如首页)即时同步;跨标签页由 storage 事件覆盖。
+const AUTH_CHANGE_EVENT = "myfate-auth-change";
+
+function notifyAuthChange() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+}
 
 export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -21,10 +28,12 @@ export function readLocalSession() {
 
 export function writeLocalSession(email: string) {
   window.localStorage.setItem(SESSION_KEY, JSON.stringify({ email: normalizeEmail(email) }));
+  notifyAuthChange();
 }
 
 export function clearLocalSession() {
   window.localStorage.removeItem(SESSION_KEY);
+  notifyAuthChange();
 }
 
 export function ensureLocalUser(email: string) {
