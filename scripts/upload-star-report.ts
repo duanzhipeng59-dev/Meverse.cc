@@ -134,6 +134,19 @@ if (report.love) {
   checkYears("love.years", report.love.years, "love");
 }
 
+// ── 反常识归因标记(counter:true 为生成方暗标记,不渲染;上传时点名警告并剥离) ──
+const counterMarked: string[] = [];
+function stripCounter(node: unknown, path: string): unknown {
+  if (Array.isArray(node)) return node.map((item, i) => stripCounter(item, `${path}[${i}]`));
+  if (node && typeof node === "object") {
+    const { counter, ...rest } = node as Record<string, unknown>;
+    if (counter === true) counterMarked.push(path);
+    return Object.fromEntries(Object.entries(rest).map(([k, v]) => [k, stripCounter(v, `${path}.${k}`)]));
+  }
+  return node;
+}
+const cleanedReport = stripCounter(report, "report");
+
 // ── 结果 ──
 if (errors.length) {
   console.error(`\n✖ 校验失败 ${errors.length} 项:`);
@@ -141,11 +154,15 @@ if (errors.length) {
   process.exit(1);
 }
 for (const w of warn) console.warn(`  ⚠ ${w}`);
+if (counterMarked.length) {
+  console.warn(`  ⚠ 反常识归因条目 ${counterMarked.length} 处(盘面与事实方向相反的段落,请人工重点复核):`);
+  for (const p of counterMarked) console.warn(`    · ${p}`);
+}
 console.log(`✓ 校验通过${dry ? "(--dry,不入库)" : ""}`);
 if (dry) process.exit(0);
 
 // ── 补算大运年份与当前步 ──
-const enriched = JSON.parse(JSON.stringify(report));
+const enriched = JSON.parse(JSON.stringify(cleanedReport));
 for (const section of ["career", "wealth", "love"] as const) {
   for (const step of enriched[section].lifetime) {
     const engine = ENGINE_STEPS.get(step.ganzhi);
