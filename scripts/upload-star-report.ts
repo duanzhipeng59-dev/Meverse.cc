@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { buildBaziChart } from "../app/myfate-bazi-engine";
+import { buildBaziLifeProfile } from "../app/myfate-bazi-profile";
 
 const args = process.argv.slice(2);
 const dry = args.includes("--dry");
@@ -49,6 +50,17 @@ const chart = /^\d{4}-\d{2}-\d{2}$/.test(meta.birthDate ?? "") && /^\d{2}:\d{2}$
 if (chart) {
   console.log(`排盘: ${chart.pillars.map((p) => p.ganzhi).join(" ")} | 日主 ${chart.dayMaster}`);
   for (const s of chart.daYun.steps) console.log(`  大运 ${s.ganzhi} ${s.startAge}-${s.endAge}岁 (${s.startYear}-${s.endYear})${s.current ? " ← 当前" : ""}`);
+
+  // ── 标签与排盘交叉校验 ──
+  if (Array.isArray(input.heroBadges) && input.heroBadges.length === 3) {
+    const summary = buildBaziLifeProfile(chart).summary;
+    const engineDayMaster = `${chart.dayMaster}${summary.dayElement}日主`;
+    if (input.heroBadges[0] !== engineDayMaster) errors.push(`heroBadges[0]「${input.heroBadges[0]}」与排盘不符,应为「${engineDayMaster}」(日主是排盘事实)`);
+    if (input.heroBadges[1] !== summary.strength) warn.push(`heroBadges[1]「${input.heroBadges[1]}」与引擎旺衰「${summary.strength}」不同(学派口径差异,请确认)`);
+    const aiSet = (input.heroBadges[2] ?? "").replace("喜用", "").split("·").map((s: string) => s.trim()).filter(Boolean).sort().join("、");
+    const engineSet = [...summary.favorable].sort().join("、");
+    if (aiSet !== engineSet) warn.push(`heroBadges[2]「${input.heroBadges[2]}」与引擎喜用「喜用 ${engineSet}」不同(请确认是有意为之)`);
+  }
 }
 
 // ── 六章节 ──
