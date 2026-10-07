@@ -101,11 +101,12 @@ function checkLifetime(path: string, steps: any[] | undefined, kind: "career" | 
   if (seen.size !== steps.length) errors.push(`${path} 存在重复大运干支`);
 }
 function checkYears(path: string, years: any[] | undefined, kind: "career" | "wealth" | "love") {
-  if (!Array.isArray(years) || years.length !== 11) { errors.push(`${path} 须为当前年±5 共 11 条`); return; }
+  if (!Array.isArray(years) || years.length !== 11) { errors.push(`${path} 须为连续 11 年`); return; }
   const list = [...years].sort((a, b) => a.year - b.year);
   for (let i = 0; i < list.length; i += 1) {
-    if (list[i].year !== currentYear - 5 + i) { errors.push(`${path} 年份须连续覆盖 ${currentYear - 5}-${currentYear + 5}`); break; }
+    if (list[i].year !== list[0].year + i) { errors.push(`${path} 年份须连续(${list[0].year}-${list[0].year + 10})`); break; }
   }
+  if (list[0].year !== currentYear - 5) warn.push(`${path} 窗口为 ${list[0].year}-${list[0].year + 10}(默认当前年±5,不一致请确认是有意为之)`);
   for (const [i, y] of years.entries()) {
     if (kind !== "love" && (typeof y.score !== "number" || y.score < 0 || y.score > 100)) errors.push(`${path}[${i}].score 须为 0-100`);
     if (kind === "love" && (typeof y.prob !== "number" || y.prob < 0 || y.prob > 100)) errors.push(`${path}[${i}].prob 须为 0-100`);

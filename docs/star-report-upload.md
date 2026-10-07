@@ -108,6 +108,20 @@
 
 ## 三、硬性规则(违反会被上传脚本拒绝)
 
+0. **字段名必须与模板逐字一致**。生成 AI 常见漂移(出现即被拒):
+
+| 生成方常写 | 必须写成 |
+|---|---|
+| `portrait.gods` 数组 | 三个独立字段 `favorable` / `unfavorable` / `neutral`(各含 label+content) |
+| `shensha` | `shenSha`(大写 S) |
+| `structures[].label` + `content` | `structures[].rel` + `text` |
+| `examLuck`(整段文字) | 两个数组 `examGood` / `examBad` |
+| `career.roles` / `career.leadership` | `career.direction` / `career.management` |
+| `career.network` 数组 | 三个字符串字段 `guiren` / `xiaoren` / `boss` |
+| `wealth.methods` | `wealth.source`(结尾不带句号) |
+| `love.spouseFeatures`(content) | `love.spouse`(字段名用 `text`) |
+| 标签"能否旺你" | "能否旺 TA"(全文禁用"你") |
+
 1. **全文用"TA"称呼**,不用"你/你们";引号用「」。
 2. **枚举值**:
    - 财富 `trend` 只能取:`承压 ↓` `向好 ↑` `强劲 ↑↑` `平稳 →`(运势曲线按这四个值换算分数)
@@ -147,6 +161,7 @@
 - 大运干支、十神、合冲刑害必须按真实排盘书写,与出生资料一致
 - career.lifetime 6-9 步覆盖一生;每步 note 30-90 字,写该阶段的事业/财务/婚恋主题与建议
 - 每个流年条目 20-80 字,落到具体可行动的建议
+- **字段名严格按上面模板逐字输出,不要自创同义字段名**(如 gods/network/methods/spouseFeatures 都是错的)**
 ```
 
 ## 五、上传命令
