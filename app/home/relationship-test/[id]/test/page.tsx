@@ -1,20 +1,14 @@
 import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
-import { buildBaziChart } from "../../../../myfate-bazi-engine";
-import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
-import { buildStarBaziReport } from "../../../../myfate-star-bazi-report";
-import { buildConsultReport } from "../../../../myfate-portrait-consult";
-import { CONSULT_OVERRIDES } from "../../../../myfate-consult-overrides";
-import { getConsultOverride } from "../../../../myfate-consult-override-store";
 import FortuneCurveCard from "../../../../fortune-curve";
-import { getCelebrityVedicBirth, getPublishedStar, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
+import { getConsultOverride, type ConsultOverrideContent } from "../../../../myfate-consult-override-store";
+import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
 import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
 import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
 import Link from "next/link";
-import { getPublishedStarList } from "../../../../myfate-stars-server";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +18,13 @@ const ASK_SUGGESTIONS = [
   "和 TA 相处最需要注意什么？",
 ];
 
+const PILLAR_LABELS = ["年", "月", "日", "时"];
+
+// 报告内容以 consult_overrides 手动上传为准;四柱优先取上传的 heroPillars,缺省回退档案三柱
+function heroPillarsOf(consult: ConsultOverrideContent | null, threePillars: string): string[] {
+  if (consult?.heroPillars?.length) return consult.heroPillars.slice(0, 4);
+  return threePillars.split("·").map((part) => part.trim()).filter(Boolean).slice(0, 4);
+}
 
 // ── 文档型章节组件(连续阅读,重点词由结构化 highlights 提供) ──
 function Highlighted({ content, highlights }: { content: string; highlights: string[] }) {
@@ -64,80 +65,114 @@ function DocIndent({ label, content }: { label: string; content: string }) {
   );
 }
 
+function HeroBlock({ starName, portraitSrc, birthLine, heroPillars, heroBadges }: { starName: string; portraitSrc: string; birthLine: string; heroPillars: string[]; heroBadges?: string[] }) {
+  return (
+    <header className="mf-zr-hero">
+      {/* CSS 已按 108×134 object-fit:cover 裁切,直接用 240w WebP 缩放版,不再拉原图 */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={portraitImage(portraitSrc, 240)} alt={starName} />
+      <div className="mf-zr-hero-copy">
+        <h1>{starName} 的 AI 生辰画像</h1>
+        <small>出生 · {birthLine}</small>
+        {heroBadges?.length ? (
+          <div className="mf-zr-summary" aria-label="命盘核心摘要">
+            {heroBadges.map((badge) => <span key={badge}>{badge}</span>)}
+          </div>
+        ) : null}
+      </div>
+      <div className="mf-zr-hero-pillars" aria-label="四柱">
+        {heroPillars.map((ganzhi, index) => (
+          <span key={`${ganzhi}-${index}`}>
+            <small>{PILLAR_LABELS[index] ?? "柱"}</small>
+            <b>{ganzhi}</b>
+          </span>
+        ))}
+      </div>
+    </header>
+  );
+}
+
 export default async function StarReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; prev?: string }> }) {
   const { id } = await params;
   const { from, prev } = await searchParams;
+  // 权限先行;其余互不依赖的只读请求(明星资料/开关/解锁记录/报告内容/列表)并行获取。
   const user = await requirePageUser(`/home/relationship-test/${id}/test`);
-  const star = await getPublishedStar(id);
+  const [star, metered, viewed, consult, birth, allStars] = await Promise.all([
+    getPublishedStar(id),
+    isUpgradesEnabled(),
+    hasStarReportView(user.id, id),
+    getConsultOverride(id),
+    getCelebrityVedicBirth(id),
+    getPublishedStarList(),
+  ]);
   if (!star) notFound();
 
-  const metered = await isUpgradesEnabled();
-  if (metered && !(await hasStarReportView(user.id, id))) {
-    if ((await getReportCredits(user.id)) <= 0) redirect("/home/upgrade");
-    if ((await consumeReportCredit(user.id)) < 0) redirect("/home/upgrade");
-  }
-  void recordStarReportView(user.id, id, "bazi");
-  const birth = await getCelebrityVedicBirth(id);
-  const hasExactBirthTime = Boolean(birth?.birthTime);
-
-  const chart = buildBaziChart({
-    birthDate: birth?.birthDate ?? star.birthDate,
-    birthTime: birth?.birthTime ?? "12:00",
-    gender: birth?.gender === "female" ? "female" : "male",
-    city: {
-      id,
-      name: birth?.birthPlace || "首尔 · 韩国",
-      lat: birth?.lat ?? 37.57,
-      lon: birth?.lon ?? 126.98,
-      tz: birth?.tz ?? "Asia/Seoul",
-    },
-  });
-  const report = buildStarBaziReport(chart);
-  const profile = buildBaziLifeProfile(chart);
   // 顶栏身份块:中文名(固定要求不显示英文艺名) + 四柱干支
   const roleDash = star.role.indexOf("-");
   const personName = roleDash > 0 ? star.role.slice(roleDash + 1).trim() : "";
-  const topbarTitle = personName || star.name;
-  const topbarSubtitle = report.pillars.map((pillar) => `${pillar.ganzhi[0]}${pillar.ganzhi[1]}`).join(" ");
-  // 报告内容优先级:后台精校(consult_overrides 表) > 代码精校(RM) > 模板引擎
-  const consult = (await getConsultOverride(id)) ?? CONSULT_OVERRIDES[id] ?? buildConsultReport(chart, profile, report);
-  const allStars = await getPublishedStarList();
+  const heroPillars = heroPillarsOf(consult, star.threePillars);
   const others = allStars.filter((item) => item.id !== id).slice(0, 8);
   // 经"继续探索"从其他报告跳入时,返回按钮回上一份报告;否则回探索页
   const prevStarId = prev && allStars.some((item) => item.id === prev) ? prev : null;
   const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : undefined;
+  const birthLine = `${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace || "首尔 · 韩国"}`;
   const currentAge = Number.isFinite(Number(star.birthDate.slice(0, 4))) ? new Date().getFullYear() - Number(star.birthDate.slice(0, 4)) : null;
+
+  // ── 报告内容未上传:占位提示,不扣费、不解锁、不开放追问 ──
+  if (!consult) {
+    return (
+      <div className="mf-zr">
+        <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")} />
+
+        <div className="mf-zr-overview">
+          <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={heroPillars} />
+        </div>
+
+        <section className="mf-zr-card mf-doc">
+          <div className="mf-doc-head"><i aria-hidden="true">✦</i><h2>报告准备中</h2></div>
+          <p className="mf-doc-p">这份生辰画像报告尚未上传，内容正在人工准备与校对中，完成后即可查看。</p>
+        </section>
+
+        {others.length ? (
+          <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">
+            <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
+            <div className="mf-detail-others-row">
+              {others.map((item) => (
+                <Link className="mf-detail-others-card" href={`/home/relationship-test/${item.id}/test?prev=${id}`} key={item.id}>
+                  <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${portraitImage(item.portraitSrc, 120)}")` }} role="img" aria-label={item.name} />
+                  <b>{item.name}</b>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
+      </div>
+    );
+  }
+
+  // ── 有上传内容才计费解锁;解锁过免费重看 ──
+  if (metered && !viewed) {
+    if ((await getReportCredits(user.id)) <= 0) redirect("/home/upgrade");
+    if ((await consumeReportCredit(user.id)) < 0) redirect("/home/upgrade");
+  }
+  void recordStarReportView(user.id, id, "bazi");
 
   return (
     <div className="mf-zr">
-      <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={topbarTitle} subtitle={topbarSubtitle} />
+      <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")} />
 
       <div className="mf-zr-overview">
-      <header className="mf-zr-hero">
-        {/* CSS 已按 108×134 object-fit:cover 裁切,直接用 240w WebP 缩放版,不再拉原图 */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={portraitImage(star.portraitSrc, 240)} alt={personName || star.name} />
-        <div className="mf-zr-hero-copy">
-          <h1>{personName || star.name} 的 AI 生辰画像</h1>
-          <small>出生 · {star.birthDate.replaceAll("-", ".")} · {birth?.birthPlace || "首尔 · 韩国"} · {hasExactBirthTime ? "已校准" : "时辰暂按正午估算"}</small>
-        </div>
-        <div className="mf-zr-hero-pillars" aria-label="四柱">
-          {report.pillars.map((pillar) => (
-            <span key={pillar.label}>
-              <small>{pillar.label.replace("柱", "")}</small>
-              <b>{pillar.ganzhi[0]}{pillar.ganzhi[1]}</b>
-            </span>
-          ))}
-        </div>
-      </header>
+      <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={heroPillars} heroBadges={consult.heroBadges} />
 
 
 
-      {/* ── 人生运势曲线(与人物信息同属深色概览区) ── */}
+      {/* ── 人生运势曲线(与人物信息同属深色概览区,数据来自上传内容) ── */}
       <FortuneCurveCard
         careerLifetime={consult.career.lifetime}
         wealthLifetime={consult.wealth.lifetime}
-        loveMarriage={report.love.marriageLuck.map((item) => ({ age: item.ageText, tag: item.tag }))}
+        loveMarriage={consult.love.lifetime.map((step) => ({ age: step.age, tag: step.tag }))}
         currentAge={currentAge}
       />
       </div>

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { buildStarBaziReport, formatStarBaziReport } from "../../../myfate-star-bazi-report";
 import { formatAstrologyReport, getAstrologyReport } from "../../../myfate-astrology-engine";
+import { formatConsultOverrideDigest, getConsultOverride } from "../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
 import { getDualReport } from "../../../myfate-dual-server";
 import {
@@ -96,6 +97,9 @@ async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "d
     });
     return { name: star.name, digest: formatAstrologyReport(report) };
   }
+  // 生辰报告摘要优先用上传内容;尚未上传的明星回退引擎实时摘要
+  const override = await getConsultOverride(starId);
+  if (override) return { name: star.name, digest: formatConsultOverrideDigest(override) };
   const chart = buildBaziChart({
     birthDate: birth?.birthDate ?? star.birthDate,
     birthTime: birth?.birthTime ?? "12:00",

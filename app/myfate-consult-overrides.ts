@@ -1,5 +1,5 @@
-// RM 专属咨询报告内容(人工精校版,优先于模板引擎输出)。
-// 结构与 buildConsultReport 返回值完全一致;其他明星继续走模板。
+// RM 专属咨询报告内容(人工精校版)。
+// 已由 scripts/seed-consult-overrides.ts 写入 consult_overrides 表;此处保留作为精校母本。
 import type { ConsultReport } from "./myfate-portrait-consult";
 
 export const CONSULT_OVERRIDES: Record<string, ConsultReport> = {
