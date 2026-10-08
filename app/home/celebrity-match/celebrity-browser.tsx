@@ -63,10 +63,11 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
   function goToPage(nextPage: number) {
     setPage(Math.min(totalPages, Math.max(1, nextPage)));
+    // 翻页回滚到页面顶部,新页第一行从页头开始看
     window.requestAnimationFrame(() => {
-      gridRef.current?.scrollIntoView({
+      window.scrollTo({
+        top: 0,
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-        block: "start",
       });
     });
   }
