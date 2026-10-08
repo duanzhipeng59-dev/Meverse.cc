@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
 
 const menuItems = [
@@ -89,78 +89,9 @@ export default function WorkspaceShell({ children, upgradesEnabled = true }: { c
     for (const item of [...menuItems, ...tabItems]) router.prefetch(item.href);
   }, [router]);
 
-  // 移动端整页下拉刷新:顶栏/内容/底部导航共用 --ptr-shift 一并位移;
-  // 拉距 ≥ 顶栏行高才允许松手刷新,不足则回弹,防误触;preventDefault 抑制浏览器原生下拉刷新。
-  const shellRef = useRef<HTMLDivElement>(null);
-  const topbarRef = useRef<HTMLElement>(null);
-  const [ptrState, setPtrState] = useState<"idle" | "pull" | "armed" | "refreshing">("idle");
-
-  useEffect(() => {
-    if (isDetail || !window.matchMedia("(max-width: 800px)").matches) return;
-    const shell = shellRef.current;
-    const bar = topbarRef.current;
-    if (!shell || !bar) return;
-
-    let startX = 0;
-    let startY = 0;
-    let pulling = false;
-    let threshold = 64;
-    let shift = 0;
-    let refreshing = false;
-
-    const setShift = (value: number, animate: boolean) => {
-      shift = value;
-      shell.style.setProperty("--ptr-shift", `${value.toFixed(1)}px`);
-      shell.classList.toggle("is-ptr-anim", animate);
-      setPtrState(refreshing ? "refreshing" : shift >= threshold ? "armed" : shift > 0.5 ? "pull" : "idle");
-    };
-
-    const onTouchStart = (event: TouchEvent) => {
-      if (refreshing) return;
-      if ((event.target as Element | null)?.closest?.(".mf-dual-panel")) return; // 选择面板打开时不拉页
-      startY = event.touches[0].clientY;
-      startX = event.touches[0].clientX;
-      pulling = window.scrollY <= 0;
-      threshold = bar.offsetHeight || 64;
-    };
-    const onTouchMove = (event: TouchEvent) => {
-      if (!pulling || refreshing) return;
-      const dy = event.touches[0].clientY - startY;
-      if (dy <= 0) { if (shift > 0) setShift(0, true); return; }
-      if (Math.abs(event.touches[0].clientX - startX) > dy) { if (shift > 0) setShift(0, true); return; }
-      event.preventDefault(); // 接管手势:抑制原生橡皮筋与原生下拉刷新
-      const max = threshold * 1.6;
-      setShift(max * (1 - 1 / (1 + dy / max)), false); // 渐近阻尼,越拉越紧
-    };
-    const onTouchEnd = () => {
-      if (!pulling || refreshing) { pulling = false; return; }
-      pulling = false;
-      if (shift >= threshold) {
-        refreshing = true;
-        setPtrState("refreshing");
-        setShift(Math.min(48, threshold * 0.66), true);
-        router.refresh();
-        window.setTimeout(() => { refreshing = false; setShift(0, true); }, 700);
-      } else setShift(0, true);
-    };
-
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
-    return () => {
-      window.removeEventListener("touchstart", onTouchStart);
-      document.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("touchcancel", onTouchEnd);
-      shell.style.removeProperty("--ptr-shift");
-      shell.classList.remove("is-ptr-anim");
-    };
-  }, [isDetail, router]);
-
   return (
-    <div className={isDetail ? "mf-workspace-shell is-detail" : "mf-workspace-shell"} ref={shellRef}>
-      <header className="mf-workspace-mobile-bar" ref={topbarRef}>
+    <div className={isDetail ? "mf-workspace-shell is-detail" : "mf-workspace-shell"}>
+      <header className="mf-workspace-mobile-bar">
         <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页">Myfate</Link>
         <Link
           className={pathname === "/home/profile" ? "mf-mobile-profile-btn is-active" : "mf-mobile-profile-btn"}
@@ -236,11 +167,6 @@ export default function WorkspaceShell({ children, upgradesEnabled = true }: { c
       </aside>
 
       <main className="mf-workspace-main">
-        {!isDetail && (
-          <div className={ptrState === "idle" ? "mf-ptr-hint" : "mf-ptr-hint is-on"} data-state={ptrState} aria-hidden="true">
-            {ptrState === "armed" ? "松手刷新" : ptrState === "refreshing" ? "正在刷新…" : "下拉刷新"}
-          </div>
-        )}
         {children}
       </main>
 
