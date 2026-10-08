@@ -193,9 +193,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
               </button>
             </div>
           </>
-        ) : (
-          <p className="mf-dual-hint">先选择两位资料完整的明星。资料待补充的明星暂不能参与合盘。</p>
-        )}
+        ) : null}
         {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
       </div>
 

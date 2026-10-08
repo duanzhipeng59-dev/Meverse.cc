@@ -1410,7 +1410,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-ghost:hover { color: #e8dade; border-color: var(--bz-red); }
 
-.mf-dual-hint { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
 
 
 .mf-dual-error { margin: 0; color: var(--bz-error); font-size: 12.5px; }
