@@ -1,63 +1,24 @@
-import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import DualStarPicker from "./dual-star-picker";
-import DualHistoryRow from "./dual-history-row";
-import { getDualStarCandidates, getUserDualReports } from "../../myfate-dual-server";
-import { getPublishedStar } from "../../myfate-stars-server";
+import DualHistorySection from "./dual-history-section";
+import { getDualStarCandidates } from "../../myfate-dual-server";
 import { isUpgradesEnabled } from "../../myfate-settings";
-import { getOptionalPageUser } from "../../require-page-user";
 
-export const dynamic = "force-dynamic";
+// 入口页静态化:候选列表与计费开关随 ISR 缓存(5 分钟重验证),
+// 登录态与个人历史由 DualHistorySection 客户端拉取,页面壳可瞬时渲染。
+export const revalidate = 300;
 export const metadata: Metadata = { title: "双人合盘" };
 
-const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
-const STATUS_LABELS: Record<string, string> = { ready: "已生成", generating: "生成中", failed: "生成失败" };
-
-export default async function DualStarMatchPage({ searchParams }: { searchParams: Promise<{ star?: string }> }) {
-  const { star } = await searchParams;
-  // 明星详情页带入的首位明星必须是已发布明星
-  let initialStarId: string | null = null;
-  if (star && ID_PATTERN.test(star)) {
-    const published = await getPublishedStar(star);
-    if (published) initialStarId = star;
-    else notFound();
-  }
-  const [candidates, upgradesEnabled, user] = await Promise.all([getDualStarCandidates(), isUpgradesEnabled(), getOptionalPageUser("/home/dual-star-match")]);
-  const history = user ? await getUserDualReports(user.id).catch(() => []) : [];
-  // 历史横条用中文名(与报告页固定要求一致)
-  const personOf = (id: string, fallback: string) => {
-    const candidate = candidates.find((item) => item.id === id);
-    if (!candidate) return fallback;
-    const dash = candidate.role.indexOf("-");
-    return dash > 0 ? candidate.role.slice(dash + 1).trim() : candidate.name;
-  };
+export default async function DualStarMatchPage() {
+  const [candidates, upgradesEnabled] = await Promise.all([getDualStarCandidates(), isUpgradesEnabled().catch(() => true)]);
   return (
     <>
-      <DualStarPicker candidates={candidates} initialStarId={initialStarId} upgradesEnabled={upgradesEnabled} />
-      {history.length ? (
-        <section className="mf-dual mf-dual-history-zone" aria-label="历史合盘记录">
-          <h2>历史合盘</h2>
-          <div className="mf-dual-history-list">
-            {history.map((row) => {
-              // 服务端为 UTC,统一按东八区展示
-              const shifted = new Date(new Date(row.createdAt).getTime() + 8 * 3600_000);
-              const time = `${shifted.getUTCMonth() + 1}月${shifted.getUTCDate()}日 ${String(shifted.getUTCHours()).padStart(2, "0")}:${String(shifted.getUTCMinutes()).padStart(2, "0")}`;
-              return (
-                <DualHistoryRow
-                  key={row.id}
-                  id={row.id}
-                  portraitA={row.portraitA}
-                  portraitB={row.portraitB}
-                  title={`${personOf(row.starA, row.nameA)} × ${personOf(row.starB, row.nameB)}`}
-                  time={time}
-                  status={row.status}
-                  statusLabel={STATUS_LABELS[row.status] ?? row.status}
-                />
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
+      {/* useSearchParams 需要 Suspense 边界,静态页才能保留预渲染壳 */}
+      <Suspense fallback={null}>
+        <DualStarPicker candidates={candidates} upgradesEnabled={upgradesEnabled} />
+      </Suspense>
+      <DualHistorySection candidates={candidates} />
     </>
   );
 }

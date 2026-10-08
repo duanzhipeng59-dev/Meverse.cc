@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../auth-context";
 import type { DualStarCandidate } from "../../myfate-dual-server";
@@ -8,13 +9,15 @@ import { portraitImage } from "../../myfate-image";
 
 // 双星选择:顶部紧凑"双人关系卡"(头像A—连线—头像B),选完原地确认;面板手机双列网格。
 // 未登录可完成选择,点生成时走登录并在登录后保留(选择存 sessionStorage)。
+// 明星详情页带入的 ?star= 参数在客户端读取(页面壳保持静态)。
 const STATE_KEY = "myfate_dual_pick_v1";
 
 type Slot = DualStarCandidate | null;
 
-export default function DualStarPicker({ candidates, initialStarId, upgradesEnabled }: { candidates: DualStarCandidate[]; initialStarId: string | null; upgradesEnabled: boolean }) {
+export default function DualStarPicker({ candidates, upgradesEnabled }: { candidates: DualStarCandidate[]; upgradesEnabled: boolean }) {
   const { status } = useAuth();
-  const [slotA, setSlotA] = useState<Slot>(candidates.find((c) => c.id === initialStarId) ?? null);
+  const starParam = useSearchParams().get("star");
+  const [slotA, setSlotA] = useState<Slot>(null);
   const [slotB, setSlotB] = useState<Slot>(null);
   const [picking, setPicking] = useState<"A" | "B" | null>(null);
   const [query, setQuery] = useState("");
@@ -23,7 +26,10 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
   const [existing, setExisting] = useState<{ reportId: string; label: string } | null>(null);
 
   useEffect(() => {
-    if (initialStarId) return;
+    if (starParam) {
+      setSlotA(candidates.find((c) => c.id === starParam) ?? null);
+      return;
+    }
     try {
       const saved = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null") as { a?: string | null; b?: string | null } | null;
       if (saved?.a) setSlotA(candidates.find((c) => c.id === saved.a) ?? null);
@@ -31,7 +37,7 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
     } catch {
       // 忽略
     }
-  }, [candidates, initialStarId]);
+  }, [candidates, starParam]);
 
   const filtered = useMemo(() => {
     const keyword = query.trim().toLowerCase();

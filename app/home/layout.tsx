@@ -6,7 +6,7 @@ import { isUpgradesEnabled } from "../myfate-settings";
 import { AuthProvider } from "../auth-context";
 
 export const metadata: Metadata = {
-  title: "工作台",
+  title: "生辰画像",
   description: "Myfate 明星合盘与个人解读工作台",
 };
 
