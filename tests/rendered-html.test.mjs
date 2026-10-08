@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 async function render(pathname = "/", init = {}) {
@@ -181,7 +181,7 @@ test("requires login before generating a free-form report", async () => {
   assert.equal(result.error, "LOGIN_REQUIRED");
 });
 
-test("ships local portraits and unified Myfate branding", async () => {
+test("unified Myfate branding and bucket-only portraits", async () => {
   // 品牌样式已拆分到 globals.css 与 public/route-css/*,断言在合并结果上进行
   const [layout, packageJson] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
@@ -199,12 +199,9 @@ test("ships local portraits and unified Myfate branding", async () => {
   assert.match(css, /var\(--portrait-image\)/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(packageJson, /"name": "myfate"/);
-  await Promise.all([
-    "bang-chan.webp",
-    "hyunjin.webp",
-    "james.webp",
-    "juhoon.webp",
-    "keonho.webp",
-    "seonghyeon.webp",
-  ].map((filename) => access(new URL(`../public/${filename}`, import.meta.url))));
+  // 头像素材只存在于 Supabase bucket:public/ 下不允许再出现本地头像文件(logo/OG 分享图除外)
+  const STATIC_IMAGE_ALLOWLIST = new Set(["myfate-stars.png", "og.png"]);
+  const publicDir = await readdir(new URL("../public/", import.meta.url));
+  const leftoverPortraits = publicDir.filter((filename) => /\.(webp|png|jpe?g)$/i.test(filename) && !STATIC_IMAGE_ALLOWLIST.has(filename));
+  assert.deepEqual(leftoverPortraits, [], `public/ 不应再有本地头像: ${leftoverPortraits.join(", ")}`);
 });
