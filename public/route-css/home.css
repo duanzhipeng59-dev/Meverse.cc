@@ -2754,3 +2754,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* 明星选择面板:分组容器占据剩余高度并滚动(sheet 第三行 minmax(0,1fr)) */
 .mf-dual-groups { overflow-y: auto; display: grid; gap: 12px; align-content: start; min-height: 0; padding-right: 2px; }
+
+/* 合盘 hero 价值副标题:低强调度小字,衬托主标题不抢权重 */
+.mf-dual-head p { margin: 10px 0 0; color: var(--bz-muted); font: 400 13px/1.7 inherit; letter-spacing: .01em; }
