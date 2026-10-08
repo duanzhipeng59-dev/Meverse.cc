@@ -2757,3 +2757,19 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* 合盘 hero 价值副标题:低强调度小字,衬托主标题不抢权重 */
 .mf-dual-head p { margin: 6px 0 0; color: var(--bz-muted); font: 400 11px/1.7 inherit; letter-spacing: .01em; }
+
+/* ── 移动端整页下拉刷新 + 吸顶骨架 ─────────────────────────────
+   顶栏/内容/底部导航共用 --ptr-shift 整页位移;is-ptr-anim 只在松手回弹时启用过渡;
+   筛选栏 sticky 吸附在固定顶栏下,滚动时与顶栏一体保持不动,只有内容区滑动。 */
+@media (max-width: 800px) {
+  html { overscroll-behavior-y: none; }
+  .mf-workspace-mobile-bar,
+  .mf-workspace-main,
+  .mf-mobile-tabbar { transform: translateY(var(--ptr-shift, 0)); }
+  .mf-workspace-shell.is-ptr-anim .mf-workspace-mobile-bar,
+  .mf-workspace-shell.is-ptr-anim .mf-workspace-main,
+  .mf-workspace-shell.is-ptr-anim .mf-mobile-tabbar { transition: transform .24s ease; }
+  .mf-ptr-hint { position: fixed; top: calc(64px + env(safe-area-inset-top) + 7px); left: 0; right: 0; z-index: 19; margin: 0; text-align: center; font-size: 11px; letter-spacing: .06em; color: var(--bz-muted); opacity: 0; pointer-events: none; transition: opacity .15s ease; }
+  .mf-ptr-hint.is-on { opacity: 1; }
+  .mf-explore-nav { position: sticky; top: calc(64px + env(safe-area-inset-top)); z-index: 15; background: #0d090b; }
+}
