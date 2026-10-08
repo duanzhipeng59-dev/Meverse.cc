@@ -141,8 +141,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
   return (
     <div className="mf-dual">
       <header className="mf-dual-head">
-        <span className="mf-kicker">双人合盘</span>
-        <h1>两位偶像,一份关系解读</h1>
+        <h1>双人合盘</h1>
         <p>关系底色与双向影响,沟通冲突的解法,未来关系的节奏</p>
       </header>
 
