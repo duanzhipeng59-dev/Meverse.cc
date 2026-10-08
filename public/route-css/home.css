@@ -2041,7 +2041,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 }
 
 
-/* 探索导航:固定吸附在顶部栏下方,滚动时常驻 */
+/* 探索导航:吸附常驻(桌面壳层顶栏在侧栏内,吸视口顶;移动端由下方媒体查询给出顶栏高度偏移) */
 .mf-explore-nav { position: sticky; top: 0; z-index: 30; background: #0D090B; }
 @media (max-width: 900px) {
 
@@ -2759,7 +2759,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* 合盘 hero 价值副标题:低强调度小字,衬托主标题不抢权重 */
 .mf-dual-head p { margin: 6px 0 0; color: var(--bz-muted); font: 400 11px/1.7 inherit; letter-spacing: .01em; }
 
-/* 生辰画像页:筛选栏吸附在固定顶栏下,滚动时与顶栏一体保持不动,只有内容区滑动 */
+/* 移动端:固定顶栏占 64px+安全区,筛选栏吸附在其正下方,滚动时与顶栏一体保持不动 */
 @media (max-width: 800px) {
   .mf-explore-nav { position: sticky; top: calc(64px + env(safe-area-inset-top)); z-index: 15; background: #0d090b; }
 }
