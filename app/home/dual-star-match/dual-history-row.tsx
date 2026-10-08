@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { portraitImage } from "../../myfate-image";
 
 // 历史合盘横条:主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
-// 点删除后整行切换为红色确认条(删除后不可恢复 + 取消/确认删除),点取消恢复。
-export default function DualHistoryRow({ id, portraitA, portraitB, title, time, statusLabel, status }: {
+// 点删除后整行切换为红色确认条(删除后不可恢复 + 取消/确认删除),点取消恢复;
+// 删除成功由父组件回调本地移除(入口页静态化后 router.refresh 不会更新客户端数据)。
+export default function DualHistoryRow({ id, portraitA, portraitB, title, time, statusLabel, status, onDeleted }: {
   id: string;
   portraitA: string;
   portraitB: string;
@@ -16,8 +16,8 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
   time: string;
   statusLabel: string;
   status: string;
+  onDeleted: (id: string) => void;
 }) {
-  const router = useRouter();
   const [phase, setPhase] = useState<"idle" | "confirm" | "deleting" | "error">("idle");
 
   const doDelete = async () => {
@@ -29,7 +29,7 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
         body: JSON.stringify({ reportId: id }),
       });
       if (!res.ok && res.status !== 404) throw new Error(String(res.status));
-      router.refresh();
+      onDeleted(id);
     } catch {
       setPhase("error");
     }
