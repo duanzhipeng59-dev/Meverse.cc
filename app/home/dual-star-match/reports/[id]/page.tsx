@@ -32,10 +32,17 @@ const CONF_LABELS: Record<string, string> = { strong: "强依据", medium: "中�
 
 export default async function DualReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requirePageUser(`/home/dual-star-match/reports/${id}`);
-  const report = await getDualReport(id);
+  // 认证与报告读取并行(只读无副作用);两者都返回后再做归属校验
+  const [user, report] = await Promise.all([requirePageUser(`/home/dual-star-match/reports/${id}`), getDualReport(id)]);
   if (!report || report.userId !== user.id) notFound();
-  const [starA, starB, metered] = await Promise.all([getPublishedStar(report.starA), getPublishedStar(report.starB), isUpgradesEnabled()]);
+  // 一次并行拿全两位明星/计费开关/出生数据:override 分支要用四柱,提前取省一轮串行往返
+  const [starA, starB, metered, birthA, birthB] = await Promise.all([
+    getPublishedStar(report.starA),
+    getPublishedStar(report.starB),
+    isUpgradesEnabled(),
+    getCelebrityVedicBirth(report.starA),
+    getCelebrityVedicBirth(report.starB),
+  ]);
   if (!starA || !starB) notFound();
   // 结构化固定要求:顶栏与卡片只用中文名(从 role 解析),不显示英文艺名
   const personOf = (role: string) => (role.includes("-") ? role.split("-")[1].trim() : "");
@@ -51,7 +58,6 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
         const override = getDualOverride(report.starA, report.starB);
         if (override) {
           // 头部双人身份卡:各自排盘取四柱与出生信息;固定要求只用中文名、不显示「已校准」
-          const [birthA, birthB] = await Promise.all([getCelebrityVedicBirth(report.starA), getCelebrityVedicBirth(report.starB)]);
           const people = [starA, starB].map((star, index) => {
             const birth = index === 0 ? birthA : birthB;
             const chart = birth ? buildDualChart(birth).chart : null;

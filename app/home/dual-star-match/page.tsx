@@ -1,12 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
 import DualStarPicker from "./dual-star-picker";
+import DualHistoryRow from "./dual-history-row";
 import { getDualStarCandidates, getUserDualReports } from "../../myfate-dual-server";
 import { getPublishedStar } from "../../myfate-stars-server";
 import { isUpgradesEnabled } from "../../myfate-settings";
-import { portraitImage } from "../../myfate-image";
 import { getOptionalPageUser } from "../../require-page-user";
 
 export const dynamic = "force-dynamic";
@@ -45,16 +43,16 @@ export default async function DualStarMatchPage({ searchParams }: { searchParams
               const shifted = new Date(new Date(row.createdAt).getTime() + 8 * 3600_000);
               const time = `${shifted.getUTCMonth() + 1}月${shifted.getUTCDate()}日 ${String(shifted.getUTCHours()).padStart(2, "0")}:${String(shifted.getUTCMinutes()).padStart(2, "0")}`;
               return (
-                <Link className="mf-dual-history-row" href={`/home/dual-star-match/reports/${row.id}`} key={row.id}>
-                  <span className="mf-dual-history-avatars">
-                    <Image src={portraitImage(row.portraitA, 120)} alt="" width={30} height={39} unoptimized />
-                    <i aria-hidden="true">&amp;</i>
-                    <Image src={portraitImage(row.portraitB, 120)} alt="" width={30} height={39} unoptimized />
-                  </span>
-                  <b>{personOf(row.starA, row.nameA)} × {personOf(row.starB, row.nameB)}</b>
-                  <small>{time}</small>
-                  <em data-status={row.status}>{STATUS_LABELS[row.status] ?? row.status}</em>
-                </Link>
+                <DualHistoryRow
+                  key={row.id}
+                  id={row.id}
+                  portraitA={row.portraitA}
+                  portraitB={row.portraitB}
+                  title={`${personOf(row.starA, row.nameA)} × ${personOf(row.starB, row.nameB)}`}
+                  time={time}
+                  status={row.status}
+                  statusLabel={STATUS_LABELS[row.status] ?? row.status}
+                />
               );
             })}
           </div>

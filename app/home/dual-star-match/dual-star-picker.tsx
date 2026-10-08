@@ -39,6 +39,19 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
     return candidates.filter((c) => c.name.toLowerCase().includes(keyword) || c.role.toLowerCase().includes(keyword));
   }, [candidates, query]);
 
+  // 无搜索时按组合分节(role 格式「组合-本名」),76 人整墙不好找;组序按候选顺序首次出现
+  const grouped = useMemo(() => {
+    if (query.trim()) return null;
+    const map = new Map<string, DualStarCandidate[]>();
+    for (const candidate of candidates) {
+      const group = candidate.role.includes("-") ? candidate.role.split("-")[0].trim() : "其他";
+      const bucket = map.get(group);
+      if (bucket) bucket.push(candidate);
+      else map.set(group, [candidate]);
+    }
+    return [...map.entries()];
+  }, [candidates, query]);
+
   function persist(a: Slot, b: Slot) {
     try {
       sessionStorage.setItem(STATE_KEY, JSON.stringify({ a: a?.id ?? null, b: b?.id ?? null }));
@@ -100,6 +113,24 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
   }
 
   const bothReady = Boolean(slotA && slotB);
+
+  function renderCandidate(candidate: DualStarCandidate) {
+    const used = candidate.id === slotA?.id || candidate.id === slotB?.id;
+    return (
+      <button
+        key={candidate.id}
+        type="button"
+        className={candidate.hasFullBirth ? undefined : "is-incomplete"}
+        disabled={!candidate.hasFullBirth || used}
+        onClick={() => choose(candidate)}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={portraitImage(candidate.portraitSrc, 240)} alt={`${candidate.name}的人物肖像`} loading="lazy" />
+        <span><b>{candidate.name}</b><small>{candidate.role}</small></span>
+        <em>{used ? "已选择" : candidate.hasFullBirth ? "资料完整" : "资料待补充"}</em>
+      </button>
+    );
+  }
 
   return (
     <div className="mf-dual">
@@ -179,24 +210,15 @@ export default function DualStarPicker({ candidates, initialStarId, upgradesEnab
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
               <input type="search" placeholder="搜索" value={query} onChange={(event) => setQuery(event.target.value)} autoFocus />
             </label>
-            <div className={query.trim() ? "mf-dual-list" : "mf-dual-grid"}>
-              {(query.trim() ? filtered : filtered).map((candidate) => {
-                const used = candidate.id === slotA?.id || candidate.id === slotB?.id;
-                return (
-                  <button
-                    key={candidate.id}
-                    type="button"
-                    className={candidate.hasFullBirth ? undefined : "is-incomplete"}
-                    disabled={!candidate.hasFullBirth || used}
-                    onClick={() => choose(candidate)}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={portraitImage(candidate.portraitSrc, 240)} alt={`${candidate.name}的人物肖像`} loading="lazy" />
-                    <span><b>{candidate.name}</b><small>{candidate.role}</small></span>
-                    <em>{used ? "已选择" : candidate.hasFullBirth ? "资料完整" : "资料待补充"}</em>
-                  </button>
-                );
-              })}
+            <div className={query.trim() ? "mf-dual-list" : "mf-dual-groups"}>
+              {grouped ? grouped.map(([group, members]) => (
+                <div className="mf-dual-group" key={group}>
+                  <h4 className="mf-dual-group-title">{group}</h4>
+                  <div className="mf-dual-grid">
+                    {members.map((candidate) => renderCandidate(candidate))}
+                  </div>
+                </div>
+              )) : filtered.map((candidate) => renderCandidate(candidate))}
               {!filtered.length ? <p className="mf-dual-empty">没有找到相关明星</p> : null}
             </div>
           </div>
