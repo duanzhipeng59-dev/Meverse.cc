@@ -1397,11 +1397,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-cta-zone { display: grid; gap: 10px; }
 
-.mf-dual-value { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.8; }
 
-.mf-dual-value b { color: var(--bz-red-bright); font-weight: 650; }
 
-.mf-dual-meta { margin: 0; color: var(--bz-muted); font-size: 12px; }
 
 .mf-dual-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
@@ -1415,7 +1412,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-hint { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
 
-.mf-dual-note { margin: 2px 0 0; color: var(--bz-muted); font-size: 11.5px; line-height: 1.7; }
 
 .mf-dual-error { margin: 0; color: var(--bz-error); font-size: 12.5px; }
 

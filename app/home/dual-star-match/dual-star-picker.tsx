@@ -14,7 +14,7 @@ const STATE_KEY = "myfate_dual_pick_v1";
 
 type Slot = DualStarCandidate | null;
 
-export default function DualStarPicker({ candidates, upgradesEnabled }: { candidates: DualStarCandidate[]; upgradesEnabled: boolean }) {
+export default function DualStarPicker({ candidates }: { candidates: DualStarCandidate[] }) {
   const { status } = useAuth();
   const starParam = useSearchParams().get("star");
   const [slotA, setSlotA] = useState<Slot>(null);
@@ -178,10 +178,8 @@ export default function DualStarPicker({ candidates, upgradesEnabled }: { candid
       </section>
 
       <div className="mf-dual-cta-zone">
-        <p className="mf-dual-value">报告从 <b>关系底色、日常沟通与冲突、双向影响</b>，到 <b>六个关键判断、未来关系节奏与最终建议</b>，逐层解读两人的相处动力与经营方式。</p>
         {bothReady ? (
           <>
-            <p className="mf-dual-meta">{slotA!.name}（{slotA!.birthDate.replaceAll("-", ".")} · {slotA!.birthPlace}） × {slotB!.name}（{slotB!.birthDate.replaceAll("-", ".")} · {slotB!.birthPlace}）</p>
             {existing ? (
               <div className="mf-dual-existing" role="status">
                 <span>已经有一份「{existing.label}」的合盘报告</span>
@@ -193,10 +191,7 @@ export default function DualStarPicker({ candidates, upgradesEnabled }: { candid
               <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => generate(false)}>
                 {creating ? "正在创建…" : "生成双人合盘报告"}
               </button>
-              <button className="mf-dual-ghost" type="button" onClick={() => setPicking("A")}>更换 A</button>
-              <button className="mf-dual-ghost" type="button" onClick={() => setPicking("B")}>更换 B</button>
             </div>
-            <p className="mf-dual-note">{upgradesEnabled ? "生成消耗 1 次解读额度,生成失败自动退回;报告生成后永久保存。" : "当前限时免费生成;报告生成后永久保存。"}报告基于公开出生资料与命理模型,不代表两位明星的现实关系。</p>
           </>
         ) : (
           <p className="mf-dual-hint">先选择两位资料完整的明星。资料待补充的明星暂不能参与合盘。</p>
@@ -214,7 +209,7 @@ export default function DualStarPicker({ candidates, upgradesEnabled }: { candid
             </header>
             <label className="mf-dual-search">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
-              <input type="search" placeholder="搜索" value={query} onChange={(event) => setQuery(event.target.value)} autoFocus />
+              <input type="search" placeholder="搜索" value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
             <div className={query.trim() ? "mf-dual-list" : "mf-dual-groups"}>
               {grouped ? grouped.map(([group, members]) => (
