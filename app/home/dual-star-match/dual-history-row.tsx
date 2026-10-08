@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { portraitImage } from "../../myfate-image";
 
-// 历史合盘横条:主体是跳转链接,右端删除按钮与链接平级(不嵌套),两次点击确认删除。
-// 删除按 id+本人归属调用 API,成功后 router.refresh() 重拉列表。
+// 历史合盘横条:主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
+// 点删除后整行切换为红色确认条(删除后不可恢复 + 取消/确认删除),点取消恢复。
 export default function DualHistoryRow({ id, portraitA, portraitB, title, time, statusLabel, status }: {
   id: string;
   portraitA: string;
@@ -19,18 +19,8 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<"idle" | "confirm" | "deleting" | "error">("idle");
-  // 确认态 3 秒未操作自动回退,避免误触后一直停留在「确认删除」
-  const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (confirmTimer.current) clearTimeout(confirmTimer.current); }, []);
-
-  const askDelete = () => {
-    setPhase("confirm");
-    if (confirmTimer.current) clearTimeout(confirmTimer.current);
-    confirmTimer.current = setTimeout(() => setPhase("idle"), 3000);
-  };
 
   const doDelete = async () => {
-    if (confirmTimer.current) clearTimeout(confirmTimer.current);
     setPhase("deleting");
     try {
       const res = await fetch("/api/dual-star/delete", {
@@ -42,9 +32,25 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
       router.refresh();
     } catch {
       setPhase("error");
-      setTimeout(() => setPhase("idle"), 2500);
     }
   };
+
+  // 确认条:警示文案 + 失败提示/取消/确认删除
+  if (phase !== "idle") {
+    return (
+      <div className="mf-dual-history-row-wrap is-confirm" role="alertdialog" aria-label={`确认删除 ${title} 的合盘记录`}>
+        <div className="mf-dual-history-confirm">
+          <b>{phase === "error" ? "删除失败，请重试" : "删除后不可恢复"}</b>
+          <span className="mf-dual-hd-actions">
+            <button type="button" className="mf-dual-hd-cancel" onClick={() => setPhase("idle")}>取消</button>
+            <button type="button" className="mf-dual-hd-confirm" disabled={phase === "deleting"} onClick={doDelete}>
+              {phase === "deleting" ? "删除中…" : "确认删除"}
+            </button>
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mf-dual-history-row-wrap">
@@ -61,12 +67,10 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
       <button
         type="button"
         className="mf-dual-history-del"
-        data-phase={phase}
-        disabled={phase === "deleting"}
-        onClick={phase === "confirm" ? doDelete : askDelete}
-        aria-label={phase === "confirm" ? `确认删除 ${title} 的合盘记录` : `删除 ${title} 的合盘记录`}
+        onClick={() => setPhase("confirm")}
+        aria-label={`删除 ${title} 的合盘记录`}
       >
-        {phase === "confirm" ? "确认" : phase === "deleting" ? "…" : phase === "error" ? "失败" : "删除"}
+        删除
       </button>
     </div>
   );

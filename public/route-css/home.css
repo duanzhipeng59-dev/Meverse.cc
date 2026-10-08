@@ -2723,7 +2723,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-mobile-profile-btn { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; margin-left: auto; border-radius: 999px; border: 1px solid rgb(198 75 115 / 45%); background: transparent; color: var(--bz-red-bright, #DE6B91); text-decoration: none; font-size: 11.5px; font-weight: 600; }
 }
 
-/* 历史合盘横条删除按钮:与跳转链接平级,绝对定位右端;两次点击确认 */
+/* 历史合盘横条删除:右端小按钮入口;点击后整行切换为红色确认条 */
 .mf-dual-history-row-wrap { position: relative; }
 .mf-dual-history-row-wrap .mf-dual-history-row { padding-right: 58px; }
 .mf-dual-history-del {
@@ -2733,9 +2733,25 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   cursor: pointer; transition: color .15s ease, border-color .15s ease, background-color .15s ease;
 }
 .mf-dual-history-del:hover { color: var(--bz-red); border-color: var(--bz-red); }
-.mf-dual-history-del[data-phase="confirm"] { background: var(--bz-red); border-color: var(--bz-red); color: #fff; }
-.mf-dual-history-del[data-phase="deleting"] { opacity: .55; cursor: default; }
-.mf-dual-history-del[data-phase="error"] { color: var(--bz-red); border-color: var(--bz-red); }
+.mf-dual-history-confirm {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 58px; box-sizing: border-box; padding: 10px 14px;
+  border: 1px solid var(--bz-red); border-radius: 12px; background: rgb(139 30 45 / 8%);
+}
+.mf-dual-history-confirm b { color: var(--bz-red); font-size: 13px; font-weight: 650; }
+.mf-dual-hd-actions { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.mf-dual-hd-cancel {
+  padding: 7px 14px; border: 1px solid var(--bz-line); border-radius: 9px;
+  background: transparent; color: var(--bz-muted); font: 500 12.5px/1 inherit; cursor: pointer;
+}
+.mf-dual-hd-cancel:hover { color: var(--bz-ink); border-color: var(--bz-line-strong); }
+.mf-dual-hd-confirm {
+  padding: 7px 14px; border: 1px solid var(--bz-red); border-radius: 9px;
+  background: var(--bz-red); color: #fff; font: 600 12.5px/1 inherit; cursor: pointer;
+  transition: opacity .15s ease;
+}
+.mf-dual-hd-confirm:hover { opacity: .88; }
+.mf-dual-hd-confirm:disabled { opacity: .55; cursor: default; }
 
 /* 明星选择面板分组标题(无搜索时按组合分节) */
 .mf-dual-group-title { margin: 6px 0 0; color: var(--bz-muted); font: 650 11.5px/1.4 var(--font-serif-display); letter-spacing: .12em; text-transform: uppercase; }
