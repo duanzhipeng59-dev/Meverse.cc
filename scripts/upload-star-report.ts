@@ -28,6 +28,7 @@ const input = JSON.parse(readFileSync(file, "utf8")) as {
     timeline?: Array<{ year: number; event: string }>;
     futureKnown?: Array<{ year: number; event: string }>;
     relationship?: string;
+    family?: { background?: string; parents?: string; note?: string };
     notes?: string;
   };
   report: Record<string, unknown>;
@@ -106,12 +107,28 @@ if (report.education) {
 
 // ── 大运三表 + 流年三表 ──
 const ENGINE_STEPS = new Map((chart?.daYun.steps ?? []).map((s) => [s.ganzhi, s]));
+const ENGINE_ORDER = (chart?.daYun.steps ?? []).map((s) => s.ganzhi);
 function checkLifetime(path: string, steps: any[] | undefined, kind: "career" | "wealth" | "love") {
   if (!Array.isArray(steps) || steps.length < 6) { errors.push(`${path} 至少 6 步大运`); return; }
   if (steps.length > 10) errors.push(`${path} 最多 10 步`);
+  // 顺序校验:必须是引擎大运序列的连续子序列(防顺逆排错导致的乱序)
+  const firstIndex = ENGINE_ORDER.indexOf(steps[0].ganzhi);
+  if (firstIndex < 0) {
+    errors.push(`${path} 大运干支与排盘不符:真实大运序列为 ${ENGINE_ORDER.join("、")}`);
+  } else {
+    for (const [i, step] of steps.entries()) {
+      if (ENGINE_ORDER[firstIndex + i] !== step.ganzhi) {
+        errors.push(`${path}[${i}] 大运顺序不符:「${step.ganzhi}」应为「${ENGINE_ORDER[firstIndex + i] ?? "(超出序列)"}」(真实序列 ${ENGINE_ORDER.join("、")})`);
+        break;
+      }
+    }
+  }
   for (const [i, step] of steps.entries()) {
-    if (!ENGINE_STEPS.has(step.ganzhi)) errors.push(`${path}[${i}] 大运干支「${step.ganzhi}」与排盘不符`);
-    if (typeof step.age !== "string" || !step.age) errors.push(`${path}[${i}].age 缺失`);
+    const engine = ENGINE_STEPS.get(step.ganzhi);
+    const ageMatch = /^约?(\d+)-(\d+)岁$/.exec(step.age ?? "");
+    if (engine && ageMatch && (Number(ageMatch[1]) !== engine.startAge || Number(ageMatch[2]) !== engine.endAge)) {
+      errors.push(`${path}[${i}] 年龄段「${step.age}」应为「约${engine.startAge}-${engine.endAge}岁」(起运岁数是排盘事实)`);
+    }
     if (typeof step.note !== "string" || step.note.length < 4) errors.push(`${path}[${i}].note 缺失或过短`);
     else if (step.note.length < 12) warn.push(`${path}[${i}].note 偏短(${step.note.length} 字),建议 20 字以上`);
     if (kind === "career" && (typeof step.score !== "number" || step.score < 0 || step.score > 100)) errors.push(`${path}[${i}].score 须为 0-100`);
