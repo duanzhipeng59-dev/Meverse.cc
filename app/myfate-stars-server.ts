@@ -117,7 +117,7 @@ const LIST_CACHE_TTL_MS = 5 * 60_000;
 const LIST_QUERY_TIMEOUT_MS = 2000;
 
 // CORTIS 静态卡注入(库里暂无档案的成员走本地种子数据 + 中文名)与 SEVENTEEN 库内放行名单。
-const RESTORED_CORTIS_IDS = new Set(["james", "juhoon", "keonho", "seonghyeon"]);
+const RESTORED_CORTIS_IDS = new Set(["james"]);
 const RESTORED_SEVENTEEN_IDS = [
   "s-coups", "jeonghan", "joshua", "jun", "hoshi", "wonwoo", "woozi",
   "dk", "mingyu", "the8", "seungkwan", "vernon", "dino",
@@ -125,9 +125,6 @@ const RESTORED_SEVENTEEN_IDS = [
 const RESTORED_SEVENTEEN_FILTER = `published.eq.true,id.in.(${RESTORED_SEVENTEEN_IDS.join(",")})`;
 const CORTIS_CHINESE_NAMES: Record<string, string> = {
   james: "赵雨凡",
-  juhoon: "金主训",
-  keonho: "安乾镐",
-  seonghyeon: "严成玹",
 };
 
 function restoredCortisListItems(): StarListItem[] {

@@ -109,60 +109,6 @@ export const stars: StarProfile[] = [
     portraitSrc: "/james.webp",
     ideal: { security: 58, expression: 42, independence: 92, conflict: 78, novelty: 75 },
   },
-  {
-    id: "juhoon",
-    gender: "male",
-    name: "Juhoon",
-    role: "艺人 · 舞台创作者",
-    tagline: "跟着感觉靠近，在舒服的陪伴里慢慢认真",
-    description:
-      "ISFP 的感受力与壬水日主的流动性，让 TA 更相信当下相处的真实体感。TA 喜欢自然发生的靠近，不爱被关系规则束缚；看似随性，实际上会默默记住你的情绪与习惯，并用陪伴而不是宣言表达认真。",
-    relationshipStyle: "感受先行的陪伴型",
-    focus: "相处舒服 · 尊重节奏 · 真实行动",
-    mbti: "ISFP",
-    birthDate: "2008-01-03",
-    threePillars: "丁亥 · 壬子 · 壬寅",
-    traits: ["随性", "细腻", "自由"],
-    matchCount: "15,320",
-    portraitSrc: "/juhoon.webp",
-    ideal: { security: 68, expression: 64, independence: 82, conflict: 58, novelty: 88 },
-  },
-  {
-    id: "keonho",
-    gender: "male",
-    name: "Keonho",
-    role: "艺人 · 舞台创作者",
-    tagline: "独立直接，喜欢一起拆解未知世界",
-    description:
-      "INTP 的探索欲与庚金日主的直接感，让 TA 对新观点很有兴趣，也很重视逻辑与自主判断。TA 不喜欢过度试探，遇到问题更愿意一起找答案；亲密对 TA 而言不是失去空间，而是拥有一个能够并肩探索的人。",
-    relationshipStyle: "边界清晰的探索型",
-    focus: "坦率沟通 · 自主空间 · 共同解题",
-    mbti: "INTP",
-    birthDate: "2009-02-14",
-    threePillars: "己丑 · 丙寅 · 庚寅",
-    traits: ["独立", "直接", "好奇"],
-    matchCount: "11,590",
-    portraitSrc: "/keonho.webp",
-    ideal: { security: 60, expression: 45, independence: 94, conflict: 76, novelty: 82 },
-  },
-  {
-    id: "seonghyeon",
-    gender: "male",
-    name: "Seonghyeon",
-    role: "艺人 · 舞台创作者",
-    tagline: "安静而坚定，认定之后更相信长期行动",
-    description:
-      "INTP 的内在思考与戊土日主的稳定底色，让 TA 在关系里更倾向先确认价值观，再投入长期行动。TA 表面克制，不会用夸张表达制造安全感，却会通过守约、解决问题和持续出现证明在意。",
-    relationshipStyle: "安静可靠的长期型",
-    focus: "稳定兑现 · 尊重边界 · 深度交流",
-    mbti: "INTP",
-    birthDate: "2009-01-13",
-    threePillars: "戊子 · 乙丑 · 戊午",
-    traits: ["稳定", "内敛", "坚定"],
-    matchCount: "20,410",
-    portraitSrc: "/seonghyeon.webp",
-    ideal: { security: 74, expression: 40, independence: 88, conflict: 82, novelty: 60 },
-  },
 ];
 
 export function createInitialQuestions(star: StarProfile): TestQuestion[] {
@@ -171,17 +117,11 @@ export function createInitialQuestions(star: StarProfile): TestQuestion[] {
     "bang-chan": "忙完团队的事，嘴上还说“没事”",
     hyunjin: "作品不顺，嘴上还说“没事”",
     james: "钻研太久，差点忘了休息",
-    juhoon: "临时改完安排，有点疲惫",
-    keonho: "沉浸在新想法里，忘了休息",
-    seonghyeon: "扛下很多事，却一句没抱怨",
   };
   const affectionMoment: Record<string, string> = {
     "bang-chan": "在后台没人时，轻轻亲了你的额头",
     hyunjin: "分别前，忽然亲了你的额头",
     james: "聊天停下时，轻轻亲了你的额头",
-    juhoon: "人群散去后，忽然牵住你的手",
-    keonho: "并肩走路时，忽然牵住你的手",
-    seonghyeon: "送你回家时，忽然牵住你的手",
   };
   const templates: TestQuestion[] = [
   {
@@ -582,9 +522,6 @@ const legacyStarIds: Record<string, string> = {
   "lin-yue": "bang-chan",
   "chen-zhou": "hyunjin",
   "xu-ran": "james",
-  "luo-jing": "juhoon",
-  "su-wan": "keonho",
-  "jiang-che": "seonghyeon",
 };
 
 export function getStar(id: string) {
