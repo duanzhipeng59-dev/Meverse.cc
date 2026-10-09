@@ -2721,16 +2721,18 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-mobile-profile-btn { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; margin-left: auto; border-radius: 999px; border: 1px solid rgb(198 75 115 / 45%); background: transparent; color: var(--bz-red-bright, #DE6B91); text-decoration: none; font-size: 10px; font-weight: 600; }
 }
 
-/* 历史合盘横条删除:右端小按钮入口;点击后整行切换为红色确认条 */
+/* 历史合盘横条删除:右端垃圾桶图标入口(低调,按下才显红);点击后整行切换为红色确认条 */
 .mf-dual-history-row-wrap { position: relative; }
-.mf-dual-history-row-wrap .mf-dual-history-row { padding-right: 58px; }
+.mf-dual-history-row-wrap .mf-dual-history-row { padding-right: 46px; }
 .mf-dual-history-del {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  padding: 5px 9px; border: 1px solid var(--bz-line); border-radius: 8px;
-  background: transparent; color: var(--bz-faint); font: 500 11px/1 inherit;
-  cursor: pointer; transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; border: 0; border-radius: 9px;
+  background: transparent; color: var(--bz-faint);
+  cursor: pointer; transition: color .15s ease, background-color .15s ease;
 }
-.mf-dual-history-del:hover { color: var(--bz-red); border-color: var(--bz-red); }
+.mf-dual-history-del svg { width: 15px; height: 15px; }
+.mf-dual-history-del:hover, .mf-dual-history-del:active { color: var(--bz-red); background: rgb(139 30 45 / 10%); }
 .mf-dual-history-confirm {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   min-height: 58px; box-sizing: border-box; padding: 10px 14px;

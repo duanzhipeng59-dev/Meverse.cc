@@ -70,7 +70,12 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
         onClick={() => setPhase("confirm")}
         aria-label={`删除 ${title} 的合盘记录`}
       >
-        删除
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M4 7h16" />
+          <path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" />
+          <path d="M6.5 7l.8 11.2A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8L17.5 7" />
+          <path d="M10.2 11v5M13.8 11v5" />
+        </svg>
       </button>
     </div>
   );
