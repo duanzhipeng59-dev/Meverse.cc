@@ -9,9 +9,8 @@ export default function Loading() {
         <i className="mf-skel-share" />
       </div>
       <div className="mf-skel-hero">
-        {/* 双人合盘:两张头像 + 连接符 */}
+        {/* 双人合盘:两张头像占位 */}
         <i className="skel-portrait" />
-        <span className="mf-skel-duo-x" aria-hidden="true">×</span>
         <i className="skel-portrait" />
         <div className="mf-skel-hero-copy">
           <i className="skel-bar w-32" />

@@ -2764,6 +2764,3 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 800px) {
   .mf-explore-nav { position: sticky; top: calc(42px + env(safe-area-inset-top)); z-index: 15; background: #0d090b; }
 }
-
-/* 合盘骨架:双人头像之间的连接符(仅合盘页使用,随 home.css 加载) */
-.mf-skel-duo-x { flex-shrink: 0; font-size: 18px; font-weight: 600; color: var(--bz-muted); }
