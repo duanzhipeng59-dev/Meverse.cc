@@ -1471,6 +1471,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-empty { margin: 20px 0; color: var(--bz-muted); font-size: 12.5px; text-align: center; }
 
 
+/* generating/失败态:报告容器退去面板感,与页面背景一致,只留状态卡内容(肖像/名称/动画/提示) */
+.mf-zr:has(.mf-dual-status) { background: transparent; padding: clamp(20px, 5vw, 40px) clamp(16px, 3vw, 32px); }
 .mf-dual-status { display: grid; justify-items: center; gap: 10px; padding: clamp(24px, 6vw, 60px) 20px; text-align: center; }
 
 .mf-dual-status-people { display: flex; align-items: center; gap: 14px; }
@@ -2069,9 +2071,9 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-history-avatars i { font-style: normal; color: var(--bz-red-bright); font-size: 10px; }
 
-.mf-dual-history-row b { min-width: 0; color: var(--bz-ink); font-size: 13.5px; font-weight: 650; }
+.mf-dual-history-row b { min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--bz-ink); font-size: 13.5px; font-weight: 650; }
 
-.mf-dual-history-row small { margin-left: auto; color: var(--bz-faint); font-size: 11px; white-space: nowrap; }
+.mf-dual-history-row small { margin-left: auto; flex-shrink: 0; color: var(--bz-faint); font-size: 11px; white-space: nowrap; }
 
 .mf-dual-history-row em { flex-shrink: 0; font-style: normal; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 
@@ -2721,10 +2723,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* 历史合盘横条删除:右端小按钮入口;点击后整行切换为红色确认条 */
 .mf-dual-history-row-wrap { position: relative; }
-.mf-dual-history-row-wrap .mf-dual-history-row { padding-right: 58px; }
+/* 右侧按钮宽约 44px + 右缘 10px + 状态标签到按钮 ≥8px → 行右内边距 66px */
+.mf-dual-history-row-wrap .mf-dual-history-row { padding-right: 66px; }
 .mf-dual-history-del {
   position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  padding: 5px 9px; border: 1px solid var(--bz-line); border-radius: 8px;
+  flex-shrink: 0; padding: 5px 9px; border: 1px solid var(--bz-line); border-radius: 8px;
   background: transparent; color: var(--bz-faint); font: 500 11px/1 inherit;
   cursor: pointer; transition: color .15s ease, border-color .15s ease, background-color .15s ease;
 }
