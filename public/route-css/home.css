@@ -2360,7 +2360,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 800px) {
 
   /* sticky 而非 fixed:橡皮筋下拉时与主体同属文档流,同步位移/回弹,不会出现顶栏与内容分离的断层 */
-  .mf-workspace-mobile-bar { position: sticky; top: 0; z-index: 20; width: 100%; height: calc(42px + env(safe-area-inset-top)); box-sizing: border-box; padding: env(safe-area-inset-top) 16px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .mf-workspace-mobile-bar { position: sticky; top: 0; z-index: 20; width: 100%; height: calc(54px + env(safe-area-inset-top)); box-sizing: border-box; padding: env(safe-area-inset-top) 16px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 }
 @media (max-width: 800px) {
 
@@ -2762,5 +2762,5 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* 移动端:固定顶栏占 64px+安全区,筛选栏吸附在其正下方,滚动时与顶栏一体保持不动 */
 @media (max-width: 800px) {
-  .mf-explore-nav { position: sticky; top: calc(42px + env(safe-area-inset-top)); z-index: 15; background: #0d090b; }
+  .mf-explore-nav { position: sticky; top: calc(54px + env(safe-area-inset-top)); z-index: 15; background: #0d090b; }
 }
