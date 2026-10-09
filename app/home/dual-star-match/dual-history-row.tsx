@@ -8,12 +8,12 @@ import { portraitImage } from "../../myfate-image";
 // 历史合盘横条:主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
 // 点删除后整行切换为红色确认条(删除后不可恢复 + 取消/确认删除),点取消恢复;
 // 删除成功由父组件回调本地移除(入口页静态化后 router.refresh 不会更新客户端数据)。
-// 不展示生成时间(产品要求)。
-export default function DualHistoryRow({ id, portraitA, portraitB, title, statusLabel, status, onDeleted }: {
+export default function DualHistoryRow({ id, portraitA, portraitB, title, time, statusLabel, status, onDeleted }: {
   id: string;
   portraitA: string;
   portraitB: string;
   title: string;
+  time: string;
   statusLabel: string;
   status: string;
   onDeleted: (id: string) => void;
@@ -61,6 +61,7 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, status
           <Image src={portraitImage(portraitB, 120)} alt="" width={30} height={39} unoptimized />
         </span>
         <b>{title}</b>
+        <small>{time}</small>
         <em data-status={status}>{statusLabel}</em>
       </Link>
       <button

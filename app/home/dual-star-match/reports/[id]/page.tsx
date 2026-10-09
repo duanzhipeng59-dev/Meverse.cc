@@ -116,7 +116,6 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
                 <h1>{starA.name} × {starB.name} AI双星命理合盘</h1>
                 <p className="mf-dual-report-keywords">{content.keywords.join(" · ")}</p>
                 <p className="mf-dual-report-summary">{content.summary}</p>
-                <small>基于公开出生资料与八字合盘规则推导 · 分数由确定性引擎计算,表示报告内部相对趋势</small>
               </div>
             </header>
 

@@ -2071,9 +2071,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-history-avatars i { font-style: normal; color: var(--bz-red-bright); font-size: 10px; }
 
-.mf-dual-history-row b { min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--bz-ink); font-size: 13.5px; font-weight: 650; }
+.mf-dual-history-row b { min-width: 0; color: var(--bz-ink); font-size: 13.5px; font-weight: 650; }
 
-.mf-dual-history-row em { margin-left: auto; flex-shrink: 0; font-style: normal; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.mf-dual-history-row small { margin-left: auto; color: var(--bz-faint); font-size: 11px; white-space: nowrap; }
+
+.mf-dual-history-row em { flex-shrink: 0; font-style: normal; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 
 .mf-dual-history-row em[data-status="ready"] { color: var(--bz-green); background: rgb(114 181 138 / 12%); }
 
@@ -2721,11 +2723,10 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* 历史合盘横条删除:右端小按钮入口;点击后整行切换为红色确认条 */
 .mf-dual-history-row-wrap { position: relative; }
-/* 右侧按钮宽约 44px + 右缘 10px + 状态标签到按钮 ≥8px → 行右内边距 66px */
-.mf-dual-history-row-wrap .mf-dual-history-row { padding-right: 66px; }
+.mf-dual-history-row-wrap .mf-dual-history-row { padding-right: 58px; }
 .mf-dual-history-del {
   position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  flex-shrink: 0; padding: 5px 9px; border: 1px solid var(--bz-line); border-radius: 8px;
+  padding: 5px 9px; border: 1px solid var(--bz-line); border-radius: 8px;
   background: transparent; color: var(--bz-faint); font: 500 11px/1 inherit;
   cursor: pointer; transition: color .15s ease, border-color .15s ease, background-color .15s ease;
 }
