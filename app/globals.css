@@ -3867,10 +3867,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-skel-patience { margin: 0; text-align: center; font-size: 12.5px; color: var(--bz-muted); opacity: 0; animation: mf-skel-hint 0.4s 5s forwards; }
 
 
-/* 合盘骨架:双人头像之间的连接符 */
-.mf-skel-duo-x { flex-shrink: 0; font-size: 18px; font-weight: 600; color: var(--bz-muted); }
-
-
 .mf-skel-astrology .mf-skel-patience { color: #776f8e; }
 
 

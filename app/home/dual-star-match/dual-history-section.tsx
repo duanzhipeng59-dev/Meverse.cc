@@ -100,7 +100,7 @@ export default function DualHistorySection({ candidates }: { candidates: DualSta
       <h2>历史合盘</h2>
       <div className="mf-dual-history-list">
         {rows.map((row) => {
-          // 接口给 UTC,转东八区用于 aria 语义(行内不再展示时间)
+          // 接口给 UTC,统一按东八区展示
           const shifted = new Date(new Date(row.createdAt).getTime() + 8 * 3600_000);
           const time = `${shifted.getUTCMonth() + 1}月${shifted.getUTCDate()}日 ${String(shifted.getUTCHours()).padStart(2, "0")}:${String(shifted.getUTCMinutes()).padStart(2, "0")}`;
           return (
@@ -110,7 +110,7 @@ export default function DualHistorySection({ candidates }: { candidates: DualSta
               portraitA={row.portraitA}
               portraitB={row.portraitB}
               title={`${personOf(row.starA, row.nameA)} × ${personOf(row.starB, row.nameB)}`}
-              createdAt={time}
+              time={time}
               status={row.status}
               statusLabel={STATUS_LABELS[row.status] ?? row.status}
               onDeleted={handleDeleted}
