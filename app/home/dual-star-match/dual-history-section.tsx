@@ -99,18 +99,24 @@ export default function DualHistorySection({ candidates }: { candidates: DualSta
     <section className="mf-dual mf-dual-history-zone" aria-label="历史合盘记录">
       <h2>历史合盘</h2>
       <div className="mf-dual-history-list">
-        {rows.map((row) => (
-          <DualHistoryRow
-            key={row.id}
-            id={row.id}
-            portraitA={row.portraitA}
-            portraitB={row.portraitB}
-            title={`${personOf(row.starA, row.nameA)} × ${personOf(row.starB, row.nameB)}`}
-            status={row.status}
-            statusLabel={STATUS_LABELS[row.status] ?? row.status}
-            onDeleted={handleDeleted}
-          />
-        ))}
+        {rows.map((row) => {
+          // 接口给 UTC,统一按东八区展示
+          const shifted = new Date(new Date(row.createdAt).getTime() + 8 * 3600_000);
+          const time = `${shifted.getUTCMonth() + 1}月${shifted.getUTCDate()}日 ${String(shifted.getUTCHours()).padStart(2, "0")}:${String(shifted.getUTCMinutes()).padStart(2, "0")}`;
+          return (
+            <DualHistoryRow
+              key={row.id}
+              id={row.id}
+              portraitA={row.portraitA}
+              portraitB={row.portraitB}
+              title={`${personOf(row.starA, row.nameA)} × ${personOf(row.starB, row.nameB)}`}
+              time={time}
+              status={row.status}
+              statusLabel={STATUS_LABELS[row.status] ?? row.status}
+              onDeleted={handleDeleted}
+            />
+          );
+        })}
       </div>
     </section>
   );
