@@ -3,10 +3,9 @@
 export default function Loading() {
   return (
     <div className="mf-skel mf-skel-bazi" aria-busy="true" aria-label="正在加载双人合盘">
-      {/* 选择器双人卡:头像 × 头像 + 操作条 */}
+      {/* 选择器双人卡:两张头像占位 + 操作条 */}
       <div className="mf-skel-hero">
         <i className="skel-portrait" />
-        <span className="mf-skel-duo-x" aria-hidden="true">×</span>
         <i className="skel-portrait" />
         <div className="mf-skel-hero-copy">
           <i className="skel-bar w-32" />
