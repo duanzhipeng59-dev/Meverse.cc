@@ -23,6 +23,9 @@ type ServerCacheOptions<T> = {
   load: () => Promise<T>;
   // 数据库失败/超时时立即返回:优先传入最近一次成功值(stale),没有则给安全兜底。
   onError: (error: unknown, stale: T | null) => T;
+  // 失败兜底值的缓存时长(默认与 ttlMs 相同)。传短值可让故障快速自愈重试,
+  // 避免一次超时把弱兜底(如静态种子名单)当有效数据缓存整个 TTL 周期。
+  failureTtlMs?: number;
 };
 
 export type ServerCache<T> = {
@@ -31,23 +34,28 @@ export type ServerCache<T> = {
   set: (value: T) => void;
 };
 
-export function createServerCache<T>({ name, ttlMs, timeoutMs, load, onError }: ServerCacheOptions<T>): ServerCache<T> {
+export function createServerCache<T>({ name, ttlMs, timeoutMs, load, onError, failureTtlMs }: ServerCacheOptions<T>): ServerCache<T> {
   let value: T | null = null;
   let loadedAt = 0;
   let inflight: Promise<T> | null = null;
+  // 当前缓存值是否来自失败兜底:是则按 failureTtlMs 提前过期,尽快重试自愈
+  let degraded = false;
 
   async function refresh(): Promise<T> {
     try {
       const fresh = await withTimeout(load(), timeoutMs, name);
       value = fresh;
       loadedAt = Date.now();
+      degraded = false;
       return fresh;
     } catch (error) {
       console.error(`Server cache refresh failed: ${name}`, error);
       const fallback = onError(error, value);
-      // 缓存兜底值，避免数据库故障期间每个请求都重复吃满超时。
+      // 短暂缓存兜底值,避免数据库故障期间每个请求都重复吃满超时,
+      // 但不再当整个 TTL 周期的有效数据——故障恢复后第一时间自动回源。
       value = fallback;
       loadedAt = Date.now();
+      degraded = true;
       return fallback;
     } finally {
       inflight = null;
@@ -56,7 +64,8 @@ export function createServerCache<T>({ name, ttlMs, timeoutMs, load, onError }: 
 
   return {
     get() {
-      if (value !== null && Date.now() - loadedAt < ttlMs) return Promise.resolve(value);
+      const effectiveTtl = degraded ? (failureTtlMs ?? ttlMs) : ttlMs;
+      if (value !== null && Date.now() - loadedAt < effectiveTtl) return Promise.resolve(value);
       // 并发穿透去重:同一时刻只有一个刷新在跑,其余请求复用同一 Promise。
       inflight ??= refresh();
       return inflight;
@@ -67,6 +76,7 @@ export function createServerCache<T>({ name, ttlMs, timeoutMs, load, onError }: 
     set(next: T) {
       value = next;
       loadedAt = Date.now();
+      degraded = false;
     },
   };
 }

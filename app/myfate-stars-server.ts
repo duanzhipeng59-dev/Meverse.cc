@@ -114,7 +114,10 @@ type ListRow = {
 
 const listSelection = "id,name,role,birth_date,gender,mbti,categories,portrait_url,created_at,homepage_featured,homepage_position";
 const LIST_CACHE_TTL_MS = 5 * 60_000;
-const LIST_QUERY_TIMEOUT_MS = 2000;
+// 同区正常 <100ms;免费层节流/网络抖动时可到秒级,2s 超时过紧曾导致整列表掉到静态兜底。
+const LIST_QUERY_TIMEOUT_MS = 5000;
+// 查询失败兜底(静态种子名单)只缓存 15 秒,故障恢复后立即自愈回源。
+const LIST_FAILURE_TTL_MS = 15_000;
 
 // CORTIS 静态卡注入(库里暂无档案的成员走本地种子数据 + 中文名)与 SEVENTEEN 库内放行名单。
 const RESTORED_CORTIS_IDS = new Set(["james"]);
@@ -163,11 +166,13 @@ function seedStarList(): StarListItem[] {
   }));
 }
 
-// 公开人物列表:同实例缓存 + 并发去重 + 2s 查询超时;失败时优先返回最近一次成功数据,再退种子名单。
+// 公开人物列表:同实例缓存 + 并发去重 + 5s 查询超时;失败时优先返回最近一次成功数据,
+// 再退种子名单;兜底值仅缓存 15s(LIST_FAILURE_TTL_MS),避免弱名单长期顶替真实列表。
 const starListCache = createServerCache<StarListItem[]>({
   name: "celebrity_profiles.published_list",
   ttlMs: LIST_CACHE_TTL_MS,
   timeoutMs: LIST_QUERY_TIMEOUT_MS,
+  failureTtlMs: LIST_FAILURE_TTL_MS,
   load: async () => {
     if (!hasCloudConfig()) return seedStarList();
     const { data, error } = await createSupabaseAdminClient()
