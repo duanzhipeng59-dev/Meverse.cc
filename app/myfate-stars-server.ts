@@ -4,6 +4,7 @@ import { buildBaziChart } from "./myfate-bazi-engine";
 import { buildStarBaziBrief, buildStarBaziHeadline } from "./myfate-star-bazi-report";
 import { createDefaultCelebrityReportPrompt, getStar, stars, type StarProfile } from "./myfate-data";
 import { createServerCache } from "./server-cache";
+import { STAR_SNAPSHOT } from "./myfate-star-snapshot";
 
 type CelebrityRow = {
   id: string;
@@ -119,13 +120,9 @@ const LIST_QUERY_TIMEOUT_MS = 5000;
 // 查询失败兜底(静态种子名单)只缓存 15 秒,故障恢复后立即自愈回源。
 const LIST_FAILURE_TTL_MS = 15_000;
 
-// CORTIS 静态卡注入(库里暂无档案的成员走本地种子数据 + 中文名)与 SEVENTEEN 库内放行名单。
+// CORTIS 静态卡注入(库里暂无档案的成员走本地种子数据 + 中文名)。
+// 原 SEVENTEEN 放行名单已随全员 published=true 移除,查询回归纯 published 过滤。
 const RESTORED_CORTIS_IDS = new Set(["james"]);
-const RESTORED_SEVENTEEN_IDS = [
-  "s-coups", "jeonghan", "joshua", "jun", "hoshi", "wonwoo", "woozi",
-  "dk", "mingyu", "the8", "seungkwan", "vernon", "dino",
-] as const;
-const RESTORED_SEVENTEEN_FILTER = `published.eq.true,id.in.(${RESTORED_SEVENTEEN_IDS.join(",")})`;
 const CORTIS_CHINESE_NAMES: Record<string, string> = {
   james: "赵雨凡",
 };
@@ -151,19 +148,9 @@ function withRestoredCortis(items: StarListItem[]): StarListItem[] {
 }
 
 function seedStarList(): StarListItem[] {
-  // 构建机/极端故障时拿不到库:退回本地种子名单,保证 ISR 预渲染不产出空列表;运行时会再刷新。
-  return stars.map((star) => ({
-    id: star.id,
-    name: star.name,
-    role: star.role,
-    birthDate: star.birthDate,
-    gender: star.gender ?? "unknown",
-    mbti: star.mbti ?? "",
-    categories: star.categories ?? [],
-    portraitSrc: star.portraitSrc,
-    createdAt: star.createdAt ?? "",
-    homepageFeatured: true,
-  }));
+  // 查询超时/网关限流时退回全量快照(76 人,scripts/gen-star-snapshot.mjs 导出),
+  // 用户看到完整列表(最多旧几分钟)而不是残缺名单;failureTtl 短保真,恢复后即回源。
+  return STAR_SNAPSHOT.map((item) => ({ ...item }));
 }
 
 // 公开人物列表:同实例缓存 + 并发去重 + 5s 查询超时;失败时优先返回最近一次成功数据,
@@ -178,7 +165,7 @@ const starListCache = createServerCache<StarListItem[]>({
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
       .select(listSelection)
-      .or(RESTORED_SEVENTEEN_FILTER)
+      .eq("published", true)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
@@ -214,7 +201,7 @@ export async function getPublishedStars(): Promise<StarProfile[]> {
     const { data, error } = await createSupabaseAdminClient()
       .from("celebrity_profiles")
       .select(profileSelection)
-      .or(RESTORED_SEVENTEEN_FILTER)
+      .eq("published", true)
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
