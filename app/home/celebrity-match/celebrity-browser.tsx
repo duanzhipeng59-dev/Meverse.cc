@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
@@ -76,9 +77,10 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   } catch { restored.current ??= null; }
   const initial = restored.current;
 
+  const urlQuery = useSearchParams().get("q") ?? "";
   const [cat, setCat] = useState<CatKey>(initial?.cat ?? "all");
   const [sort, setSort] = useState<SortKey>(initial?.sort ?? "default");
-  const [query, setQuery] = useState(initial?.query ?? "");
+  const [query, setQuery] = useState(initial?.query || urlQuery);
   const [pages, setPages] = useState(Math.max(1, initial?.pages ?? 1));
   const sentinelRef = useRef<HTMLDivElement>(null);
   const restoring = useRef(Boolean(initial?.scrollY));
