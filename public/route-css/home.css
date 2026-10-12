@@ -2872,12 +2872,15 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-guide-label { color: var(--bz-faint); font-size: 11.5px; font-weight: 650; letter-spacing: .08em; }
 .mf-dual-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .mf-dual-pairs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.mf-dual-pair { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 10px; min-height: 68px; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); cursor: pointer; transition: border-color .18s ease; }
+.mf-dual-pair { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; align-items: center; gap: 10px; min-height: 68px; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); cursor: pointer; transition: border-color .18s ease; }
 .mf-dual-pair:hover { border-color: var(--bz-red); }
-.mf-dual-pair i { width: 44px; height: 44px; flex-shrink: 0; border-radius: 10px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
-.mf-dual-pair-names { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 0; }
-.mf-dual-pair-names b { min-width: 0; color: var(--bz-ink); font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mf-dual-pair-names em { flex-shrink: 0; font-style: normal; color: var(--bz-red-bright); font-size: 12px; }
+.mf-dual-pair i { width: 56px; height: 68px; border-radius: 12px; flex-shrink: 0; border-radius: 10px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
+.mf-dual-pair-x { font-style: normal; color: var(--bz-red-bright); font-size: 14px; text-align: center; }
 .mf-dual-chips button { min-height: 40px; padding: 0 14px; border: 1px solid var(--bz-line); border-radius: 999px; background: transparent; color: var(--bz-ink); font: 600 12px/1 inherit; cursor: pointer; transition: border-color .18s ease, color .18s ease; }
 .mf-dual-chips button:hover { border-color: var(--bz-red); color: var(--bz-red-bright); }
 @media (max-width: 800px) { .mf-dual-relation { margin-bottom: 4px; } .mf-dual { gap: 16px; } }
+
+/* 预览页:容器切换为 padding 型边距,顶栏负 margin 才能贴合视口顶/左/右 */
+@media (max-width: 800px) {
+  .mf-workspace-content:has(.mf-preview) { width: 100%; padding: 0 20px 20px; --mf-rep-pad: 20px; }
+}

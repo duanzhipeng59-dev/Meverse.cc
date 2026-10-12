@@ -230,7 +230,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
               return (
                 <button type="button" className="mf-dual-pair" key={a + b} onClick={() => applyPair(a, b)}>
                   <i style={{ backgroundImage: `url("${portraitImage(hit(a)!.portraitSrc, 120)}")` }} aria-hidden="true" />
-                  <span className="mf-dual-pair-names"><b>{person(a)}</b><em aria-hidden="true">×</em><b>{person(b)}</b></span>
+                  <em className="mf-dual-pair-x" aria-hidden="true">×</em>
                   <i style={{ backgroundImage: `url("${portraitImage(hit(b)!.portraitSrc, 120)}")` }} aria-hidden="true" />
                 </button>
               );

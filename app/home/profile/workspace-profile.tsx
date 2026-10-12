@@ -51,7 +51,6 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
       <PeopleRow title="最近浏览" empty="暂无浏览记录,去发现页看看" list={recent} />
 
       <nav className="mf-me-links" aria-label="功能入口">
-        <Link href="/home/reports"><b>报告历史</b><span>查看与生成的报告</span><i aria-hidden="true">›</i></Link>
         <div className="mf-me-links-static"><b>AI 对话记录</b><span>保存在各报告页内</span></div>
       </nav>
     </div>
