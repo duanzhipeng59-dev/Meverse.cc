@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Button, ConfirmDialog } from "../../../../components/ui";
 
 type AskEntry = {
   id: number;
@@ -39,6 +40,8 @@ export default function StarAskPanel({
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
   const [error, setError] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
@@ -86,6 +89,17 @@ export default function StarAskPanel({
     if (entries.length) scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [entries.length, loading]);
 
+  // 章节「就这段问 AI」按钮:预填章节上下文并聚焦输入框
+  useEffect(() => {
+    const onSection = (event: Event) => {
+      const label = (event as CustomEvent<string>).detail;
+      setInput(`关于「${label}」章节：`);
+      document.querySelector<HTMLInputElement>(".mf-zr-ask-form input")?.focus();
+    };
+    window.addEventListener("mf-ask-section", onSection);
+    return () => window.removeEventListener("mf-ask-section", onSection);
+  }, []);
+
   async function loadOlder() {
     const oldest = entries[0]?.id;
     if (!oldest || loadingOlder) return;
@@ -105,7 +119,6 @@ export default function StarAskPanel({
     if (!text || loading) return;
     dirtyRef.current = true;
     setError("");
-    setInput("");
     const optimisticId = retryOf ?? -Date.now();
     const optimistic: AskEntry = { id: optimisticId, role: "user", content: text, status: "sending", createdAt: new Date().toISOString() };
     if (retryOf) {
@@ -114,11 +127,15 @@ export default function StarAskPanel({
       setEntries((prev) => [...prev, optimistic]);
     }
     setLoading(true);
+    const controller = new AbortController();
+    abortRef.current = controller;
+    let succeeded = false;
     try {
       const response = await fetch("/api/myfate/star-report-ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ starId, reportType, question: text, retryOf }),
+        signal: controller.signal,
       });
       if (response.status === 401) {
         window.location.reload();
@@ -134,7 +151,8 @@ export default function StarAskPanel({
         } else {
           setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
         }
-        setError("回答失败，请点击该问题重试。");
+        setError("回答失败,输入已保留,可点击该问题重试。");
+        if (!retryOf) setInput(text);
         return;
       }
       const answerAt = new Date().toISOString();
@@ -144,16 +162,20 @@ export default function StarAskPanel({
         return [...marked, { id: answerId, role: "assistant", content: cleanText(body.answer as string), status: "completed", createdAt: answerAt }];
       });
       startTyping(answerId, cleanText(body.answer as string));
-    } catch {
+      succeeded = true;
+    } catch (error) {
       setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
-      setError("网络异常，请重试。");
+      setError(controller.signal.aborted ? "已停止生成,该问题可重新发送。" : "网络异常,输入已保留,请重试。");
     } finally {
+      // 成功才清空输入;失败/停止都保留,便于直接重发
+      if (succeeded) setInput("");
       setLoading(false);
+      abortRef.current = null;
     }
   }
 
   async function clearChat() {
-    if (!window.confirm("清空这份报告的追问记录？报告正文不受影响。")) return;
+    setConfirmClear(false);
     setEntries([]);
     setHasMore(false);
     await fetch(`/api/myfate/star-report-ask?starId=${encodeURIComponent(starId)}&type=${reportType}`, { method: "DELETE" }).catch(() => undefined);
@@ -166,7 +188,7 @@ export default function StarAskPanel({
       <div className="mf-zr-ask-head">
         <h2 className="mf-zr-card-title">✦ AI追问</h2>
         {hasHistory ? (
-          <button type="button" className="mf-zr-ask-clear" onClick={() => void clearChat()}>清空对话</button>
+          <button type="button" className="mf-zr-ask-clear" onClick={() => setConfirmClear(true)}>清空对话</button>
         ) : null}
       </div>
 
@@ -211,6 +233,15 @@ export default function StarAskPanel({
 
       {error ? <p className="mf-zr-ask-error" role="alert">{error}</p> : null}
 
+      <ConfirmDialog
+        open={confirmClear}
+        title="清空追问记录"
+        message="确定清空这份报告的全部追问记录吗？报告正文不受影响。"
+        confirmText="清空"
+        onConfirm={() => void clearChat()}
+        onCancel={() => setConfirmClear(false)}
+      />
+
       <form
         className="mf-zr-ask-form"
         onSubmit={(event) => {
@@ -223,9 +254,12 @@ export default function StarAskPanel({
           onChange={(event) => setInput(event.target.value)}
           placeholder="输入你想追问的问题…"
           maxLength={500}
-          disabled={loading}
         />
-        <button type="submit" disabled={loading || !input.trim()}>追问</button>
+        {loading ? (
+          <Button variant="ghost" type="button" onClick={() => abortRef.current?.abort()}>停止</Button>
+        ) : (
+          <button type="submit" disabled={!input.trim()}>追问</button>
+        )}
       </form>
     </section>
   );

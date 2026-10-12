@@ -102,7 +102,8 @@ export function AskAboutSection({ sectionLabel }: { sectionLabel: string }) {
       className="mf-ask-section"
       onClick={() => {
         document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        requestAnimationFrame(() => document.querySelector<HTMLInputElement>(".mf-zr-ask-form input, .mf-zr-ask-form textarea")?.focus());
+        // 预填章节上下文(ask-panel 监听该事件),再聚焦输入
+        window.dispatchEvent(new CustomEvent("mf-ask-section", { detail: sectionLabel }));
       }}
     >
       就「{sectionLabel}」问 AI →
