@@ -104,13 +104,14 @@ test("payment pages are fully removed from the frontend", async () => {
   assert.doesNotMatch(shell, /upgrade|订阅升级/u);
 });
 
-test("uses sidebar and bottom tab navigation, keeps the empty reports state minimal", async () => {
+test("uses unified five-tab navigation, keeps the empty reports state minimal", async () => {
   const [workspaceShell, reportsBrowser] = await Promise.all([
     readFile(new URL("../app/home/workspace-shell.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/home/reports/reports-browser.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(workspaceShell, /aria-label="工作台主菜单"/u);
-  assert.match(workspaceShell, /生辰画像[\s\S]*?双人合盘/u);
+  // 五个一级页:首页/发现/合盘/报告/我的,顺序固定
+  assert.match(workspaceShell, /label: "首页"[\s\S]*?label: "发现"[\s\S]*?label: "合盘"[\s\S]*?label: "报告"[\s\S]*?label: "我的"/u);
   assert.doesNotMatch(workspaceShell, /订阅升级/u);
   assert.match(workspaceShell, /aria-label="底部导航"[\s\S]*?mf-mobile-tab/u);
   assert.doesNotMatch(workspaceShell, /完善专属资料|完善个人资料提醒/u);

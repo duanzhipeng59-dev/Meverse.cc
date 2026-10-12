@@ -5,31 +5,43 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
 
+// 一级导航五页:首页/发现/合盘/报告/我的(桌面侧栏与移动底部导航同源)
 const menuItems = [
-  {
-    icon: "heart",
-    label: "生辰画像",
-    description: "TA 的生辰命理画像",
-    href: "/home/relationship-test",
-  },
-  {
-    icon: "dual",
-    label: "双人合盘",
-    description: "两位偶像的八字合盘",
-    href: "/home/dual-star-match",
-  },
+  { icon: "home", label: "首页", description: "热门人物与最近阅读", href: "/home" },
+  { icon: "heart", label: "发现", description: "浏览与搜索人物画像", href: "/home/relationship-test" },
+  { icon: "dual", label: "合盘", description: "两位偶像的八字合盘", href: "/home/dual-star-match" },
+  { icon: "report", label: "报告", description: "已生成的报告与阅读历史", href: "/home/reports" },
 ];
 
-// 手机端底部导航:两个一级 Tab(个人中心固定在顶栏右上角)
 const tabItems = [
-  { icon: "heart", label: "生辰画像", href: "/home/relationship-test" },
-  { icon: "dual", label: "双人合盘", href: "/home/dual-star-match" },
+  { icon: "home", label: "首页", href: "/home" },
+  { icon: "heart", label: "发现", href: "/home/relationship-test" },
+  { icon: "dual", label: "合盘", href: "/home/dual-star-match" },
+  { icon: "report", label: "报告", href: "/home/reports" },
+  { icon: "user", label: "我的", href: "/home/profile" },
 ];
 
 function HeartIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M20.5 9.1c0 4.7-8.5 9.4-8.5 9.4S3.5 13.8 3.5 9.1A4.6 4.6 0 0 1 12 6.7a4.6 4.6 0 0 1 8.5 2.4Z" />
+    </svg>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4.5 10.5 12 4l7.5 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-4v6H6A1.5 1.5 0 0 1 4.5 19v-8.5Z" />
+    </svg>
+  );
+}
+
+function ReportIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 3.5h9L19 7.5V20a.5.5 0 0 1-.5.5h-12A.5.5 0 0 1 6 20V3.5Z" />
+      <path d="M9 12h6M9 15.5h6M9 8.5h2.5" />
     </svg>
   );
 }
@@ -46,6 +58,8 @@ function UserIcon() {
 function MenuIcon({ icon }: { icon: string }) {
   if (icon === "dual") return <DualIcon />;
   if (icon === "user") return <UserIcon />;
+  if (icon === "home") return <HomeIcon />;
+  if (icon === "report") return <ReportIcon />;
   return <HeartIcon />;
 }
 
@@ -73,7 +87,8 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const { status, markSignedOut } = useAuth();
   const isDetail = pathname.split("/").filter(Boolean).length > 2;
   const loginHref = `/login?next=${encodeURIComponent(pathname)}&from=${encodeURIComponent(pathname)}`;
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  // /home 是所有页面的前缀,必须精确匹配;其余路由按前缀归属
+  const isActive = (href: string) => (href === "/home" ? pathname === "/home" : pathname === href || pathname.startsWith(`${href}/`));
 
   // 路由预热:点击菜单/Tab 时骨架立即接管(动态页 RSC 需要数百毫秒,不预热会滞留旧页)
   useEffect(() => {
