@@ -2695,6 +2695,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* 移动端:固定顶栏占 64px+安全区,筛选栏吸附在其正下方,滚动时与顶栏一体保持不动 */
 @media (max-width: 800px) {
   html, body { overflow-x: hidden; overflow-x: clip; } /* clip 不创建滚动容器,sticky 吸顶不受影响;hidden 仅为旧浏览器兜底 */
+  html { overscroll-behavior-y: none; } /* 禁滚动边界橡皮筋:顶栏在底部继续下拉时不再被拉离视口 */
   .mf-workspace-content { width: calc(100% - 40px); padding: 20px 0 calc(14px + 66px + env(safe-area-inset-bottom)); }
   .mf-mobile-tabbar .mf-mobile-tab { min-height: 54px; }
 }
