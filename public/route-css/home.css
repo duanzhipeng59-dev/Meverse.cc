@@ -2631,7 +2631,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-mobile-profile-btn { display: none; }
 @media (max-width: 800px) {
 
-  .mf-mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(2, 1fr); height: calc(54px + env(safe-area-inset-bottom)); box-sizing: border-box; padding: 0 8px env(safe-area-inset-bottom); border-top: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .mf-mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: calc(54px + env(safe-area-inset-bottom)); box-sizing: border-box; padding: 0 8px env(safe-area-inset-bottom); border-top: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 }
 @media (max-width: 800px) {
 
@@ -2841,6 +2841,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-hist-entry-row { display: grid; gap: 6px; }
 .mf-lib-row-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
+/* 一级页面共享同一内容宽度；页面组件自身不再重复制造第二层边距。 */
+.mf-dual-page { display: grid; gap: 24px; }
+.mf-dual-page > .mf-dual { width: auto; padding: 0; background: transparent; }
+.mf-workspace-content > .mf-hist { width: auto; padding: 0; background: transparent; border-radius: 0; }
+
 /* 我的页:20px 边距/28px 区块距/20px 卡片内距/88×112 人物图/48 登录钮/64 入口行 */
 .mf-me { display: grid; gap: 28px; max-width: 720px; margin: 0 auto; min-width: 0; }
 .mf-me > * { min-width: 0; max-width: 100%; }
@@ -2882,6 +2887,31 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-chips button { min-height: 40px; padding: 0 14px; border: 1px solid var(--bz-line); border-radius: 999px; background: transparent; color: var(--bz-ink); font: 600 12px/1 inherit; cursor: pointer; transition: border-color .18s ease, color .18s ease; }
 .mf-dual-chips button:hover { border-color: var(--bz-red); color: var(--bz-red-bright); }
 @media (max-width: 800px) { .mf-dual-relation { margin-bottom: 4px; } .mf-dual { gap: 16px; } }
+
+@media (max-width: 800px) {
+  .mf-dual-page { gap: 28px; }
+  .mf-dual-pairs { grid-template-columns: 1fr; }
+  .mf-dual-pair { grid-template-columns: 52px minmax(0, 1fr) 52px; min-height: 64px; }
+  .mf-dual-pair i { width: 52px; height: 62px; }
+
+  .mf-hist { gap: 20px; }
+  .mf-hist-head { align-items: flex-start; }
+  .mf-hist-head h1 { font-size: 26px; }
+  .mf-hist-head p { font-size: 13px; line-height: 1.6; }
+  .mf-hist-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .mf-hist-tabs::-webkit-scrollbar { display: none; }
+  .mf-hist-tabs button, .mf-hist-tabs a { flex: 0 0 auto; min-height: 40px; display: inline-flex; align-items: center; }
+  .mf-lib-toolbar { margin: 0; gap: 10px; }
+  .mf-hist-empty { min-height: 220px; align-content: center; border: 1px dashed var(--bz-line); border-radius: 16px; }
+
+  .mf-me-account-copy p { line-height: 1.55; }
+  .mf-me-links span { max-width: 52%; }
+}
+
+@media (max-width: 380px) {
+  .mf-me-account { display: grid; grid-template-columns: 44px minmax(0, 1fr); }
+  .mf-me-login, .mf-me-logout { grid-column: 1 / -1; width: 100%; justify-content: center; box-sizing: border-box; }
+}
 
 /* 预览页:容器切换为 padding 型边距,顶栏负 margin 才能贴合视口顶/左/右 */
 @media (max-width: 800px) {

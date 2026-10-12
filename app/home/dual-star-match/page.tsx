@@ -12,12 +12,12 @@ export const metadata: Metadata = { title: "双人合盘" };
 export default async function DualStarMatchPage() {
   const candidates = await getDualStarCandidates();
   return (
-    <>
+    <div className="mf-workspace-content mf-dual-page">
       {/* useSearchParams 需要 Suspense 边界,静态页才能保留预渲染壳 */}
       <Suspense fallback={null}>
         <DualStarPicker candidates={candidates} />
       </Suspense>
       <DualHistorySection candidates={candidates} />
-    </>
+    </div>
   );
 }

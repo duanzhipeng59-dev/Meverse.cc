@@ -16,5 +16,9 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
     user ? getUserDualReports(user.id) : Promise.resolve([]),
   ]);
 
-  return <ReportsBrowser initialGroups={aggregateGroups(views)} dualReports={dualReports} urlFilter={urlFilter} />;
+  return (
+    <div className="mf-workspace-content">
+      <ReportsBrowser initialGroups={aggregateGroups(views)} dualReports={dualReports} urlFilter={urlFilter} />
+    </div>
+  );
 }
