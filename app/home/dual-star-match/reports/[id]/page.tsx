@@ -64,7 +64,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
   return (
     <div className="mf-zr">
       <ReadingProgress toc={DUAL_TOC} starId={`dual-${id}`} title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} />
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回双人合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回双人合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} showShare shareTitle={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name} 双人合盘`} />
 
       {report.status !== "ready" ? (
         <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={portraitImage(starA.portraitSrc, 240)} portraitB={portraitImage(starB.portraitSrc, 240)} />

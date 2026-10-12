@@ -131,7 +131,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
   if (!consult) {
     return (
       <div className="mf-zr">
-        <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")} />
+        <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")}  showShare shareTitle={`${personName || star.name} 的生辰画像`} />
 
         <div className="mf-zr-overview">
           <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={heroPillars} />
