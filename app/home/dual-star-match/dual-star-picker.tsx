@@ -189,7 +189,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
           </>)}
         </button>
         <div className="mf-dual-link">
-          <button type="button" className="mf-dual-swap" aria-label="交换 A 和 B" disabled={!slotA && !slotB}
+          <button type="button" className="mf-dual-swap" aria-label="交换 A 和 B" disabled={!(slotA && slotB)}
             onClick={() => { const next = [slotB, slotA]; setSlotA(next[0]); setSlotB(next[1]); persist(next[0], next[1]); }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M7 4v13M7 17l-3-3.2M7 17l3-3.2M17 20V7M17 7l-3 3.2M17 7l3 3.2" /></svg>
           </button>
