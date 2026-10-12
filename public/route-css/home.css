@@ -2830,3 +2830,18 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-ui-btn, .mf-ui-iconbtn, .mf-ui-filterbar button, .mf-ui-sheet-mask, .mf-ui-sheet-panel, .mf-ui-toast { animation: none !important; transition: none !important; }
   .mf-ui-skel { animation-duration: 2.8s; }
 }
+
+/* ── 发现页新工具栏与卡片 ── */
+.mf-explore-toolbar { display: grid; gap: 10px; margin-bottom: 16px; }
+.mf-explore-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 800px) { .mf-explore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+.mf-bz-star-card { display: grid; gap: 6px; min-width: 0; padding: 10px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); text-decoration: none; transition: border-color .18s ease, transform .18s ease; }
+.mf-bz-star-card:hover { border-color: var(--bz-red); }
+.mf-bz-star-card b { color: var(--bz-ink); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mf-bz-star-card small { color: var(--bz-muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mf-explore-card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.mf-explore-card-cta { color: var(--bz-red-bright); font-size: 11px; font-weight: 600; letter-spacing: .04em; }
+.mf-explore-more { display: grid; justify-items: center; padding: 18px 0 6px; }
+.mf-explore-more button { min-height: 44px; padding: 0 28px; border: 1px solid var(--bz-line-strong); border-radius: 999px; background: transparent; color: var(--bz-muted); font: 600 13px/1 inherit; cursor: pointer; }
+.mf-explore-more button:hover { color: var(--bz-ink); border-color: var(--bz-red); }
+.mf-explore-end { margin: 18px 0 0; text-align: center; color: var(--bz-faint); font-size: 11.5px; }
