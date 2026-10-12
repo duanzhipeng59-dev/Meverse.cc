@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IconButton, Sheet, useToast } from "../../../../components/ui";
+import { IconButton, Sheet, useToast } from ".././ui";
 
 export type TocItem = { id: string; label: string };
 

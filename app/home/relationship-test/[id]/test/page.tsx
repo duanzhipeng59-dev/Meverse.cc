@@ -7,7 +7,7 @@ import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, hasStar
 import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
 import Link from "next/link";
-import { ReadingProgress, AskAboutSection } from "./reading-tools";
+import { ReadingProgress, AskAboutSection } from "../../../../components/reading-tools";
 
 export const dynamic = "force-dynamic";
 
