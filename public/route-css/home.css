@@ -1,12 +1,10 @@
 /* 工作台(/home/*)专属样式 */
 
-
 .mf-formula-result {
   width: min(1180px, calc(100% - 32px));
   margin: 42px auto 80px;
   color: #2a2026;
 }
-
 
 .mf-formula-verdict {
   padding: clamp(38px, 7vw, 82px);
@@ -21,14 +19,12 @@
   box-shadow: 0 28px 80px rgb(92 35 59 / 10%);
 }
 
-
 .mf-formula-verdict > span {
   color: #a14a6c;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .18em;
 }
-
 
 .mf-formula-verdict-person {
   margin: 28px 0 16px;
@@ -37,7 +33,6 @@
   align-items: center;
   gap: 10px;
 }
-
 
 .mf-formula-verdict-person i {
   width: 72px;
@@ -49,9 +44,7 @@
   box-shadow: 0 10px 30px rgb(71 35 49 / 18%);
 }
 
-
 .mf-formula-verdict-person small { color: #83747b; }
-
 
 .mf-formula-verdict h1 {
   margin: 0;
@@ -61,7 +54,6 @@
   letter-spacing: -.04em;
 }
 
-
 .mf-formula-verdict > p {
   max-width: 680px;
   margin: 22px auto 0;
@@ -69,7 +61,6 @@
   font-size: 18px;
   line-height: 1.8;
 }
-
 
 .mf-formula-facts {
   max-width: 620px;
@@ -80,7 +71,6 @@
   border-radius: 18px;
   background: rgb(255 255 255 / 72%);
 }
-
 
 .mf-formula-facts div { padding: 20px; }
 
@@ -122,7 +112,6 @@
 
 .mf-identity-choice-roles span { padding: 6px 9px; border: 1px solid #e4cdd6; border-radius: 999px; color: #84415e; background: rgb(255 255 255 / 72%); font-size: 10px; font-weight: 750; }
 
-
 .mf-formula-review-section {
   margin-top: 28px;
   padding: clamp(26px, 5vw, 52px);
@@ -130,7 +119,6 @@
   border-radius: 28px;
   background: #fff;
 }
-
 
 .mf-formula-review-section > header { margin-bottom: 28px; }
 
@@ -142,14 +130,12 @@
 
 .mf-formula-review-list { display: grid; gap: 16px; }
 
-
 .mf-formula-review-list article {
   padding: clamp(20px, 3vw, 32px);
   border: 1px solid #eee4e7;
   border-radius: 20px;
   background: #fdfbfb;
 }
-
 
 .mf-formula-review-index { display: flex; align-items: center; gap: 10px; }
 
@@ -249,10 +235,7 @@
   .mf-identity-ranking-grid p { min-height: 0; }
 }
 
-
 /* ── Vedic composite result (version 4) ─────────────────────────────── */
-
-
 
 
 
@@ -289,7 +272,6 @@
 
 .mf-upgrade-paypanel-paid p { margin: 0; color: #76676e; font-size: 13px; }
 
-
 /* ── route transition skeletons ─────────────────────────────────────── */
 .mf-workspace-skeleton { padding: 28px 0; display: grid; gap: 18px; }
 
@@ -313,7 +295,6 @@
  .mf-skeleton::after { animation: none; }
 }
 
-
 /* ── 个人八字解读 · 新中式结果页 (mf-bz) ──────────────────────────────── */
 .mf-bz-result { display: grid; gap: 22px; padding: clamp(18px, 4vw, 40px); border-radius: 18px; background: #faf8f4; }
 
@@ -329,7 +310,6 @@
 
 .mf-bz-export:hover { background: #8b1e2d; color: #fff; }
 
-
 .mf-bz-hero { display: grid; grid-template-columns: 1fr 220px; gap: 26px; padding: 28px; border: 1px solid #ebe5da; border-radius: 12px; background: linear-gradient(160deg, #f7f1e6, #f1e9d9); }
 
 .mf-bz-hero-copy h2 { margin: 0 0 12px; color: #8b1e2d; font: 700 24px/1.35 "Songti SC", Georgia, serif; }
@@ -343,7 +323,6 @@
 .mf-bz-hero-meta dt { color: #a8a29e; font-size: 10.5px; letter-spacing: 0.1em; }
 
 .mf-bz-hero-meta dd { margin: 5px 0 0; color: #1c1917; font-size: 14px; font-weight: 700; }
-
 
 .mf-bz-paipan { padding: 24px; border: 1px solid #ebe5da; border-radius: 12px; background: #fff; }
 
@@ -385,7 +364,6 @@
 
 .mf-bz-paipan-foot b { color: #8b1e2d; }
 
-
 .mf-bz-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 
 .mf-bz-panel { padding: 22px 24px; border: 1px solid #ebe5da; border-radius: 12px; background: #fff; }
@@ -423,7 +401,6 @@
 .mf-bz-dayun small { color: #b8b0a2; font-size: 9.5px; }
 
 .mf-bz-dayun em { margin-top: 4px; padding: 2px 8px; border-radius: 999px; background: #8b1e2d; color: #fff; font-style: normal; font-size: 9.5px; font-weight: 700; }
-
 
 .mf-bz-sections { padding: 24px; border: 1px solid #ebe5da; border-radius: 12px; background: #fff; }
 
@@ -476,7 +453,6 @@
 .mf-bz-field input:focus, .mf-bz-field select:focus { outline: none; border-color: #8b1e2d; background: #fff; }
 
 
-
 .mf-bz-draft-note { display: flex; gap: 14px; align-items: center; padding: 18px 20px; border: 1px dashed #d6cdbd; border-radius: 10px; background: #fdf8ee; }
 
 .mf-bz-draft-note span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #fff; color: #8b1e2d; }
@@ -485,12 +461,10 @@
 
 .mf-bz-draft-note p { margin: 0; color: #78716c; font-size: 12px; }
 
-
 /* ── 个人中心 · Figma 版单列布局 ─────────────────────────────────────── */
 .mf-bz-profile { display: flex; flex-direction: column; gap: 36px; padding: clamp(24px, 4vw, 44px) clamp(18px, 4vw, 54px); }
 
 .mf-bz-profile-loading { color: var(--bz-muted); font-size: 14px; }
-
 
 .mf-bz-account-card { display: flex; align-items: center; gap: 30px; padding: 0 36px; min-height: 220px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); flex-wrap: wrap; }
 
@@ -516,7 +490,6 @@
 .mf-bz-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: var(--bz-paper-warm); color: var(--bz-ink); font: 650 13.5px/1.2 var(--font-serif-display); cursor: pointer; text-decoration: none; }
 
 .mf-bz-btn-ghost:hover { border-color: var(--bz-red); color: var(--bz-red); }
-
 
 /* ── 工作台外壳 · bz 语言覆盖(类名保留)────────────────────────────── */
 .mf-workspace-shell .mf-bz-account-button { border-color: var(--bz-red-bright); background: var(--bz-paper-warm); color: var(--bz-red-bright); }
@@ -549,7 +522,6 @@
 .mf-workspace-account button:hover { color: var(--bz-red); }
 
 .mf-workspace-account button .mf-workspace-nav-icon, .mf-workspace-account a .mf-workspace-nav-icon { border-radius: 9px; }
-
 
 /* ── 升级页 · bz 语言覆盖(类名保留)────────────────────────────────── */
 .mf-upgrade-workspace { background: var(--bz-paper); border-radius: 18px; padding: clamp(18px, 4vw, 40px); }
@@ -612,7 +584,6 @@
   .mf-bz-discover-pagination { flex-wrap: wrap; gap: 10px; }
 }
 
-
 /* ── 偶像适配榜 (mf-bz-rank) ─────────────────────────────────────────── */
 .mf-bz-rank { display: flex; flex-direction: column; gap: 24px; padding: clamp(18px, 4vw, 40px); background: var(--bz-paper); border-radius: 18px; }
 
@@ -662,7 +633,6 @@
  .mf-bz-rank-podium { grid-template-columns: 1fr; }
 }
 
-
 /* ── 明星详情页 · 继续探索横排 ───────────────────────────────────────── */
 .mf-detail-others { width: min(1080px, calc(100% - 48px)); margin: 0 auto; padding: 10px 0 70px; }
 
@@ -680,7 +650,6 @@
 @media (max-width: 900px) {
  .mf-detail-others-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-
 
 /* ── 明星正缘分析报告页(静态框架,内容待填充)───────────────────────── */
 .mf-bz-starreport { display: grid; gap: 24px; padding: clamp(18px, 4vw, 40px); background: var(--bz-paper); border-radius: 0; }
@@ -722,10 +691,8 @@
 }
 
 
-
 /* ── 个人中心 · 组件尺寸/UI 重设计(覆盖旧版)────────────────────────── */
 .mf-bz-profile { gap: 26px; padding: clamp(20px, 4vw, 44px) clamp(20px, 4vw, 54px); }
-
 
 /* 账号卡:更紧凑,头像带酒红环 */
 .mf-bz-account-card { min-height: 0; padding: 22px 28px; gap: 24px; border-radius: 14px; }
@@ -738,9 +705,7 @@
 
 .mf-bz-account-button { width: 108px; height: 46px; font-size: 15px; border-radius: 8px; }
 
-
 .mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #3a1c29, #261b22); border: 1px solid var(--bz-line); color: var(--bz-red-bright); font: 700 44px/1 var(--font-serif-display); }
-
 
 /* ============ 明星正缘报告(八字)·深色报告版式 ============ */
 .mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(16px, 3vw, 32px); background: #100e16; border-radius: 0; color: #eceaf2; min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
@@ -768,7 +733,6 @@
 
 /* 报告页共享视觉变量:两类报告同体系(深黑红底 + 玫红强调 + 暖白文字) */
 .mf-zr, .mf-astro { --mf-rep-hero-bg: linear-gradient(150deg, #231319, #170f13); --mf-rep-hero-border: rgba(198, 75, 115, 0.16); --mf-rep-topbar-h: 60px; }
-
 
 .mf-zr-hero { display: flex; gap: 24px; align-items: center; padding: 24px; border: 1px solid var(--mf-rep-hero-border); border-radius: 12px; background: var(--mf-rep-hero-bg); }
 .mf-zr-summary { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
@@ -813,7 +777,6 @@
 
   .mf-topbar-label-short { display: inline; }
 }
-
 
 /* ============ 正缘报告·追问命理师 ============ */
 .mf-zr-ask { display: grid; gap: 9px; padding: 16px 18px 16px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); scroll-margin-top: 108px; }
@@ -860,7 +823,6 @@
 
 .mf-zr-ask-form button:disabled { opacity: 0.45; cursor: default; }
 
-
 /* ============ 浏览记录页 ============ */
 .mf-hist { display: grid; gap: 18px; padding: 24px 26px 20px; background: var(--bz-paper); border-radius: 18px; width: 100%; }
 
@@ -878,7 +840,6 @@
 
 .mf-hist-empty p { margin: 0 0 10px; color: var(--bz-muted); font-size: 14px; }
 
-
 /* 个人中心:解读/追问次数统计卡 */
 .mf-profile-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 
@@ -892,12 +853,10 @@
 
 .mf-profile-stats span { font-size: 12.5px; color: var(--bz-muted); }
 
-
 /* 套餐卡内底部购买按钮 */
 .mf-upgrade-plan .mf-upgrade-plan-buy { width: 100%; margin-top: 16px; justify-content: center; }
 
 .mf-zr-chart-note { margin: 14px 0 0; color: #897980; font-size: 12.5px; line-height: 1.8; }
-
 
 
 /* ============ AI 生辰画像·完整报告结构 ============ */
@@ -1141,7 +1100,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-astro-big-three, .mf-astro-balance, .mf-astro-aspects, .mf-astro-houses { grid-template-columns: 1fr; }
 }
 
-
 /* ============ 报告页加载骨架 ============ */
 .mf-skel { display: grid; gap: 16px; padding: clamp(16px, 3vw, 32px); border-radius: 18px; }
 
@@ -1177,12 +1135,10 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   animation: mf-skel-shimmer 1.4s infinite linear;
 }
 
-
 /* 报告入口按钮加载态 */
 .mf-launch-spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 999px; vertical-align: -2px; animation: mf-spin 0.7s linear infinite; }
 
 .mf-primary-button:disabled, .mf-secondary-button:disabled { opacity: 0.75; cursor: default; }
-
 
 /* 浏览记录:报告入口卡片 */
 .mf-hist-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -1232,7 +1188,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-hist-entry:hover { background: #fdf8f4; }
 
-
 /* ============ AI追问·持久化对话 ============ */
 .mf-zr-ask-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
@@ -1258,14 +1213,12 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-zr-ask-retry button:disabled { opacity: 0.5; cursor: default; }
 
-
 /* 报告顶部分享按钮 */
 .mf-zr-share { flex-shrink: 0; display: inline-flex; align-items: center; padding: 7px 16px; border: 1px solid rgb(255 255 255 / 14%); border-radius: 999px; background: rgb(255 255 255 / 6%); color: #e6dff2; font-size: 12.5px; letter-spacing: 1px; cursor: pointer; }
 
 .mf-zr-share:hover { background: rgb(255 255 255 / 12%); }
 
 .mf-zr-share .mf-launch-spinner { width: 12px; height: 12px; margin-right: 6px; border-width: 1.5px; }
-
 
 /* ===== 深色:报告阅读卡内容层(命盘/十神/流年/建议) ===== */
 .mf-zr-foundation > div, .mf-zr-reading, .mf-zr-god-grid article, .mf-zr-dayun-detail article, .mf-zr-year-grid article { border-color: var(--bz-line); background: var(--bz-paper-warm); }
@@ -1354,7 +1307,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-zr-relation-grid article small { color: #897980; }
 
-
 /* 深色:报告章节头/目录 */
 .mf-zr-section-head { border-bottom-color: var(--bz-line); }
 
@@ -1365,7 +1317,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-zr-section-head p { color: #897980; }
 
 .mf-zr-toc a:hover { color: #e8dade; background: rgb(255 235 242 / 5%); }
-
 
 /* ── 双星合盘:选择页 / 面板 / 确认区 / 报告页 / 记录卡 ─────────────────── */
 /* 选择页:紧凑关系卡 + 首屏 CTA + 双列网格面板 */
@@ -1399,7 +1350,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 
 
-
 .mf-dual-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
 .mf-dual-generate { min-height: 52px; padding: 0 28px; font-size: 15px; }
@@ -1409,7 +1359,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-ghost { padding: 13px 18px; border: 1px solid var(--bz-line-strong); border-radius: 12px; background: transparent; color: var(--bz-muted); font: 600 12.5px/1 inherit; font-family: inherit; cursor: pointer; text-decoration: none; }
 
 .mf-dual-ghost:hover { color: #e8dade; border-color: var(--bz-red); }
-
 
 
 .mf-dual-error { margin: 0; color: var(--bz-error); font-size: 12.5px; }
@@ -1470,7 +1419,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-empty { margin: 20px 0; color: var(--bz-muted); font-size: 12.5px; text-align: center; }
 
-
 /* generating/失败态:报告容器退去面板感,与页面背景一致,只留状态卡内容(肖像/名称/动画/提示) */
 .mf-zr:has(.mf-dual-status) { background: transparent; padding: clamp(20px, 5vw, 40px) clamp(16px, 3vw, 32px); }
 .mf-dual-status { display: grid; justify-items: center; gap: 10px; padding: clamp(24px, 6vw, 60px) 20px; text-align: center; }
@@ -1488,7 +1436,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-status-note { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
 
 .mf-dual-status .mf-dual-actions { margin-top: 10px; }
-
 
 .mf-dual-report-hero { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; padding: 24px; border: 1px solid var(--mf-rep-hero-border, rgba(198, 75, 115, 0.16)); border-radius: 12px; background: var(--mf-rep-hero-bg, linear-gradient(150deg, #231319, #170f13)); position: relative; }
 
@@ -1536,7 +1483,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-basis dd { margin: 0; color: var(--bz-muted); font-size: 12px; line-height: 1.7; }
 
-
 .mf-hist-card-dual .mf-hist-dual-avatars { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
 
 .mf-hist-dual-avatars img { width: 34px; height: 44px; border-radius: 7px; object-fit: cover; border: 1px solid var(--bz-line); }
@@ -1554,7 +1500,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
   .mf-dual-scores > div { grid-template-columns: 84px 1fr 30px; gap: 8px; }
 }
-
 
 /* 双星报告:结构化章节(结论/依据/双向/分层) */
 .mf-dual-evidence { margin: 0 0 14px; padding: 0; list-style: none; display: grid; gap: 6px; }
@@ -1579,7 +1524,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-basis em { margin-left: 8px; padding: 2px 8px; border-radius: 999px; font-style: normal; font-size: 10px; font-weight: 600; }
 
-
 /* 双星报告:未来关系节奏阶段卡片(双方流年交集内归纳) */
 .mf-dual-rhythm { display: grid; gap: 16px; }
 
@@ -1596,7 +1540,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-period b { color: var(--bz-red-bright); font-size: 13px; font-weight: 650; }
 
 .mf-dual-period p { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.75; }
-
 
 /* 双星报告:精校版六板块(总览/沟通/影响/判断/建议) */
 .mf-dual-sec-mark { margin-right: 8px; color: var(--bz-red-bright); font-style: normal; font-size: 15px; }
@@ -1644,7 +1587,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
   .mf-dual-persona { grid-template-columns: 1fr; }
 }
-
 
 /* 双星报告:精校版头部双人身份卡(各自单人报告头部要素,左右放置) */
 .mf-dual-hero-duo { grid-template-columns: 1fr; gap: 20px; }
@@ -1775,7 +1717,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-cs-years span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
-
 /* ── 文档型章节(人生画像样板):暖白连续阅读,无内部卡片 ── */
 /* 文档章节:配色与合盘报告统一(深色 --bz-* 体系) */
 .mf-doc { --doc-ink: var(--bz-ink); --doc-text: var(--bz-ink); --doc-faint: var(--bz-faint); --doc-red: var(--bz-red-bright); --doc-purple: var(--bz-red-bright); --doc-line: var(--bz-line); --doc-lilac: rgb(255 235 242 / 6%); background: var(--bz-card); border: 1px solid var(--bz-line); border-radius: 18px; color: var(--doc-text); padding: 0 clamp(20px, 3.5vw, 38px) 26px; }
@@ -1893,7 +1834,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-zr-hero-pillars b { font-size: 15px; letter-spacing: .06em; }
 }
 
-
 /* ── 人生运势曲线卡 ── */
 .mf-fortune { border: 1px solid rgb(198 75 115 / 35%); border-radius: 16px; background: var(--bz-card); }
 
@@ -1916,7 +1856,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-fortune-label { fill: #F7F0F2; font-size: 14px; font-weight: 600; }
 
 .mf-fortune .mf-fortune-stage { margin-top: 6px; }
-
 
 /* ── 人物命盘概览:hero+曲线统一深色区(去独立卡片) ── */
 .mf-zr-overview { display: grid; gap: 0; padding: 0 0 6px; }
@@ -1954,14 +1893,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-zr-overview .mf-zr-hero { padding-top: 10px; }
 }
 
-
 /* 追问打字机光标 */
 .mf-ask-caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; background: var(--bz-red-bright); vertical-align: -0.15em; animation: mf-caret .8s steps(1) infinite; }
 
-
 /* ══════════ 人物探索页 · 极简画廊(替代旧列表 UI) ══════════ */
 .mf-explore { background: #0D090B; background-image: radial-gradient(ellipse 60% 40% at 85% 0%, rgb(90 35 60 / 8%), transparent); border-radius: 0; padding: 0 clamp(20px, 5vw, 56px) 60px; display: flex; flex-direction: column; width: 100%; }
-
 
 .mf-explore-nav { display: flex; justify-content: space-between; align-items: flex-end; height: 56px; margin: 0; border-bottom: 1px solid rgb(255 255 255 / 18%); }
 
@@ -1988,7 +1924,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-explore-searchrow input::-webkit-search-cancel-button { display: none; }
 
 .mf-explore-searchrow button { flex-shrink: 0; border: 0; background: none; color: rgb(255 255 255 / 70%); font-size: 20px; cursor: pointer; padding: 4px 6px; }
-
 
 .mf-explore-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 22px; margin: 30px 0 0; animation: mf-explorefade .22s ease; }
 
@@ -2042,7 +1977,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-explore-copy span { font-size: 12.5px; }
 }
 
-
 /* 探索导航:吸附常驻(桌面壳层顶栏在侧栏内,吸视口顶;移动端由下方媒体查询给出顶栏高度偏移) */
 .mf-explore-nav { position: sticky; top: 0; z-index: 30; background: #0D090B; }
 @media (max-width: 900px) {
@@ -2052,7 +1986,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* PC 端探索页:压缩工作区顶部内边距,让导航紧贴顶栏 */
 .mf-workspace-content:has(.mf-explore) { padding-top: 26px; }
-
 
 /* ── 双人合盘:历史合盘横条(选择页下方) ── */
 .mf-dual-history-zone { margin-top: 18px; gap: 12px; }
@@ -2082,7 +2015,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-history-row em[data-status="generating"] { color: var(--bz-gold); background: rgb(210 163 92 / 12%); }
 
 .mf-dual-history-row em[data-status="failed"] { color: var(--bz-error); background: rgb(224 109 124 / 12%); }
-
 
 /* 报告 hero:人物肖像保持原比例(高度随图,不裁切),文案与人物信息对齐图片顶部 */
 .mf-zr .mf-zr-hero { align-items: flex-start; }
@@ -2121,7 +2053,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-primary-button:disabled { opacity: .38; cursor: not-allowed; box-shadow: none; }
 
 .mf-secondary-button { color: var(--mf-ink); background: transparent; border: 1px solid var(--mf-line); }
-
 
 /* Myfate workspace */
 .mf-workspace-shell { min-height: 100vh; display: grid; grid-template-columns: 272px minmax(0, 1fr); color: var(--mf-ink); background: #0f0b0e; font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
@@ -2195,7 +2126,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-profile-result-symbol { width: 58px; height: 58px; margin: 0 auto 13px; display: grid; place-items: center; border-radius: 18px; color: white; background: linear-gradient(145deg, #b65578, #74284c); box-shadow: 0 9px 24px rgba(122,41,78,.22); font-size: 20px; }
 
-
 .mf-test-page, .mf-result-page { min-height: 100vh; }
 
 .mf-test-header { height: 72px; }
@@ -2239,7 +2169,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-initial-result, .mf-final-result { text-align: center; }
 
 .mf-initial-result h1, .mf-final-result h1 { margin: 12px 0 16px; font: 500 clamp(36px, 6vw, 54px)/1.15 Georgia, "Songti SC", serif; }
-
 
 .mf-final-result { max-width: 850px; margin: 0 auto; }
 
@@ -2525,7 +2454,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-test-header, .mf-result-actions { display: none !important; }
 }
 
-
 .mf-upgrade-workspace {
   width: min(1120px, calc(100% - 72px));
   margin: 0 auto;
@@ -2695,18 +2623,17 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-secondary-button { color: var(--mf-ink); border-color: rgba(255, 235, 242, 0.20); }
 
-
 /* ── 手机端底部导航 Tab(替代汉堡抽屉;桌面隐藏,报告详情页隐藏;个人中心在顶栏右上角) ── */
 .mf-mobile-tabbar { display: none; }
 
 .mf-mobile-profile-btn { display: none; }
 @media (max-width: 800px) {
 
-  .mf-mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(5, 1fr); height: calc(54px + env(safe-area-inset-bottom)); box-sizing: border-box; padding: 0 8px env(safe-area-inset-bottom); border-top: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .mf-mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(4, 1fr); height: calc(54px + env(safe-area-inset-bottom)); box-sizing: border-box; padding: 0 8px env(safe-area-inset-bottom); border-top: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 }
 @media (max-width: 800px) {
 
-  .mf-mobile-tab { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 2px; color: var(--mf-muted); text-decoration: none; font-size: 10px; font-weight: 600; letter-spacing: .02em; }
+  .mf-mobile-tab { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 3px; color: var(--mf-muted); text-decoration: none; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; }
 }
 @media (max-width: 800px) {
 
@@ -2903,14 +2830,12 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-node-clear { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: rgb(10 7 9 / 72%); color: #fff; font-size: 15px; line-height: 1; cursor: pointer; }
 .mf-dual-node-clear:hover { background: var(--bz-red); }
 
-
 /* 报告库:搜索/状态工具行与行内操作 */
 .mf-lib-toolbar { display: grid; gap: 10px; margin: 14px 0 18px; }
 .mf-lib-del { min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--bz-faint); font: 600 11.5px/1 inherit; cursor: pointer; transition: color .18s ease; }
 .mf-lib-del:hover { color: var(--bz-red); }
 .mf-hist-entry-row { display: grid; gap: 6px; }
 .mf-lib-row-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
 
 /* 我的页 */
 .mf-me { display: grid; gap: 18px; max-width: 720px; margin: 0 auto; }
@@ -2933,44 +2858,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-me-links { display: grid; gap: 10px; }
 .mf-me-links a, .mf-me-links-static { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); text-decoration: none; }
 .mf-me-links a span, .mf-me-links-static span { color: var(--bz-muted); font-size: 12px; }
-
-
-/* ── 工作台首页 v2 ── */
-.mf-home2 { display: grid; gap: 24px; max-width: 980px; margin: 0 auto; }
-.mf-home2-head { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 10px 0 0; }
-.mf-home2-head h1 { margin: 0; color: var(--bz-ink); font: 700 clamp(22px, 4.4vw, 30px)/1.25 var(--font-serif-display); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.mf-home2-head > p { margin: 0; max-width: 560px; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.mf-home2-search { display: flex; gap: 8px; width: min(520px, 100%); margin-top: 4px; }
-.mf-home2-search input { flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); color: var(--bz-ink); font-size: 13.5px; outline: none; }
-.mf-home2-search input:focus { border-color: var(--bz-red); }
-.mf-home2-search button { flex-shrink: 0; width: 96px; min-height: 46px; border: 0; border-radius: 12px; background: var(--bz-red); color: #fff; font: 600 13.5px/1 inherit; cursor: pointer; }
-.mf-home2-cta { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
-.mf-home2-cta a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 22px; border-radius: 999px; font: 600 13.5px/1 inherit; text-decoration: none; }
-.mf-home2-cta-primary { border: 0; background: var(--bz-red); color: #fff; }
-.mf-home2-cta-ghost { border: 1px solid var(--bz-line-strong); color: var(--bz-ink); }
-.mf-home2-section h2 { margin: 0 0 12px; color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
-.mf-home2-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-.mf-home2-grid a { display: grid; gap: 6px; text-decoration: none; }
-.mf-home2-grid span { aspect-ratio: 3 / 3.8; border-radius: 14px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
-.mf-home2-grid b { color: var(--bz-ink); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mf-home2-grid small { color: var(--bz-faint); font-size: 10.5px; }
-.mf-home2-recent { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-.mf-home2-recent a { display: grid; gap: 6px; text-decoration: none; }
-.mf-home2-recent span { aspect-ratio: 3 / 3.8; border-radius: 12px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
-.mf-home2-recent b { color: var(--bz-ink); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mf-home2-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.mf-home2-steps > div { display: grid; gap: 6px; padding: 18px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); }
-.mf-home2-steps i { font-style: normal; color: var(--bz-red-bright); font-size: 12px; font-weight: 700; letter-spacing: .14em; }
-.mf-home2-steps b { color: var(--bz-ink); font-size: 14.5px; }
-.mf-home2-steps p { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
-.mf-home2-disclaimer { margin: 0; padding-top: 6px; border-top: 1px solid var(--bz-line); color: var(--bz-faint); font-size: 11.5px; line-height: 1.8; }
-@media (max-width: 800px) {
-  .mf-home2-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .mf-home2-recent { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-  .mf-home2-recent::-webkit-scrollbar { display: none; }
-  .mf-home2-recent a { flex: 0 0 72px; }
-  .mf-home2-steps { grid-template-columns: 1fr; }
-}
 
 
 /* 合盘页未选态引导 + chips + 卡片区下方空白收紧 */

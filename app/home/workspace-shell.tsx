@@ -5,16 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
 
-// 一级导航五页:首页/发现/合盘/报告/我的(桌面侧栏与移动底部导航同源)
+// 一级导航四页:发现/合盘/报告/我的(桌面侧栏与移动底部导航同源);根路径直接进发现
 const menuItems = [
-  { icon: "home", label: "首页", description: "热门人物与最近阅读", href: "/home" },
   { icon: "heart", label: "发现", description: "浏览与搜索人物画像", href: "/home/relationship-test" },
   { icon: "dual", label: "合盘", description: "两位偶像的八字合盘", href: "/home/dual-star-match" },
   { icon: "report", label: "报告", description: "已生成的报告与阅读历史", href: "/home/reports" },
 ];
 
 const tabItems = [
-  { icon: "home", label: "首页", href: "/home" },
   { icon: "heart", label: "发现", href: "/home/relationship-test" },
   { icon: "dual", label: "合盘", href: "/home/dual-star-match" },
   { icon: "report", label: "报告", href: "/home/reports" },
@@ -25,14 +23,6 @@ function HeartIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M20.5 9.1c0 4.7-8.5 9.4-8.5 9.4S3.5 13.8 3.5 9.1A4.6 4.6 0 0 1 12 6.7a4.6 4.6 0 0 1 8.5 2.4Z" />
-    </svg>
-  );
-}
-
-function HomeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4.5 10.5 12 4l7.5 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-4v6H6A1.5 1.5 0 0 1 4.5 19v-8.5Z" />
     </svg>
   );
 }
@@ -58,7 +48,6 @@ function UserIcon() {
 function MenuIcon({ icon }: { icon: string }) {
   if (icon === "dual") return <DualIcon />;
   if (icon === "user") return <UserIcon />;
-  if (icon === "home") return <HomeIcon />;
   if (icon === "report") return <ReportIcon />;
   return <HeartIcon />;
 }
