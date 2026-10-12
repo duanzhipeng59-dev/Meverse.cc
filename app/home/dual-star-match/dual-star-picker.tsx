@@ -177,11 +177,6 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
             <img src={portraitImage(slotA.portraitSrc, 360)} alt={`${slotA.name}的人物肖像`} />
             <b>{slotA.name}</b>
             <small>{slotA.role}</small>
-            <span className="mf-dual-node-clear" role="button" tabIndex={0}
-              aria-label={`清除明星 A（当前 ${slotA.name}）`}
-              onClick={(e) => { e.stopPropagation(); setSlotA(null); persist(null, slotB); }}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); setSlotA(null); persist(null, slotB); } }}
-            >×</span>
           </>) : (<>
             <i aria-hidden="true">＋</i>
             <b>选择明星 A</b>
@@ -202,11 +197,6 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
             <img src={portraitImage(slotB.portraitSrc, 360)} alt={`${slotB.name}的人物肖像`} />
             <b>{slotB.name}</b>
             <small>{slotB.role}</small>
-            <span className="mf-dual-node-clear" role="button" tabIndex={0}
-              aria-label={`清除明星 B（当前 ${slotB.name}）`}
-              onClick={(e) => { e.stopPropagation(); setSlotB(null); persist(slotA, null); }}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); setSlotB(null); persist(slotA, null); } }}
-            >×</span>
           </>) : (<>
             <i aria-hidden="true">＋</i>
             <b>选择明星 B</b>
@@ -240,7 +230,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
               return (
                 <button type="button" className="mf-dual-pair" key={a + b} onClick={() => applyPair(a, b)}>
                   <i style={{ backgroundImage: `url("${portraitImage(hit(a)!.portraitSrc, 120)}")` }} aria-hidden="true" />
-                  <span>{person(a)} × {person(b)}</span>
+                  <span className="mf-dual-pair-names"><b>{person(a)}</b><em aria-hidden="true">×</em><b>{person(b)}</b></span>
                   <i style={{ backgroundImage: `url("${portraitImage(hit(b)!.portraitSrc, 120)}")` }} aria-hidden="true" />
                 </button>
               );
