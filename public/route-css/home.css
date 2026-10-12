@@ -2905,3 +2905,18 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-lib-del:hover { color: var(--bz-red); }
 .mf-hist-entry-row { display: grid; gap: 6px; }
 .mf-lib-row-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+
+/* 我的页 */
+.mf-me { display: grid; gap: 18px; max-width: 720px; margin: 0 auto; }
+.mf-me-note { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
+.mf-me-section h2, .mf-me-links b { color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
+.mf-me-section h2 { margin: 0 0 12px; }
+.mf-me-empty { margin: 0; color: var(--bz-faint); font-size: 12.5px; }
+.mf-me-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.mf-me-row a { display: grid; gap: 6px; text-decoration: none; }
+.mf-me-row span { aspect-ratio: 3 / 3.8; border-radius: 12px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
+.mf-me-row b { color: var(--bz-ink); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mf-me-links { display: grid; gap: 10px; }
+.mf-me-links a, .mf-me-links-static { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); text-decoration: none; }
+.mf-me-links a span, .mf-me-links-static span { color: var(--bz-muted); font-size: 12px; }
