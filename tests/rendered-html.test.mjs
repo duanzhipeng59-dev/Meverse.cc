@@ -110,9 +110,10 @@ test("uses unified four-tab navigation, keeps the empty reports state minimal", 
     readFile(new URL("../app/home/reports/reports-browser.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(workspaceShell, /aria-label="工作台主菜单"/u);
-  // 四个一级页:发现/合盘/报告/我的,顺序固定;不设首页 Tab(根路径直进发现)
-  assert.match(workspaceShell, /label: "发现"[\s\S]*?label: "合盘"[\s\S]*?label: "报告"[\s\S]*?label: "我的"/u);
-  assert.doesNotMatch(workspaceShell, /label: "首页"/u);
+  // 两个一级 Tab:发现/合盘;报告入口在个人中心,个人中心在顶部导航
+  assert.match(workspaceShell, /label: "发现"[\s\S]*?label: "合盘"/u);
+  assert.doesNotMatch(workspaceShell, /label: "首页"|label: "报告"|label: "我的"/u);
+  assert.match(workspaceShell, /mf-mobile-profile-btn/u);
   assert.doesNotMatch(workspaceShell, /订阅升级/u);
   assert.match(workspaceShell, /aria-label="底部导航"[\s\S]*?mf-mobile-tab/u);
   assert.doesNotMatch(workspaceShell, /完善专属资料|完善个人资料提醒/u);

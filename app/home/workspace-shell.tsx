@@ -9,14 +9,11 @@ import { useAuth } from "../auth-context";
 const menuItems = [
   { icon: "heart", label: "发现", description: "浏览与搜索人物画像", href: "/home/relationship-test" },
   { icon: "dual", label: "合盘", description: "两位偶像的八字合盘", href: "/home/dual-star-match" },
-  { icon: "report", label: "报告", description: "已生成的报告与阅读历史", href: "/home/reports" },
 ];
 
 const tabItems = [
   { icon: "heart", label: "发现", href: "/home/relationship-test" },
   { icon: "dual", label: "合盘", href: "/home/dual-star-match" },
-  { icon: "report", label: "报告", href: "/home/reports" },
-  { icon: "user", label: "我的", href: "/home/profile" },
 ];
 
 function HeartIcon() {
@@ -88,6 +85,14 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
     <div className={isDetail ? "mf-workspace-shell is-detail" : "mf-workspace-shell"}>
       <header className="mf-workspace-mobile-bar">
         <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页">Myfate</Link>
+        <Link
+          className={pathname === "/home/profile" ? "mf-mobile-profile-btn is-active" : "mf-mobile-profile-btn"}
+          href="/home/profile"
+          aria-label="个人中心"
+          aria-current={pathname === "/home/profile" ? "page" : undefined}
+        >
+          个人中心
+        </Link>
       </header>
 
       <aside className="mf-workspace-sidebar">
