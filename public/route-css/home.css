@@ -2914,14 +2914,22 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* 我的页 */
 .mf-me { display: grid; gap: 18px; max-width: 720px; margin: 0 auto; }
+@media (max-width: 800px) {
+  .mf-bz-profile { padding: 20px; gap: 18px; }
+  .mf-me .mf-bz-account-card { margin: 0; }
+}
 .mf-me-note { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
 .mf-me-section h2, .mf-me-links b { color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
 .mf-me-section h2 { margin: 0 0 12px; }
 .mf-me-empty { margin: 0; color: var(--bz-faint); font-size: 12.5px; }
-.mf-me-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-.mf-me-row a { display: grid; gap: 6px; text-decoration: none; }
+.mf-me-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.mf-me-row::-webkit-scrollbar { display: none; }
+.mf-me-row a { flex: 0 0 76px; display: grid; gap: 6px; text-decoration: none; }
 .mf-me-row span { aspect-ratio: 3 / 3.8; border-radius: 12px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
 .mf-me-row b { color: var(--bz-ink); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mf-me-empty { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1px dashed var(--bz-line); border-radius: 12px; }
+.mf-me-empty i { font-style: normal; color: var(--bz-faint); font-size: 18px; }
+.mf-me-empty p { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
 .mf-me-links { display: grid; gap: 10px; }
 .mf-me-links a, .mf-me-links-static { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); text-decoration: none; }
 .mf-me-links a span, .mf-me-links-static span { color: var(--bz-muted); font-size: 12px; }

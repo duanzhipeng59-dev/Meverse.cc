@@ -44,7 +44,7 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
         )}
       </section>
       {status === "anonymous" ? (
-        <p className="mf-me-note">登录后可跨设备同步收藏、阅读位置与追问记录;浏览和查看报告无需登录。</p>
+        <p className="mf-me-note">登录后可同步收藏、阅读位置和 AI 对话记录。浏览和查看报告无需登录。</p>
       ) : null}
 
       <StarRow title="收藏人物" empty="还没有收藏,在人物页点♡收藏" list={favs} />
@@ -63,7 +63,7 @@ function StarRow({ title, empty, list }: { title: string; empty: string; list: S
     <section className="mf-me-section" aria-label={title}>
       <h2>{title}</h2>
       {list.length === 0 ? (
-        <p className="mf-me-empty">{empty}</p>
+        <div className="mf-me-empty"><i aria-hidden="true">◌</i><p>{empty}</p></div>
       ) : (
         <div className="mf-me-row">
           {list.map((star) => (
