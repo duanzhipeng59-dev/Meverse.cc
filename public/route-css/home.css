@@ -2865,9 +2865,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-me-links b { flex-shrink: 0; color: var(--bz-ink); font-size: 15px; white-space: nowrap; }
 .mf-me-links span { flex: 1; min-width: 0; color: var(--bz-faint); font-size: 12px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mf-me-links i { flex-shrink: 0; font-style: normal; color: var(--bz-faint); font-size: 18px; line-height: 1; }
-@media (max-width: 800px) {
-  .mf-bz-profile { padding: 20px; gap: 0; }
-}
+/* 页面边距由统一容器 .mf-workspace-content 提供(移动端 20px) */
 
 
 /* 合盘页未选态引导 + chips + 卡片区下方空白收紧 */
