@@ -97,10 +97,6 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ starA: slotA.id, starB: slotB.id, regenerate }),
       });
-      if (response.status === 402) {
-        window.location.href = "/home/upgrade";
-        return;
-      }
       const data = await response.json() as { reportId?: string; existing?: boolean; error?: string };
       if (!response.ok || !data.reportId) {
         setError(data.error === "INCOMPLETE_BIRTH_DATA" ? "两位明星的出生资料都需要完整（日期、时间、地点）才能生成合盘。" : "生成请求失败，请重试。");

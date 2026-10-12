@@ -96,15 +96,12 @@ test("server-renders the cloud-backed report history workspace", async () => {
   assert.match(html, /按最近浏览排序/u);
 });
 
-test("requires login before buying upgrade packages", async () => {
-  const response = await render("/home/upgrade");
-  assert.equal(response.status, 307);
-  const location = new URL(response.headers.get("location"));
-  assert.equal(location.pathname, "/login");
-  assert.equal(location.searchParams.get("next"), "/home/upgrade");
-  const upgradeSource = await readFile(new URL("../app/home/upgrade/upgrade-workspace.tsx", import.meta.url), "utf8");
-  assert.match(upgradeSource, /name: "单次解读"[\s\S]*?price: 50[\s\S]*?uses: 1/u);
-  assert.doesNotMatch(upgradeSource, /会员|按月发放|月度会员|年度会员/u);
+test("payment pages are fully removed from the frontend", async () => {
+  for (const path of ["/home/upgrade", "/orders", "/invitations"]) {
+    await assert.rejects(() => readFile(new URL(`../app${path === "/home/upgrade" ? "/home/upgrade" : path}/page.tsx`, import.meta.url), "utf8"), /ENOENT/u, `${path} page must not exist`);
+  }
+  const shell = await readFile(new URL("../app/home/workspace-shell.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(shell, /upgrade|订阅升级/u);
 });
 
 test("uses sidebar and bottom tab navigation, keeps the empty reports state minimal", async () => {
@@ -114,7 +111,7 @@ test("uses sidebar and bottom tab navigation, keeps the empty reports state mini
   ]);
   assert.match(workspaceShell, /aria-label="工作台主菜单"/u);
   assert.match(workspaceShell, /生辰画像[\s\S]*?双人合盘/u);
-  assert.match(workspaceShell, /mf-workspace-account[\s\S]*?订阅升级[\s\S]*?个人中心/u);
+  assert.doesNotMatch(workspaceShell, /订阅升级/u);
   assert.match(workspaceShell, /aria-label="底部导航"[\s\S]*?mf-mobile-tab/u);
   assert.doesNotMatch(workspaceShell, /完善专属资料|完善个人资料提醒/u);
   assert.doesNotMatch(reportsBrowser, /开始关系画像/u);

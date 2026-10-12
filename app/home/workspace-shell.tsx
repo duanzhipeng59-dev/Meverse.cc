@@ -43,15 +43,6 @@ function UserIcon() {
   );
 }
 
-function UpgradeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4.5 8.25h15v10.5h-15z" />
-      <path d="M4.5 11.25h15M8 8.25c-1.9 0-3-1-3-2.15 0-1.05.75-1.85 1.85-1.85C8.55 4.25 10 6.1 12 8.25M16 8.25c1.9 0 3-1 3-2.15 0-1.05-.75-1.85-1.85-1.85C15.45 4.25 14 6.1 12 8.25M12 8.25v10.5" />
-    </svg>
-  );
-}
-
 function MenuIcon({ icon }: { icon: string }) {
   if (icon === "dual") return <DualIcon />;
   if (icon === "user") return <UserIcon />;
@@ -76,7 +67,7 @@ function LogoutIcon() {
   );
 }
 
-export default function WorkspaceShell({ children, upgradesEnabled = true }: { children: ReactNode; upgradesEnabled?: boolean }) {
+export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { status, markSignedOut } = useAuth();
@@ -128,16 +119,6 @@ export default function WorkspaceShell({ children, upgradesEnabled = true }: { c
         </nav>
 
         <div className="mf-workspace-account" aria-label="账户选项">
-          {upgradesEnabled ? (
-          <Link
-            className={pathname === "/home/upgrade" ? "active" : undefined}
-            href="/home/upgrade"
-            aria-current={pathname === "/home/upgrade" ? "page" : undefined}
-          >
-            <span className="mf-workspace-nav-icon"><UpgradeIcon /></span>
-            <span>订阅升级</span>
-          </Link>
-          ) : null}
           <Link
             className={pathname === "/home/profile" ? "active" : undefined}
             href="/home/profile"

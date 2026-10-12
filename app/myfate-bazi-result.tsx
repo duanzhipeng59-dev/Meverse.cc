@@ -154,7 +154,7 @@ export default function MyfateBaziResult({ result, actions }: { result: BaziRead
             <span>✦</span>
             <div>
               <b>已完成排盘，尚未生成解读</b>
-              <p>点击下方"生成解读"消耗 1 次报告额度，生成八大板块完整解读。</p>
+              <p>点击下方"生成解读"，免费生成八大板块完整解读。</p>
             </div>
           </div>
         ) : (

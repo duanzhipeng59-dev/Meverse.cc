@@ -122,7 +122,7 @@ export default async function AstrologyReportPage({ params, searchParams }: { pa
 
       {report.specialPoints.length ? <section className="mf-astro-card"><div className="mf-zr-section-head"><span>06</span><div><h2>特殊点与月相</h2><p>补充观察自然顺流、重要相遇和阴影议题</p></div></div><div className="mf-astro-special">{report.specialPoints.map((item) => <article key={item.title}><span>{item.title}</span><b>{item.value}</b><p>{item.text}</p></article>)}</div></section> : null}
 
-      <div id="astro-ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} reportType="astrology" /></div>
+      <div id="astro-ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} reportType="astrology" /></div>
 
       <footer className="mf-astro-source"><p>星位由确定性引擎计算。占星属于文化解释体系，不构成科学结论或医疗、法律、投资建议。</p></footer>
     </div>

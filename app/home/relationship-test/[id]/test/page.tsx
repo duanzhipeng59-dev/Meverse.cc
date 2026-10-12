@@ -4,8 +4,6 @@ import ReportTopbar from "../../../../report-topbar";
 import FortuneCurveCard from "../../../../fortune-curve";
 import { getConsultOverride, type ConsultOverrideContent } from "../../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
-import { consumeReportCredit, getReportCredits } from "../../../../api/payments/epay/credits/server";
-import { isUpgradesEnabled } from "../../../../myfate-settings";
 import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
 import Link from "next/link";
@@ -97,9 +95,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const { from, prev } = await searchParams;
   // 权限先行;其余互不依赖的只读请求(明星资料/开关/解锁记录/报告内容/列表)并行获取。
   const user = await requirePageUser(`/home/relationship-test/${id}/test`);
-  const [star, metered, viewed, consult, birth, allStars] = await Promise.all([
+  const [star, viewed, consult, birth, allStars] = await Promise.all([
     getPublishedStar(id),
-    isUpgradesEnabled(),
     hasStarReportView(user.id, id),
     getConsultOverride(id),
     getCelebrityVedicBirth(id),
@@ -152,11 +149,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
     );
   }
 
-  // ── 有上传内容才计费解锁;解锁过免费重看 ──
-  if (metered && !viewed) {
-    if ((await getReportCredits(user.id)) <= 0) redirect("/home/upgrade");
-    if ((await consumeReportCredit(user.id)) < 0) redirect("/home/upgrade");
-  }
+  // 免费开放:仅记录阅读历史(用于「最近阅读」与跨设备同步)
   void recordStarReportView(user.id, id, "bazi");
 
   return (
@@ -296,7 +289,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
       {/* ── ✚ 健康 / ❀ 子女 / ⊹ 六亲 章节已下线 ── */}
 
-      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} metered={metered} /></div>
+      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>
 
       {others.length ? (
         <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">

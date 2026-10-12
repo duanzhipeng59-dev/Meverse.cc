@@ -12,11 +12,10 @@ export type DualIdCard = {
   pillars: Array<{ label: string; ganzhi: string }>;
 };
 
-export default function DualOverrideReport({ content, people, reportId, metered }: {
+export default function DualOverrideReport({ content, people, reportId }: {
   content: DualOverrideContent;
   people: [DualIdCard, DualIdCard];
   reportId: string;
-  metered: boolean;
 }) {
   const rhythm = content.futureRhythm;
   const range = rhythm.timeRange;
@@ -149,7 +148,7 @@ export default function DualOverrideReport({ content, people, reportId, metered 
           "谁更容易先被对方吸引？",
           "两个人更适合合作还是建立亲密关系？",
           "这段关系最容易因为什么发生矛盾？",
-        ]} metered={metered} reportType="dual" />
+        ]} reportType="dual" />
       </div>
 
       <p className="mf-zr-note">本报告基于公开出生资料与八字合盘规则生成,评分与结论由确定性引擎与 AI 解读共同产出,仅用于娱乐和自我探索,不代表当事人的现实关系或真实态度。</p>

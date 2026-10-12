@@ -26,13 +26,11 @@ export default function StarAskPanel({
   starId,
   starName,
   suggestions,
-  metered = true,
   reportType = "bazi",
 }: {
   starId: string;
   starName: string;
   suggestions: string[];
-  metered?: boolean;
   reportType?: "bazi" | "astrology" | "dual";
 }) {
   const [entries, setEntries] = useState<AskEntry[]>([]);
@@ -42,7 +40,6 @@ export default function StarAskPanel({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [asksRemaining, setAsksRemaining] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
   // 逐字呈现:最新的 AI 回答打字机输出
@@ -127,13 +124,7 @@ export default function StarAskPanel({
         window.location.reload();
         return;
       }
-      if (response.status === 402) {
-        if (!retryOf) setEntries((prev) => prev.filter((entry) => entry.id !== optimisticId));
-        setError("追问额度不足：每 1 次解读附赠 10 次追问，请先购买解读套餐。");
-        setTimeout(() => { window.location.href = "/home/upgrade"; }, 2200);
-        return;
-      }
-      const body = await response.json() as { answer?: string; asksRemaining?: number | null; messageId?: number };
+      const body = await response.json() as { answer?: string; messageId?: number };
       if (!response.ok || !body.answer) {
         if (body.messageId) {
           // 服务端已留存失败问题,替换为可重试记录
@@ -146,7 +137,6 @@ export default function StarAskPanel({
         setError("回答失败，请点击该问题重试。");
         return;
       }
-      if (metered && typeof body.asksRemaining === "number") setAsksRemaining(body.asksRemaining);
       const answerAt = new Date().toISOString();
       const answerId = -Date.now() - 1;
       setEntries((prev) => {
@@ -179,9 +169,6 @@ export default function StarAskPanel({
           <button type="button" className="mf-zr-ask-clear" onClick={() => void clearChat()}>清空对话</button>
         ) : null}
       </div>
-      {hasHistory && metered && typeof asksRemaining === "number" ? (
-        <p className="mf-zr-ask-sub">剩余追问 {asksRemaining} 次</p>
-      ) : null}
 
       <div className="mf-zr-ask-log" ref={scrollRef}>
         {loaded ? (
