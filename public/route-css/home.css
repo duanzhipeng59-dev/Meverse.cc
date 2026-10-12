@@ -275,7 +275,7 @@
 /* ── route transition skeletons ─────────────────────────────────────── */
 .mf-workspace-skeleton { padding: 28px 0; display: grid; gap: 18px; }
 
-.mf-skeleton { position: relative; overflow: hidden; border-radius: 14px; background: #1c151a; }
+.mf-skeleton { position: relative; overflow: hidden; border-radius: 14px; background: var(--bz-card); }
 
 .mf-skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgb(255 235 242 / 7%), transparent); animation: mf-skeleton-shimmer 1.4s infinite; }
 
@@ -510,7 +510,7 @@
 
 .mf-workspace-nav-item:focus-visible { outline: 2px solid rgb(198 75 115 / 55%); outline-offset: 2px; }
 
-.mf-workspace-nav-item .mf-workspace-nav-icon { border-radius: 9px; color: #bdaeb4; background: rgb(255 235 242 / 6%); }
+.mf-workspace-nav-item .mf-workspace-nav-icon { border-radius: 9px; color: var(--bz-muted); background: rgb(255 235 242 / 6%); }
 
 .mf-workspace-nav-item small { color: var(--bz-muted); }
 
@@ -708,9 +708,9 @@
 .mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #3a1c29, #261b22); border: 1px solid var(--bz-line); color: var(--bz-red-bright); font: 700 44px/1 var(--font-serif-display); }
 
 /* ============ 明星正缘报告(八字)·深色报告版式 ============ */
-.mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(20px, 3vw, 32px); background: #100e16; border-radius: 0; color: #eceaf2; min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
+.mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(20px, 3vw, 32px); background: var(--bz-paper); border-radius: 0; color: var(--bz-ink); min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
 
-.mf-zr-topbar { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: calc(-1 * var(--mf-rep-pad)) calc(-1 * var(--mf-rep-pad)) 0; box-sizing: border-box; padding: 12px max(var(--mf-rep-pad), env(safe-area-inset-right)) 12px max(var(--mf-rep-pad), env(safe-area-inset-left)); background: #100e16; border-bottom: 1px solid rgb(255 255 255 / 5%); color: var(--bz-muted); font-size: 13px; letter-spacing: 1px; }
+.mf-zr-topbar { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: calc(-1 * var(--mf-rep-pad)) calc(-1 * var(--mf-rep-pad)) 0; box-sizing: border-box; padding: 12px max(var(--mf-rep-pad), env(safe-area-inset-right)) 12px max(var(--mf-rep-pad), env(safe-area-inset-left)); background: var(--bz-paper); border-bottom: 1px solid rgb(255 255 255 / 5%); color: var(--bz-muted); font-size: 13px; letter-spacing: 1px; }
 
 .mf-astro .mf-zr-topbar { background: #0d0b13; }
 
@@ -783,11 +783,11 @@
 
 .mf-zr-ask .mf-zr-card-title { color: var(--bz-red-bright); padding-bottom: 7px; }
 
-.mf-zr-ask-msg.assistant p { color: #eceaf2; }
+.mf-zr-ask-msg.assistant p { color: var(--bz-ink); }
 
 .mf-zr-ask-typing { color: var(--bz-muted); }
 
-.mf-zr-ask-sub { margin: 0; color: #897980; font-size: 13.5px; }
+.mf-zr-ask-sub { margin: 0; color: var(--bz-faint); font-size: 13.5px; }
 
 .mf-zr-ask-log { display: grid; gap: 12px; max-height: 340px; overflow-y: auto; padding: 0 2px 4px; scroll-behavior: smooth; }
 
@@ -817,9 +817,9 @@
 
 .mf-zr-ask-form input:focus { border-color: var(--bz-red); box-shadow: 0 0 0 3px rgb(198 75 115 / 15%); }
 
-.mf-zr-ask-form input::placeholder { color: #897980; }
+.mf-zr-ask-form input::placeholder { color: var(--bz-faint); }
 
-.mf-zr-ask-form button { height: 44px; padding: 0 22px; border-radius: 12px; border: none; background: linear-gradient(135deg, #c64b73, #8e2f51); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.mf-zr-ask-form button { height: 44px; padding: 0 22px; border-radius: 12px; border: none; background: var(--bz-red); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
 
 .mf-zr-ask-form button:disabled { opacity: 0.45; cursor: default; }
 
@@ -856,7 +856,7 @@
 /* 套餐卡内底部购买按钮 */
 .mf-upgrade-plan .mf-upgrade-plan-buy { width: 100%; margin-top: 16px; justify-content: center; }
 
-.mf-zr-chart-note { margin: 14px 0 0; color: #897980; font-size: 12.5px; line-height: 1.8; }
+.mf-zr-chart-note { margin: 14px 0 0; color: var(--bz-faint); font-size: 12.5px; line-height: 1.8; }
 
 
 /* ============ AI 生辰画像·完整报告结构 ============ */
@@ -1201,7 +1201,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-zr-ask-older:disabled { opacity: 0.5; cursor: default; }
 
-.mf-zr-ask-time { display: block; margin-top: 2px; font-size: 10.5px; color: #897980; }
+.mf-zr-ask-time { display: block; margin-top: 2px; font-size: 10.5px; color: var(--bz-faint); }
 
 .mf-zr-ask-retry { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
 
@@ -1223,7 +1223,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* ===== 深色:报告阅读卡内容层(命盘/十神/流年/建议) ===== */
 .mf-zr-foundation > div, .mf-zr-reading, .mf-zr-god-grid article, .mf-zr-dayun-detail article, .mf-zr-year-grid article { border-color: var(--bz-line); background: var(--bz-paper-warm); }
 
-.mf-zr-foundation small, .mf-zr-aux small, .mf-zr-god-grid span, .mf-zr-god-grid small, .mf-zr-dayun-detail span, .mf-zr-dayun-detail small, .mf-zr-year-grid em, .mf-zr-stage-grid span { color: #897980; }
+.mf-zr-foundation small, .mf-zr-aux small, .mf-zr-god-grid span, .mf-zr-god-grid small, .mf-zr-dayun-detail span, .mf-zr-dayun-detail small, .mf-zr-year-grid em, .mf-zr-stage-grid span { color: var(--bz-faint); }
 
 .mf-zr-foundation b, .mf-zr-god-grid b, .mf-zr-year-grid b, .mf-zr-dayun-detail b { color: var(--bz-ink); }
 
@@ -1233,7 +1233,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-zr-relation-grid p { color: var(--bz-muted); }
 
-.mf-zr-note { color: #897980; }
+.mf-zr-note { color: var(--bz-faint); }
 
 .mf-astro-card { background: var(--bz-card); color: var(--bz-ink); border: 1px solid var(--bz-line); }
 
@@ -1251,11 +1251,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-astro-planet-list b { color: var(--bz-ink); }
 
-.mf-astro-planet-list span { color: #897980; }
+.mf-astro-planet-list span { color: var(--bz-faint); }
 
 .mf-astro-big-three article { border-color: var(--bz-line); background: linear-gradient(145deg, var(--bz-card-raised, #261b22), var(--bz-paper-warm)); }
 
-.mf-astro-big-three span { color: #897980; }
+.mf-astro-big-three span { color: var(--bz-faint); }
 
 .mf-astro-big-three b { color: var(--bz-ink); }
 
@@ -1263,11 +1263,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-astro-balance h3 { color: var(--bz-ink); }
 
-.mf-astro-balance span, .mf-astro-balance small { color: #897980; }
+.mf-astro-balance span, .mf-astro-balance small { color: var(--bz-faint); }
 
 .mf-astro-balance i { background: rgb(255 255 255 / 8%); }
 
-.mf-astro-balance i b { background: linear-gradient(90deg, #c64b73, #de6b91); }
+.mf-astro-balance i b { background: linear-gradient(90deg, var(--bz-red), var(--bz-red-bright)); }
 
 .mf-astro-sections article { border-color: var(--bz-line); background: var(--bz-paper-warm); }
 
@@ -1281,7 +1281,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-astro-aspects b { color: var(--bz-ink); }
 
-.mf-astro-aspects span { color: #897980; }
+.mf-astro-aspects span { color: var(--bz-faint); }
 
 .mf-astro-aspects p { color: var(--bz-muted); }
 
@@ -1291,21 +1291,21 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-astro-houses b { color: var(--bz-ink); }
 
-.mf-astro-houses small { color: #897980; }
+.mf-astro-houses small { color: var(--bz-faint); }
 
 .mf-astro-houses p { color: var(--bz-muted); }
 
 .mf-astro-special article { background: var(--bz-selected); }
 
-.mf-astro-special span { color: #897980; }
+.mf-astro-special span { color: var(--bz-faint); }
 
 .mf-astro-special b { color: var(--bz-ink); }
 
 .mf-astro-special p { color: var(--bz-muted); }
 
-.mf-astro-source { color: #897980; }
+.mf-astro-source { color: var(--bz-faint); }
 
-.mf-zr-relation-grid article small { color: #897980; }
+.mf-zr-relation-grid article small { color: var(--bz-faint); }
 
 /* 深色:报告章节头/目录 */
 .mf-zr-section-head { border-bottom-color: var(--bz-line); }
@@ -1314,7 +1314,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-zr-section-head h2 { color: var(--bz-ink); }
 
-.mf-zr-section-head p { color: #897980; }
+.mf-zr-section-head p { color: var(--bz-faint); }
 
 .mf-zr-toc a:hover { color: #e8dade; background: rgb(255 235 242 / 5%); }
 
@@ -1375,7 +1375,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-panel-mask { position: absolute; inset: 0; background: rgb(6 4 6 / 60%); }
 
-.mf-dual-panel-sheet { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 12px; max-height: 78vh; box-sizing: border-box; padding: 18px 18px 26px; border-top: 1px solid var(--bz-line-strong); border-radius: 20px 20px 0 0; background: #171015; animation: mf-sheet-up .28s ease; }
+.mf-dual-panel-sheet { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 12px; max-height: 78vh; box-sizing: border-box; padding: 18px 18px 26px; border-top: 1px solid var(--bz-line-strong); border-radius: 20px 20px 0 0; background: var(--bz-card-raised); animation: mf-sheet-up .28s ease; }
 
 .mf-dual-panel-sheet header { display: flex; justify-content: space-between; align-items: center; }
 
@@ -1871,7 +1871,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-zr-overview .mf-zr-hero-pillars small { color: var(--bz-muted); }
 
-.mf-zr-overview .mf-zr-hero-pillars b { color: #eceaf2; }
+.mf-zr-overview .mf-zr-hero-pillars b { color: var(--bz-ink); }
 
 .mf-zr-overview .mf-zr-hero-pillars > span + span { position: relative; }
 
@@ -2057,7 +2057,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-secondary-button { color: var(--mf-ink); background: transparent; border: 1px solid var(--mf-line); }
 
 /* Myfate workspace */
-.mf-workspace-shell { min-height: 100vh; display: grid; grid-template-columns: 272px minmax(0, 1fr); color: var(--mf-ink); background: #0f0b0e; font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+.mf-workspace-shell { min-height: 100vh; display: grid; grid-template-columns: 272px minmax(0, 1fr); color: var(--mf-ink); background: var(--bz-paper); font-family: var(--font-sans); }
 
 .mf-workspace-mobile-bar, .mf-mobile-menu-dialog { display: none; }
 
@@ -2065,7 +2065,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-workspace-brand { width: fit-content; margin: 0 10px 46px; display: inline-flex; align-items: center; gap: 10px; color: var(--mf-ink); text-decoration: none; font: 750 21px/1 Georgia, serif; letter-spacing: -.4px; }
 
-.mf-workspace-label { margin: 0 12px 12px; color: #897980; font-size: 10px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+.mf-workspace-label { margin: 0 12px 12px; color: var(--bz-faint); font-size: 10px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
 
 .mf-workspace-nav { display: grid; gap: 8px; }
 
@@ -2075,7 +2075,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-workspace-nav-item:focus-visible { outline: 2px solid rgb(198 75 115 / 55%); outline-offset: 2px; }
 
-.mf-workspace-nav-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: #bdaeb4; background: rgb(255 235 242 / 6%); }
+.mf-workspace-nav-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: var(--bz-muted); background: rgb(255 235 242 / 6%); }
 
 .mf-workspace-nav-icon svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -2094,9 +2094,9 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-workspace-account button .mf-workspace-nav-icon, .mf-workspace-account a .mf-workspace-nav-icon { width: 34px; height: 34px; background: transparent; }
 
-.mf-workspace-account button small { padding: 4px 7px; border-radius: 999px; color: #bdaeb4; background: #261b22; font-size: 9px; font-weight: 650; }
+.mf-workspace-account button small { padding: 4px 7px; border-radius: 999px; color: var(--bz-muted); background: #261b22; font-size: 9px; font-weight: 650; }
 
-.mf-workspace-main { min-width: 0; min-height: 100vh; background: radial-gradient(circle at 90% 0, rgb(198 75 115 / 7%), transparent 28rem), #0f0b0e; }
+.mf-workspace-main { min-width: 0; min-height: 100vh; background: radial-gradient(circle at 90% 0, rgb(198 75 115 / 7%), transparent 28rem), var(--bz-paper); }
 
 .mf-workspace-content { width: min(1180px, calc(100% - 72px)); margin: 0 auto; padding: 62px 0 44px; }
 
@@ -2621,7 +2621,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* 答题/生成页 */
 .mf-test-header { border-bottom-color: var(--mf-line); }
 
-.mf-primary-button { color: #fff; background: linear-gradient(135deg, #c64b73, #8e2f51); box-shadow: 0 14px 34px rgb(198 75 115 / 25%); }
+.mf-primary-button { color: #fff; background: var(--bz-red); box-shadow: 0 14px 34px rgb(198 75 115 / 25%); }
 
 .mf-secondary-button { color: var(--mf-ink); border-color: rgba(255, 235, 242, 0.20); }
 
@@ -2744,7 +2744,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @keyframes mf-ui-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .mf-ui-sheet { position: fixed; inset: 0; z-index: 80; }
 .mf-ui-sheet-mask { position: absolute; inset: 0; background: rgb(6 4 6 / 60%); animation: mf-ui-fade .18s ease; }
-.mf-ui-sheet-panel { position: absolute; display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 82vh; background: #171015; }
+.mf-ui-sheet-panel { position: absolute; display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 82vh; background: var(--bz-card-raised); }
 .mf-ui-sheet-panel header { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px 6px 20px; border-bottom: 1px solid var(--bz-line); }
 .mf-ui-sheet-panel header b { color: var(--bz-ink); font-size: 14.5px; }
 .mf-ui-sheet-body { padding: 18px 20px 24px; overflow-y: auto; }
