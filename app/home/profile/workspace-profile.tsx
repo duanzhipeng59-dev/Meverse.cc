@@ -7,11 +7,10 @@ import { useAuth } from "../../auth-context";
 import { portraitImage } from "../../myfate-image";
 import { readRecentStars } from "../celebrity-match/celebrity-browser";
 import { readFavorites } from "../relationship-test/[id]/preview-actions";
-import { EmptyState } from "../../components/ui";
 import type { StarListItem } from "../../myfate-stars-server";
 
-// 我的页:邮箱/收藏人物/最近浏览/报告历史入口/AI 对话说明/退出。
-// 收藏与最近浏览来自本地记录(登录同步属持久化批次);免费化后无任何额度/套餐/订单内容。
+// 我的页:账户卡(头像/邮箱+说明+登录或退出) / 收藏人物 / 最近浏览 / 功能入口。
+// 规格:区块间距 28px、卡片内边距 20px、人物图 88×112、登录按钮 48px、功能入口 64px。
 export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
   const { status, email, markSignedOut } = useAuth();
   const router = useRouter();
@@ -28,37 +27,36 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
     return <div className="mf-bz-profile"><p className="mf-bz-profile-loading">正在读取…</p></div>;
   }
 
+  const loggedIn = status === "authenticated";
+  const initial = (email ?? "?").trim().charAt(0).toUpperCase();
+
   return (
     <div className="mf-me">
-      <section className="mf-bz-account-card">
-        <div className="mf-bz-account-details">
-          <div>
-            <span>邮箱</span>
-            <b>{email ?? "尚未登录"}</b>
-          </div>
+      <section className="mf-me-account" aria-label="账户">
+        <span className="mf-me-avatar" aria-hidden="true">{initial}</span>
+        <div className="mf-me-account-copy">
+          <b>{loggedIn ? email : "尚未登录"}</b>
+          <p>登录后同步收藏、阅读位置和 AI 对话记录</p>
         </div>
-        {status === "anonymous" ? (
-          <Link className="mf-bz-account-button" href="/login?next=%2Fhome%2Fprofile&from=%2Fhome%2Fprofile">登录</Link>
+        {loggedIn ? (
+          <button type="button" className="mf-me-logout" onClick={() => { markSignedOut(); router.replace("/"); }}>退出</button>
         ) : (
-          <button className="mf-bz-account-button" type="button" onClick={() => { markSignedOut(); router.replace("/"); }}>退出登录</button>
+          <Link className="mf-me-login" href="/login?next=%2Fhome%2Fprofile&from=%2Fhome%2Fprofile">登录</Link>
         )}
       </section>
-      {status === "anonymous" ? (
-        <p className="mf-me-note">登录后可同步收藏、阅读位置和 AI 对话记录。浏览和查看报告无需登录。</p>
-      ) : null}
 
-      <StarRow title="收藏人物" empty="还没有收藏,在人物页点♡收藏" list={favs} />
-      <StarRow title="最近浏览" empty="暂无浏览记录,去发现页看看" list={recent} />
+      <PeopleRow title="收藏人物" empty="还没有收藏,在人物页点 ♡ 收藏" list={favs} />
+      <PeopleRow title="最近浏览" empty="暂无浏览记录,去发现页看看" list={recent} />
 
-      <section className="mf-me-links" aria-label="历史与对话">
-        <Link href="/home/reports"><b>报告历史</b><span>已生成的报告与浏览记录 →</span></Link>
-        <div className="mf-me-links-static"><b>AI 对话记录</b><span>追问对话保存在各报告页内,打开报告即可继续对话</span></div>
-      </section>
+      <nav className="mf-me-links" aria-label="功能入口">
+        <Link href="/home/reports"><b>报告历史</b><span>查看与生成的报告</span><i aria-hidden="true">›</i></Link>
+        <div className="mf-me-links-static"><b>AI 对话记录</b><span>保存在各报告页内</span><i aria-hidden="true">›</i></div>
+      </nav>
     </div>
   );
 }
 
-function StarRow({ title, empty, list }: { title: string; empty: string; list: StarListItem[] }) {
+function PeopleRow({ title, empty, list }: { title: string; empty: string; list: StarListItem[] }) {
   return (
     <section className="mf-me-section" aria-label={title}>
       <h2>{title}</h2>
@@ -68,7 +66,7 @@ function StarRow({ title, empty, list }: { title: string; empty: string; list: S
         <div className="mf-me-row">
           {list.map((star) => (
             <Link href={`/home/relationship-test/${star.id}`} key={star.id}>
-              <span style={{ backgroundImage: `url("${portraitImage(star.portraitSrc, 120)}")` }} role="img" aria-label={star.name} />
+              <span style={{ backgroundImage: `url("${portraitImage(star.portraitSrc, 240)}")` }} role="img" aria-label={star.name} />
               <b>{star.name}</b>
             </Link>
           ))}
