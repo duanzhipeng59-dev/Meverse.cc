@@ -148,16 +148,24 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
             <img src={portraitImage(slotA.portraitSrc, 360)} alt={`${slotA.name}的人物肖像`} />
             <b>{slotA.name}</b>
             <small>{slotA.role}</small>
+            <span className="mf-dual-node-clear" role="button" tabIndex={0}
+              aria-label={`清除明星 A（当前 ${slotA.name}）`}
+              onClick={(e) => { e.stopPropagation(); setSlotA(null); persist(null, slotB); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); setSlotA(null); persist(null, slotB); } }}
+            >×</span>
           </>) : (<>
             <i aria-hidden="true">＋</i>
             <b>选择明星 A</b>
             <small>点击选择</small>
           </>)}
         </button>
-        <div className="mf-dual-link" aria-hidden="true">
-          <i />
+        <div className="mf-dual-link">
+          <button type="button" className="mf-dual-swap" aria-label="交换 A 和 B" disabled={!slotA && !slotB}
+            onClick={() => { const next = [slotB, slotA]; setSlotA(next[0]); setSlotB(next[1]); persist(next[0], next[1]); }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M7 4v13M7 17l-3-3.2M7 17l3-3.2M17 20V7M17 7l-3 3.2M17 7l3 3.2" /></svg>
+          </button>
           <span>{bothReady ? "关系建立" : "待选择"}</span>
-          <i />
+          <i aria-hidden="true" />
         </div>
         <button className={slotB ? "mf-dual-node is-filled" : "mf-dual-node"} type="button" onClick={() => setPicking("B")} aria-label={slotB ? `更换明星 B（当前 ${slotB.name}）` : "选择明星 B"}>
           {slotB ? (<>
@@ -165,6 +173,11 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
             <img src={portraitImage(slotB.portraitSrc, 360)} alt={`${slotB.name}的人物肖像`} />
             <b>{slotB.name}</b>
             <small>{slotB.role}</small>
+            <span className="mf-dual-node-clear" role="button" tabIndex={0}
+              aria-label={`清除明星 B（当前 ${slotB.name}）`}
+              onClick={(e) => { e.stopPropagation(); setSlotB(null); persist(slotA, null); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); setSlotB(null); persist(slotA, null); } }}
+            >×</span>
           </>) : (<>
             <i aria-hidden="true">＋</i>
             <b>选择明星 B</b>
