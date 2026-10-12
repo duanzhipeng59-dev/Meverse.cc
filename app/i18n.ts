@@ -22,116 +22,7 @@ const zh: TranslationDict = {
   "toast.coming_soon": "{label}将在后续版本开放",
   "toast.orders_refreshed": "订单已刷新",
 
-  "plan.gemini.title": "Gemini Pro/家庭组",
-  "plan.gemini.subtitle": "1 个月",
-  "plan.gemini.detail": "原生多模态 AI，搭载 Veo",
-  "plan.gemini.suffix": "起",
 
-  "gemini.close": "关闭 Gemini 家庭组订阅流程",
-  "gemini.step": "步骤 {step}",
-  "gemini.back": "上一步",
-  "gemini.next": "下一步",
-  "gemini.done": "完成",
-  "gemini.product.annual": "Gemini 1 年成品账号",
-  "gemini.product.monthly": "Gemini 家庭组 {months} 个月",
-  "gemini.family_group": "Gemini 家庭组",
-  "gemini.ready_account": "Gemini 成品账号",
-  "gemini.duration.months": "{months} 个月",
-  "gemini.duration.year": "1 年",
-  "gemini.stock": "库存 {stock}",
-  "gemini.stock_loading": "查询中",
-  "gemini.annual.delivery": "付款成功后直接显示账号密码",
-  "gemini.selection.title": "选择家庭组使用周期",
-  "gemini.selection.description":
-    "所有套餐均使用您自己的 Google 账号，通过邮箱邀请加入家庭组。",
-  "gemini.best_value": "更划算",
-  "gemini.selection.billing_label": "付费方式",
-  "gemini.selection.monthly": "按月付费",
-  "gemini.selection.annual": "按年付费",
-  "gemini.account.title": "填写账号邮箱和国家/地区",
-  "gemini.account.description":
-    "邀请会发送到这个 Google 账号，请确保地区信息一致。",
-  "gemini.account.email_label": "Google 账号邮箱",
-  "gemini.account.email_help": "请填写您准备加入 Gemini 家庭组的账号。",
-  "gemini.account.region_label": "国家/地区",
-  "gemini.account.region_placeholder": "例如：美国",
-  "gemini.account.region_help": "填写 Google Play 页面底部显示的国家/地区。",
-  "gemini.region.us": "美国",
-  "gemini.region.uk": "英国",
-  "gemini.region.jp": "日本",
-  "gemini.region.sg": "新加坡",
-  "gemini.region.my": "马来西亚",
-  "gemini.region.hk": "中国香港",
-  "gemini.region.tw": "中国台湾",
-  "gemini.region.ca": "加拿大",
-  "gemini.region.au": "澳大利亚",
-  "gemini.region_guide.title": "付款前请检查账号地区",
-  "gemini.region_guide.description":
-    "地区不一致可能导致无法接受家庭组邀请。",
-  "gemini.region_guide.open": "打开 ",
-  "gemini.region_guide.scroll": "进入页面后，一直翻到页面最底部",
-  "gemini.region_guide.match":
-    "查看底部的国家/地区，确认与左侧填写内容一致",
-  "gemini.region_confirmation":
-    "我已确认 Google Play 显示的地区与填写地区一致",
-  "gemini.checkout.amount": "支付金额",
-  "gemini.checkout.product": "商品",
-  "gemini.checkout.delivery_email": "收货邮箱",
-  "gemini.checkout.invitation_email": "邀请邮箱",
-  "gemini.checkout.account_region": "账号地区",
-  "gemini.checkout.cashier": "收银台",
-  "gemini.checkout.select_payment": "选择支付方式",
-  "gemini.checkout.available_count": "1 种可用",
-  "gemini.checkout.alipay_selected_aria": "已选择支付宝支付",
-  "gemini.checkout.alipay_mark": "支",
-  "gemini.checkout.alipay": "支付宝",
-  "gemini.checkout.alipay_tagline": "亿万用户的安全选择",
-  "gemini.checkout.selected": "已选择",
-  "gemini.checkout.payment_note":
-    "下一步将显示支付宝付款二维码，支付结果会自动同步。",
-  "gemini.checkout.pay_with_alipay": "支付宝支付",
-  "gemini.qr.title": "使用支付宝扫码付款",
-  "gemini.qr.description": "请使用支付宝扫描下方二维码完成付款。",
-  "gemini.qr.alt": "支付宝付款二维码",
-  "gemini.qr.scan": "请打开支付宝扫描二维码",
-  "gemini.qr.open_alipay": "在当前设备打开支付宝",
-  "gemini.qr.auto_confirm": "付款成功后，此页面会自动确认并显示结果。",
-  "gemini.qr.back": "返回订单确认",
-  "gemini.qr.cancel": "取消支付并返回",
-  "gemini.qr.cancelling": "正在取消…",
-  "gemini.processing.title": "正在确认付款结果",
-  "gemini.processing.waiting": "等待支付平台确认",
-  "gemini.processing.keep_open": "请勿关闭页面…",
-  "gemini.processing.deliver_account": "发放成品账号",
-  "gemini.processing.confirm_family": "确认家庭组订单",
-  "gemini.success.paid": "订单支付成功",
-  "gemini.success.annual_title": "您的 Gemini 成品账号",
-  "gemini.success.account": "账号",
-  "gemini.success.password": "密码",
-  "gemini.success.account_pending": "账号信息正在发放，请稍后刷新订单页面。",
-  "gemini.success.account_security":
-    "请妥善保管账号信息，并在首次登录后修改密码。",
-  "gemini.success.monthly_title": "邀请邮件将在 20 分钟内发送",
-  "gemini.success.invite_prefix": "我们会将 Gemini 家庭组邀请发送到",
-  "gemini.success.invite_suffix":
-    "。收到邮件后，点击“加入家庭组”即可。",
-  "gemini.success.invite_help":
-    "如未收到，请同时检查垃圾邮件，或联系在线客服。",
-  "gemini.error.order_status": "无法确认订单状态，请稍后刷新重试。",
-  "gemini.error.payment_failed": "付款未完成，请重新下单或联系客服。",
-  "gemini.error.payment_pending": "支付结果仍在确认中，请稍后刷新页面。",
-  "gemini.error.payment_check": "暂时无法确认付款结果，请稍后重试。",
-  "gemini.error.cancel_failed": "暂时无法取消订单，请稍后重试。",
-  "gemini.error.invalid_email": "请输入有效的邮箱地址",
-  "gemini.error.region_required": "请填写账号所在的国家/地区",
-  "gemini.error.region_confirm_required":
-    "请确认 Google Play 显示的地区与填写内容一致",
-  "gemini.error.out_of_stock": "当前套餐暂时不可购买，请稍后重试。",
-  "gemini.error.login_required":
-    "请先登录 Myfate 账号后再购买套餐。",
-  "gemini.error.payment_unavailable": "支付服务暂时不可用，请稍后重试。",
-  "gemini.error.payment_network":
-    "支付服务暂时不可用，请检查网络后重试。",
   "subscribe.guarantee.official":
     "升级你自己的账户 · 订阅失败全额退款",
   "subscribe.guarantee.developer":
@@ -179,20 +70,7 @@ const zh: TranslationDict = {
   "complete.done": "完成",
 
 
-  "invite.code.description":
-    "邀请朋友订阅成功，每位奖励 1 美元\n朋友填写您的邀请码，额外优惠 1 美元",
-
-
-
-
   /* ── 邀请规则弹窗 ── */
-  "invite.rules.tier_desc":
-    "每成功邀请 1 人，立即返 $1。当月邀请人数越多，月底会按阶梯额外补发奖励。",
-  "invite.rules.notes.line1":
-    "按自然月统计，月底统一结算；仅成功付费用户计入奖励。",
-  "invite.rules.notes.line2":
-    "奖励仅适用于 ChatGPT、Claude、X 订阅及成品账户订单，海外短信服务不参与奖励。",
-
   /* ── 登录/注册页面额外 ── */
   "demostep.login": "登录 / 注册",
   "demostep.confirm": "确认套餐",
@@ -222,129 +100,8 @@ const en: TranslationDict = {
   "toast.orders_refreshed": "Orders refreshed",
 
   /* ── Subscribe Page ── */
-  "plan.gemini.title": "Gemini Pro / Family Group",
-  "plan.gemini.subtitle": "1 month",
-  "plan.gemini.detail": "Native multimodal AI powered by Veo",
-  "plan.gemini.suffix": "and up",
 
   /* ── Gemini Purchase Flow ── */
-  "gemini.close": "Close the Gemini Family Group checkout",
-  "gemini.step": "Step {step}",
-  "gemini.back": "Back",
-  "gemini.next": "Next",
-  "gemini.done": "Done",
-  "gemini.product.annual": "Gemini 1-Year Ready Account",
-  "gemini.product.monthly": "Gemini Family Group · {months} months",
-  "gemini.family_group": "Gemini Family Group",
-  "gemini.ready_account": "Gemini Ready Account",
-  "gemini.duration.months": "{months} months",
-  "gemini.duration.year": "1 year",
-  "gemini.stock": "Stock: {stock}",
-  "gemini.stock_loading": "Checking",
-  "gemini.annual.delivery": "Account credentials shown immediately after payment",
-  "gemini.selection.title": "Choose a Family Group Duration",
-  "gemini.selection.description":
-    "Every plan uses your own Google account and is delivered through a family group email invitation.",
-  "gemini.best_value": "Best value",
-  "gemini.selection.billing_label": "Billing option",
-  "gemini.selection.monthly": "Monthly",
-  "gemini.selection.annual": "Annual",
-  "gemini.account.title": "Enter Your Email and Country/Region",
-  "gemini.account.description":
-    "The invitation will be sent to this Google account. Make sure the region matches.",
-  "gemini.account.email_label": "Google Account Email",
-  "gemini.account.email_help":
-    "Enter the account you want to add to the Gemini Family Group.",
-  "gemini.account.region_label": "Country/Region",
-  "gemini.account.region_placeholder": "For example: United States",
-  "gemini.account.region_help":
-    "Enter the country/region shown at the bottom of the Google Play page.",
-  "gemini.region.us": "United States",
-  "gemini.region.uk": "United Kingdom",
-  "gemini.region.jp": "Japan",
-  "gemini.region.sg": "Singapore",
-  "gemini.region.my": "Malaysia",
-  "gemini.region.hk": "Hong Kong",
-  "gemini.region.tw": "Taiwan",
-  "gemini.region.ca": "Canada",
-  "gemini.region.au": "Australia",
-  "gemini.region_guide.title": "Check Your Account Region Before Paying",
-  "gemini.region_guide.description":
-    "A mismatched region may prevent you from accepting the family invitation.",
-  "gemini.region_guide.open": "Open ",
-  "gemini.region_guide.scroll": "Scroll to the very bottom of the page",
-  "gemini.region_guide.match":
-    "Check the country/region shown there and make sure it matches your entry",
-  "gemini.region_confirmation":
-    "I confirm that my Google Play region matches the region entered above",
-  "gemini.checkout.amount": "Amount",
-  "gemini.checkout.product": "Product",
-  "gemini.checkout.delivery_email": "Delivery Email",
-  "gemini.checkout.invitation_email": "Invitation Email",
-  "gemini.checkout.account_region": "Account Region",
-  "gemini.checkout.cashier": "CHECKOUT",
-  "gemini.checkout.select_payment": "Select a Payment Method",
-  "gemini.checkout.available_count": "1 available",
-  "gemini.checkout.alipay_selected_aria": "Alipay selected",
-  "gemini.checkout.alipay_mark": "A",
-  "gemini.checkout.alipay": "Alipay",
-  "gemini.checkout.alipay_tagline": "Secure and trusted by millions",
-  "gemini.checkout.selected": "Selected",
-  "gemini.checkout.payment_note":
-    "Your Alipay payment QR code will appear next. Payment status updates automatically.",
-  "gemini.checkout.pay_with_alipay": "Pay with Alipay",
-  "gemini.qr.title": "Scan to Pay with Alipay",
-  "gemini.qr.description": "Scan the QR code below with Alipay to complete payment.",
-  "gemini.qr.alt": "Alipay payment QR code",
-  "gemini.qr.scan": "Open Alipay and scan this QR code",
-  "gemini.qr.open_alipay": "Open Alipay on This Device",
-  "gemini.qr.auto_confirm":
-    "This page will confirm the payment automatically and show the result.",
-  "gemini.qr.back": "Back to Order Review",
-  "gemini.qr.cancel": "Cancel Payment and Return",
-  "gemini.qr.cancelling": "Cancelling…",
-  "gemini.processing.title": "Confirming Your Payment",
-  "gemini.processing.waiting": "Waiting for payment confirmation",
-  "gemini.processing.keep_open": "Please keep this page open…",
-  "gemini.processing.deliver_account": "Delivering your ready account",
-  "gemini.processing.confirm_family": "Confirming your family group order",
-  "gemini.success.paid": "Payment Successful",
-  "gemini.success.annual_title": "Your Gemini Ready Account",
-  "gemini.success.account": "Account",
-  "gemini.success.password": "Password",
-  "gemini.success.account_pending":
-    "Your account is being prepared. Please refresh the orders page shortly.",
-  "gemini.success.account_security":
-    "Keep these credentials secure and change the password after your first sign-in.",
-  "gemini.success.monthly_title": "Your Invitation Will Arrive Within 20 Minutes",
-  "gemini.success.invite_prefix":
-    "We will send the Gemini Family Group invitation to",
-  "gemini.success.invite_suffix":
-    ". Open the email and select “Join family group” to accept.",
-  "gemini.success.invite_help":
-    "If it does not arrive, check your spam folder or contact support.",
-  "gemini.error.order_status":
-    "We could not confirm the order status. Refresh and try again shortly.",
-  "gemini.error.payment_failed":
-    "Payment was not completed. Place a new order or contact support.",
-  "gemini.error.payment_pending":
-    "Your payment is still being confirmed. Refresh the page shortly.",
-  "gemini.error.payment_check":
-    "We cannot confirm the payment right now. Please try again shortly.",
-  "gemini.error.cancel_failed":
-    "We cannot cancel this order right now. Please try again shortly.",
-  "gemini.error.invalid_email": "Enter a valid email address",
-  "gemini.error.region_required": "Enter the account country/region",
-  "gemini.error.region_confirm_required":
-    "Confirm that the Google Play region matches your entry",
-  "gemini.error.out_of_stock":
-    "This plan is temporarily unavailable. Please try again later.",
-  "gemini.error.login_required":
-    "Sign in to your Myfate account before purchasing a plan.",
-  "gemini.error.payment_unavailable":
-    "The payment service is temporarily unavailable. Please try again shortly.",
-  "gemini.error.payment_network":
-    "The payment service is unavailable. Check your connection and try again.",
   "subscribe.guarantee.official":
     "Upgrade your own account · Full refund on failure",
   "subscribe.guarantee.coding":
@@ -399,24 +156,7 @@ const en: TranslationDict = {
   /* ── Orders Page ── */
 
   /* ── Invitations Page ── */
-  "invite.code.description":
-    "Earn $1 for each friend who subscribes successfully\nFriends get $1 off with your invite code",
-
-  "invite.reward.rules.toast":
-    "$1 reward for each friend's first successful subscription",
-  "invite.reward.withdraw.disabled":
-    "Available when balance reaches $25",
-
-
-
   /* ── Invite Rules Modal ── */
-  "invite.rules.tier_desc":
-    "Earn $1 instantly per successful invite. Extra bonuses are awarded at month-end based on total invites.",
-  "invite.rules.notes.line1":
-    "Counted by calendar month, settled at month-end. Only successful paid users qualify.",
-  "invite.rules.notes.line2":
-    "Rewards apply to ChatGPT, Claude, X subscriptions and ready accounts only. SMS services are excluded.",
-
   /* ── Demo Steps ── */
   "demostep.login": "Login / Register",
   "demostep.confirm": "Confirm Plan",

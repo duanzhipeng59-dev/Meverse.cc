@@ -75,7 +75,7 @@ export default function DualGenerating({ reportId, nameA, nameB, portraitA, port
       {failed ? (
         <>
           <p className="mf-dual-status-title">报告生成没有成功</p>
-          <p className="mf-dual-status-note">额度已自动退回。可以重新生成（不会重复扣费），或返回双人合盘重新选择。</p>
+          <p className="mf-dual-status-note">可以重新生成，或返回双人合盘重新选择。</p>
           <div className="mf-dual-actions">
             <button className="mf-primary-button mf-dual-generate" type="button" disabled={retrying} onClick={retry}>
               {retrying ? "正在重新生成…" : "重新生成"}
