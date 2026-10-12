@@ -7,6 +7,7 @@ import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, hasStar
 import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
 import Link from "next/link";
+import { ReadingProgress, AskAboutSection } from "./reading-tools";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,17 @@ const ASK_SUGGESTIONS = [
 ];
 
 const PILLAR_LABELS = ["年", "月", "日", "时"];
+
+// 章节目录(与正文 section id 一一对应)
+const REPORT_TOC = [
+  { id: "c-portrait", label: "人生画像" },
+  { id: "c-pattern", label: "格局" },
+  { id: "c-edu", label: "学业" },
+  { id: "c-career", label: "事业" },
+  { id: "c-wealth", label: "财富" },
+  { id: "c-love", label: "感情" },
+  { id: "ask", label: "AI 追问" },
+];
 
 // 报告内容以 consult_overrides 手动上传为准;四柱优先取上传的 heroPillars,缺省回退档案三柱
 function heroPillarsOf(consult: ConsultOverrideContent | null, threePillars: string): string[] {
@@ -154,6 +166,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
   return (
     <div className="mf-zr">
+            <ReadingProgress toc={REPORT_TOC} starId={id} title={`${personName || star.name} 的生辰画像`} />
       <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")} />
 
       <div className="mf-zr-overview">
@@ -185,6 +198,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         {consult.portrait.temperament.map((para, index) => (
           <DocRich key={index} label={index === 0 ? "性格与行为模式" : ""} data={para} />
         ))}
+              <AskAboutSection sectionLabel="人生画像" />
       </section>
 
       {/* ── ❖ 格局 · 文档型 ── */}
@@ -195,6 +209,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         {consult.pattern.structures.map((item) => (
           <DocIndent key={item.rel} label={item.rel} content={item.text} />
         ))}
+              <AskAboutSection sectionLabel="格局" />
       </section>
 
       {/* ── ✎ 学业 · 文档型 ── */}
@@ -203,6 +218,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <DocIndent label="学历评估" content={consult.education.degree} />
         <DocIndent label="适合专业" content={`推荐方向：${consult.education.majors.join("；")}。`} />
         <DocIndent label="考运关键节点" content={`利于考试考证的年份：${consult.education.examGood.join("、") || "近十年印星流年偏少，重在平时积累"}。${consult.education.examBad.length ? `容易分心内耗的年份：${consult.education.examBad.join("、")}——这段时间别把重要考试压上去。` : ""}`} />
+              <AskAboutSection sectionLabel="学业" />
       </section>
 
       {/* ── ◈ 事业 · 文档型(时间轴保留) ── */}
@@ -231,6 +247,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
             </div>
           ))}
         </div>
+              <AskAboutSection sectionLabel="事业" />
       </section>
 
       {/* ── ✦ 财富 · 文档型(时间轴保留) ── */}
@@ -256,6 +273,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
             </div>
           ))}
         </div>
+              <AskAboutSection sectionLabel="财富" />
       </section>
 
       {/* ── ♡ 感情 · 文档型(时间轴保留) ── */}
@@ -285,6 +303,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
             </div>
           ))}
         </div>
+              <AskAboutSection sectionLabel="感情" />
       </section>
 
       {/* ── ✚ 健康 / ❀ 子女 / ⊹ 六亲 章节已下线 ── */}

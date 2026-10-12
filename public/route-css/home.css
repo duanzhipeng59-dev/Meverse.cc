@@ -2875,3 +2875,16 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   .mf-preview-related { grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .mf-preview-hero img { width: 108px; height: 140px; }
 }
+
+/* ── 报告阅读工具:进度条/悬浮工具/目录浮层/章节问AI ── */
+.mf-read-progress { position: sticky; top: calc(54px + env(safe-area-inset-top)); z-index: 18; height: 2px; background: rgb(255 235 242 / 8%); }
+.mf-read-progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--bz-red), var(--bz-red-bright)); transition: width .12s linear; }
+.mf-read-tools { position: fixed; right: 14px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 40; display: grid; gap: 6px; }
+.mf-read-tools .mf-ui-iconbtn { border: 1px solid var(--bz-line); background: rgb(20 14 18 / 92%); backdrop-filter: blur(10px); }
+@media (min-width: 801px) { .mf-read-tools { bottom: 26px; } }
+.mf-read-toc { display: grid; gap: 4px; }
+.mf-read-toc button { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; color: var(--bz-ink); font-size: 14px; text-align: left; cursor: pointer; }
+.mf-read-toc button:hover { background: rgb(255 235 242 / 6%); }
+.mf-read-toc button span { color: var(--bz-red-bright); font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+.mf-ask-section { display: inline-flex; align-items: center; min-height: 40px; margin-top: 14px; padding: 0 16px; border: 1px dashed var(--bz-line-strong); border-radius: 999px; background: transparent; color: var(--bz-red-bright); font: 600 12.5px/1 inherit; cursor: pointer; transition: border-color .18s ease, background-color .18s ease; }
+.mf-ask-section:hover { border-color: var(--bz-red); background: rgb(139 30 45 / 8%); }
