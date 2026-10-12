@@ -20,13 +20,9 @@ const zh: TranslationDict = {
   /* ── Toast ── */
   "toast.demo_only": "第一版暂仅提供中文",
   "toast.coming_soon": "{label}将在后续版本开放",
-  "toast.orders_refreshed": "订单已刷新",
 
 
-  "subscribe.guarantee.official":
-    "升级你自己的账户 · 订阅失败全额退款",
-  "subscribe.guarantee.developer":
-    "在 Cursor / Cline / OpenClaw 中直接配置，或写入你自己的代码。",
+
 
   "auth.title.login_code": "邮箱验证码登录",
   "auth.placeholder.email": "邮箱",
@@ -59,24 +55,8 @@ const zh: TranslationDict = {
   "account.loading": "正在加载账户信息…",
   "account.login_required": "请先登录后查看个人主页。",
 
-  "confirm.title": "确认订阅套餐",
-  "confirm.description": "请核对套餐信息；支付服务当前暂未开放。",
-  "confirm.continue": "确认并继续",
-  "confirm.back": "上一步",
-
-  "complete.title": "套餐确认完成",
-  "complete.description":
-    "套餐选择、登录与订单确认界面已走通。真实支付和账号逻辑将在后续版本接入。",
-  "complete.done": "完成",
-
-
   /* ── 邀请规则弹窗 ── */
   /* ── 登录/注册页面额外 ── */
-  "demostep.login": "登录 / 注册",
-  "demostep.confirm": "确认套餐",
-  "demostep.complete": "确认完成",
-  "demostep.confirm_desc": "核对所选服务与价格",
-  "demostep.complete_desc": "支付服务当前暂未开放",
 };
 
 const en: TranslationDict = {
@@ -97,17 +77,12 @@ const en: TranslationDict = {
   /* ── Toast ── */
   "toast.demo_only": "Currently Chinese only",
   "toast.coming_soon": "{label} will be available in a future version",
-  "toast.orders_refreshed": "Orders refreshed",
 
   /* ── Subscribe Page ── */
 
   /* ── Gemini Purchase Flow ── */
-  "subscribe.guarantee.official":
-    "Upgrade your own account · Full refund on failure",
-  "subscribe.guarantee.coding":
-    "No account or international card needed. Avoid bans and network issues.",
-  "subscribe.guarantee.developer":
-    "Configure directly in Cursor / Cline / OpenClaw, or drop into your own code.",
+
+
 
   /* ── Auth Modal ── */
   "auth.title.login_code": "Email Verification Login",
@@ -142,27 +117,12 @@ const en: TranslationDict = {
   "account.login_required": "Please sign in to view your profile.",
 
   /* ── Confirm Step ── */
-  "confirm.title": "Confirm Subscription",
-  "confirm.description": "Review the plan details. Payments are not available yet.",
-  "confirm.continue": "Confirm & Continue",
-  "confirm.back": "Back",
-
   /* ── Complete Step ── */
-  "complete.title": "Plan Confirmed",
-  "complete.description":
-    "Plan selection, login, and order confirmation flow completed. Real payment and account logic will be added in a future version.",
-  "complete.done": "Done",
-
   /* ── Orders Page ── */
 
   /* ── Invitations Page ── */
   /* ── Invite Rules Modal ── */
   /* ── Demo Steps ── */
-  "demostep.login": "Login / Register",
-  "demostep.confirm": "Confirm Plan",
-  "demostep.complete": "Confirmed",
-  "demostep.confirm_desc": "Review service & pricing",
-  "demostep.complete_desc": "Payments are not available yet",
 };
 
 export const translations: Record<Lang, TranslationDict> = { zh, en };
