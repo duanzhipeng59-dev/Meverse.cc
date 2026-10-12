@@ -145,7 +145,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   return (
     <div className="mf-explore">
       <div className="mf-explore-toolbar">
-        <SearchInput value={query} onChange={setQuery} placeholder="搜索中文名 / 英文名 / 艺名 / 团体" />
+        <SearchInput value={query} onChange={setQuery} placeholder="搜索明星、艺名或团体" />
         <FilterBar options={CATS as unknown as Array<{ key: CatKey; label: string }>} value={cat} onChange={setCat} ariaLabel="团体筛选" />
         <FilterBar options={SORTS as unknown as Array<{ key: SortKey; label: string }>} value={sort} onChange={setSort} ariaLabel="排序方式" />
       </div>
@@ -169,7 +169,6 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
                   {star.mbti ? <Tag>{star.mbti}</Tag> : null}
                   <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
                 </div>
-                <span className="mf-explore-card-cta">查看画像 →</span>
               </Link>
             );
           })}

@@ -167,7 +167,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
     <div className="mf-dual">
       <header className="mf-dual-head">
         <h1>双人合盘</h1>
-        <p>关系底色与双向影响,沟通冲突的解法,未来关系的节奏</p>
+        <p>探索两位偶像之间的命理互动</p>
       </header>
 
       <section className="mf-dual-relation" aria-label="双人关系卡">
@@ -216,43 +216,47 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
       </section>
 
       <div className="mf-dual-cta-zone">
-        {bothReady ? (
-          <>
-            {existing ? (
-              <div className="mf-dual-existing" role="status">
-                <span>已经有一份「{existing.label}」的合盘报告</span>
-                <Link href={`/home/dual-star-match/reports/${existing.reportId}`}>查看原报告</Link>
-                <button type="button" onClick={() => generate(true)}>重新生成</button>
-              </div>
-            ) : null}
-            <div className="mf-dual-actions">
-              <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => generate(false)}>
-                {creating ? "正在创建…" : "生成双人合盘报告"}
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="mf-dual-guide">
-            <p className="mf-dual-guide-hint">点击上方卡片选择两位偶像,选满后即可免费生成合盘报告。</p>
-            <b className="mf-dual-guide-label">热门组合</b>
-            <div className="mf-dual-chips">
-              {HOT_PAIRS.filter(([a, b]) => candidates.some((c) => c.id === a) && candidates.some((c) => c.id === b)).map(([a, b]) => {
-                const person = (id: string) => { const hit = candidates.find((c) => c.id === id); if (!hit) return id; const dash = hit.role.indexOf("-"); return dash > 0 ? hit.role.slice(dash + 1).trim() : hit.name; };
-                return <button type="button" key={a + b} onClick={() => applyPair(a, b)}>{person(a)} × {person(b)}</button>;
-              })}
-            </div>
-            {recentPairs.length ? (
-              <>
-                <b className="mf-dual-guide-label">最近选择</b>
-                <div className="mf-dual-chips">
-                  {recentPairs.map((pair) => (
-                    <button type="button" key={pair.join()} onClick={() => applyPair(pair[0], pair[1])}>{pair.join(" × ")}</button>
-                  ))}
-                </div>
-              </>
-            ) : null}
+        {/* 主操作常驻:未选满禁用,选满高亮;已有历史报告的组合显示查看文案 */}
+        <div className="mf-dual-actions">
+          <button
+            className="mf-primary-button mf-dual-generate"
+            type="button"
+            disabled={!bothReady || creating}
+            onClick={() => (existing ? (window.location.href = `/home/dual-star-match/reports/${existing.reportId}`) : generate(false))}
+          >
+            {creating ? "正在创建…" : !bothReady ? "生成双人合盘报告" : existing ? `查看「${existing.label}」已有报告` : "生成双人合盘报告"}
+          </button>
+          {existing && bothReady ? (
+            <button type="button" className="mf-dual-regen" onClick={() => generate(true)}>重新生成</button>
+          ) : null}
+        </div>
+
+        <div className="mf-dual-guide">
+          <b className="mf-dual-guide-label">热门组合</b>
+          <div className="mf-dual-pairs">
+            {HOT_PAIRS.filter(([a, b]) => candidates.some((c) => c.id === a) && candidates.some((c) => c.id === b)).map(([a, b]) => {
+              const hit = (id: string) => candidates.find((c) => c.id === id);
+              const person = (id: string) => { const h = hit(id); if (!h) return id; const dash = h.role.indexOf("-"); return dash > 0 ? h.role.slice(dash + 1).trim() : h.name; };
+              return (
+                <button type="button" className="mf-dual-pair" key={a + b} onClick={() => applyPair(a, b)}>
+                  <i style={{ backgroundImage: `url("${portraitImage(hit(a)!.portraitSrc, 120)}")` }} aria-hidden="true" />
+                  <span>{person(a)} × {person(b)}</span>
+                  <i style={{ backgroundImage: `url("${portraitImage(hit(b)!.portraitSrc, 120)}")` }} aria-hidden="true" />
+                </button>
+              );
+            })}
           </div>
-        )}
+          {recentPairs.length ? (
+            <>
+              <b className="mf-dual-guide-label">最近选择</b>
+              <div className="mf-dual-chips">
+                {recentPairs.map((pair) => (
+                  <button type="button" key={pair.join()} onClick={() => applyPair(pair[0], pair[1])}>{pair.join(" × ")}</button>
+                ))}
+              </div>
+            </>
+          ) : null}
+        </div>
         {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
       </div>
 

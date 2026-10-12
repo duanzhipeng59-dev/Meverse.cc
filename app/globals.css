@@ -7,23 +7,27 @@
 
 
 :root {
-  /* mf-bz 新中式设计 token(全站统一基准) */
-  --bz-red: #c64b73;
+  /* mf-bz 新中式设计 token(全站统一基准)
+     移动端规范 V1.0 对齐:玫红只承担 选中态/主按钮/重点信息 三职责;
+     页面背景 #100C10 / 卡片 #1D171D / 次级卡片 #251D25 / 分割线 #332A32。
+     正文统一无衬线(见 --font-sans),衬线仅品牌 Logo/大标题。 */
+  --bz-red: #d45583;
   --bz-red-deep: #a83a5e;
-  --bz-red-bright: #de6b91;
-  --bz-paper: #0f0b0e;
+  --bz-red-bright: #e36b98;
+  --bz-paper: #100c10;
   --bz-paper-warm: #151014;
-  --bz-card: #1c151a;
-  --bz-card-raised: #261b22;
+  --bz-card: #1d171d;
+  --bz-card-raised: #251d25;
   --bz-selected: #3a1c29;
-  --bz-line: rgba(255, 235, 242, 0.10);
+  --bz-line: #332a32;
   --bz-line-strong: rgba(255, 235, 242, 0.20);
-  --bz-ink: #f7f0f2;
-  --bz-muted: #bdaeb4;
-  --bz-faint: #897980;
+  --bz-ink: #f6f1f4;
+  --bz-muted: #b5a9b2;
+  --bz-faint: #807680;
   --bz-gold: #d2a35c;
-  --bz-green: #72b58a;
+  --bz-green: #78b995;
   --bz-error: #e06d7c;
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Inter", sans-serif;
   --font-serif-display: "Noto Serif SC", "Songti SC", Georgia, serif;
 
   --blue: #3189ef;
