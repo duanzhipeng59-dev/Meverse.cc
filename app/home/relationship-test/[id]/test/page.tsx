@@ -140,23 +140,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <section className="mf-zr-card mf-doc">
           <div className="mf-doc-head"><i aria-hidden="true">✦</i><h2>报告准备中</h2></div>
           <p className="mf-doc-p">这份生辰画像报告尚未上传，内容正在人工准备与校对中，完成后即可查看。</p>
-        </section>
-
-        {others.length ? (
-          <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">
-            <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
-            <div className="mf-detail-others-row">
-              {others.map((item) => (
-                <Link className="mf-detail-others-card" href={`/home/relationship-test/${item.id}/test?prev=${id}`} key={item.id}>
-                  <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${portraitImage(item.portraitSrc, 120)}")` }} role="img" aria-label={item.name} />
-                  <b>{item.name}</b>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
+        </section>        <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
       </div>
     );
   }
@@ -308,23 +292,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
       {/* ── ✚ 健康 / ❀ 子女 / ⊹ 六亲 章节已下线 ── */}
 
-      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>
-
-      {others.length ? (
-        <section className="mf-detail-others" aria-labelledby="mf-detail-others-title">
-          <h2 id="mf-detail-others-title">继续探索其他偶像</h2>
-          <div className="mf-detail-others-row">
-            {others.map((item) => (
-              <Link className="mf-detail-others-card" href={`/home/relationship-test/${item.id}/test?prev=${id}`} key={item.id}>
-                <span className="mf-detail-others-portrait" style={{ backgroundImage: `url("${portraitImage(item.portraitSrc, 120)}")` }} role="img" aria-label={item.name} />
-                <b>{item.name}</b>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
+      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>      <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
     </div>
   );
 }

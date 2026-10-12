@@ -2885,3 +2885,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 800px) {
   .mf-workspace-content:has(.mf-preview) { width: 100%; padding: 0 20px 20px; --mf-rep-pad: 20px; }
 }
+
+/* 顶栏分享按钮 */
+.mf-topbar-share { width: 44px; height: 44px; margin: -6px 0; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: transparent; color: var(--bz-muted); cursor: pointer; }
+.mf-topbar-share:hover { color: var(--bz-red-bright); background: rgb(255 235 242 / 6%); }
+.mf-topbar-share svg { width: 19px; height: 19px; }
