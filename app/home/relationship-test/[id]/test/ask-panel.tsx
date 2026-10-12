@@ -39,6 +39,7 @@ export default function StarAskPanel({
   const [hasMore, setHasMore] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [input, setInput] = useState("");
+  const draftKey = `mf_ask_draft_${starId}_${reportType}`;
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -90,6 +91,12 @@ export default function StarAskPanel({
   }, [entries.length, loading]);
 
   // 章节「就这段问 AI」按钮:预填章节上下文并聚焦输入框
+  useEffect(() => {
+    try { const draft = sessionStorage.getItem(draftKey); if (draft) setInput(draft); } catch { /* 忽略 */ }
+  }, [draftKey]);
+  useEffect(() => {
+    try { input ? sessionStorage.setItem(draftKey, input) : sessionStorage.removeItem(draftKey); } catch { /* 忽略 */ }
+  }, [input, draftKey]);
   useEffect(() => {
     const onSection = (event: Event) => {
       const label = (event as CustomEvent<string>).detail;
