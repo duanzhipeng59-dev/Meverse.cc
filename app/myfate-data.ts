@@ -8,6 +8,7 @@ export type Dimension =
 export type StarProfile = {
   id: string;
   name: string;
+  nameEn: string;
   role: string;
   tagline: string;
   description: string;
@@ -59,6 +60,7 @@ export const stars: StarProfile[] = [
     id: "bang-chan",
     gender: "male",
     name: "Bang Chan",
+    nameEn: "Bang Chan",
     role: "艺人 · 舞台创作者",
     tagline: "热烈负责，也会把柔软藏进照顾里",
     description:
@@ -77,6 +79,7 @@ export const stars: StarProfile[] = [
     id: "hyunjin",
     gender: "male",
     name: "Hyunjin",
+    nameEn: "Hyunjin",
     role: "艺人 · 舞台创作者",
     tagline: "感受浓烈，期待灵魂先于语言相认",
     description:
@@ -95,6 +98,7 @@ export const stars: StarProfile[] = [
     id: "james",
     gender: "male",
     name: "James",
+    nameEn: "James",
     role: "艺人 · 舞台创作者",
     tagline: "冷静观察，只为真正有趣的人打开自己",
     description:

@@ -9,6 +9,7 @@ import { STAR_SNAPSHOT } from "./myfate-star-snapshot";
 type CelebrityRow = {
   id: string;
   name: string;
+  name_en: string | null;
   role: string;
   tagline: string;
   description: string;
@@ -44,7 +45,7 @@ export type CelebrityVedicBirth = {
   gender: "male" | "female" | "other" | "unknown";
 };
 
-const profileSelection = "id,name,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal,gender,created_at";
+const profileSelection = "id,name,name_en,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal,gender,created_at";
 const reportSelection = `${profileSelection},report_prompt`;
 
 function hasCloudConfig() {
@@ -55,6 +56,7 @@ function mapCelebrity(row: CelebrityRow): StarProfile {
   return {
     id: row.id,
     name: row.name,
+    nameEn: row.name_en ?? "",
     role: row.role,
     tagline: row.tagline,
     description: row.description,
