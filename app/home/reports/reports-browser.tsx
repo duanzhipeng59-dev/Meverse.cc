@@ -131,9 +131,8 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
     <div className="mf-hist">
       <header className="mf-hist-head">
         <div>
-          <span className="mf-kicker">浏览记录</span>
-          <h1>已解锁报告</h1>
-          <p>自动记录你打开过的报告，按最近浏览排序。</p>
+          <h1>报告</h1>
+          <p>自动保存你查看和生成的报告。</p>
         </div>
       </header>
 
@@ -179,9 +178,7 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
             <span aria-hidden="true">✦</span>
             <h2>{empty.title}</h2>
             <p>{empty.hint}</p>
-            <button className="mf-hist-retry" type="button" onClick={refresh} disabled={phase === "refreshing"}>
-              {phase === "refreshing" ? "正在加载…" : "重新加载"}
-            </button>
+            <Link className="mf-hist-retry" href="/home/relationship-test">浏览人物</Link>
           </section>
         ) : (
           <div className="mf-hist-grid mf-hist-fade" key={filter}>

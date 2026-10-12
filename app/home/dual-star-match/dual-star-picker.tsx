@@ -12,6 +12,22 @@ import { portraitImage } from "../../myfate-image";
 // 明星详情页带入的 ?star= 参数在客户端读取(页面壳保持静态)。
 const STATE_KEY = "myfate_dual_pick_v1";
 
+// 热门组合(首页精选人物两两配)与最近组合(本地记录,生成成功时写入)
+const HOT_PAIRS: Array<[string, string]> = [
+  ["v", "jungkook"],
+  ["rm", "jin"],
+  ["g-dragon", "taeyang"],
+  ["s-coups", "jeonghan"],
+];
+const RECENT_PAIRS_KEY = "mf_dual_recent_pairs_v1";
+function readRecentPairs(candidates: DualStarCandidate[]): string[][] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(RECENT_PAIRS_KEY) ?? "[]") as string[][];
+    const name = (id: string) => { const hit = candidates.find((c) => c.id === id); if (!hit) return id; const dash = hit.role.indexOf("-"); return dash > 0 ? hit.role.slice(dash + 1).trim() : hit.name; };
+    return raw.slice(0, 4).map((pair) => pair.map(name));
+  } catch { return []; }
+}
+
 type Slot = DualStarCandidate | null;
 
 export default function DualStarPicker({ candidates }: { candidates: DualStarCandidate[] }) {
@@ -24,7 +40,14 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [existing, setExisting] = useState<{ reportId: string; label: string } | null>(null);
+  const [recentPairs, setRecentPairs] = useState<string[][]>([]);
 
+  useEffect(() => { setRecentPairs(readRecentPairs(candidates)); }, [candidates]);
+  function applyPair(a: string, b: string) {
+    const nextA = candidates.find((c) => c.id === a) ?? null;
+    const nextB = candidates.find((c) => c.id === b) ?? null;
+    setSlotA(nextA); setSlotB(nextB); persist(nextA, nextB);
+  }
   useEffect(() => {
     if (starParam) {
       setSlotA(candidates.find((c) => c.id === starParam) ?? null);
@@ -102,6 +125,12 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
         setError(data.error === "INCOMPLETE_BIRTH_DATA" ? "两位明星的出生资料都需要完整（日期、时间、地点）才能生成合盘。" : "生成请求失败，请重试。");
         return;
       }
+      try {
+        const list = JSON.parse(localStorage.getItem(RECENT_PAIRS_KEY) ?? "[]") as string[][];
+        const entry = [slotA.id, slotB.id];
+        const next = [entry, ...list.filter((p) => !(p.includes(entry[0]) && p.includes(entry[1])))].slice(0, 4);
+        localStorage.setItem(RECENT_PAIRS_KEY, JSON.stringify(next));
+      } catch { /* 忽略 */ }
       if (data.existing && !regenerate) {
         setExisting({ reportId: data.reportId, label: `${slotA.name} × ${slotB.name}` });
         return;
@@ -202,7 +231,28 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
               </button>
             </div>
           </>
-        ) : null}
+        ) : (
+          <div className="mf-dual-guide">
+            <p className="mf-dual-guide-hint">点击上方卡片选择两位偶像,选满后即可免费生成合盘报告。</p>
+            <b className="mf-dual-guide-label">热门组合</b>
+            <div className="mf-dual-chips">
+              {HOT_PAIRS.filter(([a, b]) => candidates.some((c) => c.id === a) && candidates.some((c) => c.id === b)).map(([a, b]) => {
+                const person = (id: string) => { const hit = candidates.find((c) => c.id === id); if (!hit) return id; const dash = hit.role.indexOf("-"); return dash > 0 ? hit.role.slice(dash + 1).trim() : hit.name; };
+                return <button type="button" key={a + b} onClick={() => applyPair(a, b)}>{person(a)} × {person(b)}</button>;
+              })}
+            </div>
+            {recentPairs.length ? (
+              <>
+                <b className="mf-dual-guide-label">最近选择</b>
+                <div className="mf-dual-chips">
+                  {recentPairs.map((pair) => (
+                    <button type="button" key={pair.join()} onClick={() => applyPair(pair[0], pair[1])}>{pair.join(" × ")}</button>
+                  ))}
+                </div>
+              </>
+            ) : null}
+          </div>
+        )}
         {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
       </div>
 

@@ -870,7 +870,7 @@
 
 .mf-hist-head p { margin: 0; color: var(--bz-muted); font-size: 14px; }
 
-.mf-hist-empty { display: grid; justify-items: center; gap: 10px; padding: 64px 20px; border: 1px dashed var(--bz-line-strong); border-radius: 16px; text-align: center; }
+.mf-hist-empty { display: grid; justify-items: center; gap: 8px; padding: 26px 20px; text-align: center; }
 
 .mf-hist-empty span { font-size: 28px; color: var(--bz-red-bright); }
 
@@ -2362,7 +2362,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 800px) {
 
   /* sticky 而非 fixed:橡皮筋下拉时与主体同属文档流,同步位移/回弹,不会出现顶栏与内容分离的断层 */
-  .mf-workspace-mobile-bar { position: sticky; top: 0; z-index: 20; width: 100%; height: calc(54px + env(safe-area-inset-top)); box-sizing: border-box; padding: env(safe-area-inset-top) 16px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .mf-workspace-mobile-bar { position: sticky; top: 0; z-index: 20; width: 100%; height: calc(54px + env(safe-area-inset-top)); box-sizing: border-box; padding: env(safe-area-inset-top) 20px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--mf-line); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 }
 @media (max-width: 800px) {
 
@@ -2765,6 +2765,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* 移动端:固定顶栏占 64px+安全区,筛选栏吸附在其正下方,滚动时与顶栏一体保持不动 */
 @media (max-width: 800px) {
+  html, body { overflow-x: hidden; }
+  .mf-workspace-content { width: calc(100% - 40px); padding: 20px 0 calc(14px + 66px + env(safe-area-inset-bottom)); }
+  .mf-mobile-tabbar .mf-mobile-tab { min-height: 54px; }
+}
+@media (max-width: 800px) {
   .mf-explore-nav { position: sticky; top: calc(54px + env(safe-area-inset-top)); z-index: 15; background: #0d090b; }
 }
 
@@ -2923,14 +2928,14 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 
 /* ── 工作台首页 v2 ── */
-.mf-home2 { display: grid; gap: 26px; max-width: 980px; margin: 0 auto; }
-.mf-home2-head { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 18px 0 4px; }
-.mf-home2-head h1 { margin: 0; color: var(--bz-ink); font: 700 clamp(24px, 4vw, 34px)/1.2 var(--font-serif-display); }
-.mf-home2-head > p { margin: 0; max-width: 560px; color: var(--bz-muted); font-size: 13px; line-height: 1.8; }
-.mf-home2-search { display: flex; gap: 8px; width: min(520px, 100%); margin-top: 6px; }
-.mf-home2-search input { flex: 1; min-width: 0; height: 46px; padding: 0 16px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); color: var(--bz-ink); font-size: 13.5px; outline: none; }
+.mf-home2 { display: grid; gap: 24px; max-width: 980px; margin: 0 auto; }
+.mf-home2-head { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 10px 0 0; }
+.mf-home2-head h1 { margin: 0; color: var(--bz-ink); font: 700 clamp(22px, 4.4vw, 30px)/1.25 var(--font-serif-display); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mf-home2-head > p { margin: 0; max-width: 560px; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.mf-home2-search { display: flex; gap: 8px; width: min(520px, 100%); margin-top: 4px; }
+.mf-home2-search input { flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); color: var(--bz-ink); font-size: 13.5px; outline: none; }
 .mf-home2-search input:focus { border-color: var(--bz-red); }
-.mf-home2-search button { min-height: 46px; padding: 0 20px; border: 0; border-radius: 12px; background: var(--bz-red); color: #fff; font: 600 13.5px/1 inherit; cursor: pointer; }
+.mf-home2-search button { flex-shrink: 0; width: 96px; min-height: 46px; border: 0; border-radius: 12px; background: var(--bz-red); color: #fff; font: 600 13.5px/1 inherit; cursor: pointer; }
 .mf-home2-cta { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
 .mf-home2-cta a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 22px; border-radius: 999px; font: 600 13.5px/1 inherit; text-decoration: none; }
 .mf-home2-cta-primary { border: 0; background: var(--bz-red); color: #fff; }
@@ -2952,7 +2957,19 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-home2-steps p { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
 .mf-home2-disclaimer { margin: 0; padding-top: 6px; border-top: 1px solid var(--bz-line); color: var(--bz-faint); font-size: 11.5px; line-height: 1.8; }
 @media (max-width: 800px) {
-  .mf-home2-grid { grid-template-columns: repeat(3, 1fr); }
-  .mf-home2-recent { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .mf-home2-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .mf-home2-recent { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .mf-home2-recent::-webkit-scrollbar { display: none; }
+  .mf-home2-recent a { flex: 0 0 72px; }
   .mf-home2-steps { grid-template-columns: 1fr; }
 }
+
+
+/* 合盘页未选态引导 + chips + 卡片区下方空白收紧 */
+.mf-dual-guide { display: grid; gap: 10px; }
+.mf-dual-guide-hint { margin: 0; color: var(--bz-muted); font-size: 12.5px; line-height: 1.7; }
+.mf-dual-guide-label { color: var(--bz-faint); font-size: 11.5px; font-weight: 650; letter-spacing: .08em; }
+.mf-dual-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.mf-dual-chips button { min-height: 40px; padding: 0 14px; border: 1px solid var(--bz-line); border-radius: 999px; background: transparent; color: var(--bz-ink); font: 600 12px/1 inherit; cursor: pointer; transition: border-color .18s ease, color .18s ease; }
+.mf-dual-chips button:hover { border-color: var(--bz-red); color: var(--bz-red-bright); }
+@media (max-width: 800px) { .mf-dual-relation { margin-bottom: 4px; } .mf-dual { gap: 16px; } }
