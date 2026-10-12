@@ -7,8 +7,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "rm",
     "name": "金南俊",
+    "nameEn": "RM",
     "role": "BTS 成员-金南俊",
     "birthDate": "1994-09-12",
+    "birthTime": "12:00",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -24,8 +26,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jin",
     "name": "金硕珍",
+    "nameEn": "Jin",
     "role": "BTS 成员-金硕珍",
     "birthDate": "1992-12-04",
+    "birthTime": "12:00",
     "gender": "male",
     "mbti": "INTP",
     "categories": [
@@ -41,8 +45,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "suga",
     "name": "闵玧其",
+    "nameEn": "Suga",
     "role": "BTS 成员-闵玧其",
     "birthDate": "1993-03-09",
+    "birthTime": "08:00",
     "gender": "male",
     "mbti": "ISTP",
     "categories": [
@@ -58,8 +64,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "j-hope",
     "name": "郑号锡",
+    "nameEn": "J-Hope",
     "role": "BTS 成员-郑号锡",
     "birthDate": "1994-02-18",
+    "birthTime": "16:00",
     "gender": "male",
     "mbti": "ESFJ",
     "categories": [
@@ -75,8 +83,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jimin",
     "name": "朴智旻",
+    "nameEn": "Jimin",
     "role": "BTS 成员-朴智旻",
     "birthDate": "1995-10-13",
+    "birthTime": "04:00",
     "gender": "male",
     "mbti": "ESTP",
     "categories": [
@@ -92,8 +102,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "v",
     "name": "金泰亨",
+    "nameEn": "V",
     "role": "BTS 成员-金泰亨",
     "birthDate": "1995-12-30",
+    "birthTime": "10:00",
     "gender": "male",
     "mbti": "INFP",
     "categories": [
@@ -109,8 +121,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jungkook",
     "name": "田柾国",
+    "nameEn": "Jungkook",
     "role": "BTS 成员-田柾国",
     "birthDate": "1997-09-01",
+    "birthTime": "16:00",
     "gender": "male",
     "mbti": "ISFP",
     "categories": [
@@ -126,8 +140,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "james",
     "name": "赵雨凡",
+    "nameEn": "James",
     "role": "CORTIS 成员-赵雨凡",
     "birthDate": "2005-10-14",
+    "birthTime": "16:00",
     "gender": "male",
     "mbti": "INTP",
     "categories": [
@@ -143,8 +159,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "yeonjun",
     "name": "崔然竣",
+    "nameEn": "Yeonjun",
     "role": "TOMORROW X TOGETHER成员-崔然竣",
     "birthDate": "1999-09-13",
+    "birthTime": "02:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -159,8 +177,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "soobin",
     "name": "崔秀彬",
+    "nameEn": "Soobin",
     "role": "TOMORROW X TOGETHER成员-崔秀彬",
     "birthDate": "2000-12-05",
+    "birthTime": "08:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -175,8 +195,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "beomgyu",
     "name": "崔范奎",
+    "nameEn": "Beomgyu",
     "role": "TOMORROW X TOGETHER成员-崔范奎",
     "birthDate": "2001-03-13",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -191,8 +213,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "taehyun",
     "name": "姜泰现",
+    "nameEn": "Taehyun",
     "role": "TOMORROW X TOGETHER成员-姜泰现",
     "birthDate": "2002-02-05",
+    "birthTime": "10:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -207,8 +231,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "huening-kai",
     "name": "休宁凯",
+    "nameEn": "Huening Kai",
     "role": "TOMORROW X TOGETHER成员-休宁凯",
     "birthDate": "2002-08-14",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -223,8 +249,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "s-coups",
     "name": "崔胜澈",
+    "nameEn": "S.Coups",
     "role": "SEVENTEEN成员-崔胜澈",
     "birthDate": "1995-08-08",
+    "birthTime": "18:30",
     "gender": "male",
     "mbti": "INFJ",
     "categories": [
@@ -239,8 +267,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jeonghan",
     "name": "尹净汉",
+    "nameEn": "Jeonghan",
     "role": "SEVENTEEN成员-尹净汉",
     "birthDate": "1995-10-04",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -255,8 +285,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "joshua",
     "name": "洪知秀",
+    "nameEn": "Joshua",
     "role": "SEVENTEEN成员-洪知秀",
     "birthDate": "1995-12-30",
+    "birthTime": "06:30",
     "gender": "male",
     "mbti": "ESFJ",
     "categories": [
@@ -271,8 +303,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jun",
     "name": "文俊辉",
+    "nameEn": "Jun",
     "role": "SEVENTEEN成员-文俊辉",
     "birthDate": "1996-06-10",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -287,8 +321,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "hoshi",
     "name": "李知勋",
+    "nameEn": "Hoshi",
     "role": "SEVENTEEN成员-李知勋",
     "birthDate": "1996-06-15",
+    "birthTime": "14:30",
     "gender": "male",
     "mbti": "INFJ",
     "categories": [
@@ -303,8 +339,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "wonwoo",
     "name": "全圆佑",
+    "nameEn": "Wonwoo",
     "role": "SEVENTEEN成员-全圆佑",
     "birthDate": "1996-07-17",
+    "birthTime": "04:30",
     "gender": "male",
     "mbti": "INFP",
     "categories": [
@@ -319,8 +357,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "woozi",
     "name": "李知勳",
+    "nameEn": "Woozi",
     "role": "SEVENTEEN成员-李知勳",
     "birthDate": "1996-11-22",
+    "birthTime": "16:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -335,8 +375,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "dk",
     "name": "李硕珉",
+    "nameEn": "DK",
     "role": "SEVENTEEN成员-李硕珉",
     "birthDate": "1997-02-18",
+    "birthTime": "04:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -351,8 +393,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "mingyu",
     "name": "金珉奎",
+    "nameEn": "Mingyu",
     "role": "SEVENTEEN成员-金珉奎",
     "birthDate": "1997-04-06",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -367,8 +411,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "the8",
     "name": "徐明浩",
+    "nameEn": "The8",
     "role": "SEVENTEEN成员-徐明浩",
     "birthDate": "1997-11-07",
+    "birthTime": "14:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -383,8 +429,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "seungkwan",
     "name": "夫胜宽",
+    "nameEn": "Seungkwan",
     "role": "SEVENTEEN成员-夫胜宽",
     "birthDate": "1998-01-16",
+    "birthTime": "14:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -399,8 +447,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "vernon",
     "name": "崔翰率",
+    "nameEn": "Vernon",
     "role": "SEVENTEEN成员-崔翰率",
     "birthDate": "1998-02-18",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "ESTP",
     "categories": [
@@ -415,8 +465,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "dino",
     "name": "李灿",
+    "nameEn": "Dino",
     "role": "SEVENTEEN成员-李灿",
     "birthDate": "1999-02-11",
+    "birthTime": "00:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -431,8 +483,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "bang-chan",
     "name": "方灿",
+    "nameEn": "Bang Chan",
     "role": "Stray Kids成员-方灿",
     "birthDate": "1997-10-03",
+    "birthTime": "10:30",
     "gender": "male",
     "mbti": "ESTP",
     "categories": [
@@ -447,8 +501,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "lee-know",
     "name": "李旻浩",
+    "nameEn": "Lee Know",
     "role": "Stray Kids成员-李旻浩",
     "birthDate": "1998-10-25",
+    "birthTime": "08:30",
     "gender": "male",
     "mbti": "INFJ",
     "categories": [
@@ -463,8 +519,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "changbin",
     "name": "徐彰彬",
+    "nameEn": "Changbin",
     "role": "Stray Kids成员-徐彰彬",
     "birthDate": "1999-08-11",
+    "birthTime": "22:30",
     "gender": "male",
     "mbti": "ISFP",
     "categories": [
@@ -479,8 +537,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "hyunjin",
     "name": "黄铉辰",
+    "nameEn": "Hyunjin",
     "role": "Stray Kids成员-黄铉辰",
     "birthDate": "2000-03-20",
+    "birthTime": "18:30",
     "gender": "male",
     "mbti": "INFP",
     "categories": [
@@ -495,8 +555,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "han",
     "name": "韩知城",
+    "nameEn": "HAN",
     "role": "Stray Kids成员-韩知城",
     "birthDate": "2000-09-14",
+    "birthTime": "10:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -511,8 +573,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "felix",
     "name": "李龙馥",
+    "nameEn": "Felix",
     "role": "Stray Kids成员-李龙馥",
     "birthDate": "2000-09-15",
+    "birthTime": "22:30",
     "gender": "male",
     "mbti": "INFJ",
     "categories": [
@@ -527,8 +591,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "seungmin",
     "name": "金升玟",
+    "nameEn": "Seungmin",
     "role": "Stray Kids成员-金升玟",
     "birthDate": "2000-09-22",
+    "birthTime": "00:30",
     "gender": "male",
     "mbti": "ISTP",
     "categories": [
@@ -543,8 +609,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "i-n",
     "name": "梁精寅",
+    "nameEn": "I.N",
     "role": "Stray Kids成员-梁精寅",
     "birthDate": "2001-02-08",
+    "birthTime": "08:30",
     "gender": "male",
     "mbti": "ENTP",
     "categories": [
@@ -559,8 +627,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "kyehoon",
     "name": "Kyehoon",
+    "nameEn": "Kyehoon",
     "role": "KickFlip成员-Kyehoon",
     "birthDate": "2004-09-16",
+    "birthTime": "22:30",
     "gender": "male",
     "mbti": "ENFJ",
     "categories": [
@@ -575,8 +645,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "amaru",
     "name": "Amaru",
+    "nameEn": "Amaru",
     "role": "KickFlip成员-Amaru",
     "birthDate": "2005-10-21",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -591,8 +663,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "donghwa",
     "name": "Donghwa",
+    "nameEn": "Donghwa",
     "role": "KickFlip成员-Donghwa",
     "birthDate": "2006-03-11",
+    "birthTime": "06:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -607,8 +681,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "juwang",
     "name": "Juwang",
+    "nameEn": "Juwang",
     "role": "KickFlip成员-Juwang",
     "birthDate": "2006-05-02",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "INFJ",
     "categories": [
@@ -623,8 +699,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "minje",
     "name": "Minje",
+    "nameEn": "Minje",
     "role": "KickFlip成员-Minje",
     "birthDate": "2006-05-12",
+    "birthTime": "16:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -639,8 +717,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "keiju",
     "name": "Keiju",
+    "nameEn": "Keiju",
     "role": "KickFlip成员-Keiju",
     "birthDate": "2006-10-04",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ESFP",
     "categories": [
@@ -655,8 +735,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "donghyeon",
     "name": "Donghyeon",
+    "nameEn": "Donghyeon",
     "role": "KickFlip成员-Donghyeon",
     "birthDate": "2007-03-13",
+    "birthTime": "22:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -671,8 +753,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jun-k",
     "name": "金敏俊",
+    "nameEn": "Jun.K",
     "role": "2PM成员-金敏俊",
     "birthDate": "1988-01-02",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -687,8 +771,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "nichkhun",
     "name": "尼坤",
+    "nameEn": "Nichkhun",
     "role": "2PM成员-尼坤",
     "birthDate": "1988-06-24",
+    "birthTime": "06:30",
     "gender": "male",
     "mbti": "ISTP",
     "categories": [
@@ -703,8 +789,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "taecyeon",
     "name": "玉泽演",
+    "nameEn": "Taecyeon",
     "role": "2PM成员-玉泽演",
     "birthDate": "1988-12-27",
+    "birthTime": "18:30",
     "gender": "male",
     "mbti": "ESTP",
     "categories": [
@@ -719,8 +807,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "wooyoung",
     "name": "张佑荣",
+    "nameEn": "Wooyoung",
     "role": "2PM成员-张佑荣",
     "birthDate": "1989-04-30",
+    "birthTime": "06:30",
     "gender": "male",
     "mbti": "ESTP",
     "categories": [
@@ -735,8 +825,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "junho",
     "name": "李俊昊",
+    "nameEn": "Junho",
     "role": "2PM成员-李俊昊",
     "birthDate": "1990-01-25",
+    "birthTime": "00:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -751,8 +843,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "chansung",
     "name": "黄灿盛",
+    "nameEn": "Chansung",
     "role": "2PM成员-黄灿盛",
     "birthDate": "1992-02-11",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -767,8 +861,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "moon-hee-jun",
     "name": "文熙俊",
+    "nameEn": "Moon Hee-jun",
     "role": "H.O.T.成员-文熙俊",
     "birthDate": "1978-06-14",
+    "birthTime": "10:30",
     "gender": "male",
     "mbti": "INFP",
     "categories": [
@@ -783,8 +879,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "tony-an",
     "name": "安胜浩",
+    "nameEn": "Tony An",
     "role": "H.O.T.成员-安胜浩",
     "birthDate": "1978-06-07",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -799,8 +897,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jang-woo-hyuk",
     "name": "张佑赫",
+    "nameEn": "Jang Woo-hyuk",
     "role": "H.O.T.成员-张佑赫",
     "birthDate": "1978-05-08",
+    "birthTime": "00:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -815,8 +915,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "kangta",
     "name": "安七炫",
+    "nameEn": "Kangta",
     "role": "H.O.T.成员-安七炫",
     "birthDate": "1979-10-10",
+    "birthTime": "16:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -831,8 +933,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "lee-jae-won",
     "name": "李在元",
+    "nameEn": "Lee Jae-won",
     "role": "H.O.T.成员-李在元",
     "birthDate": "1980-04-05",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -847,8 +951,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "leeteuk",
     "name": "利特",
+    "nameEn": "Leeteuk",
     "role": "Super Junior成员-利特",
     "birthDate": "1983-07-01",
+    "birthTime": "04:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -863,8 +969,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "heechul",
     "name": "希澈",
+    "nameEn": "Heechul",
     "role": "Super Junior成员-希澈",
     "birthDate": "1983-07-10",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -879,8 +987,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "yesung",
     "name": "艺声",
+    "nameEn": "Yesung",
     "role": "Super Junior成员-艺声",
     "birthDate": "1984-08-24",
+    "birthTime": "14:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -895,8 +1005,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "shindong",
     "name": "神童",
+    "nameEn": "Shindong",
     "role": "Super Junior成员-神童",
     "birthDate": "1985-09-28",
+    "birthTime": "04:30",
     "gender": "male",
     "mbti": "ESFJ",
     "categories": [
@@ -911,8 +1023,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "sungmin",
     "name": "晟敏",
+    "nameEn": "Sungmin",
     "role": "Super Junior成员-晟敏",
     "birthDate": "1986-01-01",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "INFP",
     "categories": [
@@ -927,8 +1041,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "eunhyuk",
     "name": "银赫",
+    "nameEn": "Eunhyuk",
     "role": "Super Junior成员-银赫",
     "birthDate": "1986-04-04",
+    "birthTime": "00:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -943,8 +1059,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "donghae",
     "name": "东海",
+    "nameEn": "Donghae",
     "role": "Super Junior成员-东海",
     "birthDate": "1986-10-15",
+    "birthTime": "22:30",
     "gender": "male",
     "mbti": "ENTJ",
     "categories": [
@@ -959,8 +1077,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "siwon",
     "name": "始源",
+    "nameEn": "Siwon",
     "role": "Super Junior成员-始源",
     "birthDate": "1987-02-10",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ENTJ",
     "categories": [
@@ -975,8 +1095,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "ryeowook",
     "name": "厉旭",
+    "nameEn": "Ryeowook",
     "role": "Super Junior成员-厉旭",
     "birthDate": "1987-06-21",
+    "birthTime": "20:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -991,8 +1113,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "kyuhyun",
     "name": "圭贤",
+    "nameEn": "Kyuhyun",
     "role": "Super Junior成员-圭贤",
     "birthDate": "1988-02-03",
+    "birthTime": "04:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -1007,8 +1131,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "g-dragon",
     "name": "权志龙",
+    "nameEn": "G-Dragon",
     "role": "BIGBANG成员-权志龙",
     "birthDate": "1988-08-18",
+    "birthTime": "06:30",
     "gender": "male",
     "mbti": "INFJ",
     "categories": [
@@ -1023,8 +1149,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "top",
     "name": "崔胜铉",
+    "nameEn": "T.O.P",
     "role": "BIGBANG成员-崔胜铉",
     "birthDate": "1987-11-04",
+    "birthTime": "08:30",
     "gender": "male",
     "mbti": "ISFP",
     "categories": [
@@ -1039,8 +1167,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "taeyang",
     "name": "东永裴",
+    "nameEn": "Taeyang",
     "role": "BIGBANG成员-东永裴",
     "birthDate": "1988-05-18",
+    "birthTime": "16:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -1055,8 +1185,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "daesung",
     "name": "姜大声",
+    "nameEn": "Daesung",
     "role": "BIGBANG成员-姜大声",
     "birthDate": "1989-04-26",
+    "birthTime": "02:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -1071,8 +1203,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "kim-jinwoo",
     "name": "金秦禹",
+    "nameEn": "Kim Jinwoo",
     "role": "WINNER成员-金秦禹",
     "birthDate": "1991-09-26",
+    "birthTime": "22:30",
     "gender": "male",
     "mbti": "ISTP",
     "categories": [
@@ -1087,8 +1221,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "lee-seunghoon",
     "name": "李昇勋",
+    "nameEn": "Lee Seunghoon",
     "role": "WINNER成员-李昇勋",
     "birthDate": "1992-01-11",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -1103,8 +1239,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "mino",
     "name": "宋旻浩",
+    "nameEn": "Mino",
     "role": "WINNER成员-宋旻浩",
     "birthDate": "1993-03-30",
+    "birthTime": "06:30",
     "gender": "male",
     "mbti": "ENFP",
     "categories": [
@@ -1119,8 +1257,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "kang-seungyoon",
     "name": "姜昇润",
+    "nameEn": "Kang Seungyoon",
     "role": "WINNER成员-姜昇润",
     "birthDate": "1994-01-21",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -1135,8 +1275,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "jay",
     "name": "金振焕",
+    "nameEn": "Jay",
     "role": "iKON成员-金振焕",
     "birthDate": "1994-02-07",
+    "birthTime": "18:30",
     "gender": "male",
     "mbti": "ESFP",
     "categories": [
@@ -1151,8 +1293,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "yunhyeong",
     "name": "宋允亨",
+    "nameEn": "Song Yunhyeong",
     "role": "iKON成员-宋允亨",
     "birthDate": "1995-02-08",
+    "birthTime": "10:30",
     "gender": "male",
     "mbti": "ESTJ",
     "categories": [
@@ -1167,8 +1311,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "bobby",
     "name": "金知元",
+    "nameEn": "Bobby",
     "role": "iKON成员-金知元",
     "birthDate": "1995-12-21",
+    "birthTime": "14:30",
     "gender": "male",
     "mbti": "ESTP",
     "categories": [
@@ -1183,8 +1329,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "donghyuk",
     "name": "金东赫",
+    "nameEn": "DK",
     "role": "iKON成员-金东赫",
     "birthDate": "1997-01-03",
+    "birthTime": "18:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [
@@ -1199,8 +1347,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "june",
     "name": "具俊会",
+    "nameEn": "JUNE",
     "role": "iKON成员-具俊会",
     "birthDate": "1997-03-31",
+    "birthTime": "12:30",
     "gender": "male",
     "mbti": "ESFJ",
     "categories": [
@@ -1215,8 +1365,10 @@ export const STAR_SNAPSHOT: StarListItem[] = [
   {
     "id": "chanwoo",
     "name": "郑粲右",
+    "nameEn": "Chanwoo",
     "role": "iKON成员-郑粲右",
     "birthDate": "1998-01-26",
+    "birthTime": "00:30",
     "gender": "male",
     "mbti": "ISTJ",
     "categories": [

@@ -13,7 +13,7 @@ const env = Object.fromEntries(readFileSync(".env.local", "utf8").split("\n").fi
 const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SECRET_KEY);
 
 const { data, error } = await supabase.from("celebrity_profiles")
-  .select("id,name,role,birth_date,gender,mbti,categories,portrait_url,created_at,homepage_featured")
+  .select("id,name,name_en,role,birth_date,birth_time,gender,mbti,categories,portrait_url,created_at,homepage_featured")
   .eq("published", true)
   .order("workspace_position", { ascending: true, nullsFirst: false })
   .order("created_at", { ascending: true });
@@ -22,8 +22,10 @@ if (error) throw error;
 const items = (data ?? []).map((row) => ({
   id: row.id,
   name: row.name,
+  nameEn: row.name_en ?? "",
   role: row.role ?? "明星",
   birthDate: row.birth_date,
+  birthTime: row.birth_time ?? "",
   gender: row.gender ?? "unknown",
   mbti: row.mbti ?? "",
   categories: row.categories ?? [],
@@ -36,5 +38,5 @@ const banner = `// 明星列表全量快照:Supabase 免费层网关限流导致
 // 由 scripts/gen-star-snapshot.mjs 从 celebrity_profiles(published=true) 导出;名单/头像变更后重跑刷新。
 // AUTO-GENERATED — do not edit by hand.
 `;
-writeFileSync("app/myfate-star-snapshot.ts", banner + "export const STAR_SNAPSHOT: StarListItem[] = " + JSON.stringify(items, null, 2) + ";\n");
+writeFileSync("app/myfate-star-snapshot.ts", banner + 'import type { StarListItem } from "../myfate-stars-server";\n\n' + "export const STAR_SNAPSHOT: StarListItem[] = " + JSON.stringify(items, null, 2) + ";\n");
 console.log(`snapshot written: ${items.length} people`);

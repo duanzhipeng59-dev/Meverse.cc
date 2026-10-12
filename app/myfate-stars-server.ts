@@ -90,8 +90,10 @@ function reportPromptForRow(row: CelebrityRow) {
 export type StarListItem = {
   id: string;
   name: string;
+  nameEn: string;
   role: string;
   birthDate: string;
+  birthTime: string;
   gender: "male" | "female" | "other" | "unknown";
   mbti: string;
   categories: string[];
@@ -103,8 +105,10 @@ export type StarListItem = {
 type ListRow = {
   id: string;
   name: string;
+  name_en: string | null;
   role: string;
   birth_date: string;
+  birth_time: string | null;
   gender: "male" | "female" | "other" | "unknown";
   mbti: string;
   categories: string[] | null;
@@ -113,7 +117,7 @@ type ListRow = {
   homepage_featured: boolean;
 };
 
-const listSelection = "id,name,role,birth_date,gender,mbti,categories,portrait_url,created_at,homepage_featured,homepage_position";
+const listSelection = "id,name,name_en,role,birth_date,birth_time,gender,mbti,categories,portrait_url,created_at,homepage_featured,homepage_position";
 const LIST_CACHE_TTL_MS = 5 * 60_000;
 // 同区正常 <100ms;免费层节流/网络抖动时可到秒级,2s 超时过紧曾导致整列表掉到静态兜底。
 const LIST_QUERY_TIMEOUT_MS = 5000;
@@ -131,8 +135,10 @@ function restoredCortisListItems(): StarListItem[] {
   return stars.filter((star) => RESTORED_CORTIS_IDS.has(star.id)).map((star) => ({
     id: star.id,
     name: CORTIS_CHINESE_NAMES[star.id] ?? star.name,
+    nameEn: star.name,
     role: `CORTIS成员-${CORTIS_CHINESE_NAMES[star.id] ?? star.name}`,
     birthDate: star.birthDate,
+    birthTime: "",
     gender: star.gender ?? "unknown",
     mbti: star.mbti ?? "",
     categories: star.categories ?? ["CORTIS"],
@@ -172,8 +178,10 @@ const starListCache = createServerCache<StarListItem[]>({
     return withRestoredCortis(((data ?? []) as unknown as ListRow[]).map((row) => ({
       id: row.id,
       name: row.name,
+      nameEn: row.name_en ?? "",
       role: row.role,
       birthDate: row.birth_date,
+      birthTime: row.birth_time ?? "",
       gender: row.gender ?? "unknown",
       mbti: row.mbti,
       categories: row.categories ?? [],
