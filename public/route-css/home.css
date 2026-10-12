@@ -2897,3 +2897,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-node { position: relative; }
 .mf-dual-node-clear { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: rgb(10 7 9 / 72%); color: #fff; font-size: 15px; line-height: 1; cursor: pointer; }
 .mf-dual-node-clear:hover { background: var(--bz-red); }
+
+
+/* 报告库:搜索/状态工具行与行内操作 */
+.mf-lib-toolbar { display: grid; gap: 10px; margin: 14px 0 18px; }
+.mf-lib-del { min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--bz-faint); font: 600 11.5px/1 inherit; cursor: pointer; transition: color .18s ease; }
+.mf-lib-del:hover { color: var(--bz-red); }
+.mf-hist-entry-row { display: grid; gap: 6px; }
+.mf-lib-row-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
