@@ -2840,7 +2840,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-lib-row-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 /* 我的页:20px 边距/28px 区块距/20px 卡片内距/88×112 人物图/48 登录钮/64 入口行 */
-.mf-me { display: grid; gap: 28px; max-width: 720px; margin: 0 auto; }
+.mf-me { display: grid; gap: 28px; max-width: 720px; margin: 0 auto; min-width: 0; }
+.mf-me > * { min-width: 0; max-width: 100%; }
 .mf-me-account { display: flex; align-items: center; gap: 14px; padding: 20px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); box-sizing: border-box; }
 .mf-me-avatar { width: 44px; height: 44px; overflow: hidden; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bz-card-raised); color: var(--bz-red-bright); font-size: 18px; font-weight: 650; }
 .mf-me-account-copy { flex: 1; min-width: 0; display: grid; gap: 4px; }
@@ -2853,7 +2854,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-me-empty { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 12px 16px; border: 1px dashed var(--bz-line); border-radius: 12px; box-sizing: border-box; }
 .mf-me-empty i { font-style: normal; color: var(--bz-faint); font-size: 16px; }
 .mf-me-empty p { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
-.mf-me-row { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.mf-me-row { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; min-width: 0; max-width: 100%; }
 .mf-me-row::-webkit-scrollbar { display: none; }
 .mf-me-row a { flex: 0 0 auto; display: grid; gap: 8px; text-decoration: none; }
 .mf-me-row span { width: 88px; height: 112px; border-radius: 12px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
