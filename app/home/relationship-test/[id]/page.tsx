@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import ReportDetailWorkspace from "../../reports/[id]/report-detail-workspace";
 import PreviewActions from "./preview-actions";
+import ReportTopbar from "../../../report-topbar";
 import { getConsultOverride } from "../../../myfate-consult-override-store";
 import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth } from "../../../myfate-stars-server";
 import { portraitImage } from "../../../myfate-image";
@@ -22,8 +23,9 @@ function personOf(role: string) {
   return dash > 0 ? role.slice(dash + 1).trim() : role;
 }
 
-export default async function RelationshipTargetPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function RelationshipTargetPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
   const { id } = await params;
+  const { from } = await searchParams;
 
   // UUID = 保存的自定义报告(旧链路保留)
   if (UUID_PATTERN.test(id)) {
@@ -61,6 +63,7 @@ export default async function RelationshipTargetPage({ params }: { params: Promi
   return (
     <div className="mf-workspace-content">
     <div className="mf-preview">
+      <ReportTopbar fromReports={from === "reports"} title={personOf(star.role) || star.name} backLabel="返回" />
       <StarVisitTracker starId={id} />
       <header className="mf-preview-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
