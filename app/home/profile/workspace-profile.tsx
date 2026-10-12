@@ -28,12 +28,14 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
   }
 
   const loggedIn = status === "authenticated";
-  const initial = (email ?? "?").trim().charAt(0).toUpperCase();
+  const initial = (email ?? "").trim().charAt(0).toUpperCase();
 
   return (
     <div className="mf-me">
       <section className="mf-me-account" aria-label="账户">
-        <span className="mf-me-avatar" aria-hidden="true">{initial}</span>
+        <span className="mf-me-avatar" aria-hidden="true">
+          {loggedIn && initial ? initial : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5.5 19c.8-3.2 3-4.8 6.5-4.8s5.7 1.6 6.5 4.8" /></svg>}
+        </span>
         <div className="mf-me-account-copy">
           <b>{loggedIn ? email : "尚未登录"}</b>
           <p>登录后同步收藏、阅读位置和 AI 对话记录</p>
@@ -50,7 +52,7 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
 
       <nav className="mf-me-links" aria-label="功能入口">
         <Link href="/home/reports"><b>报告历史</b><span>查看与生成的报告</span><i aria-hidden="true">›</i></Link>
-        <div className="mf-me-links-static"><b>AI 对话记录</b><span>保存在各报告页内</span><i aria-hidden="true">›</i></div>
+        <div className="mf-me-links-static"><b>AI 对话记录</b><span>保存在各报告页内</span></div>
       </nav>
     </div>
   );
