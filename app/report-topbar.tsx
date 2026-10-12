@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ShareButton from "./share-button";
 
 // 两类报告页与双星合盘报告共用顶栏:左返回 + 右分享。
 // 返回规则:显式 backHref 优先(如从其他报告"继续探索"跳入,回上一份报告);从浏览记录进入(from=reports)回浏览记录;否则回探索页。
@@ -23,7 +22,6 @@ export default function ReportTopbar({ fromReports = false, backHref, backLabel 
           </>
         )}
       </Link>
-      <ShareButton />
     </div>
   );
 }
