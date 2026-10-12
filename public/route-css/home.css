@@ -708,7 +708,7 @@
 .mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #3a1c29, #261b22); border: 1px solid var(--bz-line); color: var(--bz-red-bright); font: 700 44px/1 var(--font-serif-display); }
 
 /* ============ 明星正缘报告(八字)·深色报告版式 ============ */
-.mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(16px, 3vw, 32px); background: #100e16; border-radius: 0; color: #eceaf2; min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
+.mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(20px, 3vw, 32px); background: #100e16; border-radius: 0; color: #eceaf2; min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
 
 .mf-zr-topbar { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: calc(-1 * var(--mf-rep-pad)) calc(-1 * var(--mf-rep-pad)) 0; box-sizing: border-box; padding: 12px max(var(--mf-rep-pad), env(safe-area-inset-right)) 12px max(var(--mf-rep-pad), env(safe-area-inset-left)); background: #100e16; border-bottom: 1px solid rgb(255 255 255 / 5%); color: var(--bz-muted); font-size: 13px; letter-spacing: 1px; }
 
@@ -1320,7 +1320,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* ── 双星合盘:选择页 / 面板 / 确认区 / 报告页 / 记录卡 ─────────────────── */
 /* 选择页:紧凑关系卡 + 首屏 CTA + 双列网格面板 */
-.mf-dual { display: grid; gap: 18px; padding: clamp(16px, 3vw, 32px); background: var(--bz-paper); width: 100%; min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
+.mf-dual { display: grid; gap: 18px; padding: clamp(20px, 3vw, 32px); background: var(--bz-paper); width: 100%; min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
 
 .mf-dual-head h1 { margin: 0; font: 700 clamp(14px, 1.6vw, 17px)/1.3 var(--font-serif-display); color: var(--bz-ink); letter-spacing: .05em; }
 

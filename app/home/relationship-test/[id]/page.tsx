@@ -59,6 +59,7 @@ export default async function RelationshipTargetPage({ params }: { params: Promi
   const hasReport = Boolean(consult);
 
   return (
+    <div className="mf-workspace-content">
     <div className="mf-preview">
       <StarVisitTracker starId={id} />
       <header className="mf-preview-hero">
@@ -114,6 +115,7 @@ export default async function RelationshipTargetPage({ params }: { params: Promi
           </div>
         </section>
       ) : null}
+    </div>
     </div>
   );
 }
