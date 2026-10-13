@@ -1987,7 +1987,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 }
 
 /* PC 端探索页:压缩工作区顶部内边距,让导航紧贴顶栏 */
-.mf-workspace-content:has(.mf-explore) { padding-top: 8px; } /* 搜索区贴合导航栏 */
+.mf-workspace-content:has(.mf-explore) { padding-top: 26px; }
 
 /* ── 双人合盘:历史合盘横条(选择页下方) ── */
 .mf-dual-history-zone { margin-top: 18px; gap: 12px; }
