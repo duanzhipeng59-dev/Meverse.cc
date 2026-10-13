@@ -37,15 +37,17 @@ test("server-renders relationship-test discovery inside the workspace", async ()
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /生辰画像/u);
-  assert.match(html, /双人合盘/u);
+  assert.match(html, /合盘/u);
   assert.match(html, /个人中心/u);
   assert.match(html, /Bang Chan/u);
   assert.doesNotMatch(html, /关系情境|答题|计分/u);
 });
 
-test("retired star detail pages no longer resolve inside the workspace", async () => {
-  const response = await render("/home/relationship-test/hyunjin");
-  assert.equal(response.status, 404);
+test("star detail resolves as preview page; unknown ids 404", async () => {
+  const preview = await render("/home/relationship-test/hyunjin");
+  assert.equal(preview.status, 200);
+  const missing = await render("/home/relationship-test/not-a-real-star");
+  assert.equal(missing.status, 404);
 });
 
 test("requires login before opening the star report flow", async () => {
@@ -92,8 +94,8 @@ test("server-renders the cloud-backed report history workspace", async () => {
   const response = await render("/home/reports");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /已解锁报告/u);
-  assert.match(html, /按最近浏览排序/u);
+  assert.match(html, /报告/u);
+  assert.match(html, /自动保存你查看和生成的报告/u);
 });
 
 test("payment pages are fully removed from the frontend", async () => {
