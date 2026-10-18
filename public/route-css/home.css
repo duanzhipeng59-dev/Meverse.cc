@@ -2824,8 +2824,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-read-toc button { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; color: var(--bz-ink); font-size: 14px; text-align: left; cursor: pointer; }
 .mf-read-toc button:hover { background: rgb(255 235 242 / 6%); }
 .mf-read-toc button span { color: var(--bz-red-bright); font-size: 11px; font-weight: 700; letter-spacing: .08em; }
-.mf-ask-section { display: inline-flex; align-items: center; min-height: 40px; margin-top: 14px; padding: 0 16px; border: 1px dashed var(--bz-line-strong); border-radius: 999px; background: transparent; color: var(--bz-red-bright); font: 600 12.5px/1 inherit; cursor: pointer; transition: border-color .18s ease, background-color .18s ease; }
-.mf-ask-section:hover { border-color: var(--bz-red); background: rgb(139 30 45 / 8%); }
 
 /* 双人卡:交换按钮与清除角标 */
 .mf-dual-swap { width: 34px; height: 34px; margin: 0 auto; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--bz-line); border-radius: 50%; background: var(--bz-card); color: var(--bz-muted); cursor: pointer; transition: color .18s ease, border-color .18s ease; }
