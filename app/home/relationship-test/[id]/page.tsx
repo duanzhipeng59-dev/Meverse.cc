@@ -63,7 +63,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   return (
     <div className="mf-workspace-content">
     <div className="mf-preview">
-      <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} title={personOf(star.role) || star.name} backLabel="返回" />
+      <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} backLabel="" />
       <StarVisitTracker starId={id} />
       <header className="mf-preview-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -68,7 +68,7 @@ export default function PreviewActions({ starId, nameEn }: { starId: string; nam
         }}
       />
       <div className="mf-preview-actions-row">
-        <IconButton label={faved ? "取消收藏" : "收藏"} onClick={toggleFav}>
+        <IconButton label={faved ? "取消收藏" : "收藏"} onClick={toggleFav} className={faved ? "is-faved" : undefined}>
           <svg viewBox="0 0 24 24" fill={faved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.6Z" /></svg>
         </IconButton>
         <IconButton label="分享" onClick={() => void share()}>

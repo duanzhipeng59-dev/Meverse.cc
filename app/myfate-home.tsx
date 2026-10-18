@@ -78,10 +78,9 @@ export default async function MyfateHome() {
         <section className="mf-stars-section" id="stars">
           <div className="mf-star-grid">
             {stars.slice(0, 6).map((star, index) => (
-              <AuthEntryLink
+              <Link
                 className="mf-star-card mf-home-star-card"
-                href={`/home/relationship-test/${star.id}/test`}
-                anonymousFrom="/#stars"
+                href={`/home/relationship-test/${star.id}`}
                 key={star.id}
               >
                 {/* 真实 <img> 取代原 background-image,支持懒加载与优先级;
@@ -99,7 +98,7 @@ export default async function MyfateHome() {
                     <h3>{star.name}</h3>
                   </div>
                 </div>
-              </AuthEntryLink>
+              </Link>
             ))}
           </div>
         </section>

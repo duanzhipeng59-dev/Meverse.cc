@@ -31,19 +31,6 @@ const SCORE_LABELS: Record<string, string> = {
 
 const CONF_LABELS: Record<string, string> = { strong: "强依据", medium: "中等依据", light: "弱依据" };
 
-const DUAL_TOC = [
-  { id: "d-overview", label: "总览" },
-  { id: "d-attraction", label: "吸引" },
-  { id: "d-communication", label: "沟通" },
-  { id: "d-intimacy", label: "亲密" },
-  { id: "d-conflict", label: "冲突" },
-  { id: "d-career", label: "事业" },
-  { id: "d-longterm", label: "长期" },
-  { id: "d-timeline", label: "节奏" },
-  { id: "d-basis", label: "命理依据" },
-  { id: "d-ask", label: "AI 追问" },
-];
-
 export default async function DualReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   // 认证与报告读取并行(只读无副作用);两者都返回后再做归属校验
@@ -63,7 +50,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="mf-zr">
-      <ReadingProgress toc={DUAL_TOC} starId={`dual-${id}`} title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} />
+      <ReadingProgress starId={`dual-${id}`} />
       <ReportTopbar backHref="/home/dual-star-match" backLabel="返回双人合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} showShare shareTitle={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name} 双人合盘`} />
 
       {report.status !== "ready" ? (

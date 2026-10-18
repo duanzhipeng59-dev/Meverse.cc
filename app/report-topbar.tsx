@@ -8,7 +8,7 @@ export default function ReportTopbar({ fromReports = false, backHref, backLabel 
   const href = backHref ?? (fromReports ? "/home/reports" : "/home/relationship-test");
   return (
     <div className="mf-zr-topbar">
-      <Link className="mf-back-link" href={href} aria-label={backLabel}>
+      <Link className="mf-back-link" href={href} aria-label={backLabel || "返回"}>
         <span className="mf-back-arrow" aria-hidden="true">←</span>
         {title ? (
           <span className="mf-topbar-id">
@@ -17,10 +17,12 @@ export default function ReportTopbar({ fromReports = false, backHref, backLabel 
             {subtitle ? <small>{subtitle}</small> : null}
           </span>
         ) : (
-          <>
-            <span className="mf-topbar-label">{backLabel}</span>
-            <span className="mf-topbar-label-short">返回</span>
-          </>
+          backLabel ? (
+            <>
+              <span className="mf-topbar-label">{backLabel}</span>
+              <span className="mf-topbar-label-short">{backLabel}</span>
+            </>
+          ) : null
         )}
       </Link>
       {showShare ? <SimpleShareButton title={shareTitle ?? title ?? "Myfate 报告"} /> : null}

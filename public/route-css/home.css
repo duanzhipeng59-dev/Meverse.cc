@@ -708,7 +708,7 @@
 .mf-bz-pr-cover { flex-shrink: 0; display: grid; place-items: center; width: 132px; height: 160px; border-radius: 12px; background: linear-gradient(160deg, #3a1c29, #261b22); border: 1px solid var(--bz-line); color: var(--bz-red-bright); font: 700 44px/1 var(--font-serif-display); }
 
 /* ============ 明星正缘报告(八字)·深色报告版式 ============ */
-.mf-zr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; padding: clamp(20px, 3vw, 32px); background: var(--bz-paper); border-radius: 0; color: var(--bz-ink); min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
+.mf-zr { display: flex; flex-direction: column; gap: 18px; padding: clamp(20px, 3vw, 32px); background: var(--bz-paper); border-radius: 0; color: var(--bz-ink); min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
 
 .mf-zr-topbar { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: calc(-1 * var(--mf-rep-pad)) calc(-1 * var(--mf-rep-pad)) 0; box-sizing: border-box; padding: 12px max(var(--mf-rep-pad), env(safe-area-inset-right)) 12px max(var(--mf-rep-pad), env(safe-area-inset-left)); background: var(--bz-paper); border-bottom: 1px solid rgb(255 255 255 / 5%); color: var(--bz-muted); font-size: 13px; letter-spacing: 1px; }
 
@@ -1334,7 +1334,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-node > i { display: grid; place-items: center; width: 88px; height: 108px; border-radius: 14px; border: 1px dashed var(--bz-line-strong); background: var(--bz-paper-warm); color: var(--bz-muted); font-style: normal; font-size: 26px; }
 
-.mf-dual-node b { max-width: 130px; overflow: hidden; color: var(--bz-ink); font-size: 14.5px; text-overflow: ellipsis; white-space: nowrap; }
+.mf-dual-node b { max-width: 130px; overflow: hidden; color: var(--bz-ink); font-size: 14.5px; text-overflow: ellipsis; white-space: nowrap; margin-top: 16px; }
+.mf-dual-node b:only-of-type, .mf-dual-node.is-skel .skel-bar { margin-top: 16px; }
 
 .mf-dual-node small { color: var(--bz-muted); font-size: 11px; }
 
@@ -1352,7 +1353,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-generate:disabled { opacity: 0.6; cursor: default; }
 
-.mf-dual-ghost { padding: 13px 18px; border: 1px solid var(--bz-line-strong); border-radius: 12px; background: transparent; color: var(--bz-muted); font: 600 12.5px/1 inherit; font-family: inherit; cursor: pointer; text-decoration: none; }
+.mf-dual-ghost { padding: 13px 18px; border: 1px solid var(--bz-line-strong); border-radius: 12px; background: transparent; color: var(--bz-muted); font-family: inherit; font-size: 12.5px; font-weight: 600; line-height: 1; cursor: pointer; text-decoration: none; }
 
 /* ── 合盘路由骨架:布局复用真实 mf-dual-* 类,占位块尺寸对齐真实组件(肖像88×108/移动72×90、交换钮34、生成钮48胶囊) ── */
 .mf-dual-skel .mf-dual-relation, .mf-dual-skel .mf-dual-cta-zone { pointer-events: none; }
@@ -1478,23 +1479,59 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-empty { margin: 20px 0; color: var(--bz-muted); font-size: 12.5px; text-align: center; }
 
-/* generating/失败态:报告容器退去面板感,与页面背景一致,只留状态卡内容(肖像/名称/动画/提示) */
-.mf-zr:has(.mf-dual-status) { background: transparent; padding: clamp(20px, 5vw, 40px) clamp(16px, 3vw, 32px); }
-.mf-dual-status { display: grid; justify-items: center; gap: 10px; padding: clamp(24px, 6vw, 60px) 20px; text-align: center; }
+/* generating/失败态:参考稿布局——居中标题(A×B)、双人物卡对置、中缝呼吸星、底部状态胶囊 */
+.mf-zr:has(.mf-dual-status) { background: transparent; padding: clamp(16px, 4vw, 32px) clamp(16px, 3vw, 32px); }
+.mf-dual-status { display: grid; justify-items: center; gap: 0; width: min(560px, 100%); margin: 0 auto; padding: clamp(18px, 5vw, 44px) 0 8px; text-align: center; }
 
-.mf-dual-status-people { display: flex; align-items: center; gap: 14px; }
+.mf-dual-status-head { display: grid; justify-items: center; gap: 7px; margin-bottom: 24px; }
+.mf-dual-status-head h1 { margin: 0; font-family: var(--font-serif-display); font-weight: 600; font-size: clamp(20px, 5.4vw, 24px); line-height: 1.3; letter-spacing: 0.02em; color: var(--bz-ink); }
+.mf-dual-status-head p { margin: 0; font-size: 12px; letter-spacing: 0.16em; color: var(--bz-faint); }
 
-.mf-dual-status-people img { width: 84px; height: 104px; border-radius: 12px; object-fit: cover; border: 1px solid var(--bz-line); }
+.mf-dual-status-people { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; width: 100%; }
 
-.mf-dual-status-people span { font: 700 24px/1 var(--font-serif-display); color: var(--bz-red-bright); }
+.mf-dual-status-people figure { margin: 0; display: grid; overflow: hidden; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); }
 
-.mf-dual-status > b { color: var(--bz-ink); font-size: 17px; }
+.mf-dual-status-people img { display: block; width: 100%; height: clamp(148px, 40vw, 180px); object-fit: cover; }
 
-.mf-dual-status-title { margin: 6px 0 0; display: inline-flex; align-items: center; gap: 8px; color: var(--bz-ink); font-size: 14px; }
+.mf-dual-status-people figcaption { padding: 10px 6px 12px; font-size: 13.5px; color: var(--bz-ink); }
 
-.mf-dual-status-note { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
+.mf-dual-status-people > span { font-size: 20px; line-height: 1; color: var(--bz-red-bright); text-shadow: 0 0 16px rgb(227 107 152 / 50%); animation: mf-dual-star 1.8s ease-in-out infinite; }
 
-.mf-dual-status .mf-dual-actions { margin-top: 10px; }
+@keyframes mf-dual-star { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.3); opacity: 1; } }
+
+/* 生成中:主按钮形态的状态胶囊(不可点),承接参考稿底部主按钮的位置 */
+.mf-dual-gen-pill { margin: 26px 0 0; display: inline-flex; align-items: center; gap: 9px; height: 44px; padding: 0 24px; border-radius: 999px; border: 1px solid rgb(212 85 131 / 38%); background: linear-gradient(140deg, rgb(212 85 131 / 26%), rgb(212 85 131 / 10%)); color: var(--bz-ink); font-size: 14px; }
+
+.mf-dual-status-title { margin: 24px 0 0; display: inline-flex; align-items: center; gap: 8px; color: var(--bz-ink); font-size: 14px; }
+
+.mf-dual-status .mf-dual-status-note { margin: 6px 0 0; color: var(--bz-muted); font-size: 12.5px; }
+
+.mf-dual-status .mf-dual-actions { margin-top: 14px; justify-content: center; }
+
+/* 确认页(两段式第一步)人物卡:参考稿浅底文字卡——名字居中强调,四柱四枚竖排小卡(干/支分行),日主收底;无头像 */
+.mf-dual-confirm .mf-dual-status-people { grid-template-columns: 1fr 1fr; gap: 0 16px; }
+
+.mf-dual-confirm figure { display: grid; justify-items: center; gap: 10px; padding: 20px 12px 18px; border: 0; border-radius: 24px; background: #f6f1f4; }
+
+.mf-dual-confirm figure > b { font-size: 19px; font-weight: 700; color: var(--bz-red); }
+
+.mf-dual-confirm figure > small { font-size: 10px; color: rgb(17 13 18 / 52%); }
+
+.mf-dual-confirm-pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; margin-top: 2px; }
+
+.mf-dual-confirm-pillars > span { display: grid; gap: 3px; justify-items: center; padding: 9px 2px; border-radius: 10px; background: rgb(212 85 131 / 7%); border: 1px solid rgb(212 85 131 / 24%); }
+
+.mf-dual-confirm-pillars small { font-size: 9px; letter-spacing: 0.08em; color: rgb(17 13 18 / 45%); }
+
+.mf-dual-confirm-pillars b { font-family: var(--font-serif-display); font-size: 15px; line-height: 1.15; font-weight: 600; color: #110d12; }
+
+.mf-dual-confirm-dm { font-style: normal; font-size: 12px; font-weight: 500; letter-spacing: 0.04em; color: rgb(17 13 18 / 78%); }
+
+.mf-dual-confirm-hint { margin: 20px 0 0; }
+
+.mf-dual-confirm-cta { margin-top: 18px; display: grid; justify-items: center; gap: 8px; width: 100%; }
+
+.mf-dual-confirm-cta .mf-dual-generate { width: min(280px, 100%); }
 
 .mf-dual-report-hero { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; padding: 24px; border: 1px solid var(--mf-rep-hero-border, rgba(198, 75, 115, 0.16)); border-radius: 12px; background: var(--mf-rep-hero-bg, linear-gradient(150deg, #231319, #170f13)); position: relative; }
 
@@ -1959,10 +1996,10 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 }
 
 /* PC 端探索页:压缩工作区顶部内边距,让导航紧贴顶栏 */
-.mf-workspace-content:has(.mf-explore) { padding-top: 16px; }
+.mf-workspace-content:has(.mf-explore) { padding-top: 0; }
 
 /* ── 双人合盘:历史合盘横条(选择页下方) ── */
-.mf-dual-history-zone { margin-top: 18px; gap: 12px; }
+.mf-dual-history-zone { margin-top: 8px; gap: 12px; }
 
 .mf-dual-history-zone h2 { margin: 0; color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
 
@@ -1980,7 +2017,12 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-history-row b { min-width: 0; flex: 1; color: var(--bz-ink); font-size: 13.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.mf-dual-history-row small { margin-left: auto; color: var(--bz-faint); font-size: 11px; white-space: nowrap; }
+.mf-dual-history-row small { color: var(--bz-faint); font-size: 11px; white-space: nowrap; }
+.mf-dual-history-meta { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+/* 生成中:状态在上时间在下,双排整体居中,状态标签呼吸闪烁 */
+.mf-dual-history-meta.is-stacked { flex-direction: column-reverse; gap: 3px; align-items: center; text-align: center; }
+.mf-dual-history-row em[data-status="generating"] { animation: mf-status-blink 1.1s ease-in-out infinite; }
+@keyframes mf-status-blink { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
 .mf-dual-history-row em { flex-shrink: 0; font-style: normal; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 
@@ -1990,8 +2032,9 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-history-row em[data-status="failed"] { color: var(--bz-error); background: rgb(224 109 124 / 12%); }
 
+.mf-dual-history-row em[data-status="pending"] { color: var(--bz-faint); background: rgb(123 115 144 / 12%); }
+
 /* 报告 hero:人物肖像保持原比例(高度随图,不裁切),文案与人物信息对齐图片顶部 */
-.mf-zr .mf-zr-hero { align-items: flex-start; }
 
 .mf-zr .mf-zr-hero img { height: auto; }
 .mf-test-page {
@@ -2265,11 +2308,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 800px) {
 
   /* sticky 而非 fixed:橡皮筋下拉时与主体同属文档流,同步位移/回弹,不会出现顶栏与内容分离的断层 */
-  .mf-workspace-mobile-bar { position: sticky; top: 0; z-index: 20; width: 100%; height: calc(67.5px + env(safe-area-inset-top)); box-sizing: border-box; padding: env(safe-area-inset-top) 20px 0; display: flex; align-items: center; justify-content: space-between; background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .mf-workspace-mobile-bar { position: sticky; top: 0; z-index: 20; width: 100%; height: calc(54px + env(safe-area-inset-top)); box-sizing: border-box; padding: env(safe-area-inset-top) 20px 0; display: flex; align-items: center; justify-content: space-between; background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 }
 @media (max-width: 800px) {
 
-  .mf-workspace-main { scroll-padding-top: calc(67.5px + env(safe-area-inset-top)); }
+  .mf-workspace-main { scroll-padding-top: calc(54px + env(safe-area-inset-top)); }
 }
 @media (max-width: 800px) {
 
@@ -2736,14 +2779,15 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* ── 发现页新工具栏与卡片 ── */
 /* ── 发现页控制行:默认=排序标签+搜索icon;点icon→搜索框替换标签行,取消按钮替换icon ── */
-.mf-explore-ctrl { display: flex; align-items: center; gap: 14px; min-height: 38px; }
+.mf-explore-ctrl { display: flex; align-items: center; gap: 14px; min-height: 38px; padding: 4px calc(50vw - 50%); position: sticky; top: calc(53px + env(safe-area-inset-top)); z-index: 15; margin: -1px calc(50% - 50vw) 0; background: rgb(15 11 14 / 70%); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-sizing: border-box; }
+@media (min-width: 801px) { .mf-explore-ctrl { top: 0; } }
 .mf-explore-tabs { flex: 1; min-width: 0; display: flex; align-items: center; gap: 26px; }
 .mf-explore-tabs button { position: relative; display: inline-flex; align-items: center; height: 36px; padding: 0 1px; border: 0; background: none; color: var(--bz-muted); font-size: 14px; font-weight: 600; letter-spacing: .02em; cursor: pointer; transition: color .18s ease; }
 .mf-explore-tabs button.is-active { color: var(--bz-ink); }
 .mf-explore-tabs button.is-active::after { content: ""; position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); width: 14px; height: 2px; border-radius: 2px; background: var(--bz-ink); }
 .mf-explore-searchbtn { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border: 0; background: none; color: var(--bz-muted); cursor: pointer; }
 .mf-explore-searchbtn svg { width: 17px; height: 17px; }
-.mf-explore-searchbox { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 13px; border-radius: 11px; background: var(--bz-card-raised); animation: mf-searchin .25s ease; }
+.mf-explore-searchbox { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 4px; animation: mf-searchin .25s ease; }
 .mf-explore-searchbox input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--bz-ink); caret-color: var(--bz-red-bright); font-size: 13.5px; }
 .mf-explore-searchbox input::placeholder { color: var(--bz-faint); }
 .mf-explore-searchbox svg { flex: none; width: 15px; height: 15px; color: var(--bz-faint); }
@@ -2754,8 +2798,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 800px) { .mf-explore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
 @media (min-width: 641px) and (max-width: 800px) { .mf-explore-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .mf-explore-grid { margin-top: 18px; } }
-.mf-bz-star-card { display: grid; gap: 6px; min-width: 0; align-content: start; padding: 12px; border: 1px solid var(--bz-line); border-radius: 20px; background: var(--bz-card); text-decoration: none; transition: border-color .18s ease, transform .18s ease; content-visibility: auto; contain-intrinsic-size: auto 346px; }
-@media (min-width: 801px) { .mf-bz-star-card { contain-intrinsic-size: auto 321px; } }
+.mf-bz-star-card { display: grid; gap: 6px; min-width: 0; align-content: start; padding: 12px; border: 1px solid var(--bz-line); border-radius: 20px; background: var(--bz-card); text-decoration: none; transition: border-color .18s ease, transform .18s ease; }
 .mf-bz-star-card:hover { border-color: var(--bz-red); }
 .mf-bz-star-card.is-visited { border-color: var(--bz-red); box-shadow: 0 10px 28px rgb(198 75 115 / 22%); }
 .mf-bz-star-card b { color: var(--bz-ink); font-size: 17px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2780,6 +2823,9 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-preview-actions { display: grid; gap: 10px; }
 .mf-preview-actions-row { display: flex; gap: 8px; }
 .mf-preview-actions-row .mf-ui-iconbtn { border: 1px solid var(--bz-line); }
+/* 已收藏:星星以主题色填充 */
+.mf-preview-actions-row .mf-ui-iconbtn.is-faved { color: var(--bz-red-bright); border-color: var(--bz-red); }
+.mf-preview-actions-row .mf-ui-iconbtn.is-faved svg { fill: currentColor; }
 .mf-preview-section h2 { margin: 0 0 12px; color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
 .mf-preview-section blockquote { margin: 0 0 10px; padding: 12px 16px; border-left: 2px solid var(--bz-red); border-radius: 0 12px 12px 0; background: var(--bz-card); }
 .mf-preview-section blockquote b { display: block; margin-bottom: 4px; color: var(--bz-red-bright); font-size: 12px; }
@@ -2799,15 +2845,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 }
 
 /* ── 报告阅读工具:进度条/悬浮工具/目录浮层/章节问AI ── */
-.mf-read-progress { position: sticky; top: calc(54px + env(safe-area-inset-top)); z-index: 18; height: 2px; background: rgb(255 235 242 / 8%); }
-.mf-read-progress i { display: block; height: 100%; background: linear-gradient(90deg, var(--bz-red), var(--bz-red-bright)); transition: width .12s linear; }
-.mf-read-tools { position: fixed; right: 14px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 40; display: grid; gap: 6px; }
-.mf-read-tools .mf-ui-iconbtn { border: 1px solid var(--bz-line); background: rgb(20 14 18 / 92%); backdrop-filter: blur(10px); }
-@media (min-width: 801px) { .mf-read-tools { bottom: 26px; } }
-.mf-read-toc { display: grid; gap: 4px; }
-.mf-read-toc button { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; color: var(--bz-ink); font-size: 14px; text-align: left; cursor: pointer; }
-.mf-read-toc button:hover { background: rgb(255 235 242 / 6%); }
-.mf-read-toc button span { color: var(--bz-red-bright); font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+@media (min-width: 801px) {  }
 
 /* 双人卡:交换按钮与清除角标 */
 .mf-dual-swap { width: 34px; height: 34px; margin: 0 auto; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--bz-line); border-radius: 50%; background: var(--bz-card); color: var(--bz-muted); cursor: pointer; transition: color .18s ease, border-color .18s ease; }
@@ -2836,7 +2874,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-me-account-copy b { color: var(--bz-ink); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mf-me-account-copy p { margin: 0; color: var(--bz-faint); font-size: 12px; }
 .mf-me-login { flex-shrink: 0; display: inline-flex; align-items: center; min-height: 48px; padding: 0 26px; border: 0; border-radius: 12px; background: var(--bz-red); color: #fff; font: 500 15px/1 inherit; text-decoration: none; cursor: pointer; }
-.mf-me-logout { flex-shrink: 0; display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid var(--bz-line-strong); border-radius: 12px; background: transparent; color: var(--bz-muted); font: 500 13px/1 inherit; cursor: pointer; }
+.mf-me-logout { flex-shrink: 0; display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid var(--bz-line-strong); border-radius: 10px; background: transparent; color: var(--bz-muted); font-size: 12px; font-weight: 500; line-height: 1; cursor: pointer; }
 .mf-me-section h2 { margin: 0 0 12px; color: var(--bz-ink); font: 600 17px/1.4 var(--font-sans); white-space: nowrap; }
 
 /* ── /home 内登录弹窗:屏幕居中 + 唤起页模糊背景;卡片样式为登录页 mf-login-card 的副本(改版需与 login.css 同步) ── */

@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import LoginModal from "../../components/login-modal";
-import { readLocalSession } from "../../local-auth";
 import type { DualStarCandidate } from "../../myfate-dual-server";
 import { portraitImage } from "../../myfate-image";
+import { addPending } from "./dual-pending";
 
 // 双星选择:顶部紧凑"双人关系卡"(头像A—连线—头像B),选完原地确认;面板手机双列网格。
-// 未登录可完成选择,点生成时走登录并在登录后保留(选择存 sessionStorage)。
+// 两段式第一步:点「合盘」只跳资料确认页(/new),在那里点「开始分析」才登录+创建报告。
 // 明星详情页带入的 ?star= 参数在客户端读取(页面壳保持静态)。
 const STATE_KEY = "myfate_dual_pick_v1";
 
@@ -28,10 +27,6 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
   const [slotB, setSlotB] = useState<Slot>(null);
   const [picking, setPicking] = useState<"A" | "B" | null>(null);
   const [query, setQuery] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState("");
-  const [existing, setExisting] = useState<{ reportId: string; label: string } | null>(null);
-  const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
     if (starParam) {
@@ -46,6 +41,14 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
       // 忽略
     }
   }, [candidates, starParam]);
+
+  // 点击合盘 Tab 进页时直接展示内容区顶部:路由可能带着上一页的滚动位置做平滑滑动
+  // (html 的 scroll-behavior: smooth),挂载与下一帧各瞬时归顶一次,压制可见的滚动动画
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    const frame = requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const filtered = useMemo(() => {
     const keyword = query.trim().toLowerCase();
@@ -86,41 +89,14 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
     }
     setPicking(null);
     setQuery("");
-    setExisting(null);
   }
 
-  async function generate(regenerate = false) {
-    if (!slotA || !slotB || creating) return;
+  function goConfirm() {
+    if (!slotA || !slotB) return;
     persist(slotA, slotB);
-    // 登录门与工作台其它入口统一:未登录弹登录弹窗,成功后由 onAuthenticated 自动续跑生成
-    if (!readLocalSession()) {
-      setLoginOpen(true);
-      return;
-    }
-    setCreating(true);
-    setError("");
-    setExisting(null);
-    try {
-      const response = await fetch("/api/dual-star/create", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ starA: slotA.id, starB: slotB.id, regenerate }),
-      });
-      const data = await response.json() as { reportId?: string; existing?: boolean; error?: string };
-      if (!response.ok || !data.reportId) {
-        setError(data.error === "INCOMPLETE_BIRTH_DATA" ? "两位偶像的出生资料都需要完整（日期、时间、地点）才能生成合盘。" : "生成请求失败，请重试。");
-        return;
-      }
-      if (data.existing && !regenerate) {
-        setExisting({ reportId: data.reportId, label: `${slotA.name} × ${slotB.name}` });
-        return;
-      }
-      window.location.href = `/home/dual-star-match/reports/${data.reportId}`;
-    } catch {
-      setError("网络异常，请重试。");
-    } finally {
-      setCreating(false);
-    }
+    // 待生成本地记录:历史合盘区出现「待生成」横条,点「开始分析」后由确认页移除
+    addPending({ a: slotA.id, b: slotB.id, nameA: slotA.name, nameB: slotB.name, portraitA: slotA.portraitSrc, portraitB: slotB.portraitSrc });
+    window.location.href = `/home/dual-star-match/new/${encodeURIComponent(slotA.id)}/${encodeURIComponent(slotB.id)}`;
   }
 
   const bothReady = Boolean(slotA && slotB);
@@ -184,24 +160,20 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
       </section>
 
       <div className="mf-dual-cta-zone">
-        {/* 主操作常驻:未选满禁用,选满高亮;已有历史报告的组合显示查看文案 */}
+        {/* 主操作常驻:未选满禁用,选满高亮;点击进入资料确认页,开始分析在那里 */}
         <div className="mf-dual-actions">
           <button
             className="mf-primary-button mf-dual-generate"
             type="button"
-            disabled={!bothReady || creating}
-            onClick={() => (existing ? (window.location.href = `/home/dual-star-match/reports/${existing.reportId}`) : generate(false))}
+            disabled={!bothReady}
+            onClick={goConfirm}
           >
-            {creating ? "正在创建…" : !bothReady ? "生成双人合盘报告" : existing ? `查看「${existing.label}」已有报告` : "生成双人合盘报告"}
+            合盘
           </button>
-          {existing && bothReady ? (
-            <button type="button" className="mf-dual-regen" onClick={() => generate(true)}>重新生成</button>
-          ) : null}
         </div>
 
         <div className="mf-dual-guide">
         </div>
-        {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
       </div>
 
       {picking ? (
@@ -230,11 +202,6 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
           </div>
         </div>
       ) : null}
-      <LoginModal
-        open={loginOpen}
-        onOpenChange={setLoginOpen}
-        onAuthenticated={() => { void generate(false); }}
-      />
     </div>
   );
 }

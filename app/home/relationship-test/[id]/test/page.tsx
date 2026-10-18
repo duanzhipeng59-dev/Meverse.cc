@@ -20,16 +20,6 @@ const ASK_SUGGESTIONS = [
 const PILLAR_LABELS = ["年", "月", "日", "时"];
 
 // 章节目录(与正文 section id 一一对应)
-const REPORT_TOC = [
-  { id: "c-portrait", label: "人生画像" },
-  { id: "c-pattern", label: "格局" },
-  { id: "c-edu", label: "学业" },
-  { id: "c-career", label: "事业" },
-  { id: "c-wealth", label: "财富" },
-  { id: "c-love", label: "感情" },
-  { id: "ask", label: "AI 追问" },
-];
-
 // 报告内容以 consult_overrides 手动上传为准;四柱优先取上传的 heroPillars,缺省回退档案三柱
 function heroPillarsOf(consult: ConsultOverrideContent | null, threePillars: string): string[] {
   if (consult?.heroPillars?.length) return consult.heroPillars.slice(0, 4);
@@ -123,7 +113,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const others = allStars.filter((item) => item.id !== id).slice(0, 8);
   // 经"继续探索"从其他报告跳入时,返回按钮回上一份报告;否则回探索页
   const prevStarId = prev && allStars.some((item) => item.id === prev) ? prev : null;
-  const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : undefined;
+  // 返回目标:从其它报告跳入回上一份报告,否则回本人的预览页(而非发现页)
+const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : `/home/relationship-test/${id}`;
   const birthLine = `${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace || "首尔 · 韩国"}`;
   const currentAge = Number.isFinite(Number(star.birthDate.slice(0, 4))) ? new Date().getFullYear() - Number(star.birthDate.slice(0, 4)) : null;
 
@@ -140,7 +131,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <section className="mf-zr-card mf-doc">
           <div className="mf-doc-head"><i aria-hidden="true">✦</i><h2>报告准备中</h2></div>
           <p className="mf-doc-p">这份生辰画像报告尚未上传，内容正在人工准备与校对中，完成后即可查看。</p>
-        </section>        <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
+        </section>        <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读</p>
       </div>
     );
   }
@@ -150,9 +141,8 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
   return (
     <div className="mf-zr">
-            <ReadingProgress toc={REPORT_TOC} starId={id} title={`${personName || star.name} 的生辰画像`} />
-      <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")} />
-
+      <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")} showShare shareTitle={`${personName || star.name} 的生辰画像`} />
+      <ReadingProgress starId={id} />
       <div className="mf-zr-overview">
       <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={heroPillars} heroBadges={consult.heroBadges} />
 
@@ -286,7 +276,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
 
       {/* ── ✚ 健康 / ❀ 子女 / ⊹ 六亲 章节已下线 ── */}
 
-      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>      <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
+      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>      <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读</p>
     </div>
   );
 }

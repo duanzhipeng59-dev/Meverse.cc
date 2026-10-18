@@ -64,14 +64,23 @@ export default function DualGenerating({ reportId, nameA, nameB, portraitA, port
 
   return (
     <div className="mf-dual-status">
+      <header className="mf-dual-status-head">
+        <h1>{nameA} × {nameB}</h1>
+        <p>{failed ? "双人合盘 · 生成未完成" : "双人合盘 · 正在生成"}</p>
+      </header>
       <div className="mf-dual-status-people">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={portraitA} alt={`${nameA}的人物肖像`} />
-        <span aria-hidden="true">×</span>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={portraitB} alt={`${nameB}的人物肖像`} />
+        <figure>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={portraitA} alt={`${nameA}的人物肖像`} />
+          <figcaption>{nameA}</figcaption>
+        </figure>
+        <span aria-hidden="true">✦</span>
+        <figure>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={portraitB} alt={`${nameB}的人物肖像`} />
+          <figcaption>{nameB}</figcaption>
+        </figure>
       </div>
-      <b>{nameA} × {nameB}</b>
       {failed ? (
         <>
           <p className="mf-dual-status-title">报告生成没有成功</p>
@@ -85,7 +94,7 @@ export default function DualGenerating({ reportId, nameA, nameB, portraitA, port
         </>
       ) : (
         <>
-          <p className="mf-dual-status-title"><i className="mf-launch-spinner" aria-hidden="true" />正在生成双人合盘报告</p>
+          <p className="mf-dual-gen-pill"><i className="mf-launch-spinner" aria-hidden="true" />正在生成双人合盘报告</p>
           <p className="mf-dual-status-note">{PHASES[phase]}</p>
           <p className="mf-dual-status-note is-soft">报告会在后台继续生成，完成后可在浏览记录中查看。你可以放心离开这个页面。</p>
         </>

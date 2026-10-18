@@ -61,8 +61,10 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
           <Image src={portraitImage(portraitB, 120)} alt="" width={30} height={39} unoptimized />
         </span>
         <b>{title}</b>
-        <small>{time}</small>
-        <em data-status={status}>{statusLabel}</em>
+        <span className="mf-dual-history-meta is-stacked">
+          <small>{time}</small>
+          <em data-status={status}>{statusLabel}</em>
+        </span>
       </Link>
       <button
         type="button"

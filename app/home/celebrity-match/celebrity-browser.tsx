@@ -7,8 +7,8 @@ import { dayMasterOf, type StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
 import { Tag, EmptyState, SkeletonList } from "../../components/ui";
 
-const PAGE_SIZE = 18;
-// 返回列表后恢复搜索词/筛选/已加载页数/滚动位置(未登录本地存储;登录同步属后续批次)
+const PAGE_SIZE = 12;
+// 返回列表后恢复搜索词/排序/已加载页数/滚动位置(未登录本地存储;登录同步属后续批次)
 const STATE_KEY = "mf_discover_v1";
 
 const SORTS = [
@@ -44,17 +44,30 @@ export function readRecentStars(): string[] {
 
 type PersistedState = { query: string; sort: SortKey; pages: number; scrollY: number };
 
+// sessionStorage 只在客户端状态初始化函数中读取:SSR 返回 null,损坏时清除存储并回退默认状态
+function readPersisted(): PersistedState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null") as Partial<PersistedState> | null;
+    if (!parsed || typeof parsed !== "object") return null;
+    return {
+      query: typeof parsed.query === "string" ? parsed.query : "",
+      sort: SORTS.some((item) => item.key === parsed.sort) ? (parsed.sort as SortKey) : "default",
+      pages: Number.isFinite(parsed.pages) && (parsed.pages as number) > 0 ? Math.floor(parsed.pages as number) : 1,
+      scrollY: Number.isFinite(parsed.scrollY) && (parsed.scrollY as number) > 0 ? (parsed.scrollY as number) : 0,
+    };
+  } catch {
+    try { sessionStorage.removeItem(STATE_KEY); } catch { /* 忽略 */ }
+    return null;
+  }
+}
+
 // 人物发现页:排序标签 + 搜索icon(点击icon展开搜索框,取消收起) + 无限滚动,返回恢复全部浏览状态。
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarListItem[]; basePath?: string }) {
-  const restored = useRef<PersistedState | null>(null);
-  try {
-    restored.current ??= JSON.parse(sessionStorage.getItem(STATE_KEY) ?? "null") as PersistedState | null;
-  } catch { restored.current ??= null; }
-  const initial = restored.current;
+  const [initial] = useState(readPersisted);
 
   const urlQuery = useSearchParams().get("q") ?? "";
-  const savedSort = SORTS.find((item) => item.key === initial?.sort)?.key;
-  const [sort, setSort] = useState<SortKey>(savedSort ?? "default");
+  const [sort, setSort] = useState<SortKey>(initial?.sort ?? "default");
   const [query, setQuery] = useState(initial?.query || urlQuery);
   const [searchOpen, setSearchOpen] = useState(Boolean(initial?.query || urlQuery));
   const [pages, setPages] = useState(1);
@@ -82,11 +95,16 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const visibleCount = pages * PAGE_SIZE;
   const hasMore = filtered.length > visibleCount;
 
-  // 排序/搜索变化时回到第一页(挂载首轮跳过,避免清掉恢复的页数)
+  // 排序/搜索变化时回到第一页(挂载首轮跳过,避免清掉恢复的页数);切换排序另滚回顶部
   const skipFirst = useRef(true);
+  const prevSort = useRef(sort);
   useEffect(() => {
-    if (skipFirst.current) { skipFirst.current = false; return; }
+    if (skipFirst.current) { skipFirst.current = false; prevSort.current = sort; return; }
     setPages(1);
+    if (prevSort.current !== sort) {
+      prevSort.current = sort;
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
   }, [sort, query]);
 
   // 实时镜像当前浏览状态:保存时永远读最新值,避免 cleanup 闭包里的过期快照
@@ -129,8 +147,13 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     };
   }, [save]);
 
-  // 返回恢复 · 第一步(绘制前):layout effect 里补页数会同步触发重渲染,重渲染的 layout effect
-  // 再落位滚动——两步都发生在浏览器首次绘制之前,用户直接看到目标位置,无"先顶部再滚动"的闪跳
+  // 恢复·绘制前:补页数后同步重渲染,重渲染的 layout effect 瞬时落位——首帧即目标位置;
+  // 并挂起浏览器自身滚动恢复,避免水合前停在历史中间位置
+  useLayoutEffect(() => {
+    const prev = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    return () => { history.scrollRestoration = prev; };
+  }, []);
   useLayoutEffect(() => {
     if (initial?.pages && initial.pages > 1) setPages(initial.pages);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -141,62 +164,42 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages]);
 
-  // 返回恢复 · 第二步(绘制后兜底):框架层的滚动重置触发时机不定(可迟至数百毫秒),
-  // 校准窗口放宽到 6 秒、连续 6 次稳定才收手;用户一旦主动滚动立即让位;
-  // 同时挂起浏览器自身的 scrollRestoration,消除对抗源
+  // 恢复·校准:rAF 首次落位后,若偏差超过 4px,每 120ms 校准一次,最多两次;不做无限定时循环
   useEffect(() => {
     if (!initial?.scrollY) return;
     const target = initial.scrollY;
     scrollYRef.current = target;
-    const prevRestoration = history.scrollRestoration;
-    history.scrollRestoration = "manual";
-    let landed = 0;
-    let ticks = 0;
-    let userTouched = false;
+    let calibrations = 0;
     let timer = 0;
-    const onUser = () => { userTouched = true; };
-    const finish = () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("wheel", onUser);
-      window.removeEventListener("touchstart", onUser);
-      window.removeEventListener("keydown", onUser);
-      history.scrollRestoration = prevRestoration;
-    };
-    window.addEventListener("wheel", onUser, { passive: true });
-    window.addEventListener("touchstart", onUser, { passive: true });
-    window.addEventListener("keydown", onUser);
-    const settle = () => {
-      if (userTouched) {
-        scrollYRef.current = window.scrollY; // 用户接管,当前位置成为新的保存真相
-        finish();
-        return;
-      }
-      if (Math.abs(window.scrollY - target) <= 4) {
-        scrollYRef.current = target;
-        if (++landed >= 6) { finish(); return; }
-      } else {
-        landed = 0;
+    const calibrate = () => {
+      if (Math.abs(window.scrollY - target) > 4 && calibrations < 2) {
+        calibrations += 1;
         window.scrollTo({ top: target, behavior: "instant" });
+        timer = window.setTimeout(calibrate, 120);
       }
-      if (++ticks > 50) { finish(); return; } // 6 秒兜底退出
-      timer = window.setTimeout(settle, 120);
     };
-    settle();
-    return finish;
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: target, behavior: "instant" });
+      timer = window.setTimeout(calibrate, 120);
+    });
+    return () => { cancelAnimationFrame(frame); window.clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 无限滚动:sentinel 进入视口自动加载下一页
+  // 无限滚动:sentinel 距视口底部 400px 时加载下一批;触发即断开,由 pages 变化重建,单次只加一页
   const loadMore = useCallback(() => { setPages((p) => p + 1); }, []);
   useEffect(() => {
     const node = sentinelRef.current;
     if (!node || !hasMore) return;
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0]?.isIntersecting) loadMore();
-    }, { rootMargin: "600px 0px" });
+      if (entries[0]?.isIntersecting) {
+        observer.disconnect();
+        loadMore();
+      }
+    }, { rootMargin: "400px 0px" });
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMore, loadMore]);
+  }, [hasMore, loadMore, pages]);
 
   return (
     <div className="mf-explore">
@@ -252,7 +255,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
         )
       ) : (
         <div className="mf-explore-grid">
-          {filtered.slice(0, visibleCount).map((star) => {
+          {filtered.slice(0, visibleCount).map((star, index) => {
             const complete = Boolean(star.birthDate && star.birthTime);
             const dayMaster = dayMasterOf(star.threePillars);
             return (
@@ -262,7 +265,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
                 key={star.id}
                 onClick={() => pushRecentStar(star.id)}
               >
-                <span className="mf-bz-star-cover"><PortraitImg src={star.portraitSrc} alt={`${star.name}的人物肖像`} /></span>
+                <span className="mf-bz-star-cover"><PortraitImg src={star.portraitSrc} alt={`${star.name}的人物肖像`} priority={index < 4} /></span>
                 <b>{star.name}</b>
                 <small>{star.nameEn ? `${groupOf(star.role)}-${star.nameEn}` : groupOf(star.role)}</small>
                 <div className="mf-explore-card-tags">

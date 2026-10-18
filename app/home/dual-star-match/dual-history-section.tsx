@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import DualHistoryRow from "./dual-history-row";
+import DualPendingRow from "./dual-pending-row";
 import { useAuth } from "../../auth-context";
+import { readPending, removePending, type DualPending } from "./dual-pending";
 import type { DualStarCandidate } from "../../myfate-dual-server";
 
 // 历史合盘区:入口页静态化后,个人历史在客户端拉取。
@@ -59,6 +61,8 @@ export default function DualHistorySection({ candidates }: { candidates: DualSta
   const loggedIn = status === "authenticated" && Boolean(email);
   // 惰性初始化仅在已登录(email 已知)时读缓存,未登录/加载中首帧不渲染,避免跨账号闪现
   const [rows, setRows] = useState<HistoryRow[] | null>(() => (loggedIn && email ? readCache(email) : null));
+  // 待生成横条是本地记录,未登录也展示(进确认页时写入,点「开始分析」后移除)
+  const [pending, setPending] = useState<DualPending[]>(() => readPending());
 
   useEffect(() => {
     if (!loggedIn || !email) return;
@@ -77,7 +81,7 @@ export default function DualHistorySection({ candidates }: { candidates: DualSta
     return () => { alive = false; };
   }, [loggedIn, email]);
 
-  if (!loggedIn || !rows?.length) return null;
+  if ((!loggedIn || !rows?.length) && !pending.length) return null;
 
   const personOf = (id: string, fallback: string) => {
     const candidate = candidates.find((item) => item.id === id);
@@ -99,7 +103,23 @@ export default function DualHistorySection({ candidates }: { candidates: DualSta
     <section className="mf-dual mf-dual-history-zone" aria-label="历史合盘记录">
       <h2>历史合盘</h2>
       <div className="mf-dual-history-list">
-        {rows.map((row) => {
+        {pending.map((item) => {
+          const date = new Date(item.ts);
+          const time = `${date.getMonth() + 1}月${date.getDate()}日 ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+          return (
+            <DualPendingRow
+              key={`${item.a}+${item.b}`}
+              a={item.a}
+              b={item.b}
+              portraitA={item.portraitA}
+              portraitB={item.portraitB}
+              title={`${item.nameA} × ${item.nameB}`}
+              time={time}
+              onRemoved={() => { removePending(item.a, item.b); setPending(readPending()); }}
+            />
+          );
+        })}
+        {loggedIn && rows ? rows.map((row) => {
           // 接口给 UTC,统一按东八区展示
           const shifted = new Date(new Date(row.createdAt).getTime() + 8 * 3600_000);
           const time = `${shifted.getUTCMonth() + 1}月${shifted.getUTCDate()}日 ${String(shifted.getUTCHours()).padStart(2, "0")}:${String(shifted.getUTCMinutes()).padStart(2, "0")}`;
@@ -116,7 +136,7 @@ export default function DualHistorySection({ candidates }: { candidates: DualSta
               onDeleted={handleDeleted}
             />
           );
-        })}
+        }) : null}
       </div>
     </section>
   );

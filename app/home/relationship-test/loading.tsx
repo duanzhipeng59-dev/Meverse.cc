@@ -14,7 +14,7 @@ export default function Loading() {
         </div>
 
         <div className="mf-explore-grid" aria-hidden="true">
-          {Array.from({ length: 8 }).map((_, index) => (
+          {Array.from({ length: 6 }).map((_, index) => (
             <div className="mf-bz-star-card is-skel" key={index}>
               <i className="mf-skel-ph mf-explore-skel-cover" />
               <i className="mf-skel-ph mf-explore-skel-name" />
