@@ -22,8 +22,6 @@
 
 .mf-home-map-star > small { color: var(--bz-red); }
 
-.mf-section-heading h2 { font-family: var(--font-serif-display); font-weight: 700; letter-spacing: 0.01em; }
-
 .mf-how-grid span { color: var(--bz-red); font: 700 20px/1 var(--font-serif-display); font-style: normal; }
 
 .mf-header-cta { border-color: rgb(198 75 115 / 45%); color: var(--bz-red-bright); background: transparent; }
@@ -39,17 +37,6 @@
 }
 
 
-.mf-how-dual { margin-top: 18px; }
-
-.mf-how-dual a { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--bz-line); border-radius: 14px; background: var(--bz-card); text-decoration: none; }
-
-.mf-how-dual a:hover { border-color: var(--bz-red); }
-
-.mf-how-dual b { flex-shrink: 0; color: var(--bz-red-bright); font-size: 15px; }
-
-.mf-how-dual span { color: var(--bz-muted); font-size: 13px; }
-
-.mf-how-dual i { margin-left: auto; font-style: normal; color: var(--bz-red-bright); }
 .mf-page {
   min-height: 100vh;
   background:
@@ -337,15 +324,7 @@
 }
 
 
-.mf-stars-section, .mf-how { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 100px 0; }
-
-.mf-stars-section { border-top: 1px solid var(--mf-line); }
-
-.mf-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 40px; }
-
-.mf-section-heading h2 { margin: 12px 0 0; font: 500 clamp(32px, 4vw, 48px)/1.15 Georgia, "Songti SC", serif; letter-spacing: -.03em; }
-
-.mf-section-heading > p { max-width: 360px; margin: 0; color: var(--mf-muted); font-size: 13px; line-height: 1.7; text-align: right; }
+.mf-stars-section, .mf-how { width: min(1180px, calc(100% - 48px)); margin: 16px auto 16px; padding: 26px 24px; border: 1px solid var(--bz-line); border-radius: 20px; background: var(--bz-card); box-sizing: border-box; }
 
 .mf-star-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 22px; }
 
@@ -364,13 +343,9 @@
 .mf-star-overlay p { margin: 0; color: rgba(255,255,255,.76); font-size: 12px; }
 
 
-.mf-how { padding-top: 24px; }
+.mf-how-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
 
-.mf-stars-section { padding: 60px 0 40px; }
-
-.mf-how-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--mf-line); }
-
-.mf-how-grid article { padding: 32px 30px 20px 0; }
+.mf-how-grid article { padding: 8px 30px 20px 0; }
 
 .mf-how-grid article + article { padding-left: 30px; border-left: 1px solid var(--mf-line); }
 
@@ -496,23 +471,7 @@
 }
 @media (max-width: 800px) {
 
-  .mf-stars-section, .mf-how { width: calc(100% - 32px); padding: 70px 0; }
-}
-@media (max-width: 800px) {
-
-  .mf-stars-section { padding-top: 40px; padding-bottom: 28px; }
-}
-@media (max-width: 800px) {
-
-  .mf-how { padding-top: 16px; }
-}
-@media (max-width: 800px) {
-
-  .mf-section-heading { align-items: start; flex-direction: column; margin-bottom: 28px; }
-}
-@media (max-width: 800px) {
-
-  .mf-section-heading > p { text-align: left; }
+  .mf-stars-section, .mf-how { width: calc(100% - 32px); padding: 20px 14px; margin: 14px auto 14px; }
 }
 @media (max-width: 800px) {
 
@@ -605,12 +564,6 @@
 
 .mf-home-cta { background: linear-gradient(135deg, #c64b73, #8e2f51); box-shadow: 0 8px 22px rgb(198 75 115 / 30%); }
 
-.mf-stars-section { border-top-color: var(--mf-line); }
-
-.mf-section-heading h2 { color: var(--bz-ink); }
-
-.mf-section-heading > p { color: var(--bz-muted); }
-
 .mf-how h2 { color: var(--bz-ink); }
 
 .mf-how h3 { color: var(--bz-ink); }
@@ -651,7 +604,7 @@
 
 .mf-home-fate-map { border-color: rgba(255, 235, 242, 0.12); background: radial-gradient(circle at 50% 55%, rgb(198 75 115 / 12%), transparent 34%), rgb(28 21 26 / 88%); box-shadow: 0 25px 65px rgb(0 0 0 / 45%); }
 
-.mf-how article p, .mf-section-heading > p { color: #bdaeb4; }
+.mf-how article p { color: #bdaeb4; }
 
 
 

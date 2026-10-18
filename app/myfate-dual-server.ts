@@ -4,6 +4,7 @@ import { createSupabaseAdminClient } from "./api/auth/server";
 export type DualStarCandidate = {
   id: string;
   name: string;
+  nameEn: string;
   role: string;
   portraitSrc: string;
   birthDate: string;
@@ -14,6 +15,7 @@ export type DualStarCandidate = {
 type CandidateRow = {
   id: string;
   name: string;
+  name_en: string | null;
   role: string | null;
   portrait_url: string | null;
   birth_date: string;
@@ -28,7 +30,7 @@ export async function getDualStarCandidates(): Promise<DualStarCandidate[]> {
   if (candidatesCache && Date.now() - candidatesCache.at < 60_000) return candidatesCache.data;
   const { data, error } = await createSupabaseAdminClient()
     .from("celebrity_profiles")
-    .select("id,name,role,portrait_url,birth_date,birth_time,birth_place")
+    .select("id,name,name_en,role,portrait_url,birth_date,birth_time,birth_place")
     .eq("published", true)
     .order("workspace_position", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: true })
@@ -37,6 +39,7 @@ export async function getDualStarCandidates(): Promise<DualStarCandidate[]> {
   const list = (data ?? []).map((row) => ({
     id: row.id,
     name: row.name,
+    nameEn: row.name_en ?? "",
     role: row.role ?? "明星",
     portraitSrc: row.portrait_url ?? "",
     birthDate: row.birth_date,

@@ -2,40 +2,21 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { StarListItem } from "../../myfate-stars-server";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { dayMasterOf, type StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
-import { SearchInput, FilterBar, Tag, EmptyState, SkeletonList } from "../../components/ui";
+import { Tag, EmptyState, SkeletonList } from "../../components/ui";
 
 const PAGE_SIZE = 18;
 // 返回列表后恢复搜索词/筛选/已加载页数/滚动位置(未登录本地存储;登录同步属后续批次)
 const STATE_KEY = "mf_discover_v1";
 
-const CATS = [
-  { key: "all", label: "全部" },
-  { key: "hybe", label: "HYBE" },
-  { key: "jyp", label: "JYP" },
-  { key: "sm", label: "SM" },
-  { key: "yg", label: "YG" },
-  { key: "cortis", label: "CORTIS" },
-] as const;
-type CatKey = (typeof CATS)[number]["key"];
-
 const SORTS = [
-  { key: "default", label: "综合" },
+  { key: "default", label: "全部" },
   { key: "hot", label: "热门" },
   { key: "new", label: "最新收录" },
-  { key: "recent", label: "最近查看" },
 ] as const;
 type SortKey = (typeof SORTS)[number]["key"];
-
-const AGENCY_KEYWORDS: Record<Exclude<CatKey, "all">, RegExp> = {
-  hybe: /HYBE|BIGHIT|BIG HIT|PLEDIS|SOURCE|KOZ/i,
-  jyp: /JYP/i,
-  sm: /SM|S\.M\./i,
-  yg: /YG/i,
-  cortis: /CORTIS/i,
-};
 
 // "BTS 成员-金南俊" → 中文名"金南俊"
 function personName(role: string) {
@@ -48,13 +29,7 @@ function groupOf(role: string) {
   return dashIndex > 0 ? role.slice(0, dashIndex).trim() : role;
 }
 
-function inCategory(star: StarListItem, key: CatKey) {
-  if (key === "all") return true;
-  const pattern = AGENCY_KEYWORDS[key];
-  return (star.categories ?? []).some((c) => pattern.test(c)) || pattern.test(star.role);
-}
-
-// 最近查看(全站共享的轻量本地记录,发现页排序与首页「最近阅读」共用)
+// 最近查看(全站共享的轻量本地记录,「我的」页最近阅读与报告页写入共用)
 const RECENT_KEY = "mf_recent_stars_v1";
 export function pushRecentStar(id: string) {
   try {
@@ -67,9 +42,9 @@ export function readRecentStars(): string[] {
   try { return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]") as string[]; } catch { return []; }
 }
 
-type PersistedState = { query: string; cat: CatKey; sort: SortKey; pages: number; scrollY: number };
+type PersistedState = { query: string; sort: SortKey; pages: number; scrollY: number };
 
-// 人物发现页:常驻搜索 + 团体/维度筛选 + 无限滚动,返回恢复全部浏览状态。
+// 人物发现页:排序标签 + 搜索icon(点击icon展开搜索框,取消收起) + 无限滚动,返回恢复全部浏览状态。
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarListItem[]; basePath?: string }) {
   const restored = useRef<PersistedState | null>(null);
   try {
@@ -78,15 +53,18 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const initial = restored.current;
 
   const urlQuery = useSearchParams().get("q") ?? "";
-  const [cat, setCat] = useState<CatKey>(initial?.cat ?? "all");
-  const [sort, setSort] = useState<SortKey>(initial?.sort ?? "default");
+  const savedSort = SORTS.find((item) => item.key === initial?.sort)?.key;
+  const [sort, setSort] = useState<SortKey>(savedSort ?? "default");
   const [query, setQuery] = useState(initial?.query || urlQuery);
-  const [pages, setPages] = useState(Math.max(1, initial?.pages ?? 1));
+  const [searchOpen, setSearchOpen] = useState(Boolean(initial?.query || urlQuery));
+  const [pages, setPages] = useState(1);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const restoring = useRef(Boolean(initial?.scrollY));
+  // 返回标记:最近浏览的人物卡显示玫红描边(从预览页返回时,红框落在刚看过的那张卡上)
+  const [lastVisitedId, setLastVisitedId] = useState<string | null>(null);
+  useEffect(() => { setLastVisitedId(readRecentStars()[0] ?? null); }, []);
 
   const filtered = useMemo(() => {
-    let result = stars.filter((star) => inCategory(star, cat));
+    let result = stars;
     const keyword = query.trim().toLowerCase();
     if (keyword) {
       result = result.filter((star) => star.name.toLowerCase().includes(keyword)
@@ -98,35 +76,113 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     }
     if (sort === "hot") result = [...result].sort((a, b) => Number(b.homepageFeatured) - Number(a.homepageFeatured) || a.createdAt.localeCompare(b.createdAt));
     if (sort === "new") result = [...result].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    if (sort === "recent") {
-      const order = new Map(readRecentStars().map((id, index) => [id, index]));
-      result = result.filter((star) => order.has(star.id)).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
-    }
     return result;
-  }, [stars, cat, sort, query]);
+  }, [stars, sort, query]);
 
   const visibleCount = pages * PAGE_SIZE;
   const hasMore = filtered.length > visibleCount;
 
-  // 筛选/搜索变化时回到第一页
-  useEffect(() => { setPages(1); }, [cat, sort, query]);
-
-  // 离开页面前持久化浏览状态
+  // 排序/搜索变化时回到第一页(挂载首轮跳过,避免清掉恢复的页数)
+  const skipFirst = useRef(true);
   useEffect(() => {
-    const save = () => {
-      try {
-        sessionStorage.setItem(STATE_KEY, JSON.stringify({ query, cat, sort, pages, scrollY: window.scrollY } satisfies PersistedState));
-      } catch { /* 忽略 */ }
+    if (skipFirst.current) { skipFirst.current = false; return; }
+    setPages(1);
+  }, [sort, query]);
+
+  // 实时镜像当前浏览状态:保存时永远读最新值,避免 cleanup 闭包里的过期快照
+  const stateRef = useRef({ query, sort, pages });
+  stateRef.current = { query, sort, pages };
+  // 只记录用户主动滚动的位置:路由/浏览器的程序性滚动重置(返回时的异步 scrollTo)一律不记,
+  // 否则二次挂载时会恢复到被污染的位置
+  const scrollYRef = useRef(0);
+
+  const save = useCallback(() => {
+    try {
+      sessionStorage.setItem(STATE_KEY, JSON.stringify({ ...stateRef.current, scrollY: scrollYRef.current } satisfies PersistedState));
+    } catch { /* 忽略 */ }
+  }, []);
+
+  useEffect(() => {
+    let fromUser = false;
+    let touchTimer = 0;
+    const markUser = () => { fromUser = true; };
+    const capture = () => { if (fromUser) { scrollYRef.current = window.scrollY; fromUser = false; } };
+    const onTouchEnd = () => {
+      window.clearTimeout(touchTimer);
+      touchTimer = window.setTimeout(() => { scrollYRef.current = window.scrollY; }, 180); // 惯性滚动结束后取最终位置
     };
+    window.addEventListener("wheel", markUser, { passive: true });
+    window.addEventListener("touchmove", markUser, { passive: true });
+    window.addEventListener("keydown", markUser);
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("scroll", capture, { passive: true });
     window.addEventListener("pagehide", save);
-    return () => { window.removeEventListener("pagehide", save); save(); };
-  }, [query, cat, sort, pages]);
+    return () => {
+      window.removeEventListener("wheel", markUser);
+      window.removeEventListener("touchmove", markUser);
+      window.removeEventListener("keydown", markUser);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("scroll", capture);
+      window.removeEventListener("pagehide", save);
+      window.clearTimeout(touchTimer);
+      save();
+    };
+  }, [save]);
 
-  // 恢复滚动位置(仅返回场景一次)
+  // 返回恢复 · 第一步(绘制前):layout effect 里补页数会同步触发重渲染,重渲染的 layout effect
+  // 再落位滚动——两步都发生在浏览器首次绘制之前,用户直接看到目标位置,无"先顶部再滚动"的闪跳
+  useLayoutEffect(() => {
+    if (initial?.pages && initial.pages > 1) setPages(initial.pages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useLayoutEffect(() => {
+    if (!initial?.scrollY) return;
+    window.scrollTo({ top: initial.scrollY, behavior: "instant" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages]);
+
+  // 返回恢复 · 第二步(绘制后兜底):框架层的滚动重置触发时机不定(可迟至数百毫秒),
+  // 校准窗口放宽到 6 秒、连续 6 次稳定才收手;用户一旦主动滚动立即让位;
+  // 同时挂起浏览器自身的 scrollRestoration,消除对抗源
   useEffect(() => {
-    if (!restoring.current || !initial?.scrollY) return;
-    restoring.current = false;
-    requestAnimationFrame(() => { window.scrollTo({ top: initial.scrollY, behavior: "auto" }); });
+    if (!initial?.scrollY) return;
+    const target = initial.scrollY;
+    scrollYRef.current = target;
+    const prevRestoration = history.scrollRestoration;
+    history.scrollRestoration = "manual";
+    let landed = 0;
+    let ticks = 0;
+    let userTouched = false;
+    let timer = 0;
+    const onUser = () => { userTouched = true; };
+    const finish = () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("wheel", onUser);
+      window.removeEventListener("touchstart", onUser);
+      window.removeEventListener("keydown", onUser);
+      history.scrollRestoration = prevRestoration;
+    };
+    window.addEventListener("wheel", onUser, { passive: true });
+    window.addEventListener("touchstart", onUser, { passive: true });
+    window.addEventListener("keydown", onUser);
+    const settle = () => {
+      if (userTouched) {
+        scrollYRef.current = window.scrollY; // 用户接管,当前位置成为新的保存真相
+        finish();
+        return;
+      }
+      if (Math.abs(window.scrollY - target) <= 4) {
+        scrollYRef.current = target;
+        if (++landed >= 6) { finish(); return; }
+      } else {
+        landed = 0;
+        window.scrollTo({ top: target, behavior: "instant" });
+      }
+      if (++ticks > 50) { finish(); return; } // 6 秒兜底退出
+      timer = window.setTimeout(settle, 120);
+    };
+    settle();
+    return finish;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -144,15 +200,53 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
   return (
     <div className="mf-explore">
-      <div className="mf-explore-toolbar">
-        <SearchInput value={query} onChange={setQuery} placeholder="搜索明星、艺名或团体" />
-        <FilterBar options={CATS as unknown as Array<{ key: CatKey; label: string }>} value={cat} onChange={setCat} ariaLabel="团体筛选" />
-        <FilterBar options={SORTS as unknown as Array<{ key: SortKey; label: string }>} value={sort} onChange={setSort} ariaLabel="排序方式" />
+      <div className="mf-explore-ctrl">
+        {searchOpen ? (
+          <>
+            <label className="mf-explore-searchbox">
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="搜索本地结果"
+                aria-label="搜索人物"
+                enterKeyHint="search"
+                autoFocus
+              />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
+            </label>
+            <button
+              type="button"
+              className="mf-explore-cancel"
+              onClick={() => { setSearchOpen(false); setQuery(""); }}
+            >
+              取消
+            </button>
+          </>
+        ) : (
+          <>
+            <nav className="mf-explore-tabs" aria-label="排序方式">
+              {SORTS.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={sort === item.key ? "is-active" : undefined}
+                  aria-pressed={sort === item.key}
+                  onClick={() => setSort(item.key)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+            <button type="button" className="mf-explore-searchbtn" aria-label="搜索" onClick={() => setSearchOpen(true)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
+            </button>
+          </>
+        )}
       </div>
 
       {filtered.length === 0 ? (
-        query || cat !== "all" || sort === "recent" ? (
-          <EmptyState title="没有找到相关人物" hint={sort === "recent" ? "还没有浏览记录,先去看看人物吧" : "换个关键词或筛选条件试试"} />
+        query ? (
+          <EmptyState title="没有找到相关人物" hint="换个关键词试试" />
         ) : (
           <SkeletonList rows={6} kind="portrait" />
         )
@@ -160,13 +254,19 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
         <div className="mf-explore-grid">
           {filtered.slice(0, visibleCount).map((star) => {
             const complete = Boolean(star.birthDate && star.birthTime);
+            const dayMaster = dayMasterOf(star.threePillars);
             return (
-              <Link className="mf-bz-star-card" href={`${basePath}/${star.id}`} key={star.id} onClick={() => pushRecentStar(star.id)}>
+              <Link
+                className={star.id === lastVisitedId ? "mf-bz-star-card is-visited" : "mf-bz-star-card"}
+                href={`${basePath}/${star.id}`}
+                key={star.id}
+                onClick={() => pushRecentStar(star.id)}
+              >
                 <span className="mf-bz-star-cover"><PortraitImg src={star.portraitSrc} alt={`${star.name}的人物肖像`} /></span>
                 <b>{star.name}</b>
-                <small>{groupOf(star.role)}</small>
+                <small>{star.nameEn ? `${groupOf(star.role)}-${star.nameEn}` : groupOf(star.role)}</small>
                 <div className="mf-explore-card-tags">
-                  {star.mbti ? <Tag>{star.mbti}</Tag> : null}
+                  {dayMaster ? <Tag>{dayMaster}</Tag> : null}
                   <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
                 </div>
               </Link>

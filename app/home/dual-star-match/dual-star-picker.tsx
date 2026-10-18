@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../../auth-context";
+import LoginModal from "../../components/login-modal";
+import { readLocalSession } from "../../local-auth";
 import type { DualStarCandidate } from "../../myfate-dual-server";
 import { portraitImage } from "../../myfate-image";
 
@@ -15,8 +16,13 @@ const STATE_KEY = "myfate_dual_pick_v1";
 
 type Slot = DualStarCandidate | null;
 
+// 槽位副标题:团体-英文名(无英文名数据时回退原始 role,如 BTS 成员-RM)
+function roleEn(star: DualStarCandidate) {
+  const group = star.role.split("-")[0];
+  return star.nameEn ? `${group}-${star.nameEn}` : star.role;
+}
+
 export default function DualStarPicker({ candidates }: { candidates: DualStarCandidate[] }) {
-  const { status } = useAuth();
   const starParam = useSearchParams().get("star");
   const [slotA, setSlotA] = useState<Slot>(null);
   const [slotB, setSlotB] = useState<Slot>(null);
@@ -25,6 +31,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [existing, setExisting] = useState<{ reportId: string; label: string } | null>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
     if (starParam) {
@@ -85,8 +92,9 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
   async function generate(regenerate = false) {
     if (!slotA || !slotB || creating) return;
     persist(slotA, slotB);
-    if (status !== "authenticated") {
-      window.location.href = `/login?next=${encodeURIComponent("/home/dual-star-match")}&from=${encodeURIComponent("/home/dual-star-match")}`;
+    // 登录门与工作台其它入口统一:未登录弹登录弹窗,成功后由 onAuthenticated 自动续跑生成
+    if (!readLocalSession()) {
+      setLoginOpen(true);
       return;
     }
     setCreating(true);
@@ -100,7 +108,7 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
       });
       const data = await response.json() as { reportId?: string; existing?: boolean; error?: string };
       if (!response.ok || !data.reportId) {
-        setError(data.error === "INCOMPLETE_BIRTH_DATA" ? "两位明星的出生资料都需要完整（日期、时间、地点）才能生成合盘。" : "生成请求失败，请重试。");
+        setError(data.error === "INCOMPLETE_BIRTH_DATA" ? "两位偶像的出生资料都需要完整（日期、时间、地点）才能生成合盘。" : "生成请求失败，请重试。");
         return;
       }
       if (data.existing && !regenerate) {
@@ -143,15 +151,15 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
       </header>
 
       <section className="mf-dual-relation" aria-label="双人关系卡">
-        <button className={slotA ? "mf-dual-node is-filled" : "mf-dual-node"} type="button" onClick={() => setPicking("A")} aria-label={slotA ? `更换明星 A（当前 ${slotA.name}）` : "选择明星 A"}>
+        <button className={slotA ? "mf-dual-node is-filled" : "mf-dual-node"} type="button" onClick={() => setPicking("A")} aria-label={slotA ? `更换偶像 A（当前 ${slotA.name}）` : "选择偶像 A"}>
           {slotA ? (<>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={portraitImage(slotA.portraitSrc, 360)} alt={`${slotA.name}的人物肖像`} />
             <b>{slotA.name}</b>
-            <small>{slotA.role}</small>
+            <small>{roleEn(slotA)}</small>
           </>) : (<>
             <i aria-hidden="true">＋</i>
-            <b>选择明星 A</b>
+            <b>选择偶像 A</b>
             <small>点击选择</small>
           </>)}
         </button>
@@ -160,18 +168,16 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
             onClick={() => { const next = [slotB, slotA]; setSlotA(next[0]); setSlotB(next[1]); persist(next[0], next[1]); }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M7 4v13M7 17l-3-3.2M7 17l3-3.2M17 20V7M17 7l-3 3.2M17 7l3 3.2" /></svg>
           </button>
-          <span>{bothReady ? "关系建立" : "待选择"}</span>
-          <i aria-hidden="true" />
         </div>
-        <button className={slotB ? "mf-dual-node is-filled" : "mf-dual-node"} type="button" onClick={() => setPicking("B")} aria-label={slotB ? `更换明星 B（当前 ${slotB.name}）` : "选择明星 B"}>
+        <button className={slotB ? "mf-dual-node is-filled" : "mf-dual-node"} type="button" onClick={() => setPicking("B")} aria-label={slotB ? `更换偶像 B（当前 ${slotB.name}）` : "选择偶像 B"}>
           {slotB ? (<>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={portraitImage(slotB.portraitSrc, 360)} alt={`${slotB.name}的人物肖像`} />
             <b>{slotB.name}</b>
-            <small>{slotB.role}</small>
+            <small>{roleEn(slotB)}</small>
           </>) : (<>
             <i aria-hidden="true">＋</i>
-            <b>选择明星 B</b>
+            <b>选择偶像 B</b>
             <small>点击选择</small>
           </>)}
         </button>
@@ -199,11 +205,11 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
       </div>
 
       {picking ? (
-        <div className="mf-dual-panel" role="dialog" aria-modal="true" aria-label="选择明星">
+        <div className="mf-dual-panel" role="dialog" aria-modal="true" aria-label="选择偶像">
           <div className="mf-dual-panel-mask" onClick={() => setPicking(null)} />
           <div className="mf-dual-panel-sheet">
             <header>
-              <b>选择明星 {picking === "A" ? "A" : "B"}</b>
+              <b>选择偶像 {picking === "A" ? "A" : "B"}</b>
               <button type="button" aria-label="关闭选择面板" onClick={() => setPicking(null)}>×</button>
             </header>
             <label className="mf-dual-search">
@@ -219,11 +225,16 @@ export default function DualStarPicker({ candidates }: { candidates: DualStarCan
                   </div>
                 </div>
               )) : filtered.map((candidate) => renderCandidate(candidate))}
-              {!filtered.length ? <p className="mf-dual-empty">没有找到相关明星</p> : null}
+              {!filtered.length ? <p className="mf-dual-empty">没有找到相关偶像</p> : null}
             </div>
           </div>
         </div>
       ) : null}
+      <LoginModal
+        open={loginOpen}
+        onOpenChange={setLoginOpen}
+        onAuthenticated={() => { void generate(false); }}
+      />
     </div>
   );
 }

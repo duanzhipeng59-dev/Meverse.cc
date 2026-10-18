@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
+import LoginModal from "../../components/login-modal";
 import { portraitImage } from "../../myfate-image";
 import { readRecentStars } from "../celebrity-match/celebrity-browser";
 import { readFavorites } from "../relationship-test/[id]/preview-actions";
@@ -28,32 +29,23 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
   }
 
   const loggedIn = status === "authenticated";
-  const initial = (email ?? "").trim().charAt(0).toUpperCase();
 
   return (
     <div className="mf-me">
       <section className="mf-me-account" aria-label="账户">
-        <span className="mf-me-avatar" aria-hidden="true">
-          {loggedIn && initial ? initial : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5.5 19c.8-3.2 3-4.8 6.5-4.8s5.7 1.6 6.5 4.8" /></svg>}
-        </span>
         <div className="mf-me-account-copy">
           <b>{loggedIn ? email : "尚未登录"}</b>
-          <p>登录后同步收藏、阅读位置和 AI 对话记录</p>
+          {loggedIn ? null : <p>登录后可同步收藏、浏览记录，以及查看完整报告</p>}
         </div>
         {loggedIn ? (
           <button type="button" className="mf-me-logout" onClick={() => { markSignedOut(); router.replace("/"); }}>退出</button>
         ) : (
-          <Link className="mf-me-login" href="/login?next=%2Fhome%2Fprofile&from=%2Fhome%2Fprofile">登录</Link>
+          <LoginModal className="mf-me-login">登录</LoginModal>
         )}
       </section>
 
       <PeopleRow title="收藏人物" empty="还没有收藏,在人物页点 ♡ 收藏" list={favs} />
       <PeopleRow title="最近浏览" empty="暂无浏览记录,去发现页看看" list={recent} />
-
-      <nav className="mf-me-links" aria-label="功能入口">
-        <Link href="/home/reports"><b>报告历史</b><span>查看与生成的报告</span><i aria-hidden="true">›</i></Link>
-        <div className="mf-me-links-static"><b>AI 对话记录</b><span>保存在各报告页内</span></div>
-      </nav>
     </div>
   );
 }
@@ -67,7 +59,7 @@ function PeopleRow({ title, empty, list }: { title: string; empty: string; list:
       ) : (
         <div className="mf-me-row">
           {list.map((star) => (
-            <Link href={`/home/relationship-test/${star.id}`} key={star.id}>
+            <Link href={`/home/relationship-test/${star.id}?from=profile`} key={star.id}>
               <span style={{ backgroundImage: `url("${portraitImage(star.portraitSrc, 240)}")` }} role="img" aria-label={star.name} />
               <b>{star.name}</b>
             </Link>

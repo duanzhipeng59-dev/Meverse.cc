@@ -98,11 +98,20 @@ export type StarListItem = {
   birthTime: string;
   gender: "male" | "female" | "other" | "unknown";
   mbti: string;
+  threePillars?: string;
   categories: string[];
   portraitSrc: string;
   createdAt: string;
   homepageFeatured: boolean;
 };
+
+// 日主标签:三柱末柱(日柱)天干+五行,如 辛金;列表卡与预览页统一展示
+const GAN_ELEMENT: Record<string, string> = { 甲: "木", 乙: "木", 丙: "火", 丁: "火", 戊: "土", 己: "土", 庚: "金", 辛: "金", 壬: "水", 癸: "水" };
+export function dayMasterOf(threePillars?: string): string {
+  const last = (threePillars ?? "").split("·").map((part) => part.trim()).filter(Boolean).pop() ?? "";
+  const stem = last[0];
+  return stem && GAN_ELEMENT[stem] ? stem + GAN_ELEMENT[stem] : "";
+}
 
 type ListRow = {
   id: string;
@@ -113,13 +122,14 @@ type ListRow = {
   birth_time: string | null;
   gender: "male" | "female" | "other" | "unknown";
   mbti: string;
+  three_pillars: string | null;
   categories: string[] | null;
   portrait_url: string;
   created_at: string;
   homepage_featured: boolean;
 };
 
-const listSelection = "id,name,name_en,role,birth_date,birth_time,gender,mbti,categories,portrait_url,created_at,homepage_featured,homepage_position";
+const listSelection = "id,name,name_en,role,birth_date,birth_time,gender,mbti,three_pillars,categories,portrait_url,created_at,homepage_featured,homepage_position";
 const LIST_CACHE_TTL_MS = 5 * 60_000;
 // 同区正常 <100ms;免费层节流/网络抖动时可到秒级,2s 超时过紧曾导致整列表掉到静态兜底。
 const LIST_QUERY_TIMEOUT_MS = 5000;
@@ -186,6 +196,7 @@ const starListCache = createServerCache<StarListItem[]>({
       birthTime: row.birth_time ?? "",
       gender: row.gender ?? "unknown",
       mbti: row.mbti,
+      threePillars: row.three_pillars ?? undefined,
       categories: row.categories ?? [],
       portraitSrc: row.portrait_url,
       createdAt: row.created_at,

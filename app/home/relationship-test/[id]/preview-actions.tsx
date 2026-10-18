@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, IconButton, useToast } from "../../../components/ui";
+import LoginModal from "../../../components/login-modal";
+import { readLocalSession } from "../../../local-auth";
 
 // 预览页操作条:查看画像 / 加入合盘 / 收藏(本地,后续批次接同步) / 分享
 const FAV_KEY = "mf_favorites_v1";
@@ -14,8 +16,24 @@ export default function PreviewActions({ starId, nameEn }: { starId: string; nam
   const router = useRouter();
   const toast = useToast();
   const [faved, setFaved] = useState(false);
+  // 登录门:未登录点主操作弹登录弹窗(与工作台其它入口统一),登录成功后续跳原目标;
+  // 服务端 requirePageUser 仍是最终权限依据
+  const [authed, setAuthed] = useState(true);
+  const [pending, setPending] = useState<"report" | "dual" | null>(null);
+
+  useEffect(() => {
+    const sync = () => setAuthed(Boolean(readLocalSession()));
+    sync();
+    window.addEventListener("myfate-auth-change", sync);
+    return () => window.removeEventListener("myfate-auth-change", sync);
+  }, []);
 
   useEffect(() => { setFaved(readFavorites().includes(starId)); }, [starId]);
+
+  function openTarget(kind: "report" | "dual") {
+    if (authed) router.push(kind === "report" ? `/home/relationship-test/${starId}/test` : `/home/dual-star-match?star=${starId}`);
+    else setPending(kind);
+  }
 
   const toggleFav = () => {
     const list = readFavorites();
@@ -37,8 +55,18 @@ export default function PreviewActions({ starId, nameEn }: { starId: string; nam
 
   return (
     <div className="mf-preview-actions">
-      <Button variant="primary" onClick={() => router.push(`/home/relationship-test/${starId}/test`)}>查看完整画像</Button>
-      <Button variant="ghost" onClick={() => router.push(`/home/dual-star-match?star=${starId}`)}>加入双人合盘</Button>
+      <Button variant="primary" onClick={() => openTarget("report")}>查看完整画像</Button>
+      <Button variant="ghost" onClick={() => openTarget("dual")}>加入双人合盘</Button>
+      <LoginModal
+        open={pending !== null}
+        onOpenChange={(open) => { if (!open) setPending(null); }}
+        onAuthenticated={() => {
+          const target = pending;
+          setPending(null);
+          if (target === "report") router.push(`/home/relationship-test/${starId}/test`);
+          if (target === "dual") router.push(`/home/dual-star-match?star=${starId}`);
+        }}
+      />
       <div className="mf-preview-actions-row">
         <IconButton label={faved ? "取消收藏" : "收藏"} onClick={toggleFav}>
           <svg viewBox="0 0 24 24" fill={faved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.6Z" /></svg>

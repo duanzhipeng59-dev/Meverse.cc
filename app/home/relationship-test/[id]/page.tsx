@@ -4,7 +4,7 @@ import ReportDetailWorkspace from "../../reports/[id]/report-detail-workspace";
 import PreviewActions from "./preview-actions";
 import ReportTopbar from "../../../report-topbar";
 import { getConsultOverride } from "../../../myfate-consult-override-store";
-import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth } from "../../../myfate-stars-server";
+import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth, dayMasterOf } from "../../../myfate-stars-server";
 import { portraitImage } from "../../../myfate-image";
 import { Tag } from "../../../components/ui";
 import { pushRecentStar } from "../../celebrity-match/celebrity-browser";
@@ -63,7 +63,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   return (
     <div className="mf-workspace-content">
     <div className="mf-preview">
-      <ReportTopbar fromReports={from === "reports"} title={personOf(star.role) || star.name} backLabel="返回" />
+      <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} title={personOf(star.role) || star.name} backLabel="返回" />
       <StarVisitTracker starId={id} />
       <header className="mf-preview-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -75,7 +75,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
           <p className="mf-preview-birth">出生 · {star.birthDate.replaceAll("-", ".")}{birth?.birthPlace ? ` · ${birth.birthPlace}` : ""}</p>
           <div className="mf-preview-tags">
             <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
-            {star.mbti ? <Tag>{star.mbti}</Tag> : null}
+            {dayMasterOf(star.threePillars) ? <Tag>{dayMasterOf(star.threePillars)}</Tag> : null}
             {(star.traits ?? []).slice(0, 3).map((trait) => <Tag key={trait}>{trait}</Tag>)}
           </div>
         </div>

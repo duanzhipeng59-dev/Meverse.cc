@@ -1,5 +1,5 @@
-// 合盘报告页加载骨架:双人 hero + 章节卡轮廓,点击历史记录后立即出现加载反馈。
-// 复用明星报告页的 mf-skel 骨架体系(bazi 暖色主题)。
+// 合盘报告页加载骨架:与真实页面同构——顶栏 + 双人 hero(两人像+文案区,移动端自动单列)+ 章节卡轮廓。
+// hero 复用 mf-dual-report-hero 真实布局类,加载完成零跳变。
 export default function Loading() {
   return (
     <div className="mf-skel mf-skel-bazi" aria-busy="true" aria-label="正在读取合盘数据">
@@ -8,16 +8,25 @@ export default function Loading() {
         <span className="mf-skel-backid"><i className="skel-bar w-24" /><i className="skel-bar w-20" /></span>
         <i className="mf-skel-share" />
       </div>
-      <div className="mf-skel-hero">
-        {/* 双人合盘:两张头像占位 */}
-        <i className="skel-portrait" />
-        <i className="skel-portrait" />
-        <div className="mf-skel-hero-copy">
-          <i className="skel-bar w-32" />
-          <i className="skel-bar w-60" />
-          <i className="skel-bar w-80" />
+      <header className="mf-dual-report-hero mf-dual-report-skel" aria-hidden="true">
+        <div className="mf-dual-report-people">
+          <figure>
+            <i className="mf-skel-ph mf-dual-report-skel-face" />
+            <figcaption><i className="mf-skel-ph mf-dual-report-skel-caption" /></figcaption>
+          </figure>
+          <span aria-hidden="true">×</span>
+          <figure>
+            <i className="mf-skel-ph mf-dual-report-skel-face" />
+            <figcaption><i className="mf-skel-ph mf-dual-report-skel-caption" /></figcaption>
+          </figure>
         </div>
-      </div>
+        <div className="mf-dual-report-copy">
+          <i className="mf-skel-ph mf-dual-report-skel-kicker" />
+          <i className="mf-skel-ph mf-dual-report-skel-h1" />
+          <i className="mf-skel-ph mf-dual-report-skel-line" />
+          <i className="mf-skel-ph mf-dual-report-skel-line is-short" />
+        </div>
+      </header>
       {[0, 1, 2, 3].map((index) => (
         <div className="mf-skel-card" key={index}>
           <i className="skel-bar w-40" />

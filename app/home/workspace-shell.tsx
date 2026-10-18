@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
+import LoginModal from "../components/login-modal";
 
-// 一级导航四页:发现/合盘/报告/我的(桌面侧栏与移动底部导航同源);根路径直接进发现
+// 一级导航两页:发现/合盘(桌面侧栏与移动底部导航同源);根路径直接进发现
 const menuItems = [
   { icon: "heart", label: "发现", description: "浏览与搜索人物画像", href: "/home/relationship-test" },
   { icon: "dual", label: "合盘", description: "两位偶像的八字合盘", href: "/home/dual-star-match" },
@@ -72,7 +73,6 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { status, markSignedOut } = useAuth();
   const isDetail = pathname.split("/").filter(Boolean).length > 2;
-  const loginHref = `/login?next=${encodeURIComponent(pathname)}&from=${encodeURIComponent(pathname)}`;
   // /home 是所有页面的前缀,必须精确匹配;其余路由按前缀归属
   const isActive = (href: string) => (href === "/home" ? pathname === "/home" : pathname === href || pathname.startsWith(`${href}/`));
 
@@ -140,10 +140,10 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
               <span>退出登录</span>
             </button>
           ) : (
-            <Link href={loginHref}>
+            <LoginModal>
               <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
               <span>登录</span>
-            </Link>
+            </LoginModal>
           )}
         </div>
       </aside>

@@ -28,7 +28,7 @@ test("server-renders the Myfate landing page with a workspace entry", async () =
   assert.match(html, /AI 生辰画像/u);
   assert.match(html, /立即探索/u);
   assert.match(html, /\/home\/relationship-test/u);
-  assert.match(html, /\/home\/dual-star-match/u);
+  assert.doesNotMatch(html, /\/home\/dual-star-match/u); // 偶像合盘入口卡已从首页移除,合盘经底部导航进入
   assert.doesNotMatch(html, /25 个关系情境|完成具体相处情境/u);
 });
 
