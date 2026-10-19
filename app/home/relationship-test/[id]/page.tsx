@@ -4,6 +4,7 @@ import ReportDetailWorkspace from "../../reports/[id]/report-detail-workspace";
 import PreviewActions from "./preview-actions";
 import ReportTopbar from "../../../report-topbar";
 import { getConsultOverride } from "../../../myfate-consult-override-store";
+import { staticReadingSchema } from "../../../myfate-static-reading";
 import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth, dayMasterOf } from "../../../myfate-stars-server";
 import { portraitImage } from "../../../myfate-image";
 import { Tag } from "../../../components/ui";
@@ -44,16 +45,20 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   if (!star) notFound();
 
   const complete = Boolean(star.birthDate && birth?.birthTime);
-  // 三条报告摘要:优先上传报告的章节首段,缺省用档案描述
-  const digest: Array<{ title: string; text: string }> = consult
-    ? [
-        { title: "人生画像", text: consult.portrait.strength.content.slice(0, 90) },
-        { title: "格局", text: consult.pattern.monthGridRich.content.slice(0, 90) },
-        { title: "感情", text: consult.love.spouse[0]?.text?.slice(0, 90) ?? consult.love.family.slice(0, 90) },
-      ]
-    : [
-        { title: "人物简介", text: star.description.slice(0, 90) },
-      ];
+  // 三条报告摘要:static 统一体系用八章 title+summary,旧结构用章节首段,缺省用档案描述
+  const staticParsed = consult ? staticReadingSchema.safeParse(consult) : null;
+  const legacyConsult = consult && !staticParsed?.success ? consult : null;
+  const digest: Array<{ title: string; text: string }> = staticParsed?.success
+    ? Object.values(staticParsed.data.sections).slice(0, 3).map((section) => ({ title: section.title, text: section.summary.slice(0, 90) }))
+    : legacyConsult
+      ? [
+          { title: "人生画像", text: legacyConsult.portrait.strength.content.slice(0, 90) },
+          { title: "格局", text: legacyConsult.pattern.monthGridRich.content.slice(0, 90) },
+          { title: "感情", text: legacyConsult.love.spouse[0]?.text?.slice(0, 90) ?? legacyConsult.love.family.slice(0, 90) },
+        ]
+      : [
+          { title: "人物简介", text: star.description.slice(0, 90) },
+        ];
   const chapters = consult
     ? [["◐", "人生画像"], ["❖", "格局"], ["✎", "学业"], ["◈", "事业"], ["✦", "财富"], ["♡", "感情"]]
     : [];
