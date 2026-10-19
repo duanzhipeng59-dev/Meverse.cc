@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../../auth-context";
+import LoginModal from "../../components/login-modal";
 import { vedicCities } from "../../myfate-cities";
 import { buildDualChart } from "../../myfate-dual-engine";
 import { readPending, removePending, type DualPending } from "./dual-pending";
@@ -91,6 +92,8 @@ export default function ReadingHub() {
   const [personRecords, setPersonRecords] = useState<PersonRecord[]>([]);
   const [personErrors, setPersonErrors] = useState<{ a: PersonErrors; b: PersonErrors }>({ a: {}, b: {} });
   const [error, setError] = useState("");
+  const [loginOpen, setLoginOpen] = useState(false);
+  const pendingDialog = useRef<null | "single" | "dual">(null);
 
   // 弹窗打开期间锁定背景滚动;Esc 分层退出(编辑页先返回,再关弹窗;登录弹窗让给它处理)
   useEffect(() => {
@@ -119,17 +122,21 @@ export default function ReadingHub() {
   }
 
   useEffect(() => {
-    setPending(readPending());
+    // 未登录不展示任何生成记录(含本地待生成)
     if (!loggedIn) {
+      setPending([]);
+      setDualRows([]);
       setRecordsStatus("ready");
       return;
     }
+    setPending(readPending());
     // 生成记录列表(自填解读) + 弹窗记录下拉(带状态) + 偶像合盘历史并行拉取
     fetch("/api/reading/list")
       .then((res) => (res.ok ? res.json() as Promise<{ reports?: ReadingRow[] }> : Promise.reject(new Error(String(res.status)))))
       .then((data) => setReadings(data.reports ?? []))
       .catch(() => setReadings([]));
     loadRecords();
+    // 偶像合盘历史同样仅登录后拉取(接口公开,但未登录不展示任何生成记录)
     fetch("/api/dual-star/bootstrap")
       .then((res) => (res.ok ? res.json() as Promise<{ history?: DualRow[] }> : Promise.reject(new Error(String(res.status)))))
       .then((data) => setDualRows(data.history ?? []))
@@ -139,7 +146,8 @@ export default function ReadingHub() {
   const records = useMemo(() => {
     type Item = { key: string; ts: number; node: React.ReactNode };
     const items: Item[] = [];
-    const timeOf = (iso: string) => new Date(iso.replace(/z$/i, "Z")).getTime() || 0;
+    // Safari 对超过 3 位毫秒精度的时间串返回 Invalid Date,截断到毫秒保证移动端排序一致
+    const timeOf = (iso: string) => new Date(iso.replace(/(\.\d{3})\d+/, "$1").replace(/z$/i, "Z")).getTime() || 0;
     const fmt = (iso: string) => {
       const date = new Date(timeOf(iso) + 8 * 3600_000);
       return `${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
@@ -223,6 +231,16 @@ export default function ReadingHub() {
     return items.sort((a, b) => b.ts - a.ts).map((item) => item.node);
   }, [readings, dualRows, pending]);
 
+  // 未登录点击入口:弹登录,成功后自动进入对应填写弹窗
+  function openOrLogin(mode: "single" | "dual") {
+    if (!loggedIn) {
+      pendingDialog.current = mode;
+      setLoginOpen(true);
+      return;
+    }
+    openDialog(mode);
+  }
+
   function openDialog(mode: "single" | "dual") {
     setManualA(emptyBirthState());
     setManualB(emptyBirthState());
@@ -279,12 +297,12 @@ export default function ReadingHub() {
   return (
     <>
       <div className="mf-reading-cards">
-        <button type="button" className="mf-reading-card is-single" onClick={() => openDialog("single")}>
+        <button type="button" className="mf-reading-card is-single" onClick={() => openOrLogin("single")}>
           <i className="mf-reading-card-mark" aria-hidden="true">✦</i>
           <span className="mf-reading-card-copy"><b>单人解读</b><small>看一个人的性格、事业、财运、感情</small></span>
           <span className="mf-reading-card-arrow" aria-hidden="true">›</span>
         </button>
-        <button type="button" className="mf-reading-card is-dual" onClick={() => openDialog("dual")}>
+        <button type="button" className="mf-reading-card is-dual" onClick={() => openOrLogin("dual")}>
           <i className="mf-reading-card-mark" aria-hidden="true">✦✦</i>
           <span className="mf-reading-card-copy"><b>双人合盘</b><small>看两个人合不合 · 感情 / 事业</small></span>
           <span className="mf-reading-card-arrow" aria-hidden="true">›</span>
@@ -338,6 +356,7 @@ export default function ReadingHub() {
           </section>
         </div>
       ) : null}
+      <LoginModal open={loginOpen} onOpenChange={setLoginOpen} onAuthenticated={() => { setLoginOpen(false); const mode = pendingDialog.current; pendingDialog.current = null; if (mode) openDialog(mode); }} />
     </>
   );
 }

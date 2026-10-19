@@ -1,8 +1,10 @@
-// 「开始解读」弹窗的出生地三级联动数据:省 → 市 → 区/县。
-// 市级与 myfate-cities 的 vedicCities 一一对应(cityId),区县仅用于精确细分定位;
-// 经度与排盘校正一律取所属 vedicCity 的坐标(可靠数据源,不为区县编造经度)。
+// 「开始解读」弹窗的出生地三级联动数据:省 → 市 → 区/县(全国全部地级市)。
+// 市级锚点(cityId)用于真太阳时折算——站点城市库(vedicCities)内的城市保留真实区县,
+// 其余城市区县级为「中心城区」、折算到省内最近的站点城市(同市内区县经度差对时辰无影响,不为区县编造经度)。
 export type RegionCity = { cityId: string; name: string; districts: string[] };
 export type RegionProvince = { name: string; cities: RegionCity[] };
+
+const city = (name: string, cityId: string): RegionCity => ({ cityId, name, districts: ["中心城区"] });
 
 const metro = (name: string, cityId: string, districts: string[]): RegionProvince => ({
   name,
@@ -10,70 +12,51 @@ const metro = (name: string, cityId: string, districts: string[]): RegionProvinc
 });
 
 export const regionProvinces: RegionProvince[] = [
+  { name: "河北省", cities: [{ cityId: "shijiazhuang", name: "石家庄", districts: ["长安区", "桥西区", "新华区", "井陉矿区", "裕华区", "藁城区", "鹿泉区", "栾城区", "正定县", "行唐县", "灵寿县", "高邑县", "深泽县", "赞皇县", "无极县", "平山县", "元氏县", "赵县", "晋州市", "新乐市"] }, city("唐山", "shijiazhuang"), city("秦皇岛", "shijiazhuang"), city("邯郸", "shijiazhuang"), city("邢台", "shijiazhuang"), city("保定", "shijiazhuang"), city("张家口", "shijiazhuang"), city("承德", "shijiazhuang"), city("沧州", "shijiazhuang"), city("廊坊", "shijiazhuang"), city("衡水", "shijiazhuang")] },
+  { name: "山西省", cities: [{ cityId: "taiyuan", name: "太原", districts: ["小店区", "迎泽区", "杏花岭区", "尖草坪区", "万柏林区", "晋源区", "清徐县", "阳曲县", "娄烦县", "古交市"] }, city("大同", "taiyuan"), city("阳泉", "taiyuan"), city("长治", "taiyuan"), city("晋城", "taiyuan"), city("朔州", "taiyuan"), city("晋中", "taiyuan"), city("运城", "taiyuan"), city("忻州", "taiyuan"), city("临汾", "taiyuan"), city("吕梁", "taiyuan")] },
+  { name: "内蒙古自治区", cities: [{ cityId: "hohhot", name: "呼和浩特", districts: ["新城区", "回民区", "玉泉区", "赛罕区", "土默特左旗", "托克托县", "和林格尔县", "清水河县", "武川县"] }, city("包头", "hohhot"), city("乌海", "hohhot"), city("赤峰", "hohhot"), city("通辽", "hohhot"), city("鄂尔多斯", "hohhot"), city("呼伦贝尔", "hohhot"), city("巴彦淖尔", "hohhot"), city("乌兰察布", "hohhot"), city("兴安盟", "hohhot"), city("锡林郭勒盟", "hohhot"), city("阿拉善盟", "hohhot")] },
+  { name: "辽宁省", cities: [{ cityId: "shenyang", name: "沈阳", districts: ["和平区", "沈河区", "大东区", "皇姑区", "铁西区", "苏家屯区", "浑南区", "沈北新区", "于洪区", "辽中区", "康平县", "法库县", "新民市"] }, city("鞍山", "shenyang"), city("抚顺", "shenyang"), city("本溪", "shenyang"), city("丹东", "shenyang"), city("锦州", "shenyang"), city("营口", "shenyang"), city("阜新", "shenyang"), city("辽阳", "shenyang"), city("盘锦", "shenyang"), city("铁岭", "shenyang"), city("朝阳", "shenyang"), city("葫芦岛", "shenyang")] },
+  { name: "吉林省", cities: [{ cityId: "changchun", name: "长春", districts: ["南关区", "宽城区", "朝阳区", "二道区", "绿园区", "双阳区", "九台区", "农安县", "榆树市", "德惠市", "公主岭市"] }, city("四平", "changchun"), city("辽源", "changchun"), city("通化", "changchun"), city("白山", "changchun"), city("松原", "changchun"), city("白城", "changchun"), city("延边朝鲜族自治州", "changchun")] },
+  { name: "黑龙江省", cities: [{ cityId: "harbin", name: "哈尔滨", districts: ["道里区", "南岗区", "道外区", "平房区", "松北区", "香坊区", "呼兰区", "阿城区", "双城区", "依兰县", "方正县", "宾县", "巴彦县", "木兰县", "通河县", "延寿县", "尚志市", "五常市"] }, city("齐齐哈尔", "harbin"), city("鸡西", "harbin"), city("鹤岗", "harbin"), city("双鸭山", "harbin"), city("大庆", "harbin"), city("伊春", "harbin"), city("佳木斯", "harbin"), city("七台河", "harbin"), city("牡丹江", "harbin"), city("黑河", "harbin"), city("绥化", "harbin"), city("大兴安岭地区", "harbin")] },
+  { name: "江苏省", cities: [{ cityId: "nanjing", name: "南京", districts: ["玄武区", "秦淮区", "建邺区", "鼓楼区", "浦口区", "栖霞区", "雨花台区", "江宁区", "六合区", "溧水区", "高淳区"] }, city("无锡", "nanjing"), city("徐州", "nanjing"), city("常州", "nanjing"), city("南通", "nanjing"), city("连云港", "nanjing"), city("淮安", "nanjing"), city("盐城", "nanjing"), city("扬州", "nanjing"), city("镇江", "nanjing"), city("泰州", "nanjing"), city("宿迁", "nanjing")] },
+  { name: "浙江省", cities: [{ cityId: "hangzhou", name: "杭州", districts: ["上城区", "拱墅区", "西湖区", "滨江区", "萧山区", "余杭区", "临平区", "钱塘区", "富阳区", "临安区", "桐庐县", "淳安县", "建德市"] }, city("宁波", "hangzhou"), city("温州", "hangzhou"), city("嘉兴", "hangzhou"), city("湖州", "hangzhou"), city("绍兴", "hangzhou"), city("金华", "hangzhou"), city("衢州", "hangzhou"), city("舟山", "hangzhou"), city("台州", "hangzhou"), city("丽水", "hangzhou")] },
+  { name: "安徽省", cities: [{ cityId: "hefei", name: "合肥", districts: ["瑶海区", "庐阳区", "蜀山区", "包河区", "长丰县", "肥东县", "肥西县", "庐江县", "巢湖市"] }, city("芜湖", "hefei"), city("蚌埠", "hefei"), city("淮南", "hefei"), city("马鞍山", "hefei"), city("淮北", "hefei"), city("铜陵", "hefei"), city("安庆", "hefei"), city("黄山", "hefei"), city("滁州", "hefei"), city("阜阳", "hefei"), city("宿州", "hefei"), city("六安", "hefei"), city("亳州", "hefei"), city("池州", "hefei"), city("宣城", "hefei")] },
+  { name: "福建省", cities: [{ cityId: "fuzhou", name: "福州", districts: ["鼓楼区", "台江区", "仓山区", "马尾区", "晋安区", "长乐区", "闽侯县", "连江县", "罗源县", "闽清县", "永泰县", "平潭县", "福清市"] }, city("厦门", "fuzhou"), city("莆田", "fuzhou"), city("三明", "fuzhou"), city("泉州", "fuzhou"), city("漳州", "fuzhou"), city("南平", "fuzhou"), city("龙岩", "fuzhou"), city("宁德", "fuzhou")] },
+  { name: "江西省", cities: [{ cityId: "nanchang", name: "南昌", districts: ["东湖区", "西湖区", "青云谱区", "青山湖区", "新建区", "红谷滩区", "南昌县", "安义县", "进贤县"] }, city("景德镇", "nanchang"), city("萍乡", "nanchang"), city("九江", "nanchang"), city("新余", "nanchang"), city("鹰潭", "nanchang"), city("赣州", "nanchang"), city("吉安", "nanchang"), city("宜春", "nanchang"), city("抚州", "nanchang"), city("上饶", "nanchang")] },
+  { name: "山东省", cities: [{ cityId: "jinan", name: "济南", districts: ["历下区", "市中区", "槐荫区", "天桥区", "历城区", "长清区", "章丘区", "济阳区", "莱芜区", "钢城区", "平阴县", "商河县"] }, city("青岛", "jinan"), city("淄博", "jinan"), city("枣庄", "jinan"), city("东营", "jinan"), city("烟台", "jinan"), city("潍坊", "jinan"), city("济宁", "jinan"), city("泰安", "jinan"), city("威海", "jinan"), city("日照", "jinan"), city("临沂", "jinan"), city("德州", "jinan"), city("聊城", "jinan"), city("滨州", "jinan"), city("菏泽", "jinan")] },
+  { name: "河南省", cities: [{ cityId: "zhengzhou", name: "郑州", districts: ["中原区", "二七区", "管城回族区", "金水区", "上街区", "惠济区", "中牟县", "巩义市", "荥阳市", "新密市", "新郑市", "登封市"] }, city("开封", "zhengzhou"), city("洛阳", "zhengzhou"), city("平顶山", "zhengzhou"), city("安阳", "zhengzhou"), city("鹤壁", "zhengzhou"), city("新乡", "zhengzhou"), city("焦作", "zhengzhou"), city("濮阳", "zhengzhou"), city("许昌", "zhengzhou"), city("漯河", "zhengzhou"), city("三门峡", "zhengzhou"), city("南阳", "zhengzhou"), city("商丘", "zhengzhou"), city("信阳", "zhengzhou"), city("周口", "zhengzhou"), city("驻马店", "zhengzhou"), city("济源", "zhengzhou")] },
+  { name: "湖北省", cities: [{ cityId: "wuhan", name: "武汉", districts: ["江岸区", "江汉区", "硚口区", "汉阳区", "武昌区", "青山区", "洪山区", "东西湖区", "汉南区", "蔡甸区", "江夏区", "黄陂区", "新洲区"] }, city("黄石", "wuhan"), city("十堰", "wuhan"), city("宜昌", "wuhan"), city("襄阳", "wuhan"), city("鄂州", "wuhan"), city("荆门", "wuhan"), city("孝感", "wuhan"), city("荆州", "wuhan"), city("黄冈", "wuhan"), city("咸宁", "wuhan"), city("随州", "wuhan"), city("恩施土家族苗族自治州", "wuhan"), city("仙桃", "wuhan"), city("潜江", "wuhan"), city("天门", "wuhan"), city("神农架林区", "wuhan")] },
+  { name: "湖南省", cities: [{ cityId: "changsha", name: "长沙", districts: ["芙蓉区", "天心区", "岳麓区", "开福区", "雨花区", "望城区", "长沙县", "浏阳市", "宁乡市"] }, city("株洲", "changsha"), city("湘潭", "changsha"), city("衡阳", "changsha"), city("邵阳", "changsha"), city("岳阳", "changsha"), city("常德", "changsha"), city("张家界", "changsha"), city("益阳", "changsha"), city("郴州", "changsha"), city("永州", "changsha"), city("怀化", "changsha"), city("娄底", "changsha"), city("湘西土家族苗族自治州", "changsha")] },
+  { name: "广东省", cities: [{ cityId: "guangzhou", name: "广州", districts: ["荔湾区", "越秀区", "海珠区", "天河区", "白云区", "黄埔区", "番禺区", "花都区", "南沙区", "从化区", "增城区"] }, city("韶关", "guangzhou"), city("深圳", "guangzhou"), city("珠海", "guangzhou"), city("汕头", "guangzhou"), city("佛山", "guangzhou"), city("江门", "guangzhou"), city("湛江", "guangzhou"), city("茂名", "guangzhou"), city("肇庆", "guangzhou"), city("惠州", "guangzhou"), city("梅州", "guangzhou"), city("汕尾", "guangzhou"), city("河源", "guangzhou"), city("阳江", "guangzhou"), city("清远", "guangzhou"), city("东莞", "guangzhou"), city("中山", "guangzhou"), city("潮州", "guangzhou"), city("揭阳", "guangzhou"), city("云浮", "guangzhou")] },
+  { name: "广西壮族自治区", cities: [{ cityId: "nanning", name: "南宁", districts: ["兴宁区", "青秀区", "江南区", "西乡塘区", "良庆区", "邕宁区", "武鸣区", "隆安县", "马山县", "上林县", "宾阳县", "横州市"] }, city("柳州", "nanning"), city("桂林", "nanning"), city("梧州", "nanning"), city("北海", "nanning"), city("防城港", "nanning"), city("钦州", "nanning"), city("贵港", "nanning"), city("玉林", "nanning"), city("百色", "nanning"), city("贺州", "nanning"), city("河池", "nanning"), city("来宾", "nanning"), city("崇左", "nanning")] },
+  { name: "海南省", cities: [{ cityId: "haikou", name: "海口", districts: ["秀英区", "龙华区", "琼山区", "美兰区"] }, city("三亚", "haikou"), city("三沙", "haikou"), city("儋州", "haikou")] },
+  { name: "四川省", cities: [{ cityId: "chengdu", name: "成都", districts: ["锦江区", "青羊区", "金牛区", "武侯区", "成华区", "龙泉驿区", "青白江区", "新都区", "温江区", "双流区", "郫都区", "新津区", "金堂县", "大邑县", "蒲江县", "都江堰市", "彭州市", "邛崃市", "崇州市", "简阳市"] }, city("自贡", "chengdu"), city("攀枝花", "chengdu"), city("泸州", "chengdu"), city("德阳", "chengdu"), city("绵阳", "chengdu"), city("广元", "chengdu"), city("遂宁", "chengdu"), city("内江", "chengdu"), city("乐山", "chengdu"), city("南充", "chengdu"), city("眉山", "chengdu"), city("宜宾", "chengdu"), city("广安", "chengdu"), city("达州", "chengdu"), city("雅安", "chengdu"), city("巴中", "chengdu"), city("资阳", "chengdu"), city("阿坝藏族羌族自治州", "chengdu"), city("甘孜藏族自治州", "chengdu"), city("凉山彝族自治州", "chengdu")] },
+  { name: "贵州省", cities: [{ cityId: "guiyang", name: "贵阳", districts: ["南明区", "云岩区", "花溪区", "乌当区", "白云区", "观山湖区", "开阳县", "息烽县", "修文县", "清镇市"] }, city("六盘水", "guiyang"), city("遵义", "guiyang"), city("安顺", "guiyang"), city("毕节", "guiyang"), city("铜仁", "guiyang"), city("黔西南布依族苗族自治州", "guiyang"), city("黔东南苗族侗族自治州", "guiyang"), city("黔南布依族苗族自治州", "guiyang")] },
+  { name: "云南省", cities: [{ cityId: "kunming", name: "昆明", districts: ["五华区", "盘龙区", "官渡区", "西山区", "呈贡区", "东川区", "晋宁区", "富民县", "宜良县", "石林县", "嵩明县", "禄劝县", "寻甸县", "安宁市"] }, city("曲靖", "kunming"), city("玉溪", "kunming"), city("保山", "kunming"), city("昭通", "kunming"), city("丽江", "kunming"), city("普洱", "kunming"), city("临沧", "kunming"), city("楚雄彝族自治州", "kunming"), city("红河哈尼族彝族自治州", "kunming"), city("文山壮族苗族自治州", "kunming"), city("西双版纳傣族自治州", "kunming"), city("大理白族自治州", "kunming"), city("德宏傣族景颇族自治州", "kunming"), city("怒江傈僳族自治州", "kunming"), city("迪庆藏族自治州", "kunming")] },
+  { name: "西藏自治区", cities: [{ cityId: "lasa", name: "拉萨", districts: ["城关区", "堆龙德庆区", "达孜区", "林周县", "当雄县", "尼木县", "曲水县", "墨竹工卡县"] }, city("日喀则", "lasa"), city("昌都", "lasa"), city("林芝", "lasa"), city("山南", "lasa"), city("那曲", "lasa"), city("阿里地区", "lasa")] },
+  { name: "陕西省", cities: [{ cityId: "xian", name: "西安", districts: ["新城区", "碑林区", "莲湖区", "雁塔区", "灞桥区", "未央区", "阎良区", "临潼区", "长安区", "高陵区", "鄠邑区", "蓝田县", "周至县"] }, city("铜川", "xian"), city("宝鸡", "xian"), city("咸阳", "xian"), city("渭南", "xian"), city("延安", "xian"), city("汉中", "xian"), city("榆林", "xian"), city("安康", "xian"), city("商洛", "xian")] },
+  { name: "甘肃省", cities: [{ cityId: "lanzhou", name: "兰州", districts: ["城关区", "七里河区", "西固区", "安宁区", "红古区", "永登县", "皋兰县", "榆中县"] }, city("嘉峪关", "lanzhou"), city("金昌", "lanzhou"), city("白银", "lanzhou"), city("天水", "lanzhou"), city("武威", "lanzhou"), city("张掖", "lanzhou"), city("平凉", "lanzhou"), city("酒泉", "lanzhou"), city("庆阳", "lanzhou"), city("定西", "lanzhou"), city("陇南", "lanzhou"), city("临夏回族自治州", "lanzhou"), city("甘南藏族自治州", "lanzhou")] },
+  { name: "青海省", cities: [{ cityId: "xining", name: "西宁", districts: ["城东区", "城中区", "城西区", "城北区", "大通县", "湟中区", "湟源县"] }, city("海东", "xining"), city("海北藏族自治州", "xining"), city("黄南藏族自治州", "xining"), city("海南藏族自治州", "xining"), city("果洛藏族自治州", "xining"), city("玉树藏族自治州", "xining"), city("海西蒙古族藏族自治州", "xining")] },
+  { name: "宁夏回族自治区", cities: [{ cityId: "yinchuan", name: "银川", districts: ["兴庆区", "西夏区", "金凤区", "永宁县", "贺兰县", "灵武市"] }, city("石嘴山", "yinchuan"), city("吴忠", "yinchuan"), city("固原", "yinchuan"), city("中卫", "yinchuan")] },
+  { name: "新疆维吾尔自治区", cities: [{ cityId: "urumqi", name: "乌鲁木齐", districts: ["天山区", "沙依巴克区", "新市区", "水磨沟区", "头屯河区", "达坂城区", "米东区", "乌鲁木齐县"] }, city("克拉玛依", "urumqi"), city("吐鲁番", "urumqi"), city("哈密", "urumqi"), city("昌吉回族自治州", "urumqi"), city("博尔塔拉蒙古自治州", "urumqi"), city("巴音郭楞蒙古自治州", "urumqi"), city("阿克苏地区", "urumqi"), city("克孜勒苏柯尔克孜自治州", "urumqi"), city("喀什地区", "urumqi"), city("和田地区", "urumqi"), city("伊犁哈萨克自治州", "urumqi"), city("塔城地区", "urumqi"), city("阿勒泰地区", "urumqi")] },
+
   metro("北京市", "beijing", ["东城区", "西城区", "朝阳区", "海淀区", "丰台区", "石景山区", "门头沟区", "房山区", "通州区", "顺义区", "昌平区", "大兴区", "怀柔区", "平谷区", "密云区", "延庆区"]),
   metro("上海市", "shanghai", ["黄浦区", "徐汇区", "长宁区", "静安区", "普陀区", "虹口区", "杨浦区", "闵行区", "宝山区", "嘉定区", "浦东新区", "金山区", "松江区", "青浦区", "奉贤区", "崇明区"]),
   metro("天津市", "tianjin", ["和平区", "河东区", "河西区", "南开区", "河北区", "红桥区", "滨海新区", "东丽区", "西青区", "津南区", "北辰区", "武清区", "宝坻区", "静海区", "宁河区", "蓟州区"]),
-  metro("重庆市", "chongqing", ["渝中区", "大渡口区", "江北区", "沙坪坝区", "九龙坡区", "南岸区", "北碚区", "渝北区", "巴南区", "涪陵区", "綦江区", "大足区", "长寿区", "江津区", "合川区", "永川区", "南川区", "铜梁区", "璧山区", "潼南区", "荣昌区", "开州区", "梁平区", "武隆区", "万州区", "黔江区", "城口县", "丰都县", "垫江县", "忠县", "云阳县", "奉节县", "巫山县", "巫溪县", "石柱县", "秀山县", "酉阳县", "彭水县"]),
-  { name: "河北省", cities: [{ cityId: "shijiazhuang", name: "石家庄", districts: ["长安区", "桥西区", "新华区", "井陉矿区", "裕华区", "藁城区", "鹿泉区", "栾城区", "正定县", "行唐县", "灵寿县", "高邑县", "深泽县", "赞皇县", "无极县", "平山县", "元氏县", "赵县", "晋州市", "新乐市"] }] },
-  { name: "山西省", cities: [{ cityId: "taiyuan", name: "太原", districts: ["小店区", "迎泽区", "杏花岭区", "尖草坪区", "万柏林区", "晋源区", "清徐县", "阳曲县", "娄烦县", "古交市"] }] },
-  { name: "内蒙古自治区", cities: [{ cityId: "hohhot", name: "呼和浩特", districts: ["新城区", "回民区", "玉泉区", "赛罕区", "土默特左旗", "托克托县", "和林格尔县", "清水河县", "武川县"] }] },
-  { name: "辽宁省", cities: [
-    { cityId: "shenyang", name: "沈阳", districts: ["和平区", "沈河区", "大东区", "皇姑区", "铁西区", "苏家屯区", "浑南区", "沈北新区", "于洪区", "辽中区", "康平县", "法库县", "新民市"] },
-    { cityId: "dalian", name: "大连", districts: ["中山区", "西岗区", "沙河口区", "甘井子区", "旅顺口区", "金州区", "普兰店区", "长海县", "瓦房店市", "庄河市"] },
-  ] },
-  { name: "吉林省", cities: [{ cityId: "changchun", name: "长春", districts: ["南关区", "宽城区", "朝阳区", "二道区", "绿园区", "双阳区", "九台区", "农安县", "榆树市", "德惠市", "公主岭市"] }] },
-  { name: "黑龙江省", cities: [{ cityId: "harbin", name: "哈尔滨", districts: ["道里区", "南岗区", "道外区", "平房区", "松北区", "香坊区", "呼兰区", "阿城区", "双城区", "依兰县", "方正县", "宾县", "巴彦县", "木兰县", "通河县", "延寿县", "尚志市", "五常市"] }] },
-  { name: "江苏省", cities: [
-    { cityId: "nanjing", name: "南京", districts: ["玄武区", "秦淮区", "建邺区", "鼓楼区", "浦口区", "栖霞区", "雨花台区", "江宁区", "六合区", "溧水区", "高淳区"] },
-    { cityId: "suzhou", name: "苏州", districts: ["姑苏区", "虎丘区", "吴中区", "相城区", "吴江区", "常熟市", "张家港市", "昆山市", "太仓市"] },
-  ] },
-  { name: "浙江省", cities: [
-    { cityId: "hangzhou", name: "杭州", districts: ["上城区", "拱墅区", "西湖区", "滨江区", "萧山区", "余杭区", "临平区", "钱塘区", "富阳区", "临安区", "桐庐县", "淳安县", "建德市"] },
-    { cityId: "ningbo", name: "宁波", districts: ["海曙区", "江北区", "北仑区", "镇海区", "鄞州区", "奉化区", "象山县", "宁海县", "余姚市", "慈溪市"] },
-    { cityId: "wenzhou", name: "温州", districts: ["鹿城区", "龙湾区", "瓯海区", "洞头区", "永嘉县", "平阳县", "苍南县", "文成县", "泰顺县", "瑞安市", "乐清市", "龙港市"] },
-  ] },
-  { name: "安徽省", cities: [{ cityId: "hefei", name: "合肥", districts: ["瑶海区", "庐阳区", "蜀山区", "包河区", "长丰县", "肥东县", "肥西县", "庐江县", "巢湖市"] }] },
-  { name: "福建省", cities: [
-    { cityId: "fuzhou", name: "福州", districts: ["鼓楼区", "台江区", "仓山区", "马尾区", "晋安区", "长乐区", "闽侯县", "连江县", "罗源县", "闽清县", "永泰县", "平潭县", "福清市"] },
-    { cityId: "xiamen", name: "厦门", districts: ["思明区", "海沧区", "湖里区", "集美区", "同安区", "翔安区"] },
-  ] },
-  { name: "江西省", cities: [{ cityId: "nanchang", name: "南昌", districts: ["东湖区", "西湖区", "青云谱区", "青山湖区", "新建区", "红谷滩区", "南昌县", "安义县", "进贤县"] }] },
-  { name: "山东省", cities: [
-    { cityId: "jinan", name: "济南", districts: ["历下区", "市中区", "槐荫区", "天桥区", "历城区", "长清区", "章丘区", "济阳区", "莱芜区", "钢城区", "平阴县", "商河县"] },
-    { cityId: "qingdao", name: "青岛", districts: ["市南区", "市北区", "黄岛区", "崂山区", "李沧区", "城阳区", "即墨区", "胶州市", "平度市", "莱西市"] },
-  ] },
-  { name: "河南省", cities: [{ cityId: "zhengzhou", name: "郑州", districts: ["中原区", "二七区", "管城回族区", "金水区", "上街区", "惠济区", "中牟县", "巩义市", "荥阳市", "新密市", "新郑市", "登封市"] }] },
-  { name: "湖北省", cities: [{ cityId: "wuhan", name: "武汉", districts: ["江岸区", "江汉区", "硚口区", "汉阳区", "武昌区", "青山区", "洪山区", "东西湖区", "汉南区", "蔡甸区", "江夏区", "黄陂区", "新洲区"] }] },
-  { name: "湖南省", cities: [{ cityId: "changsha", name: "长沙", districts: ["芙蓉区", "天心区", "岳麓区", "开福区", "雨花区", "望城区", "长沙县", "浏阳市", "宁乡市"] }] },
-  { name: "广东省", cities: [
-    { cityId: "guangzhou", name: "广州", districts: ["荔湾区", "越秀区", "海珠区", "天河区", "白云区", "黄埔区", "番禺区", "花都区", "南沙区", "从化区", "增城区"] },
-    { cityId: "shenzhen", name: "深圳", districts: ["罗湖区", "福田区", "南山区", "宝安区", "龙岗区", "龙华区", "坪山区", "光明区", "盐田区"] },
-    { cityId: "dongguan", name: "东莞", districts: ["莞城街道", "东城街道", "南城街道", "万江街道", "松山湖", "滨海湾新区", "虎门镇", "长安镇", "塘厦镇", "凤岗镇"] },
-    { cityId: "foshan", name: "佛山", districts: ["禅城区", "南海区", "顺德区", "高明区", "三水区"] },
-  ] },
-  { name: "广西壮族自治区", cities: [{ cityId: "nanning", name: "南宁", districts: ["兴宁区", "青秀区", "江南区", "西乡塘区", "良庆区", "邕宁区", "武鸣区", "隆安县", "马山县", "上林县", "宾阳县", "横州市"] }] },
-  { name: "海南省", cities: [
-    { cityId: "haikou", name: "海口", districts: ["秀英区", "龙华区", "琼山区", "美兰区"] },
-    { cityId: "sanya", name: "三亚", districts: ["海棠区", "吉阳区", "天涯区", "崖州区"] },
-  ] },
-  { name: "四川省", cities: [{ cityId: "chengdu", name: "成都", districts: ["锦江区", "青羊区", "金牛区", "武侯区", "成华区", "龙泉驿区", "青白江区", "新都区", "温江区", "双流区", "郫都区", "新津区", "金堂县", "大邑县", "蒲江县", "都江堰市", "彭州市", "邛崃市", "崇州市", "简阳市"] }] },
-  { name: "贵州省", cities: [{ cityId: "guiyang", name: "贵阳", districts: ["南明区", "云岩区", "花溪区", "乌当区", "白云区", "观山湖区", "开阳县", "息烽县", "修文县", "清镇市"] }] },
-  { name: "云南省", cities: [{ cityId: "kunming", name: "昆明", districts: ["五华区", "盘龙区", "官渡区", "西山区", "呈贡区", "东川区", "晋宁区", "富民县", "宜良县", "石林县", "嵩明县", "禄劝县", "寻甸县", "安宁市"] }] },
-  { name: "西藏自治区", cities: [{ cityId: "lasa", name: "拉萨", districts: ["城关区", "堆龙德庆区", "达孜区", "林周县", "当雄县", "尼木县", "曲水县", "墨竹工卡县"] }] },
-  { name: "陕西省", cities: [{ cityId: "xian", name: "西安", districts: ["新城区", "碑林区", "莲湖区", "雁塔区", "灞桥区", "未央区", "阎良区", "临潼区", "长安区", "高陵区", "鄠邑区", "蓝田县", "周至县"] }] },
-  { name: "甘肃省", cities: [{ cityId: "lanzhou", name: "兰州", districts: ["城关区", "七里河区", "西固区", "安宁区", "红古区", "永登县", "皋兰县", "榆中县"] }] },
-  { name: "青海省", cities: [{ cityId: "xining", name: "西宁", districts: ["城东区", "城中区", "城西区", "城北区", "大通县", "湟中区", "湟源县"] }] },
-  { name: "宁夏回族自治区", cities: [{ cityId: "yinchuan", name: "银川", districts: ["兴庆区", "西夏区", "金凤区", "永宁县", "贺兰县", "灵武市"] }] },
-  { name: "新疆维吾尔自治区", cities: [{ cityId: "urumqi", name: "乌鲁木齐", districts: ["天山区", "沙依巴克区", "新市区", "水磨沟区", "头屯河区", "达坂城区", "米东区", "乌鲁木齐县"] }] },
+  metro("重庆市", "chongqing", ["渝中区", "大渡口区", "江北区", "沙坪坝区", "九龙坡区", "南岸区", "北碚区", "渝北区", "巴南区", "涪陵区", "綦江区", "大足区", "长寿区", "江津区", "合川区", "永川区", "南川区", "铜梁区", "璧山区", "潼南区", "荣昌区", "开州区", "梁平区", "武隆区", "万州区", "黔江区"]),
   metro("香港特别行政区", "lantau", ["中西区", "湾仔区", "东区", "南区", "油尖旺区", "深水埗区", "九龙城区", "黄大仙区", "观塘区", "荃湾区", "屯门区", "元朗区", "北区", "大埔区", "沙田区", "西贡区", "离岛区", "葵青区"]),
   metro("澳门特别行政区", "macau", ["澳门半岛", "氹仔", "路环"]),
   { name: "台湾省", cities: [
     { cityId: "taipei", name: "台北", districts: ["中正区", "大同区", "中山区", "松山区", "大安区", "万华区", "信义区", "士林区", "北投区", "内湖区", "南港区", "文山区"] },
     { cityId: "kaohsiung", name: "高雄", districts: ["新兴区", "前金区", "苓雅区", "鼓山区", "旗津区", "前镇区", "三民区", "盐埕区", "左营区", "楠梓区", "小港区", "凤山区"] },
+    city("台中", "taipei"), city("台南", "kaohsiung"), city("新北", "taipei"), city("桃园", "taipei"), city("新竹", "taipei"), city("嘉义", "kaohsiung"),
   ] },
-  {
-    name: "海外",
-    cities: ["singapore|新加坡", "kualalumpur|吉隆坡", "bangkok|曼谷", "tokyo|东京", "osaka|大阪", "seoul|首尔", "newyork|纽约", "losangeles|洛杉矶", "sanfrancisco|旧金山", "london|伦敦", "paris|巴黎", "sydney|悉尼", "melbourne|墨尔本", "toronto|多伦多", "vancouver|温哥华"]
-      .map((entry) => { const [cityId, name] = entry.split("|"); return { cityId, name, districts: ["中心城区"] }; }),
-  },
+  { name: "海外", cities: [
+    city("新加坡", "singapore"), city("吉隆坡", "kualalumpur"), city("曼谷", "bangkok"), city("东京", "tokyo"), city("大阪", "osaka"), city("首尔", "seoul"),
+    city("纽约", "newyork"), city("洛杉矶", "losangeles"), city("旧金山", "sanfrancisco"), city("伦敦", "london"), city("巴黎", "paris"),
+    city("悉尼", "sydney"), city("墨尔本", "melbourne"), city("多伦多", "toronto"), city("温哥华", "vancouver"),
+  ] },
 ];
+
+// 供下拉的省名快捷查找
+export const regionProvinceNames = regionProvinces.map((province) => province.name);

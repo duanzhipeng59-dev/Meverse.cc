@@ -42,7 +42,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
 
   return (
     <div className="mf-zr">
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={title} />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={title} showShare shareTitle={subjectB ? `${title} 合盘报告` : `${title} 八字解读`} />
 
       {report.status !== "ready" ? (
         report.status === "failed" ? null : <ReadingGenerating reportId={report.id} />
