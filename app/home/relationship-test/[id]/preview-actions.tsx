@@ -56,7 +56,7 @@ export default function PreviewActions({ starId, nameEn }: { starId: string; nam
   return (
     <div className="mf-preview-actions">
       <Button variant="primary" onClick={() => openTarget("report")}>查看完整画像</Button>
-      <Button variant="ghost" onClick={() => openTarget("dual")}>加入双人合盘</Button>
+      <Button variant="ghost" onClick={() => openTarget("dual")}>测自己 →</Button>
       <LoginModal
         open={pending !== null}
         onOpenChange={(open) => { if (!open) setPending(null); }}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import ReportTopbar from "../../../report-topbar";
 import DualProfileCards, { type DualProfilePerson } from "../dual-profile-cards";
 import LoginModal from "../../../components/login-modal";
@@ -32,6 +33,7 @@ function readPayload(): ConfirmPayload | null {
 }
 
 export default function ReadingConfirmPage() {
+  const router = useRouter();
   const [payload, setPayload] = useState<ConfirmPayload | null>(null);
   const [ready, setReady] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -96,7 +98,7 @@ export default function ReadingConfirmPage() {
         return;
       }
       sessionStorage.removeItem(STORAGE_KEY);
-      window.location.href = `/home/reading/${data.reportId}`;
+      router.push(`/home/reading/${data.reportId}`);
     } catch {
       setError("网络异常，请重试。");
       setCreating(false);
@@ -112,7 +114,7 @@ export default function ReadingConfirmPage() {
         <ReportTopbar backHref="/home/dual-star-match" backLabel="" title="解读确认" />
         <div className="mf-dual-status mf-dual-confirm">
           <p className="mf-dual-status-note">解读信息已失效，正在返回解读页…</p>
-          <button className="mf-primary-button mf-dual-generate" type="button" onClick={() => { window.location.href = "/home/dual-star-match"; }}>返回解读页</button>
+          <button className="mf-primary-button mf-dual-generate" type="button" onClick={() => { router.push("/home/dual-star-match"); }}>返回解读页</button>
         </div>
       </div>
     );

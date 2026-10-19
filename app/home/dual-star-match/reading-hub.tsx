@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../auth-context";
 import LoginModal from "../../components/login-modal";
 import { vedicCities } from "../../myfate-cities";
@@ -73,6 +74,7 @@ function DualPersonCard({ label, records, status, source, setSource, pick, setPi
 }
 
 export default function ReadingHub() {
+  const router = useRouter();
   const { status: authStatus, email } = useAuth();
   const loggedIn = authStatus === "authenticated" && Boolean(email);
   const [readings, setReadings] = useState<ReadingRow[]>([]);
@@ -212,19 +214,22 @@ export default function ReadingHub() {
       });
     }
     for (const item of pending) {
+      // 本地待生成横条:同样带删除(系统确认弹窗后移除本地记录)
       items.push({
         key: `pending-${item.a}-${item.b}`,
         ts: item.ts,
         node: (
-          <Link className="mf-dual-history-row" href={`/home/dual-star-match/new/${encodeURIComponent(item.a)}/${encodeURIComponent(item.b)}`} key={`pending-${item.a}-${item.b}`}>
-            <span className="mf-dual-history-main">
-              <span className="mf-dual-history-title">
-                <b>{item.nameA} × {item.nameB}</b>
-                {statusTag("pending")}
-              </span>
-            </span>
-            <small className="mf-dual-history-time">{fmt(new Date(item.ts).toISOString())}</small>
-          </Link>
+          <DualHistoryRow
+            key={`pending-${item.a}-${item.b}`}
+            id={`pending-${item.a}-${item.b}`}
+            title={`${item.nameA} × ${item.nameB}`}
+            time={fmt(new Date(item.ts).toISOString())}
+            statusLabel={STATUS_LABELS.pending ?? "待生成"}
+            status="pending"
+            href={`/home/dual-star-match/new/${encodeURIComponent(item.a)}/${encodeURIComponent(item.b)}`}
+            deleteEndpoint=""
+            localDelete={() => removePending(item.a, item.b)}
+          />
         ),
       });
     }
@@ -260,7 +265,7 @@ export default function ReadingHub() {
   // 单人:与双人同款两段式,先跳确认页展示单人资料卡(登录与创建在确认页)
   function submitSingle(subject: StartSubject) {
     sessionStorage.setItem("myfate_reading_confirm_v1", JSON.stringify({ mode: "single", subjectA: subject }));
-    window.location.href = "/home/dual-star-match/confirm";
+    router.push("/home/dual-star-match/confirm");
   }
 
   async function start() {
@@ -291,7 +296,7 @@ export default function ReadingHub() {
     setPersonErrors({ a: {}, b: {} });
     // 两段式:先跳确认页展示双方八字资料卡(登录与创建在确认页的「开始分析」)
     sessionStorage.setItem("myfate_reading_confirm_v1", JSON.stringify({ mode: "dual", subjectA: a.subject, subjectB: b.subject }));
-    window.location.href = "/home/dual-star-match/confirm";
+    router.push("/home/dual-star-match/confirm");
   }
 
   return (
