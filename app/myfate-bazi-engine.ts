@@ -67,7 +67,8 @@ const ZHI_WUXING: Record<string, string> = {
   午: "火", 未: "土", 申: "金", 酉: "金", 戌: "土", 亥: "水",
 };
 
-function equationOfTimeMinutes(date: Date): number {
+// 均时差(分钟)。导出供「开始解读」弹窗在关闭真太阳时校准时做逆运算;公式本身不变。
+export function equationOfTimeMinutes(date: Date): number {
   const start = Date.UTC(date.getUTCFullYear(), 0, 1);
   const dayOfYear = Math.floor((Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) - start) / 86_400_000) + 1;
   const g = (2 * Math.PI * (dayOfYear - 1)) / 365;

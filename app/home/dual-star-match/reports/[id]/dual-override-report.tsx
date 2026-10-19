@@ -1,58 +1,22 @@
 // 精校版双星报告渲染:命中 DUAL_OVERRIDES 的组合用这份组件渲染定稿文案,
-// 结构=双人身份卡头部/总览/沟通冲突/双向影响/六个判断/未来节奏/最终建议。
-import Image from "next/image";
+// 结构=双人八字资料卡头部/总览/沟通冲突/双向影响/六个判断/未来节奏/最终建议。
 import StarAskPanel from "../../../relationship-test/[id]/test/ask-panel";
+import DualProfileCards, { type DualProfilePerson } from "../../dual-profile-cards";
 import type { DualOverrideContent } from "../../../../myfate-dual-overrides";
 
-export type DualIdCard = {
-  name: string;
-  role: string;
-  portrait: string;
-  birthLine: string;
-  pillars: Array<{ label: string; ganzhi: string }>;
-};
-
-export default function DualOverrideReport({ content, people, reportId }: {
+export default function DualOverrideReport({ content, profiles, reportId }: {
   content: DualOverrideContent;
-  people: [DualIdCard, DualIdCard];
+  profiles: [DualProfilePerson, DualProfilePerson];
   reportId: string;
 }) {
   const rhythm = content.futureRhythm;
   const range = rhythm.timeRange;
   const hasRhythm = rhythm.supportivePeriods.length > 0 || rhythm.pressurePeriods.length > 0;
-  const [personA, personB] = people;
+  const [personA, personB] = profiles;
 
   return (
     <>
-      <header className="mf-dual-report-hero mf-dual-hero-duo">
-        <div className="mf-dual-duo">
-          <article className="mf-dual-id-card">
-            <Image src={personA.portrait} alt={personA.name} width={72} height={92} unoptimized />
-            <div className="mf-dual-id-info">
-              <div className="mf-dual-id-head"><b>{personA.name}</b><span>{personA.role}</span></div>
-              <small>{personA.birthLine}</small>
-              <div className="mf-dual-id-pillars" aria-label="四柱">
-                {personA.pillars.map((pillar) => (
-                  <span key={pillar.label}><small>{pillar.label}</small><b>{pillar.ganzhi}</b></span>
-                ))}
-              </div>
-            </div>
-          </article>
-          <i className="mf-dual-duo-x" aria-hidden="true">&amp;</i>
-          <article className="mf-dual-id-card">
-            <Image src={personB.portrait} alt={personB.name} width={72} height={92} unoptimized />
-            <div className="mf-dual-id-info">
-              <div className="mf-dual-id-head"><b>{personB.name}</b><span>{personB.role}</span></div>
-              <small>{personB.birthLine}</small>
-              <div className="mf-dual-id-pillars" aria-label="四柱">
-                {personB.pillars.map((pillar) => (
-                  <span key={pillar.label}><small>{pillar.label}</small><b>{pillar.ganzhi}</b></span>
-                ))}
-              </div>
-            </div>
-          </article>
-        </div>
-      </header>
+      <DualProfileCards people={profiles} />
 
       <section className="mf-zr-card" id="d-overview">
         <div className="mf-zr-section-head"><span>01</span><div><h2>关系总览</h2><p>关系的核心底色、支撑与消耗点</p></div></div>

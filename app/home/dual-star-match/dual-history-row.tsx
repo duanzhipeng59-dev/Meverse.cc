@@ -1,29 +1,29 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { portraitImage } from "../../myfate-image";
 
-// 历史合盘横条:主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
-// 点删除后整行切换为红色确认条(删除后不可恢复 + 取消/确认删除),点取消恢复;
-// 删除成功由父组件回调本地移除(入口页静态化后 router.refresh 不会更新客户端数据)。
-export default function DualHistoryRow({ id, portraitA, portraitB, title, time, statusLabel, status, onDeleted }: {
+// 历史记录横条(偶像合盘与自填解读共用):主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
+// 删除用系统确认弹窗,成功由父组件回调本地移除(入口页静态化后 router.refresh 不会更新客户端数据)。
+export default function DualHistoryRow({ id, title, sub, time, statusLabel, status, href, deleteEndpoint, onDeleted }: {
   id: string;
-  portraitA: string;
-  portraitB: string;
   title: string;
+  sub?: string;
   time: string;
   statusLabel: string;
   status: string;
+  href: string;
+  deleteEndpoint: string;
   onDeleted: (id: string) => void;
 }) {
-  const [phase, setPhase] = useState<"idle" | "confirm" | "deleting" | "error">("idle");
+  const [deleting, setDeleting] = useState(false);
 
   const doDelete = async () => {
-    setPhase("deleting");
+    if (deleting) return;
+    if (!window.confirm(`删除「${title}」的记录？删除后不可恢复。`)) return;
+    setDeleting(true);
     try {
-      const res = await fetch("/api/dual-star/delete", {
+      const res = await fetch(deleteEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reportId: id }),
@@ -31,46 +31,29 @@ export default function DualHistoryRow({ id, portraitA, portraitB, title, time, 
       if (!res.ok && res.status !== 404) throw new Error(String(res.status));
       onDeleted(id);
     } catch {
-      setPhase("error");
+      setDeleting(false);
+      window.alert("删除失败，请重试");
     }
   };
 
-  // 确认条:警示文案 + 失败提示/取消/确认删除
-  if (phase !== "idle") {
-    return (
-      <div className="mf-dual-history-row-wrap is-confirm" role="alertdialog" aria-label={`确认删除 ${title} 的合盘记录`}>
-        <div className="mf-dual-history-confirm">
-          <b>{phase === "error" ? "删除失败，请重试" : "删除后不可恢复"}</b>
-          <span className="mf-dual-hd-actions">
-            <button type="button" className="mf-dual-hd-cancel" onClick={() => setPhase("idle")}>取消</button>
-            <button type="button" className="mf-dual-hd-confirm" disabled={phase === "deleting"} onClick={doDelete}>
-              {phase === "deleting" ? "删除中…" : "确认删除"}
-            </button>
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mf-dual-history-row-wrap">
-      <Link className="mf-dual-history-row" href={`/home/dual-star-match/reports/${id}`}>
-        <span className="mf-dual-history-avatars">
-          <Image src={portraitImage(portraitA, 120)} alt="" width={30} height={39} unoptimized />
-          <i aria-hidden="true">&amp;</i>
-          <Image src={portraitImage(portraitB, 120)} alt="" width={30} height={39} unoptimized />
+      <Link className="mf-dual-history-row" href={href}>
+        <span className="mf-dual-history-main">
+          <span className="mf-dual-history-title">
+            <b>{title}</b>
+            <em data-status={status}>{statusLabel}</em>
+          </span>
+          {sub ? <small>{sub}</small> : null}
         </span>
-        <b>{title}</b>
-        <span className="mf-dual-history-meta is-stacked">
-          <small>{time}</small>
-          <em data-status={status}>{statusLabel}</em>
-        </span>
+        <small className="mf-dual-history-time">{time}</small>
       </Link>
       <button
         type="button"
         className="mf-dual-history-del"
-        onClick={() => setPhase("confirm")}
-        aria-label={`删除 ${title} 的合盘记录`}
+        onClick={() => void doDelete()}
+        disabled={deleting}
+        aria-label={`删除 ${title} 的记录`}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M4 7h16" />

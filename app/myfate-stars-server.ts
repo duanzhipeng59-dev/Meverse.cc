@@ -136,35 +136,6 @@ const LIST_QUERY_TIMEOUT_MS = 5000;
 // 查询失败兜底(静态种子名单)只缓存 15 秒,故障恢复后立即自愈回源。
 const LIST_FAILURE_TTL_MS = 15_000;
 
-// CORTIS 静态卡注入(库里暂无档案的成员走本地种子数据 + 中文名)。
-// 原 SEVENTEEN 放行名单已随全员 published=true 移除,查询回归纯 published 过滤。
-const RESTORED_CORTIS_IDS = new Set(["james"]);
-const CORTIS_CHINESE_NAMES: Record<string, string> = {
-  james: "赵雨凡",
-};
-
-function restoredCortisListItems(): StarListItem[] {
-  return stars.filter((star) => RESTORED_CORTIS_IDS.has(star.id)).map((star) => ({
-    id: star.id,
-    name: CORTIS_CHINESE_NAMES[star.id] ?? star.name,
-    nameEn: star.name,
-    role: `CORTIS成员-${CORTIS_CHINESE_NAMES[star.id] ?? star.name}`,
-    birthDate: star.birthDate,
-    birthTime: "",
-    gender: star.gender ?? "unknown",
-    mbti: star.mbti ?? "",
-    categories: star.categories ?? ["CORTIS"],
-    portraitSrc: star.portraitSrc,
-    createdAt: star.createdAt ?? "",
-    homepageFeatured: true,
-  }));
-}
-
-function withRestoredCortis(items: StarListItem[]): StarListItem[] {
-  const present = new Set(items.map((item) => item.id));
-  return [...restoredCortisListItems().filter((item) => !present.has(item.id)), ...items];
-}
-
 function seedStarList(): StarListItem[] {
   // 查询超时/网关限流时退回全量快照(76 人,scripts/gen-star-snapshot.mjs 导出),
   // 用户看到完整列表(最多旧几分钟)而不是残缺名单;failureTtl 短保真,恢复后即回源。
@@ -187,7 +158,7 @@ const starListCache = createServerCache<StarListItem[]>({
       .order("workspace_position", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: true });
     if (error) throw error;
-    return withRestoredCortis(((data ?? []) as unknown as ListRow[]).map((row) => ({
+    return (((data ?? []) as unknown as ListRow[]).map((row) => ({
       id: row.id,
       name: row.name,
       nameEn: row.name_en ?? "",
@@ -263,7 +234,7 @@ export async function getPublishedStar(id: string): Promise<StarProfile | undefi
       .eq("published", true)
       .maybeSingle();
     if (error) throw error;
-    return data ? mapCelebrity(data as unknown as CelebrityRow) : RESTORED_CORTIS_IDS.has(id) ? getStar(id) : undefined;
+    return data ? mapCelebrity(data as unknown as CelebrityRow) : undefined;
   } catch (error) {
     console.error("Failed to read celebrity profile", error);
     return getStar(id);
@@ -316,6 +287,39 @@ export async function getCelebrityVedicBirth(id: string): Promise<CelebrityVedic
     tz: row.birth_tz,
     gender: row.gender ?? "unknown",
   };
+}
+
+// 命盘记录下拉用的明星出生数据(已有报告的发布明星,一次批量查询;缺出生时间的跳过)。
+export type StarBirthItem = { id: string; name: string; birthDate: string; birthTime: string; gender: "male" | "female" | "other" | "unknown"; birthPlace?: string; tz?: string; lat?: number; lon?: number };
+
+export async function getPublishedStarBirths(): Promise<StarBirthItem[]> {
+  if (!hasCloudConfig()) return [];
+  noStore();
+  try {
+    const { data, error } = await createSupabaseAdminClient()
+      .from("celebrity_profiles")
+      .select("id,name,birth_date,birth_time,birth_place,birth_tz,birth_lat,birth_lon,gender")
+      .eq("published", true)
+      .order("workspace_position", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return ((data ?? []) as Array<Record<string, unknown>>)
+      .filter((row) => typeof row.birth_date === "string" && typeof row.birth_time === "string")
+      .map((row) => ({
+        id: row.id as string,
+        name: row.name as string,
+        birthDate: row.birth_date as string,
+        birthTime: row.birth_time as string,
+        gender: (row.gender ?? "unknown") as StarBirthItem["gender"],
+        birthPlace: row.birth_place == null ? undefined : String(row.birth_place),
+        tz: row.birth_tz == null ? undefined : String(row.birth_tz),
+        lat: row.birth_lat == null ? undefined : Number(row.birth_lat),
+        lon: row.birth_lon == null ? undefined : Number(row.birth_lon),
+      }));
+  } catch (error) {
+    console.error("Failed to read published star births", error);
+    return [];
+  }
 }
 
 // 详情页八字文案:标题下的一句命理印象 + 按钮上方的梗概,按出生资料实时排盘生成。

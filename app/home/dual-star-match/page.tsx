@@ -1,23 +1,19 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
-import DualStarPicker from "./dual-star-picker";
-import DualHistorySection from "./dual-history-section";
-import { getDualStarCandidates } from "../../myfate-dual-server";
+import ReadingHub from "./reading-hub";
 
-// 入口页静态化:候选列表与计费开关随 ISR 缓存(5 分钟重验证),
-// 登录态与个人历史由 DualHistorySection 客户端拉取,页面壳可瞬时渲染。
+// 解读页:单人解读/双人合盘两个入口(弹窗填写信息排盘) + 生成记录(自填与偶像合盘合并)。
+// 页面壳静态化,记录数据由 ReadingHub 客户端按登录态拉取。
 export const revalidate = 300;
-export const metadata: Metadata = { title: "双人合盘" };
+export const metadata: Metadata = { title: "生辰解读" };
 
-export default async function DualStarMatchPage() {
-  const candidates = await getDualStarCandidates();
+export default function DualStarMatchPage() {
   return (
-    <div className="mf-workspace-content mf-dual-page">
-      {/* useSearchParams 需要 Suspense 边界,静态页才能保留预渲染壳 */}
-      <Suspense fallback={null}>
-        <DualStarPicker candidates={candidates} />
-      </Suspense>
-      <DualHistorySection candidates={candidates} />
+    <div className="mf-workspace-content mf-reading-page">
+      <header className="mf-reading-head">
+        <h1>生辰解读</h1>
+        <p>财富与事业高度，适合的行业取向，大运流年的总体评价</p>
+      </header>
+      <ReadingHub />
     </div>
   );
 }

@@ -89,6 +89,7 @@ async function generateChatWithDeepSeek(
       thinking: { type: "disabled" },
       temperature: options.temperature ?? 0.8,
       max_tokens: options.maxTokens ?? 2000,
+      ...(options.json ? { response_format: { type: "json_object" } } : {}),
       stream: false,
     }),
     signal: AbortSignal.timeout(90_000),

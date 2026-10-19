@@ -1,18 +1,18 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import StarAskPanel from "../../../relationship-test/[id]/test/ask-panel";
 import ReportTopbar from "../../../../report-topbar";
 import ReportToc from "../../../../report-toc";
 import DualGenerating from "./dual-generating";
-import DualOverrideReport, { type DualIdCard } from "./dual-override-report";
+import DualOverrideReport from "./dual-override-report";
+import DualProfileCards, { type DualProfilePerson } from "../../dual-profile-cards";
 import { getDualOverride } from "../../../../myfate-dual-overrides";
 import { getDualReport } from "../../../../myfate-dual-server";
 import { getPublishedStar, getCelebrityVedicBirth } from "../../../../myfate-stars-server";
 import { buildDualChart } from "../../../../myfate-dual-engine";
 import { isUpgradesEnabled } from "../../../../myfate-settings";
 import { requirePageUser } from "../../../../require-page-user";
-import { dualReportSchema, type DualReportContent } from "../../../../myfate-dual-generator";
+import { dualReportSchema, withPersonNames, type DualReportContent } from "../../../../myfate-dual-generator";
 import { portraitImage } from "../../../../myfate-image";
 import { ReadingProgress } from "../../../../components/reading-tools";
 
@@ -51,39 +51,53 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
   return (
     <div className="mf-zr">
       <ReadingProgress starId={`dual-${id}`} />
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回双人合盘" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} showShare shareTitle={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name} 双人合盘`} />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name}`} showShare shareTitle={`${personOf(starA.role) || starA.name} & ${personOf(starB.role) || starB.name} 双人合盘`} />
 
       {report.status !== "ready" ? (
         <DualGenerating reportId={report.id} nameA={starA.name} nameB={starB.name} portraitA={portraitImage(starA.portraitSrc, 240)} portraitB={portraitImage(starB.portraitSrc, 240)} />
       ) : (async () => {
+        // 报告头部的双人八字资料卡数据(与确认页同款):四柱拆干支分行
+        const profiles = [starA, starB].map((star, index) => {
+          const birth = index === 0 ? birthA : birthB;
+          const chart = birth ? buildDualChart(birth).chart : null;
+          return {
+            name: personOf(star.role) || star.name,
+            dayMaster: chart?.dayMaster ?? "",
+            pillars: chart ? chart.pillars.map((pillar) => ({ label: pillar.label, gan: pillar.ganzhi[0] ?? "", zhi: pillar.ganzhi[1] ?? "" })) : [],
+          };
+        }) as [DualProfilePerson, DualProfilePerson];
         // 精校内容优先:命中组合直接渲染定稿文案,不走 AI 生成结构
         const override = getDualOverride(report.starA, report.starB);
         if (override) {
-          // 头部双人身份卡:各自排盘取四柱与出生信息;固定要求只用中文名、不显示「已校准」
-          const people = [starA, starB].map((star, index) => {
-            const birth = index === 0 ? birthA : birthB;
-            const chart = birth ? buildDualChart(birth).chart : null;
-            const [group = "", person = ""] = star.role.split("-").map((part) => part.trim());
-            return {
-              name: person || star.name,
-              role: group.replace(" 成员", ""),
-              portrait: portraitImage(star.portraitSrc, 240),
-              birthLine: `出生 · ${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace ?? ""}`,
-              pillars: chart ? chart.pillars.map((pillar) => ({ label: pillar.label.replace("柱", ""), ganzhi: pillar.ganzhi })) : [],
-            };
-          }) as [DualIdCard, DualIdCard];
           return (
             <DualOverrideReport
               content={override}
-              people={people}
+              profiles={profiles}
               reportId={report.id}
-             
+
             />
           );
         }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();
         const content: DualReportContent = parsed.data;
+        // AI 文案归一:残留的 A/B 代称替换为两人姓名
+        const nameOf = (t: string) => withPersonNames(t, starA.name, starB.name);
+        for (const key of Object.keys(content.sections) as Array<keyof typeof content.sections>) {
+          const sec = content.sections[key];
+          if (!sec) continue;
+          sec.headline = nameOf(sec.headline);
+          sec.aToB = nameOf(sec.aToB); sec.bToA = nameOf(sec.bToA);
+          sec.behavior = nameOf(sec.behavior); sec.risk = nameOf(sec.risk); sec.advice = nameOf(sec.advice);
+          sec.basis = sec.basis.map(nameOf);
+        }
+        content.summary = nameOf(content.summary);
+        if (content.future_rhythm) {
+          for (const stage of [...content.future_rhythm.supportive_periods, ...content.future_rhythm.pressure_periods]) {
+            stage.label = nameOf(stage.label); stage.detail = nameOf(stage.detail);
+          }
+        }
+        content.basis = content.basis.map((item) => ({ ...item, term: nameOf(item.term), plain: nameOf(item.plain) }));
         // 评分唯一来源:引擎在创建时落库的结构分
         const scores = report.scores ?? {};
         const sectionDefs: Array<{ no: string; field: "attraction" | "communication" | "intimacy" | "conflict" | "career" | "longterm"; sub: string; anchor: string }> = [
@@ -101,25 +115,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
         const timeRange = content.available_time_range;
         return (
           <>
-            <header className="mf-dual-report-hero">
-              <div className="mf-dual-report-people">
-                <figure>
-                  <Image src={portraitImage(starA.portraitSrc, 240)} alt={starA.name} width={92} height={112} unoptimized />
-                  <figcaption>{starA.name}</figcaption>
-                </figure>
-                <span aria-hidden="true">×</span>
-                <figure>
-                  <Image src={portraitImage(starB.portraitSrc, 240)} alt={starB.name} width={92} height={112} unoptimized />
-                  <figcaption>{starB.name}</figcaption>
-                </figure>
-              </div>
-              <div className="mf-dual-report-copy">
-                <span className="mf-zr-kicker">DUAL BAZI SYNASTRY</span>
-                <h1>{starA.name} × {starB.name} AI双星命理合盘</h1>
-                <p className="mf-dual-report-keywords">{content.keywords.join(" · ")}</p>
-                <p className="mf-dual-report-summary">{content.summary}</p>
-              </div>
-            </header>
+            <DualProfileCards people={profiles} />
 
             <ReportToc items={[
               { id: "d-overview", label: "总览" },
@@ -155,9 +151,6 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
               return (
                 <section className="mf-zr-card" id={anchor} key={field}>
                   <div className="mf-zr-section-head"><span>{no}</span><div><h2>{section.headline}</h2><p>{sub}</p></div></div>
-                  <ul className="mf-dual-evidence">
-                    {section.basis.map((line, index) => <li key={index}>依据 · {line}</li>)}
-                  </ul>
                   <div className="mf-dual-directions">
                     <article><b>A 对 B</b><p>{section.aToB}</p></article>
                     <article><b>B 对 A</b><p>{section.bToA}</p></article>
@@ -204,9 +197,6 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
             ) : legacyTimeline ? (
               <section className="mf-zr-card" id="d-timeline">
                 <div className="mf-zr-section-head"><span>08</span><div><h2>{legacyTimeline.headline}</h2><p>未来三年关系节奏窗口</p></div></div>
-                <ul className="mf-dual-evidence">
-                  {legacyTimeline.basis.map((line, index) => <li key={index}>依据 · {line}</li>)}
-                </ul>
                 <div className="mf-dual-directions">
                   <article><b>A 对 B</b><p>{legacyTimeline.aToB}</p></article>
                   <article><b>B 对 A</b><p>{legacyTimeline.bToA}</p></article>
@@ -218,18 +208,6 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
                 </dl>
               </section>
             ) : null}
-
-            <section className="mf-zr-card" id="d-basis">
-              <div className="mf-zr-section-head"><span>09</span><div><h2>命理依据</h2><p>结论来自这些合盘结构,附白话解释与依据强度</p></div></div>
-              <dl className="mf-dual-basis">
-                {content.basis.map((item, index) => (
-                  <div key={index}>
-                    <dt>{item.term}<em className={`is-${item.confidence}`}>{CONF_LABELS[item.confidence] ?? item.confidence}</em></dt>
-                    <dd>{item.plain}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
 
             <div id="d-ask">
               <StarAskPanel starId={report.id} starName={`${starA.name} × ${starB.name}`} suggestions={ASK_SUGGESTIONS} reportType="dual" />

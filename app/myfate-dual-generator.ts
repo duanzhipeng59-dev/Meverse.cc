@@ -142,17 +142,22 @@ function buildGeminiInput(s: DualStructure, timelineA: PersonTimeline, timelineB
   };
 }
 
-function buildPrompt(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null) {
+export function buildPrompt(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null, opts?: { dualType?: "love" | "career" }) {
   const input = buildGeminiInput(s, timelineA, timelineB, range);
   const sections = SECTION_SPECS.map(({ key, title, hint }) => `"${key}": { "headline": "一句话结论(8-40字)", "basis": ["引用结构事实的依据,1-3条"], "aToB": "A 对 B 的影响(结合十神方向)", "bToA": "B 对 A 的影响", "behavior": "现实中可能出现的相处表现", "risk": "容易发生的问题", "advice": "如何相处更顺畅(可执行)" } /* ${title}: ${hint} */`).join(",\n    ");
   const rangeLine = range
     ? `本次可分析时间范围为 ${range.startYear}-${range.endYear} 年(available_time_range)。future_rhythm 的所有阶段年份必须完全落在该范围内。`
     : `本次 available_time_range 为 null(双方没有共同流年数据),future_rhythm 的两个数组都必须输出为空数组 []。`;
+  const typeLine = opts?.dualType === "career"
+    ? "合盘类型:事业合伙——全部解读以合伙做事视角展开:分工协作、资源互补、利益分配、决策风格与信任风险;aToB/bToA/behavior/risk/advice 都围绕事业伙伴关系书写,不要写恋爱、婚姻或暧昧内容。"
+    : "合盘类型:感情合婚——全部解读以亲密关系与婚恋相处视角展开。";
   return `Input JSON(唯一事实来源):
 
 ${JSON.stringify(input, null, 1)}
 
 ${rangeLine}
+
+${typeLine}
 
 future_rhythm(未来关系节奏)规则:
 1. 分析顺序:双方原局关系 → 双方当前大运环境 → 双方具体流年触发 → 双方互动结果 → 归纳为关系阶段;禁止仅凭单方流年判断双方关系。
@@ -174,7 +179,14 @@ future_rhythm(未来关系节奏)规则:
   },
   "basis": [ { "term": "命理术语", "plain": "白话解释20-80字", "confidence": "strong|medium|light(按输入事实强度)" } ]
 }
-basis 至少 5 条,必须来自 Input JSON 中的结构事实,confidence 与事实强度一致。`;
+basis 至少 5 条,必须来自 Input JSON 中的结构事实,confidence 与事实强度一致。
+
+行文代称规则:全文(sections 的 headline/aToB/bToA/behavior/risk/advice 与 future_rhythm 的 label/detail)必须直接使用两人真实姓名「${s.starA.name}」和「${s.starB.name}」,不得使用 A/B 或"对方"等代称。`;
+}
+
+// 双人报告文案归一:把 AI 残留的 A/B 代称替换为两人姓名(独立字母,不误伤英文名)
+export function withPersonNames(text: string, nameA: string, nameB: string): string {
+  return text.replace(/(?<![A-Za-z])A(?![A-Za-z])/g, nameA).replace(/(?<![A-Za-z])B(?![A-Za-z])/g, nameB);
 }
 
 function extractJson(text: string) {
@@ -184,8 +196,8 @@ function extractJson(text: string) {
   return text.slice(start, end + 1);
 }
 
-async function generateContent(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null): Promise<DualReportContent> {
-  const prompt = buildPrompt(s, timelineA, timelineB, range);
+export async function generateContent(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null, opts?: { dualType?: "love" | "career" }): Promise<DualReportContent> {
+  const prompt = buildPrompt(s, timelineA, timelineB, range, opts);
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const generation = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { temperature: 0.65, maxTokens: 12000 });

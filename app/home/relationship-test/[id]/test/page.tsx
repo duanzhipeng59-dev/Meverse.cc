@@ -8,12 +8,17 @@ import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
 import Link from "next/link";
 import { ReadingProgress } from "../../../../components/reading-tools";
+import { staticReadingSchema } from "../../../../myfate-static-reading";
+import StaticReadingReport from "../../../reading/[id]/static-reading-report";
+import { buildBaziChart } from "../../../../myfate-bazi-engine";
+import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 
 export const dynamic = "force-dynamic";
 
+// 追问建议与静态命局红线一致:不引导流年/财富等预测性问题
 const ASK_SUGGESTIONS = [
-  "TA 的道法在事业上怎么落地？",
-  "TA 哪几年最容易有财富突破？",
+  "TA 的性格底色适合怎样的合作方式？",
+  "TA 的格局在事业上怎么落地？",
   "和 TA 相处最需要注意什么？",
 ];
 
@@ -132,6 +137,34 @@ const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : `/h
           <div className="mf-doc-head"><i aria-hidden="true">✦</i><h2>报告准备中</h2></div>
           <p className="mf-doc-p">这份生辰画像报告尚未上传，内容正在人工准备与校对中，完成后即可查看。</p>
         </section>        <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读</p>
+      </div>
+    );
+  }
+
+  // ── 统一体系:static 两阶段报告(single-static-v2)与个人解读同一渲染/同一红线 ──
+  // 四柱与徽章由引擎按出生资料实时排盘(content 不再携带 chart 事实,与个人解读一致)
+  const staticParsed = staticReadingSchema.safeParse(consult);
+  if (staticParsed.success) {
+    void recordStarReportView(user.id, id, "bazi");
+    const chart = birth ? buildBaziChart({
+      birthDate: birth.birthDate,
+      birthTime: birth.birthTime,
+      gender: birth.gender === "female" ? "female" : "male",
+      city: { id: birth.starId, name: birth.birthPlace || "首尔 · 韩国", lat: birth.lat, lon: birth.lon, tz: birth.tz },
+    }) : null;
+    const profile = chart ? buildBaziLifeProfile(chart) : null;
+    const staticPillars = chart ? chart.pillars.map((pillar) => pillar.ganzhi) : heroPillarsOf(consult, star.threePillars);
+    const staticBadges = chart && profile ? [chart.dayMaster, profile.summary.strength, `喜${profile.summary.favorable.join("·")}`] : undefined;
+    return (
+      <div className="mf-zr">
+        <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={staticPillars.join(" ")} showShare shareTitle={`${personName || star.name} 的生辰画像`} />
+        <ReadingProgress starId={id} />
+        <div className="mf-zr-overview">
+          <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={staticPillars} heroBadges={staticBadges} />
+        </div>
+        <StaticReadingReport content={staticParsed.data} />
+        <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>
+        <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、刑冲合害)对静态命局做文化解读，不构成科学预测</p>
       </div>
     );
   }

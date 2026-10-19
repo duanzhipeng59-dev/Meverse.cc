@@ -39,12 +39,12 @@ test("server-renders relationship-test discovery inside the workspace", async ()
   assert.match(html, /生辰画像/u);
   assert.match(html, /合盘/u);
   assert.match(html, /个人中心/u);
-  assert.match(html, /Bang Chan/u);
+  assert.match(html, /田柾国/u);
   assert.doesNotMatch(html, /关系情境|答题|计分/u);
 });
 
 test("star detail resolves as preview page; unknown ids 404", async () => {
-  const preview = await render("/home/relationship-test/hyunjin");
+  const preview = await render("/home/relationship-test/jungkook");
   assert.equal(preview.status, 200);
   const missing = await render("/home/relationship-test/not-a-real-star");
   assert.equal(missing.status, 404);
@@ -113,7 +113,7 @@ test("uses unified four-tab navigation, keeps the empty reports state minimal", 
   ]);
   assert.match(workspaceShell, /aria-label="工作台主菜单"/u);
   // 两个一级 Tab:发现/合盘;报告入口在个人中心,个人中心在顶部导航
-  assert.match(workspaceShell, /label: "发现"[\s\S]*?label: "合盘"/u);
+  assert.match(workspaceShell, /label: "发现"[\s\S]*?label: "解读"/u);
   assert.doesNotMatch(workspaceShell, /label: "首页"|label: "报告"|label: "我的"/u);
   assert.match(workspaceShell, /mf-mobile-profile-btn/u);
   assert.doesNotMatch(workspaceShell, /订阅升级/u);
@@ -206,4 +206,27 @@ test("unified Myfate branding and bucket-only portraits", async () => {
   const publicDir = await readdir(new URL("../public/", import.meta.url));
   const leftoverPortraits = publicDir.filter((filename) => /\.(webp|png|jpe?g)$/i.test(filename) && !STATIC_IMAGE_ALLOWLIST.has(filename));
   assert.deepEqual(leftoverPortraits, [], `public/ 不应再有本地头像: ${leftoverPortraits.join(", ")}`);
+});
+
+test("single reading uses a validated argument plan and renders eight static sections", async () => {
+  const [pipeline, contract, page, renderer, provider] = await Promise.all([
+    readFile(new URL("../app/myfate-reading-generator.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-static-reading.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/reading/[id]/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/home/reading/[id]/static-reading-report.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/myfate/personalize/model-provider.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(pipeline, /buildStaticReadingFacts\(chart, profile\)/u);
+  assert.doesNotMatch(pipeline, /wealthRangeOf|buildStarFacts|mergeStarAiContent/u);
+  assert.match(contract, /scope: z\.literal\("static-chart-only"\)/u);
+  assert.match(contract, /STATIC_READING_PREDICTION_FORBIDDEN/u);
+  assert.match(contract, /STATIC_READING_PLAN_UNKNOWN_EVIDENCE/u);
+  assert.match(contract, /STATIC_READING_PLAN_WEAK_SUPPORT/u);
+  assert.match(contract, /STATIC_READING_PLAN_ACTION_FORBIDDEN/u);
+  assert.match(contract, /strengthSide[\s\S]*riskSide[\s\S]*action/u);
+  assert.match(contract, /buildStaticReadingPrompt\(facts, plan\)/u);
+  assert.match(contract, /exclusions: \["dayun", "annual", "forecast"/u);
+  assert.match(page, /staticReadingSchema\.safeParse\(report\.content\)/u);
+  assert.doesNotMatch(renderer, /命理依据|mf-rr-basis|证据：/u);
+  assert.match(provider, /options\.json[\s\S]*?json_object/u);
 });

@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import ReportTopbar from "../../../../../report-topbar";
 import DualConfirmActions from "./dual-confirm-actions";
+import DualProfileCards, { type DualProfilePerson } from "../../../dual-profile-cards";
 import { getPublishedStar, getCelebrityVedicBirth } from "../../../../../myfate-stars-server";
 import { buildDualChart } from "../../../../../myfate-dual-engine";
 
@@ -30,26 +31,14 @@ export default async function DualConfirmPage({ params }: { params: Promise<{ st
       // 四柱保留「年柱」全称作小卡标签;干支拆天干/地支两行竖排大字
       pillars: chart.pillars.map((pillar) => ({ label: pillar.label, gan: pillar.ganzhi[0] ?? "", zhi: pillar.ganzhi[1] ?? "" })),
     };
-  });
+  }) as [DualProfilePerson, DualProfilePerson];
 
   return (
     <div className="mf-zr">
       <ReportTopbar backHref="/home/dual-star-match" backLabel="" title={`${people[0].name} × ${people[1].name}`} />
 
       <div className="mf-dual-status mf-dual-confirm">
-        <div className="mf-dual-status-people">
-          {people.map((person) => (
-            <figure key={person.name}>
-              <b>{person.name}</b>
-              <div className="mf-dual-confirm-pillars" aria-label="四柱">
-                {person.pillars.map((pillar) => (
-                  <span key={pillar.label}><small>{pillar.label}</small><b>{pillar.gan}</b><b>{pillar.zhi}</b></span>
-                ))}
-              </div>
-              <em className="mf-dual-confirm-dm">日主 · {person.dayMaster}</em>
-            </figure>
-          ))}
-        </div>
+        <DualProfileCards people={people} />
         <p className="mf-dual-status-note mf-dual-confirm-hint">点击下方按钮，看见你们的合盘。</p>
         <DualConfirmActions starA={idA} starB={idB} />
       </div>

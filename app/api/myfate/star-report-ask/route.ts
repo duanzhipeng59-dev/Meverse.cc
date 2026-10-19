@@ -5,6 +5,9 @@ import { formatAstrologyReport, getAstrologyReport } from "../../../myfate-astro
 import { formatConsultOverrideDigest, getConsultOverride } from "../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
 import { getDualReport } from "../../../myfate-dual-server";
+import { getReadingReport } from "../../../myfate-reading-server";
+import { staticReadingSchema } from "../../../myfate-static-reading";
+import { dualReportSchema } from "../../../myfate-dual-generator";
 import {
   appendExchange,
   clearConversation,
@@ -25,13 +28,21 @@ import { isUpgradesEnabled } from "../../../myfate-settings";
 export const maxDuration = 60;
 
 const starIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(100);
-const typeSchema = z.enum(["bazi", "astrology", "dual"]);
+const typeSchema = z.enum(["bazi", "astrology", "dual", "reading-single", "reading-dual"]);
 const requestSchema = z.object({
   starId: starIdSchema,
   reportType: typeSchema.default("bazi"),
   question: z.string().trim().min(1).max(500),
   retryOf: z.number().int().positive().optional(),
 });
+
+// 会话键归一:reading 报告以 "reading:{id}" 作 star_id 并复用现有 report_type 枚举
+// (ask_conversations 表有 report_type CHECK 约束且无 DDL 通道,前缀方案保持隔离不变)
+function conversationKey(starId: string, reportType: "bazi" | "astrology" | "dual" | "reading-single" | "reading-dual") {
+  if (reportType === "reading-single") return { starId: `reading:${starId}`, reportType: "bazi" as const };
+  if (reportType === "reading-dual") return { starId: `reading:${starId}`, reportType: "dual" as const };
+  return { starId, reportType };
+}
 
 function systemPrompt(starName: string, reportDigest: string, summary: string) {
   const summaryBlock = summary ? `\n【较早对话摘要】\n${summary}\n` : "";
@@ -52,7 +63,42 @@ function systemPrompt(starName: string, reportDigest: string, summary: string) {
   ].join("\n");
 }
 
-async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "dual") {
+async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "dual" | "reading-single" | "reading-dual", userId: string) {
+  if (reportType === "reading-single" || reportType === "reading-dual") {
+    // 自填/记录解读追问:starId 即 reading 报告 id,归属校验后按报告类型压缩全文
+    const report = await getReadingReport(starId);
+    if (!report || report.userId !== userId) throw new Error("READING_REPORT_NOT_FOUND");
+    if (report.status !== "ready" || !report.content) throw new Error("READING_REPORT_NOT_READY");
+    if (reportType === "reading-single") {
+      const parsed = staticReadingSchema.safeParse(report.content);
+      if (!parsed.success) throw new Error("READING_REPORT_NOT_READY");
+      const single = parsed.data;
+      const lines = [`这是「${report.subjectA.name}」的单人八字静态命局报告。`];
+      for (const section of Object.values(single.sections)) {
+        lines.push(`【${section.title}】${section.summary} ${section.insights.map((item) => `${item.label}:${item.content}`).join("；")} 建议:${section.advice.join("；")}`);
+      }
+      return { name: report.subjectA.name, digest: lines.join("\n") };
+    }
+    const parsed = dualReportSchema.safeParse(report.content);
+    if (!parsed.success) throw new Error("READING_REPORT_NOT_READY");
+    const dual = parsed.data;
+    const subjectB = report.subjectB?.name ?? "对方";
+    const lines = [`这是「${report.subjectA.name} × ${subjectB}」双人合盘报告。关系画像:${dual.summary}`];
+    for (const section of Object.values(dual.sections)) {
+      lines.push(`【${section.headline}】${section.aToB} ${section.bToA} 相处表现:${section.behavior} 风险:${section.risk} 建议:${section.advice}`);
+    }
+    const rhythm = dual.future_rhythm;
+    if (rhythm && (rhythm.supportive_periods.length || rhythm.pressure_periods.length)) {
+      const formatPeriod = (period: { start_year: number; end_year: number; label: string; detail: string }) => `${period.start_year}${period.start_year === period.end_year ? "" : `-${period.end_year}`}年 ${period.label}:${period.detail}`;
+      const range = dual.available_time_range;
+      lines.push(`【未来关系节奏${range ? `(可分析区间 ${range.start_year}-${range.end_year} 年)` : ""}】` + [
+        ...rhythm.supportive_periods.map((period) => `[支持]${formatPeriod(period)}`),
+        ...rhythm.pressure_periods.map((period) => `[压力]${formatPeriod(period)}`),
+      ].join(";"));
+    }
+    return { name: `${report.subjectA.name} × ${subjectB}`, digest: lines.join("\n") };
+  }
+
   if (reportType === "dual") {
     // 双星追问:starId 即报告 id,上下文来自已生成的合盘报告
     const report = await getDualReport(starId);
@@ -126,7 +172,8 @@ export async function GET(request: Request) {
   const before = Number.isInteger(beforeRaw) && beforeRaw > 0 ? beforeRaw : undefined;
 
   try {
-    const conversation = await getOrCreateConversation(session.user.id, parsedStar.data, parsedType.data);
+    const key = conversationKey(parsedStar.data, parsedType.data);
+    const conversation = await getOrCreateConversation(session.user.id, key.starId, key.reportType);
     const { messages, hasMore } = await listMessages(conversation.id, before);
     return Response.json({ conversationId: conversation.id, messageCount: conversation.messageCount, messages, hasMore });
   } catch (error) {
@@ -142,7 +189,8 @@ export async function DELETE(request: Request) {
   const parsedStar = starIdSchema.safeParse(url.searchParams.get("starId") ?? "");
   const parsedType = typeSchema.safeParse(url.searchParams.get("type") ?? "bazi");
   if (!parsedStar.success || !parsedType.success) return Response.json({ error: "BAD_REQUEST" }, { status: 400 });
-  await clearConversation(session.user.id, parsedStar.data, parsedType.data);
+  const key = conversationKey(parsedStar.data, parsedType.data);
+  await clearConversation(session.user.id, key.starId, key.reportType);
   return Response.json({ ok: true });
 }
 
@@ -167,9 +215,10 @@ export async function POST(request: Request) {
 
   let conversationId = "";
   try {
-    const conversation = await getOrCreateConversation(session.user.id, starId, reportType);
+    const key = conversationKey(starId, reportType);
+    const conversation = await getOrCreateConversation(session.user.id, key.starId, key.reportType);
     conversationId = conversation.id;
-    const { name, digest } = await buildDigest(starId, reportType);
+    const { name, digest } = await buildDigest(starId, reportType, session.user.id);
 
     // 重试:复用原用户消息内容,不新建问题
     let finalQuestion = question;
@@ -229,7 +278,8 @@ export async function POST(request: Request) {
     // 生成失败:保留用户问题为 failed 供前端重试(未扣费,重试成功才扣)
     if (!retryOf && question) {
       try {
-        const failedId = await saveFailedQuestion(conversationId || (await getOrCreateConversation(session.user.id, starId, reportType)).id, session.user.id, question);
+        const fallbackKey = conversationKey(starId, reportType);
+        const failedId = await saveFailedQuestion(conversationId || (await getOrCreateConversation(session.user.id, fallbackKey.starId, fallbackKey.reportType)).id, session.user.id, question);
         return Response.json({ error: "AI_UNAVAILABLE", messageId: failedId }, { status: 503 });
       } catch (saveError) {
         console.error("save failed question error", saveError);

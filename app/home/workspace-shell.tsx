@@ -6,15 +6,15 @@ import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
 import LoginModal from "../components/login-modal";
 
-// 一级导航两页:发现/合盘(桌面侧栏与移动底部导航同源);根路径直接进发现
+// 一级导航两页:发现/解读(桌面侧栏与移动底部导航同源);根路径直接进发现
 const menuItems = [
   { icon: "heart", label: "发现", description: "浏览与搜索人物画像", href: "/home/relationship-test" },
-  { icon: "dual", label: "合盘", description: "两位偶像的八字合盘", href: "/home/dual-star-match" },
+  { icon: "dual", label: "解读", description: "单人与双人八字解读排盘", href: "/home/dual-star-match" },
 ];
 
 const tabItems = [
   { icon: "heart", label: "发现", href: "/home/relationship-test" },
-  { icon: "dual", label: "合盘", href: "/home/dual-star-match" },
+  { icon: "dual", label: "解读", href: "/home/dual-star-match" },
 ];
 
 function HeartIcon() {

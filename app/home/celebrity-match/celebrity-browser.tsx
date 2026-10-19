@@ -18,6 +18,9 @@ const SORTS = [
 ] as const;
 type SortKey = (typeof SORTS)[number]["key"];
 
+// 热门 tab 的高知名度组合池(角色前缀命中即入池;新团不入,保证置顶的都是大牌)
+const POPULAR_GROUPS = ["BTS", "SEVENTEEN", "TOMORROW X TOGETHER", "Stray Kids", "2PM", "H.O.T.", "BIGBANG", "WINNER", "iKON", "BLACKPINK"];
+
 // "BTS 成员-金南俊" → 中文名"金南俊"
 function personName(role: string) {
   const dashIndex = role.indexOf("-");
@@ -76,6 +79,14 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const [lastVisitedId, setLastVisitedId] = useState<string | null>(null);
   useEffect(() => { setLastVisitedId(readRecentStars()[0] ?? null); }, []);
 
+  // 热门置顶池:高知名度偶像(首页精选或知名组合成员),每次进页随机洗牌取前 8 个置顶;
+  // 洗牌只依赖 stars,切 tab/搜索不重抽。
+  const popularTop = useMemo(() => {
+    const pool = stars.filter((star) => star.homepageFeatured
+      || POPULAR_GROUPS.some((group) => star.role.toLowerCase().includes(group.toLowerCase())));
+    return [...pool].sort(() => Math.random() - 0.5).slice(0, 8);
+  }, [stars]);
+
   const filtered = useMemo(() => {
     let result = stars;
     const keyword = query.trim().toLowerCase();
@@ -87,10 +98,20 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
         || groupOf(star.role).toLowerCase().includes(keyword)
         || (star.categories ?? []).some((item) => item.toLowerCase().includes(keyword)));
     }
-    if (sort === "hot") result = [...result].sort((a, b) => Number(b.homepageFeatured) - Number(a.homepageFeatured) || a.createdAt.localeCompare(b.createdAt));
+    if (sort === "hot") {
+      const rank = new Map(popularTop.map((star, index) => [star.id, index]));
+      result = [...result].sort((a, b) => {
+        const pa = rank.get(a.id);
+        const pb = rank.get(b.id);
+        if (pa !== undefined && pb !== undefined) return pa - pb;
+        if (pa !== undefined) return -1;
+        if (pb !== undefined) return 1;
+        return a.createdAt.localeCompare(b.createdAt);
+      });
+    }
     if (sort === "new") result = [...result].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     return result;
-  }, [stars, sort, query]);
+  }, [stars, sort, query, popularTop]);
 
   const visibleCount = pages * PAGE_SIZE;
   const hasMore = filtered.length > visibleCount;

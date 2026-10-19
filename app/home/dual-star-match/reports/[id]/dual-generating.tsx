@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,7 +10,6 @@ export default function DualGenerating({ reportId, nameA, nameB, portraitA, port
   const router = useRouter();
   const [phase, setPhase] = useState(0);
   const [failed, setFailed] = useState(false);
-  const [retrying, setRetrying] = useState(false);
   const alive = useRef(true);
 
   useEffect(() => {
@@ -46,59 +44,19 @@ export default function DualGenerating({ reportId, nameA, nameB, portraitA, port
     };
   }, [reportId, router]);
 
-  async function retry() {
-    if (retrying) return;
-    setRetrying(true);
-    setFailed(false);
-    try {
-      await fetch(`/api/dual-star/${reportId}`, { method: "POST" });
-      setPhase(0);
-      window.setTimeout(() => {
-        if (alive.current) window.location.reload();
-      }, 800);
-    } catch {
-      setFailed(true);
-      setRetrying(false);
-    }
-  }
+
+  // 失败态不渲染任何主体内容(顶栏仍在页面壳上),失败信息由历史合盘的状态标签承载
+  if (failed) return null;
 
   return (
     <div className="mf-dual-status">
-      <header className="mf-dual-status-head">
-        <h1>{nameA} × {nameB}</h1>
-        <p>{failed ? "双人合盘 · 生成未完成" : "双人合盘 · 正在生成"}</p>
-      </header>
-      <div className="mf-dual-status-people">
-        <figure>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={portraitA} alt={`${nameA}的人物肖像`} />
-          <figcaption>{nameA}</figcaption>
-        </figure>
-        <span aria-hidden="true">✦</span>
-        <figure>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={portraitB} alt={`${nameB}的人物肖像`} />
-          <figcaption>{nameB}</figcaption>
-        </figure>
+      <span className="mf-dual-star" aria-hidden="true">✦</span>
+      <div className="mf-dual-progress" aria-hidden="true">
+        {PHASES.map((_, index) => (
+          <span key={index} data-state={index < phase ? "done" : index === phase ? "active" : "todo"}><i /></span>
+        ))}
       </div>
-      {failed ? (
-        <>
-          <p className="mf-dual-status-title">报告生成没有成功</p>
-          <p className="mf-dual-status-note">可以重新生成，或返回双人合盘重新选择。</p>
-          <div className="mf-dual-actions">
-            <button className="mf-primary-button mf-dual-generate" type="button" disabled={retrying} onClick={retry}>
-              {retrying ? "正在重新生成…" : "重新生成"}
-            </button>
-            <Link className="mf-dual-ghost" href="/home/dual-star-match">返回双人合盘</Link>
-          </div>
-        </>
-      ) : (
-        <>
-          <p className="mf-dual-gen-pill"><i className="mf-launch-spinner" aria-hidden="true" />正在生成双人合盘报告</p>
-          <p className="mf-dual-status-note">{PHASES[phase]}</p>
-          <p className="mf-dual-status-note is-soft">报告会在后台继续生成，完成后可在浏览记录中查看。你可以放心离开这个页面。</p>
-        </>
-      )}
+      <p className="mf-dual-status-note">{PHASES[phase]}</p>
     </div>
   );
 }
