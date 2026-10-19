@@ -38,5 +38,5 @@ const banner = `// 明星列表全量快照:Supabase 免费层网关限流导致
 // 由 scripts/gen-star-snapshot.mjs 从 celebrity_profiles(published=true) 导出;名单/头像变更后重跑刷新。
 // AUTO-GENERATED — do not edit by hand.
 `;
-writeFileSync("app/myfate-star-snapshot.ts", banner + 'import type { StarListItem } from "../myfate-stars-server";\n\n' + "export const STAR_SNAPSHOT: StarListItem[] = " + JSON.stringify(items, null, 2) + ";\n");
+writeFileSync("app/myfate-star-snapshot.ts", banner + 'import type { StarListItem } from "./myfate-stars-server";\n\n' + "export const STAR_SNAPSHOT: StarListItem[] = " + JSON.stringify(items, null, 2) + ";\n");
 console.log(`snapshot written: ${items.length} people`);

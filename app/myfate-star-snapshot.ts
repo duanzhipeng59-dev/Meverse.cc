@@ -1,7 +1,7 @@
 // 明星列表全量快照:Supabase 免费层网关限流导致查询偶发超时时,静态兜底显示完整列表而非空/残缺名单。
 // 由 scripts/gen-star-snapshot.mjs 从 celebrity_profiles(published=true) 导出;名单/头像变更后重跑刷新。
 // AUTO-GENERATED — do not edit by hand.
-import type { StarListItem } from "../myfate-stars-server";
+import type { StarListItem } from "./myfate-stars-server";
 
 export const STAR_SNAPSHOT: StarListItem[] = [
   {
