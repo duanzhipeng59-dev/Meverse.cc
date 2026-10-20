@@ -610,3 +610,76 @@
 
 /* 深色:首页头部按钮统一线框样式(透明底+酒红描边+主站色字) */
 .mf-home-header-cta { color: var(--bz-red-bright); background: transparent; border: 1px solid rgb(198 75 115 / 45%); box-shadow: none; }
+
+/* ===== 首页品牌色：与 MeVerse 蓝紫粉 Logo 对齐 ===== */
+.mf-page {
+  --mv-blue: #9d9cff;
+  --mv-purple: #c3a0f4;
+  --mv-pink: #efa7d4;
+  --mv-gradient: linear-gradient(110deg, var(--mv-blue) 0%, var(--mv-purple) 48%, var(--mv-pink) 100%);
+  background:
+    radial-gradient(circle at 86% 5%, rgb(157 156 255 / 8%), transparent 26rem),
+    radial-gradient(circle at 12% 42%, rgb(239 167 212 / 5%), transparent 28rem),
+    #0a080c;
+}
+
+.mf-home-header-cta,
+.mf-header-cta {
+  border-color: rgb(177 161 246 / 52%);
+  color: #e8b0db;
+}
+
+.mf-home-header-cta:hover,
+.mf-header-cta:hover {
+  border-color: var(--mv-purple);
+  color: #f3c1e2;
+  background: rgb(195 160 244 / 8%);
+}
+
+.mf-home-eyebrow {
+  border-color: rgb(195 160 244 / 34%);
+  color: #ddb0ef;
+  background: rgb(157 156 255 / 9%);
+}
+
+.mf-home-eyebrow span { color: #efa7d4; }
+
+.mf-home-hero {
+  background:
+    radial-gradient(circle at 82% 22%, rgb(157 156 255 / 17%), transparent 24rem),
+    radial-gradient(circle at 8% 94%, rgb(239 167 212 / 10%), transparent 26rem),
+    linear-gradient(135deg, #17121b, #100c11);
+}
+
+.mf-home-hero::after { background: rgb(195 160 244 / 13%); }
+
+.mf-home-hero h1 em {
+  color: #dcb0ef;
+  background: var(--mv-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mf-home-cta {
+  background: var(--mv-gradient);
+  color: #130e16;
+  box-shadow: 0 10px 28px rgb(157 156 255 / 25%);
+}
+
+.mf-home-hero .mf-home-fate-map {
+  border-color: rgb(195 160 244 / 18%);
+  background:
+    radial-gradient(circle at 50% 54%, rgb(247 243 255 / 94%) 0 11%, rgb(157 156 255 / 24%) 11.5% 28%, transparent 45%),
+    conic-gradient(from 18deg, rgb(157 156 255 / 13%), transparent 16%, rgb(239 167 212 / 11%) 30%, transparent 45%, rgb(195 160 244 / 11%) 64%, transparent 80%),
+    rgb(27 21 29 / 90%);
+}
+
+.mf-home-map-ring { border-color: rgb(195 160 244 / 17%); }
+.mf-home-map-ring.near { border-color: rgb(157 156 255 / 30%); }
+.mf-how article > span { color: #dba9ed; }
+
+.mf-home-header a:focus-visible,
+.mf-home-hero a:focus-visible {
+  outline-color: rgb(157 156 255 / 65%);
+}

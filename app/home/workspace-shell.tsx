@@ -84,7 +84,9 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   return (
     <div className={isDetail ? "mf-workspace-shell is-detail" : "mf-workspace-shell"}>
       <header className="mf-workspace-mobile-bar">
-        <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页">Myfate</Link>
+        <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页">
+          <span className="mf-meverse-logo" role="img" aria-label="MeVerse" />
+        </Link>
         <Link
           className={pathname === "/home/profile" ? "mf-mobile-profile-btn is-active" : "mf-mobile-profile-btn"}
           href="/home/profile"
@@ -97,8 +99,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
 
       <aside className="mf-workspace-sidebar">
         <Link className="mf-workspace-brand" href="/" aria-label="返回 Myfate 首页">
-          <span className="mf-brand-mark">M</span>
-          <span>Myfate</span>
+          <span className="mf-meverse-logo" role="img" aria-label="MeVerse" />
         </Link>
 
         <div className="mf-workspace-label">探索</div>

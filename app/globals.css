@@ -11,19 +11,19 @@
      移动端规范 V1.0 对齐:玫红只承担 选中态/主按钮/重点信息 三职责;
      页面背景 #100C10 / 卡片 #1D171D / 次级卡片 #251D25 / 分割线 #332A32。
      正文统一无衬线(见 --font-sans),衬线仅品牌 Logo/大标题。 */
-  --bz-red: #d45583;
-  --bz-red-deep: #a83a5e;
-  --bz-red-bright: #e36b98;
-  --bz-paper: #110d12;
-  --bz-paper-warm: #151014;
-  --bz-card: #211a22;
-  --bz-card-raised: #251d25;
-  --bz-selected: #3a1c29;
-  --bz-line: #392e39;
-  --bz-line-strong: rgba(255, 235, 242, 0.20);
-  --bz-ink: #f6f1f4;
-  --bz-muted: #b5a9b2;
-  --bz-faint: #807680;
+  --bz-red: #a99cff;
+  --bz-red-deep: #7567d2;
+  --bz-red-bright: #e8a9d8;
+  --bz-paper: #0e0c12;
+  --bz-paper-warm: #131018;
+  --bz-card: #1d1924;
+  --bz-card-raised: #24202d;
+  --bz-selected: #302641;
+  --bz-line: #393246;
+  --bz-line-strong: rgba(211, 195, 255, 0.22);
+  --bz-ink: #f7f3fa;
+  --bz-muted: #b8afc2;
+  --bz-faint: #837a8f;
   --bz-gold: #d2a35c;
   --bz-green: #78b995;
   --bz-error: #e06d7c;
@@ -33,12 +33,12 @@
   --blue: #3189ef;
   --blue-dark: #1f75da;
   --blue-soft: #1a1c22;
-  --text: #f7f0f2;
-  --muted: #bdaeb4;
-  --line: rgba(255, 235, 242, 0.10);
-  --soft: #151014;
-  --surface: #1c151a;
-  --surface-subtle: #151014;
+  --text: #f7f3fa;
+  --muted: #b8afc2;
+  --line: rgba(211, 195, 255, 0.11);
+  --soft: #131018;
+  --surface: #1b1722;
+  --surface-subtle: #131018;
   color-scheme: dark;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -61,7 +61,7 @@ html,
 body {
   min-height: 100%;
   margin: 0;
-  background: #0f0b0e;
+  background: #0d0b11;
   color: var(--text);
   font-family:
     Ubuntu, Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -89,7 +89,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid rgb(49 137 239 / 28%);
+  outline: 3px solid rgb(169 156 255 / 34%);
   outline-offset: 3px;
 }
 
@@ -4051,6 +4051,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 
 .mf-home-header .mf-brand { color: var(--mf-muted); font-weight: 700; }
+.mf-brand img { display: block; height: 17px; width: auto; opacity: .92; }
+.mf-home-header .mf-brand img { margin-left: 8px; }
 
 
 .mf-home-header .mf-brand-mark { width: 34px; height: 34px; }

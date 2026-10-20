@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { dayMasterOf, type StarListItem } from "../../myfate-stars-server";
+import type { StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
 import { Tag, EmptyState, SkeletonList } from "../../components/ui";
 
@@ -20,6 +20,24 @@ type SortKey = (typeof SORTS)[number]["key"];
 
 // 热门 tab 的高知名度组合池(角色前缀命中即入池;新团不入,保证置顶的都是大牌)
 const POPULAR_GROUPS = ["BTS", "SEVENTEEN", "TOMORROW X TOGETHER", "Stray Kids", "2PM", "H.O.T.", "BIGBANG", "WINNER", "iKON", "BLACKPINK"];
+
+// 保持浏览器组件只依赖纯前端代码，避免把 Supabase/Node async_hooks 打进客户端。
+const GAN_ELEMENT: Record<string, string> = { 甲: "木", 乙: "木", 丙: "火", 丁: "火", 戊: "土", 己: "土", 庚: "金", 辛: "金", 壬: "水", 癸: "水" };
+function dayMasterOf(threePillars?: string): string {
+  const last = (threePillars ?? "").split("·").map((part) => part.trim()).filter(Boolean).pop() ?? "";
+  const stem = last[0];
+  return stem && GAN_ELEMENT[stem] ? stem + GAN_ELEMENT[stem] : "";
+}
+
+// 热门人物需要固定但分散的顺序；不能在 SSR/浏览器首屏使用 Math.random()。
+function stableRank(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
 
 // "BTS 成员-金南俊" → 中文名"金南俊"
 function personName(role: string) {
@@ -67,24 +85,34 @@ function readPersisted(): PersistedState | null {
 
 // 人物发现页:排序标签 + 搜索icon(点击icon展开搜索框,取消收起) + 无限滚动,返回恢复全部浏览状态。
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarListItem[]; basePath?: string }) {
-  const [initial] = useState(readPersisted);
-
   const urlQuery = useSearchParams().get("q") ?? "";
-  const [sort, setSort] = useState<SortKey>(initial?.sort ?? "default");
-  const [query, setQuery] = useState(initial?.query || urlQuery);
-  const [searchOpen, setSearchOpen] = useState(Boolean(initial?.query || urlQuery));
+  const [initial, setInitial] = useState<PersistedState | null>(null);
+  const [sort, setSort] = useState<SortKey>("default");
+  const [query, setQuery] = useState(urlQuery);
+  const [searchOpen, setSearchOpen] = useState(Boolean(urlQuery));
   const [pages, setPages] = useState(1);
+  const restoringRef = useRef(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   // 返回标记:最近浏览的人物卡显示玫红描边(从预览页返回时,红框落在刚看过的那张卡上)
   const [lastVisitedId, setLastVisitedId] = useState<string | null>(null);
   useEffect(() => { setLastVisitedId(readRecentStars()[0] ?? null); }, []);
 
-  // 热门置顶池:高知名度偶像(首页精选或知名组合成员),每次进页随机洗牌取前 8 个置顶;
-  // 洗牌只依赖 stars,切 tab/搜索不重抽。
+  useEffect(() => {
+    const restored = readPersisted();
+    if (!restored) return;
+    restoringRef.current = true;
+    setInitial(restored);
+    setSort(restored.sort);
+    setQuery(restored.query || urlQuery);
+    setSearchOpen(Boolean(restored.query || urlQuery));
+    setPages(restored.pages);
+  }, [urlQuery]);
+
+  // 热门置顶池:高知名度偶像固定散列排序取前 8 个，确保 SSR 与客户端首屏完全一致。
   const popularTop = useMemo(() => {
     const pool = stars.filter((star) => star.homepageFeatured
       || POPULAR_GROUPS.some((group) => star.role.toLowerCase().includes(group.toLowerCase())));
-    return [...pool].sort(() => Math.random() - 0.5).slice(0, 8);
+    return [...pool].sort((a, b) => stableRank(a.id) - stableRank(b.id)).slice(0, 8);
   }, [stars]);
 
   const filtered = useMemo(() => {
@@ -120,6 +148,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const skipFirst = useRef(true);
   const prevSort = useRef(sort);
   useEffect(() => {
+    if (restoringRef.current) { restoringRef.current = false; return; }
     if (skipFirst.current) { skipFirst.current = false; prevSort.current = sort; return; }
     setPages(1);
     if (prevSort.current !== sort) {
@@ -176,14 +205,9 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     return () => { history.scrollRestoration = prev; };
   }, []);
   useLayoutEffect(() => {
-    if (initial?.pages && initial.pages > 1) setPages(initial.pages);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  useLayoutEffect(() => {
     if (!initial?.scrollY) return;
     window.scrollTo({ top: initial.scrollY, behavior: "instant" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages]);
+  }, [initial, pages]);
 
   // 恢复·校准:rAF 首次落位后,若偏差超过 4px,每 120ms 校准一次,最多两次;不做无限定时循环
   useEffect(() => {
@@ -205,7 +229,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     });
     return () => { cancelAnimationFrame(frame); window.clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initial]);
 
   // 无限滚动:sentinel 距视口底部 400px 时加载下一批;触发即断开,由 pages 变化重建,单次只加一页
   const loadMore = useCallback(() => { setPages((p) => p + 1); }, []);

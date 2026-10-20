@@ -202,7 +202,7 @@ test("unified Myfate branding and bucket-only portraits", async () => {
   assert.match(css, /prefers-reduced-motion/);
   assert.match(packageJson, /"name": "myfate"/);
   // 头像素材只存在于 Supabase bucket:public/ 下不允许再出现本地头像文件(logo/OG 分享图除外)
-  const STATIC_IMAGE_ALLOWLIST = new Set(["myfate-stars.png", "og.png"]);
+  const STATIC_IMAGE_ALLOWLIST = new Set(["myfate-stars.png", "og.png", "myfate-logo.png", "myfate-logo-mark.png"]);
   const publicDir = await readdir(new URL("../public/", import.meta.url));
   const leftoverPortraits = publicDir.filter((filename) => /\.(webp|png|jpe?g)$/i.test(filename) && !STATIC_IMAGE_ALLOWLIST.has(filename));
   assert.deepEqual(leftoverPortraits, [], `public/ 不应再有本地头像: ${leftoverPortraits.join(", ")}`);

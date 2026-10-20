@@ -165,7 +165,10 @@ export default function LocalLogin() {
 
       <section className="mf-login-card">
         <div className="mf-login-card-head">
-          <div className="mf-login-mark" aria-hidden="true"><span>✦</span></div>
+          <div className="mf-login-mark" aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/myfate-logo-mark.png?v=2" alt="" />
+          </div>
           <Link className="mf-login-back" href={returnHref}>
             <span aria-hidden="true">←</span>
             <span>返回</span>

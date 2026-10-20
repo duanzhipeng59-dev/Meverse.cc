@@ -206,3 +206,17 @@
 .mf-login-page::after { border-color: rgb(222 107 145 / 10%); box-shadow: 0 0 0 55px rgb(255 255 255 / 2%); }
 
 .mf-login-card { border-color: rgba(255, 235, 242, 0.14); background: rgb(28 21 26 / 92%); box-shadow: 0 30px 80px rgb(0 0 0 / 50%); }
+
+/* MeVerse 蓝紫粉品牌覆盖 */
+.mf-login-page {
+  background:
+    radial-gradient(circle at 76% 18%, rgb(157 156 255 / 18%), transparent 24rem),
+    radial-gradient(circle at 18% 82%, rgb(239 167 212 / 10%), transparent 26rem),
+    linear-gradient(145deg, #131018, #0d0b11);
+}
+.mf-login-page::before { border-color: rgb(195 160 244 / 16%); box-shadow: 0 0 0 70px rgb(255 255 255 / 2%), 0 0 0 140px rgb(157 156 255 / 4%); }
+.mf-login-page::after { border-color: rgb(239 167 212 / 12%); }
+.mf-login-card { border-color: rgb(195 160 244 / 17%); background: rgb(28 24 35 / 94%); }
+.mf-login-mark { background: linear-gradient(145deg, #9d9cff, #efa7d4); box-shadow: 0 13px 30px rgb(157 156 255 / 24%); }
+.mf-login-form input:focus { border-color: #a99cff; background: #17131d; box-shadow: 0 0 0 4px rgb(169 156 255 / 16%); }
+.mf-login-submit { color: #16101a !important; background: linear-gradient(110deg, #9d9cff, #c3a0f4 48%, #efa7d4) !important; box-shadow: 0 14px 30px rgb(157 156 255 / 22%); }

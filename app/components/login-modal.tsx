@@ -148,7 +148,10 @@ export default function LoginModal({ className, children, open: openProp, onOpen
           <div className="mf-login-modal-mask" aria-hidden="true" onClick={() => setOpen(false)} />
           <section className="mf-login-card mf-login-modal-card">
             <div className="mf-login-card-head">
-              <div className="mf-login-mark" aria-hidden="true"><span>✦</span></div>
+              <div className="mf-login-mark" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/myfate-logo-mark.png?v=2" alt="" />
+            </div>
               <button type="button" className="mf-login-back" onClick={() => setOpen(false)}>
                 <span aria-hidden="true">←</span>
                 <span>关闭</span>

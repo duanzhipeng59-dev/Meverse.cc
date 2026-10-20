@@ -21,7 +21,10 @@ export default async function MyfateHome() {
   return (
     <div className="mf-page">
       <header className="mf-header mf-home-header">
-        <Link className="mf-brand" href="/" aria-label="Myfate 首页">Myfate</Link>
+        <Link className="mf-brand" href="/" aria-label="Myfate 首页">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/myfate-logo.png?v=2" alt="Myfate" />
+        </Link>
         <nav className="mf-nav" aria-label="主导航">
           <Link href="/#stars">解读对象</Link>
           <a href="#how-it-works">解读说明</a>
