@@ -3183,7 +3183,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   width: 76px;
   aspect-ratio: 4.85 / 1;
   flex: none;
-  background: url("/meverse-logo.png") center / 100% auto no-repeat;
+  background: url("/meverse-logo.png") center / 138% 268% no-repeat;
   mix-blend-mode: screen;
 }
 
