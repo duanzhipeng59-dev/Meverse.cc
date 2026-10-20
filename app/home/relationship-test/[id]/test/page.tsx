@@ -162,7 +162,7 @@ const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : `/h
         <div className="mf-zr-overview">
           <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={staticPillars} heroBadges={staticBadges} />
         </div>
-        <StaticReadingReport content={staticParsed.data} />
+        <StaticReadingReport content={staticParsed.data} showAdvice={false} />
         <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>
         <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、刑冲合害)对静态命局做文化解读，不构成科学预测</p>
       </div>
