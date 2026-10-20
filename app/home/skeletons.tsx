@@ -71,3 +71,19 @@ export function DetailSkeleton() {
     </WorkspaceFrame>
   );
 }
+
+
+export function StarReportSkeleton() {
+  return (
+    <div className="mf-zr mf-star-route-skeleton" aria-busy="true" aria-label="正在加载明星报告">
+      <div className="mf-skel-topbar" aria-hidden="true">
+        <SkeletonBlock className="mf-skel-backarrow" />
+        <SkeletonBlock className="mf-skel-backid" />
+      </div>
+      <SkeletonBlock className="mf-skeleton-hero" />
+      {Array.from({ length: 4 }).map((_, index) => (
+        <SkeletonBlock key={index} className="mf-skeleton-card is-row" />
+      ))}
+    </div>
+  );
+}
