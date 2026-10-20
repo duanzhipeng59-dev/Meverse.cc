@@ -12,7 +12,7 @@ const ORDER: Array<{ key: keyof StaticReading["sections"]; no: string }> = [
 ];
 
 // 八章静态命局解读:summary + insights + advice,依据与第九章证据目录自 v2 起不再展示。
-export default function StaticReadingReport({ content }: { content: StaticReading }) {
+export default function StaticReadingReport({ content, showAdvice = true }: { content: StaticReading; showAdvice?: boolean }) {
   return (
     <>
       {ORDER.map(({ key, no }) => {
@@ -28,7 +28,7 @@ export default function StaticReadingReport({ content }: { content: StaticReadin
                 </div>
               ))}
             </div>
-            <ul className="mf-rr-advice">{section.advice.map((item, index) => <li key={index}>{item}</li>)}</ul>
+            {showAdvice ? <ul className="mf-rr-advice">{section.advice.map((item, index) => <li key={index}>{item}</li>)}</ul> : null}
           </section>
         );
       })}
