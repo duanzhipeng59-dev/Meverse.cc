@@ -3740,7 +3740,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .mf-workspace-nav-item.active .mf-workspace-nav-icon { color: #fff; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); box-shadow: none; }
 
-.mf-workspace-account a.active { color: var(--bz-red); background: rgb(198 75 115 / 12%); }
+.mf-workspace-account a.active { color: var(--bz-red-bright); background: linear-gradient(115deg, rgb(157 156 255 / 17%), rgb(239 167 212 / 12%)); }
 
 
 .mf-upgrade-tabs button.is-active { background: var(--bz-red); box-shadow: none; }
@@ -4237,7 +4237,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .mf-workspace-nav-item.active .mf-workspace-nav-icon { color: white; background: linear-gradient(145deg, #c64b73, #8e2f51); box-shadow: 0 7px 16px rgb(198 75 115 / 25%); }
 
-.mf-workspace-account a.active { color: #de6b91; background: rgba(198, 75, 115, .12); }
+.mf-workspace-account a.active { color: var(--bz-red-bright); background: linear-gradient(115deg, rgb(157 156 255 / 17%), rgb(239 167 212 / 12%)); }
 
 
 .mf-detail-cta { width: 100%; margin-top: 30px; min-height: 56px; }
@@ -4412,7 +4412,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 800px) {
 
 
-  .mf-mobile-profile-btn.is-active { border-color: var(--bz-red-bright, #DE6B91); }
+  .mf-mobile-profile-btn.is-active { border-color: rgb(239 167 212 / 55%); background: linear-gradient(115deg, rgb(157 156 255 / 17%), rgb(239 167 212 / 12%)); }
 }
 @media (max-width: 800px) {
 
