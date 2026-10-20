@@ -2688,7 +2688,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 }
 @media (max-width: 800px) {
 
-  .mf-mobile-profile-btn { display: inline-flex; align-items: center; height: 32.5px; padding: 0 12.5px; margin-left: auto; border-radius: 999px; border: 1px solid rgb(198 75 115 / 45%); background: transparent; color: var(--bz-red-bright, #DE6B91); text-decoration: none; font-size: 12.5px; font-weight: 600; }
+  .mf-mobile-profile-btn { display: inline-flex; align-items: center; height: 32.5px; padding: 0 12.5px; margin-left: auto; border-radius: 999px; border: 1px solid rgb(195 160 244 / 38%); background: rgb(169 156 255 / 8%); color: var(--bz-red-bright, #DE6B91); text-decoration: none; font-size: 12.5px; font-weight: 600; }
 }
 
 /* 历史合盘横条删除:右端垃圾桶图标入口(低调,按下才显红);点击后整行切换为红色确认条 */
@@ -3183,7 +3183,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   width: 76px;
   aspect-ratio: 4.85 / 1;
   flex: none;
-  background: url("/meverse-logo.png") 50.7% 47.7% / 169% 328% no-repeat;
+  background: url("/meverse-logo.png") center / 100% auto no-repeat;
   mix-blend-mode: screen;
 }
 
