@@ -2097,7 +2097,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-secondary-button { color: var(--mf-ink); background: transparent; border: 1px solid var(--mf-line); }
 
-/* Myfate workspace */
+/* MeVerse workspace */
 .mf-workspace-shell { min-height: 100vh; display: grid; grid-template-columns: 272px minmax(0, 1fr); color: var(--mf-ink); background: var(--bz-paper); font-family: var(--font-sans); }
 
 .mf-workspace-mobile-bar, .mf-mobile-menu-dialog { display: none; }
@@ -3171,7 +3171,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   .mf-reading-dialog { padding: 16px 16px calc(18px + env(safe-area-inset-bottom)) !important; }
 }
 
-/* 品牌 logo(横版:星+手写体 Myfate)替换文字标 */
+/* 品牌 logo（横版 MeVerse）替换文字标 */
 .mf-workspace-brand img { display: block; height: 16px; width: auto; }
 .mf-workspace-sidebar .mf-workspace-brand img { height: 18px; }
 .mf-brand img { display: block; height: 17px; width: auto; }

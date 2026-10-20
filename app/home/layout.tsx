@@ -7,7 +7,7 @@ import { AuthProvider } from "../auth-context";
 
 export const metadata: Metadata = {
   title: "生辰画像",
-  description: "Myfate 明星合盘与个人解读工作台",
+  description: "MeVerse 明星合盘与个人解读工作台",
 };
 
 export default async function HomeLayout({ children }: { children: ReactNode }) {

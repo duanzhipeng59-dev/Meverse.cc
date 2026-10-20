@@ -25,7 +25,7 @@ export default function ReportTopbar({ fromReports = false, backHref, backLabel 
           ) : null
         )}
       </Link>
-      {showShare ? <SimpleShareButton title={shareTitle ?? title ?? "Myfate 报告"} /> : null}
+      {showShare ? <SimpleShareButton title={shareTitle ?? title ?? "MeVerse 报告"} /> : null}
     </div>
   );
 }

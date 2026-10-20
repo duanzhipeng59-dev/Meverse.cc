@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     if (error) throw error;
     return Response.json({ reports: ((data ?? []) as ReportRow[]).map(mapReportRow) }, { headers: session.headers });
   } catch (error) {
-    console.error("Failed to read Myfate reports", error);
+    console.error("Failed to read MeVerse reports", error);
     return Response.json({ error: "reports_unavailable", reports: [] }, { status: 503 });
   }
 }
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     if (error) throw error;
     return Response.json({ report: mapReportRow(data as ReportRow) }, { status: 201, headers: session.headers });
   } catch (error) {
-    console.error("Failed to create Myfate report", error);
+    console.error("Failed to create MeVerse report", error);
     return Response.json({ error: "report_create_failed" }, { status: 503 });
   }
 }

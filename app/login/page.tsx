@@ -6,7 +6,7 @@ import { AuthProvider } from "../auth-context";
 
 export const metadata: Metadata = {
   title: "登录",
-  description: "使用邮箱验证码登录 Myfate。",
+  description: "使用邮箱验证码登录 MeVerse。",
 };
 
 export default function LoginPage() {

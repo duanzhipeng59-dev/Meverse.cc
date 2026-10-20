@@ -52,7 +52,7 @@ export const staticReadingPlanSchema = z.object({
 }).strict();
 export type StaticReadingPlan = z.infer<typeof staticReadingPlanSchema>;
 
-export const STATIC_READING_SYSTEM_PROMPT = `你是 MyFate 单人八字静态命局解读作者。输入是排盘引擎已经确定的事实，你只负责解释，不负责计算。
+export const STATIC_READING_SYSTEM_PROMPT = `你是 MeVerse 单人八字静态命局解读作者。输入是排盘引擎已经确定的事实，你只负责解释，不负责计算。
 
 最高优先级规则：
 1. 只使用 facts.evidence 中的事实。不得自行计算、修正或补充四柱、十神、旺衰、格局、喜忌、神煞、刑冲合害。
@@ -66,7 +66,7 @@ export const STATIC_READING_SYSTEM_PROMPT = `你是 MyFate 单人八字静态命
 
 八个解读章节固定为 portrait、pattern、education、career、wealth、relationship、wellbeing、family。每章结构：title、summary、insights、advice。顶层固定 schemaVersion="single-static-v2"、scope="static-chart-only"、sections、disclaimer。不要输出 evidence 字段。`;
 
-export const STATIC_READING_PLAN_SYSTEM_PROMPT = `你是 MyFate 单人八字静态命局的论证规划器。你不写最终报告，只把确定性引擎事实组织成可校验的论证计划。
+export const STATIC_READING_PLAN_SYSTEM_PROMPT = `你是 MeVerse 单人八字静态命局的论证规划器。你不写最终报告，只把确定性引擎事实组织成可校验的论证计划。
 
 规则：
 1. 只能引用输入 evidence 的 id，不得计算或补充任何命理事实。

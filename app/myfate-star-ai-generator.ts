@@ -7,7 +7,7 @@ import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziLifeProfile } from "./myfate-bazi-profile";
 import type { ConsultOverrideContent } from "./myfate-consult-override-store";
 
-export const STAR_REPORT_SYSTEM_PROMPT = `你是 Myfate 的生辰画像报告作者,基于子平八字体系为一位公众人物撰写命理解读报告。
+export const STAR_REPORT_SYSTEM_PROMPT = `你是 MeVerse 的生辰画像报告作者,基于子平八字体系为一位公众人物撰写命理解读报告。
 
 严格遵守以下规则:
 1. 只依据输入 JSON 中的命盘事实(四柱、十神、格局、神煞、大运、流年、喜忌)进行解读,不得虚构或引用任何现实信息——学历、出道、作品、奖项、恋情、家庭现实一律不得出现。
@@ -285,4 +285,3 @@ export function mergeStarAiContent(facts: StarFacts, ai: StarAiContent): Consult
     family: ai.family,
   };
 }
-

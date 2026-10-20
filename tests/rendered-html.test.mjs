@@ -20,11 +20,11 @@ async function render(pathname = "/", init = {}) {
   );
 }
 
-test("server-renders the Myfate landing page with a workspace entry", async () => {
+test("server-renders the MeVerse landing page with a workspace entry", async () => {
   const response = await render("/");
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /Myfate/);
+  assert.match(html, /MeVerse/);
   assert.match(html, /AI 生辰画像/u);
   assert.match(html, /立即探索/u);
   assert.match(html, /\/home\/relationship-test/u);
@@ -183,7 +183,7 @@ test("requires login before generating a free-form report", async () => {
   assert.equal(result.error, "LOGIN_REQUIRED");
 });
 
-test("unified Myfate branding and bucket-only portraits", async () => {
+test("unified MeVerse branding and bucket-only portraits", async () => {
   // 品牌样式已拆分到 globals.css 与 public/route-css/*,断言在合并结果上进行
   const [layout, packageJson] = await Promise.all([
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
@@ -197,12 +197,12 @@ test("unified Myfate branding and bucket-only portraits", async () => {
     "../public/route-css/account.css",
   ];
   const css = (await Promise.all(cssFiles.map((file) => readFile(new URL(file, import.meta.url), "utf8")))).join("\n");
-  assert.match(layout, /Myfate/);
+  assert.match(layout, /MeVerse/);
   assert.match(css, /var\(--portrait-image\)/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(packageJson, /"name": "myfate"/);
   // 头像素材只存在于 Supabase bucket:public/ 下不允许再出现本地头像文件(logo/OG 分享图除外)
-  const STATIC_IMAGE_ALLOWLIST = new Set(["myfate-stars.png", "og.png", "myfate-logo.png", "myfate-logo-mark.png"]);
+  const STATIC_IMAGE_ALLOWLIST = new Set(["myfate-stars.png", "og.png", "myfate-logo.png", "myfate-logo-mark.png", "meverse-logo.png"]);
   const publicDir = await readdir(new URL("../public/", import.meta.url));
   const leftoverPortraits = publicDir.filter((filename) => /\.(webp|png|jpe?g)$/i.test(filename) && !STATIC_IMAGE_ALLOWLIST.has(filename));
   assert.deepEqual(leftoverPortraits, [], `public/ 不应再有本地头像: ${leftoverPortraits.join(", ")}`);

@@ -157,7 +157,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                 <span>关闭</span>
               </button>
             </div>
-            <span className="mf-login-kicker">WELCOME TO MYFATE</span>
+            <span className="mf-login-kicker">WELCOME TO MEVERSE</span>
             <h1>登录后，继续探索</h1>
             <p>使用邮箱验证码登录。首次使用的邮箱会自动创建账号。</p>
 

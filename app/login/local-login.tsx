@@ -158,9 +158,9 @@ export default function LocalLogin() {
 
   return (
     <main className="mf-login-page">
-      <Link className="mf-login-brand mf-brand" href="/" aria-label="返回 Myfate 首页">
+      <Link className="mf-login-brand mf-brand" href="/" aria-label="返回 MeVerse 首页">
         <span className="mf-brand-mark">M</span>
-        <span>Myfate</span>
+        <span>MeVerse</span>
       </Link>
 
       <section className="mf-login-card">
@@ -174,7 +174,7 @@ export default function LocalLogin() {
             <span>返回</span>
           </Link>
         </div>
-        <span className="mf-login-kicker">WELCOME TO MYFATE</span>
+        <span className="mf-login-kicker">WELCOME TO MEVERSE</span>
         <h1>登录后，继续探索</h1>
         <p>使用邮箱验证码登录。首次使用的邮箱会自动创建账号。</p>
 

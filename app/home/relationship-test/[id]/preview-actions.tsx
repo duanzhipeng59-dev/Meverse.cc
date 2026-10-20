@@ -46,7 +46,7 @@ export default function PreviewActions({ starId, nameEn }: { starId: string; nam
 
   const share = async () => {
     const url = typeof window === "undefined" ? "" : window.location.href;
-    const title = `${nameEn || "TA"} 的生辰画像 · Myfate`;
+    const title = `${nameEn || "TA"} 的生辰画像 · MeVerse`;
     try {
       if (navigator.share) await navigator.share({ title, url });
       else { await navigator.clipboard.writeText(url); toast("链接已复制", "good"); }

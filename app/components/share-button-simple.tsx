@@ -10,7 +10,7 @@ export default function SimpleShareButton({ title }: { title: string }) {
     const url = typeof window === "undefined" ? "" : window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title: `${title} · Myfate`, url });
+        await navigator.share({ title: `${title} · MeVerse`, url });
         return;
       }
       await navigator.clipboard.writeText(url);

@@ -112,7 +112,7 @@ export default function MyfateAdvancedReport({
       <section className="mf-model-report-paper">
         <header className="mf-model-report-cover">
           <div className="mf-model-report-cover-topline">
-            <span>MYFATE · RELATIONSHIP TYPE</span>
+            <span>MEVERSE · RELATIONSHIP TYPE</span>
             <small>{report.title}</small>
           </div>
           <div className="mf-model-report-visual">

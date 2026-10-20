@@ -10,7 +10,7 @@ import StaticReadingReport from "./static-reading-report";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "解读报告 · Myfate" };
+export const metadata: Metadata = { title: "解读报告 · MeVerse" };
 
 const DUAL_SECTIONS: Array<{ key: keyof DualReportContent["sections"]; no: string; title: string }> = [
   { key: "attraction", no: "02", title: "核心吸引来源" },

@@ -44,7 +44,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (!data) return Response.json({ error: "report_not_found" }, { status: 404 });
     return Response.json({ report: mapReportRow(data as ReportRow) }, { headers: session.headers });
   } catch (error) {
-    console.error("Failed to update Myfate report", error);
+    console.error("Failed to update MeVerse report", error);
     return Response.json({ error: "report_update_failed" }, { status: 503 });
   }
 }
@@ -64,7 +64,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     if (!data) return Response.json({ error: "report_not_found" }, { status: 404 });
     return new Response(null, { status: 204, headers: session.headers });
   } catch (error) {
-    console.error("Failed to delete Myfate report", error);
+    console.error("Failed to delete MeVerse report", error);
     return Response.json({ error: "report_delete_failed" }, { status: 503 });
   }
 }

@@ -47,7 +47,7 @@ function conversationKey(starId: string, reportType: "bazi" | "astrology" | "dua
 function systemPrompt(starName: string, reportDigest: string, summary: string) {
   const summaryBlock = summary ? `\n【较早对话摘要】\n${summary}\n` : "";
   return [
-    `你是 Myfate 的资深解读师。用户刚刚看完明星「${starName}」的分析报告,现在基于这份报告向你追问。`,
+    `你是 MeVerse 的资深解读师。用户刚刚看完明星「${starName}」的分析报告,现在基于这份报告向你追问。`,
     "",
     "【当前报告全文——唯一事实依据】",
     reportDigest,

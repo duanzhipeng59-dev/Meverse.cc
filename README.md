@@ -1,6 +1,6 @@
-# Myfate
+# MeVerse
 
-Myfate 是一个明星关系情境测试 MVP。用户可以选择心动对象、完成题目，并获得由大模型根据本次选择写成的个性化文字报告。
+MeVerse 是一个明星关系情境测试 MVP。用户可以选择心动对象、完成题目，并获得由大模型根据本次选择写成的个性化文字报告。
 
 ## 当前 MVP
 
@@ -58,7 +58,7 @@ npm test
 
 ## 项目结构
 
-- `app/page.tsx`：Myfate 首页
+- `app/page.tsx`：MeVerse 首页
 - `app/celebrity/[id]`：人物详情
 - `app/test/[id]`：测试入口
 - `app/myfate-data.ts`：人物档案和通用测试题

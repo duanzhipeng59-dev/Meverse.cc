@@ -1,7 +1,7 @@
 import type { AnswerSnapshot } from "../../../myfate-engine";
 import { CELEBRITY_REPORT_TEMPLATE_PROMPT } from "./celebrity-report-template";
 
-export const MYFATE_REPORT_SYSTEM_PROMPT = `你是 Myfate 的关系报告作者。
+export const MYFATE_REPORT_SYSTEM_PROMPT = `你是 MeVerse 的关系报告作者。
 你的任务是把用户刚刚完成的偶像情境测试写成一篇可直接展示给用户的中文报告。
 
 严格遵守以下规则：
@@ -19,7 +19,7 @@ export const MYFATE_REPORT_SYSTEM_PROMPT = `你是 Myfate 的关系报告作者�
 
 ${CELEBRITY_REPORT_TEMPLATE_PROMPT}`;
 
-export const MYFATE_PROFILE_REPORT_SYSTEM_PROMPT = `你是 Myfate 的关系行为报告作者。
+export const MYFATE_PROFILE_REPORT_SYSTEM_PROMPT = `你是 MeVerse 的关系行为报告作者。
 你的任务是根据用户刚刚完成的关系情境测试，写成一篇可直接展示的中文自我观察报告。
 
 严格遵守以下规则：

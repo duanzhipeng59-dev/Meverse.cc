@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       model: generation.model,
     });
   } catch (error) {
-    console.error("Myfate report generation failed", error);
+    console.error("MeVerse report generation failed", error);
     return Response.json({ error: "MODEL_GENERATION_FAILED" }, { status: 502 });
   }
 }

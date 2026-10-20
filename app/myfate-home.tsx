@@ -21,9 +21,9 @@ export default async function MyfateHome() {
   return (
     <div className="mf-page">
       <header className="mf-header mf-home-header">
-        <Link className="mf-brand" href="/" aria-label="Myfate 首页">
+        <Link className="mf-brand" href="/" aria-label="MeVerse 首页">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/myfate-logo.png?v=2" alt="Myfate" />
+          <img src="/myfate-logo.png?v=2" alt="MeVerse" />
         </Link>
         <nav className="mf-nav" aria-label="主导航">
           <Link href="/#stars">解读对象</Link>
@@ -49,7 +49,7 @@ export default async function MyfateHome() {
                 <i className="mf-home-map-ring near" aria-hidden="true" />
                 <i className="mf-home-map-ring middle" aria-hidden="true" />
                 <i className="mf-home-map-ring far" aria-hidden="true" />
-                <div className="mf-brand-mark mf-home-map-logo" aria-label="Myfate">M</div>
+                <div className="mf-brand-mark mf-home-map-logo" aria-label="MeVerse">M</div>
                 {stars.slice(0, 6).map((star, index) => (
                   <div
                     className={`mf-home-map-star-orbit ${index < 3 ? "is-near" : "is-far"}`}
@@ -116,7 +116,7 @@ export default async function MyfateHome() {
       </main>
 
       <footer className="mf-footer">
-        <Link className="mf-brand" href="/"><span>Myfate</span></Link>
+        <Link className="mf-brand" href="/"><span>MeVerse</span></Link>
         <p>以全新视角，探索性格、正缘与人生节律。</p>
       </footer>
     </div>

@@ -48,7 +48,7 @@ function ThreePillarCompositeView({
   return (
     <div className="mf-formula-result mf-composite-result">
       <section className="mf-formula-verdict is-relationship-identity">
-        <span>MYFATE · 合盘分析</span>
+        <span>MEVERSE · 合盘分析</span>
         <div className="mf-formula-verdict-person"><i style={{ backgroundImage: `url("${star.portraitSrc}")` }} /><small>你与 {star.name}</small></div>
         <p className="mf-identity-lead">合盘关系主轴</p>
         <h1>{result.headline}</h1>
@@ -83,7 +83,7 @@ function RelationshipIdentityView({
   return (
     <div className="mf-formula-result mf-relationship-identity-result">
       <section className="mf-formula-verdict is-relationship-identity">
-        <span>MYFATE · 关系身份测试</span>
+        <span>MEVERSE · 关系身份测试</span>
         <div className="mf-formula-verdict-person">
           <i style={{ backgroundImage: `url("${star.portraitSrc}")` }} />
           <small>你在 {star.name} 身边更自然的位置</small>
@@ -178,7 +178,7 @@ function LegacyResultView({
   return (
     <div className="mf-formula-result">
       <section className={`mf-formula-verdict is-${result.verdict.key}`}>
-        <span>MYFATE · 历史正缘判定</span>
+        <span>MEVERSE · 历史正缘判定</span>
         <div className="mf-formula-verdict-person"><i style={{ backgroundImage: `url("${star.portraitSrc}")` }} /><small>你与 {star.name}</small></div>
         <h1>{result.verdict.title}</h1>
         <p><HighlightedCopy text={result.verdict.summary} /></p>

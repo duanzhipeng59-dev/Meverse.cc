@@ -1,10 +1,13 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="myfate" x1="12" y1="8" x2="52" y2="57" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#B75976"/>
-      <stop offset="1" stop-color="#64233E"/>
+    <linearGradient id="meverse" x1="18" y1="14" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9D9CFF"/>
+      <stop offset="0.52" stop-color="#C3A0F4"/>
+      <stop offset="1" stop-color="#EFA7D4"/>
     </linearGradient>
   </defs>
-  <path d="M32 58C19.4 49.7 8 39.6 8 25.8 8 15.9 15.4 9 24 9c4.6 0 7.4 2.1 8 4.5C32.6 11.1 35.4 9 40 9c8.6 0 16 6.9 16 16.8C56 39.6 44.6 49.7 32 58Z" fill="url(#myfate)"/>
-  <path d="M20 38V22h4.8l7.2 8.3 7.2-8.3H44v16h-5V29.2l-7 7.6-7-7.6V38h-5Z" fill="white"/>
+  <rect x="3" y="3" width="58" height="58" rx="17" fill="#100D14"/>
+  <rect x="3.75" y="3.75" width="56.5" height="56.5" rx="16.25" stroke="url(#meverse)" stroke-opacity="0.42" stroke-width="1.5"/>
+  <path d="M14 44V20L24 31.5L34 20V44H28.5V29.5L24 34.7L19.5 29.5V44H14Z" fill="#F8F5FA"/>
+  <path d="M32 18H38.5L44.5 36.2L50.5 18H57L48 44H41L32 18Z" fill="url(#meverse)"/>
 </svg>

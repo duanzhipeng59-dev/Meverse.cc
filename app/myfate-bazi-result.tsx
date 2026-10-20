@@ -126,7 +126,7 @@ export default function MyfateBaziResult({ result, actions }: { result: BaziRead
     <div className="mf-bz-result">
       <header className="mf-bz-pagehead">
         <div>
-          <span>MYFATE · 个人八字解读</span>
+          <span>MEVERSE · 个人八字解读</span>
           <h1>命盘解读报告</h1>
           <p>{result.name ? `命主 ${result.name} · ` : ""}{result.gender === "male" ? "乾造" : "坤造"} · {chart.trueSolar.city} · 公历 {chart.trueSolar.birthTime} · 生成于 {new Date().toLocaleDateString("zh-CN")}</p>
         </div>

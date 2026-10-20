@@ -215,7 +215,7 @@ export default function ChatGPTSubscriptionWizard({
             {step === 5 && (
               <div className="wizard-page checkout-wizard-page">
                 <div className="checkout-summary">
-                  <span>Myfate</span>
+                  <span>MeVerse</span>
                   <small>支付金额</small>
                   <strong>${selectedTier.price} USD</strong>
                   <dl>
