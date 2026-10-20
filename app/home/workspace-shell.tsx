@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
 import LoginModal from "../components/login-modal";
 
@@ -73,6 +73,30 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { status, markSignedOut } = useAuth();
   const isDetail = pathname.split("/").filter(Boolean).length > 2;
+
+  // All workspace routes share document scrolling. Normal navigation starts at
+  // the top; browser history navigation restores the position of that route.
+  const previousPathRef = useRef<string | null>(null);
+  const historyNavigationRef = useRef(false);
+  const positionsRef = useRef<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    const markHistoryNavigation = () => { historyNavigationRef.current = true; };
+    window.addEventListener("popstate", markHistoryNavigation);
+    return () => window.removeEventListener("popstate", markHistoryNavigation);
+  }, []);
+
+  useEffect(() => {
+    const previousPath = previousPathRef.current;
+    if (previousPath === null) { previousPathRef.current = pathname; return; }
+    if (previousPath === pathname) return;
+    positionsRef.current.set(previousPath, window.scrollY);
+    const isHistoryNavigation = historyNavigationRef.current;
+    historyNavigationRef.current = false;
+    previousPathRef.current = pathname;
+    const target = isHistoryNavigation ? (positionsRef.current.get(pathname) ?? 0) : 0;
+    window.scrollTo({ top: target, left: 0, behavior: "auto" });
+  }, [pathname]);
   // /home 是所有页面的前缀,必须精确匹配;其余路由按前缀归属
   const isActive = (href: string) => (href === "/home" ? pathname === "/home" : pathname === href || pathname.startsWith(`${href}/`));
 
