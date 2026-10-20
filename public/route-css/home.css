@@ -288,26 +288,6 @@
 .mf-skeleton-button { width: 160px; height: 46px; border-radius: 999px; margin-top: 6px; }
 
 .mf-skeleton-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-
-/* 深层路由骨架必须匹配目标页自己的内容宽度,不能复用工作台 1180px 外壳。 */
-.mf-report-route-skeleton {
-  width: min(920px, calc(100% - 48px));
-  margin: 0 auto;
-  padding: 46px 0 70px;
-}
-
-.mf-report-route-skeleton .mf-workspace-skeleton { padding: 0; }
-
-.mf-star-route-skeleton { min-height: 100vh; }
-.mf-star-route-skeleton .mf-skeleton-hero { min-height: 180px; }
-
-@media (max-width: 800px) {
-  .mf-report-route-skeleton {
-    width: calc(100% - 32px);
-    padding: 20px 0 66px;
-  }
-}
-
 @media (max-width: 900px) {
  .mf-skeleton-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -3203,7 +3183,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   width: 76px;
   aspect-ratio: 4.85 / 1;
   flex: none;
-  background: url("/meverse-logo.png") center / 138% 268% no-repeat;
+  background: url("/meverse-logo.png") center / 148% 286% no-repeat;
   mix-blend-mode: screen;
 }
 
@@ -3320,4 +3300,24 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 @media (max-width: 800px) {
   .mf-workspace-mobile-bar .mf-meverse-logo { width: 65px; }
+}
+
+
+/* 深层路由骨架必须匹配目标页自己的内容宽度,不能复用工作台 1180px 外壳。 */
+.mf-report-route-skeleton {
+  width: min(920px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 46px 0 70px;
+}
+
+.mf-report-route-skeleton .mf-workspace-skeleton { padding: 0; }
+
+.mf-star-route-skeleton { min-height: 100vh; }
+.mf-star-route-skeleton .mf-skeleton-hero { min-height: 180px; }
+
+@media (max-width: 800px) {
+  .mf-report-route-skeleton {
+    width: calc(100% - 32px);
+    padding: 20px 0 66px;
+  }
 }
