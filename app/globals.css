@@ -3781,7 +3781,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-zr-ask-msg.user { justify-self: end; text-align: right; }
 
 
-.mf-zr-ask-msg.user p { background: linear-gradient(135deg, #c64b73, #8e2f51); color: #fff; border-bottom-right-radius: 4px; text-align: left; }
+.mf-zr-ask-msg.user p { background: linear-gradient(110deg, #9d9cff, #c3a0f4 48%, #efa7d4); color: #fff; border-bottom-right-radius: 4px; text-align: left; }
 
 
 .mf-hist-head .mf-kicker { color: var(--bz-red-bright); font-size: 11px; font-weight: 800; letter-spacing: 0.2em; }
@@ -3981,6 +3981,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 
 .mf-zr-ask-msg.user.is-greeting { text-align: left; }
+
+.mf-zr-ask-msg.user p {
+  background: linear-gradient(135deg, #5f56a4, #8f629c) !important;
+  color: #fff !important;
+}
 
 
 .mf-explore-tabs button.is-active { color: rgb(255 255 255 / 95%); }

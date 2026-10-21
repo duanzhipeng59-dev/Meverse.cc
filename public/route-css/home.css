@@ -711,6 +711,7 @@
 .mf-zr { display: flex; flex-direction: column; gap: 18px; padding: clamp(20px, 3vw, 32px); background: var(--bz-paper); border-radius: 0; color: var(--bz-ink); min-width: 0; --mf-rep-pad: clamp(16px, 3vw, 32px); }
 
 .mf-zr-topbar { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: calc(-1 * var(--mf-rep-pad)) calc(-1 * var(--mf-rep-pad)) 0; box-sizing: border-box; padding: 12px max(var(--mf-rep-pad), env(safe-area-inset-right)) 12px max(var(--mf-rep-pad), env(safe-area-inset-left)); background: var(--bz-paper); border-bottom: 1px solid rgb(255 255 255 / 5%); color: var(--bz-muted); font-size: 13px; letter-spacing: 1px; }
+.mf-zr > .mf-zr-topbar { position: sticky !important; top: 0 !important; align-self: stretch; }
 
 .mf-astro .mf-zr-topbar { background: #0d0b13; }
 
@@ -1972,6 +1973,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* ── 人物命盘概览:hero+曲线统一深色区(去独立卡片) ── */
 .mf-zr-overview { display: grid; gap: 0; padding: 0 0 6px; }
+.mf-zr-overview { padding: 0 18px 10px; border: 1px solid rgb(195 160 244 / 22%); border-radius: 18px; background: linear-gradient(145deg, rgb(157 156 255 / 8%), rgb(239 167 212 / 5%)), var(--bz-card); }
 
 .mf-zr-overview .mf-zr-hero { border: 0; border-radius: 0; background: none; padding: 22px 4px 14px; }
 
@@ -2776,6 +2778,36 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (min-width: 801px) {
   .mf-ui-sheet-panel { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, calc(100vw - 48px)); border-radius: 18px; animation: mf-ui-pop .18s ease; }
 }
+
+@media (max-width: 800px) {
+  .mf-mobile-tabbar {
+    height: calc(60px + env(safe-area-inset-bottom));
+  }
+
+  .mf-mobile-tabbar .mf-mobile-tab {
+    min-height: 60px;
+  }
+
+  .mf-explore {
+    padding-bottom: 12px;
+  }
+
+  .mf-explore-end {
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+}
+
+.mf-login-submit {
+  color: #fff;
+}
+
+@media (max-width: 800px) {
+  .mf-mobile-profile-btn.is-active {
+    border-color: #c3a0f4;
+    color: #efa7d4;
+  }
+}
 @keyframes mf-ui-up { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
 @keyframes mf-ui-pop { from { transform: translate(-50%, -46%) scale(.96); opacity: .4; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 @keyframes mf-ui-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -3004,6 +3036,13 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* ── 解读页:入口卡 + 填写弹窗 + 生成记录 ─────────────────────────── */
 .mf-reading-head { padding: 6px 2px 2px; }
+
+@media (min-width: 801px) {
+  /* 解读入口页与发现页保持相同的顶部节奏，减少工作区首屏空白。 */
+  .mf-workspace-content.mf-reading-page {
+    padding-top: 24px;
+  }
+}
 .mf-reading-head h1 { margin: 0; font-family: var(--font-serif-display); font-weight: 600; font-size: 16px; color: var(--bz-ink); letter-spacing: 0.02em; }
 .mf-reading-head p { margin: 7px 0 0; color: var(--bz-faint); font-size: 12px; letter-spacing: 0.04em; }
 
@@ -3012,6 +3051,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-reading-card { display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 18px 16px; border: 0; border-radius: 20px; cursor: pointer; text-align: left; font-family: inherit; }
 .mf-reading-card.is-single { background: linear-gradient(135deg, rgb(212 85 131 / 34%), rgb(112 36 67 / 22%)), var(--bz-card-raised); }
 .mf-reading-card.is-dual { background: linear-gradient(135deg, rgb(82 60 120 / 26%), rgb(30 22 40 / 20%)), var(--bz-card); }
+.mf-reading-card { border: 1px solid rgb(195 160 244 / 28%); box-shadow: 0 8px 24px rgb(10 7 18 / 18%); }
 .mf-reading-card-mark { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: rgb(255 235 242 / 8%); color: var(--bz-red-bright); font-size: 15px; font-style: normal; letter-spacing: 1px; }
 .mf-reading-card.is-dual .mf-reading-card-mark { font-size: 12px; }
 .mf-reading-card-copy { flex: 1; display: grid; gap: 5px; min-width: 0; }
@@ -3238,6 +3278,33 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   border-bottom-color: rgb(195 160 244 / 10%);
 }
 
+@media (min-width: 801px) {
+  .mf-explore {
+    padding-bottom: 24px;
+  }
+
+  .mf-explore-end {
+    margin-bottom: 0;
+  }
+
+  /* 吸顶筛选栏只占右侧工作区，不能通过负外边距压到左侧品牌区。 */
+  .mf-explore-ctrl {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    width: calc(100% + 2 * clamp(20px, 5vw, 56px) + 72px);
+    margin-left: calc(-1 * clamp(20px, 5vw, 56px) - 36px);
+    margin-right: calc(-1 * clamp(20px, 5vw, 56px) - 36px);
+    min-height: 46px;
+    padding: 12px clamp(20px, 5vw, 56px);
+    box-sizing: border-box;
+    background: rgb(15 11 14 / 94%);
+    border-bottom: 1px solid rgb(255 255 255 / 5%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+}
+
 .mf-explore-tabs button.is-active::after {
   background: linear-gradient(90deg, #9d9cff, #efa7d4);
 }
@@ -3283,6 +3350,97 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-login-code-field button {
   color: var(--bz-red-bright);
   background: rgb(169 156 255 / 10%);
+}
+
+/* Desktop login modal: keep the card, header and form controls stable at
+   narrow browser windows and under browser zoom. */
+.mf-login-modal-overlay {
+  padding: clamp(16px, 3vw, 32px);
+}
+
+.mf-login-modal-card {
+  width: min(540px, calc(100vw - 32px));
+  max-height: min(760px, calc(100dvh - 32px));
+  min-width: 0;
+}
+
+.mf-login-modal-card .mf-login-submit {
+  color: #fff !important;
+}
+
+/* 详情页返回栏与发现页筛选栏保持同一条工作区顶栏：吸顶、满右侧内容区宽度。 */
+@media (min-width: 801px) {
+  .mf-workspace-content:has(.mf-preview) {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    padding: 0 36px 44px;
+  }
+
+  .mf-workspace-content:has(.mf-preview) .mf-preview > .mf-zr-topbar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    width: calc(100% + 72px);
+    margin: -14px -36px 0;
+    padding: 12px 36px;
+    min-height: 46px;
+    background: rgb(15 11 14 / 94%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+}
+
+.mf-login-card-head {
+  min-width: 0;
+  gap: 16px;
+}
+
+.mf-login-mark {
+  width: 64px;
+  height: 64px;
+  flex-basis: 64px;
+  overflow: hidden;
+}
+
+.mf-login-mark img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+}
+
+.mf-login-back,
+.mf-login-code-field button {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.mf-login-back {
+  min-width: 76px;
+}
+
+.mf-login-form,
+.mf-login-form > label,
+.mf-login-code-field {
+  min-width: 0;
+}
+
+.mf-login-code-field input {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .mf-login-modal-card {
+    width: min(480px, calc(100vw - 32px));
+  }
+
+  .mf-login-mark {
+    width: 56px;
+    height: 56px;
+    flex-basis: 56px;
+  }
 }
 
 .mf-me-login {

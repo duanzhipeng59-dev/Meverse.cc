@@ -4,6 +4,7 @@
 // 背后是唤起页的模糊倒影)。登录成功后就地刷新登录态并留当前页;首页营销入口仍走 /login 页面链路。
 // 注意:卡片视觉复用登录页 mf-login-card 体系,样式在 home.css 内有一份副本,改版需两处同步。
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "../auth-context";
 import { EMAIL_CODE_LENGTH } from "../auth-code-config";
 import { ensureLocalUser, normalizeEmail } from "../local-auth";
@@ -143,14 +144,14 @@ export default function LoginModal({ className, children, open: openProp, onOpen
       {children !== undefined ? (
         <button type="button" className={className} onClick={() => setOpen(true)}>{children}</button>
       ) : null}
-      {open ? (
+      {open && typeof document !== "undefined" ? createPortal((
         <div className="mf-login-modal-overlay" role="dialog" aria-modal="true" aria-label="登录">
           <div className="mf-login-modal-mask" aria-hidden="true" onClick={() => setOpen(false)} />
           <section className="mf-login-card mf-login-modal-card">
             <div className="mf-login-card-head">
               <div className="mf-login-mark" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/myfate-logo-mark.png?v=2" alt="" />
+              <img src="/favicon.svg?v=8" alt="" />
             </div>
               <button type="button" className="mf-login-back" onClick={() => setOpen(false)}>
                 <span aria-hidden="true">←</span>
@@ -219,7 +220,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
             <small>验证码仅用于本次登录，10 分钟内有效，请勿转发给他人。</small>
           </section>
         </div>
-      ) : null}
+      ), document.body) : null}
     </>
   );
 }

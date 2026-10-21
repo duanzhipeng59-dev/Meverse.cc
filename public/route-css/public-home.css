@@ -683,3 +683,15 @@
 .mf-home-hero a:focus-visible {
   outline-color: rgb(157 156 255 / 65%);
 }
+
+@media (min-width: 801px) {
+  .mf-home-hero {
+    min-height: 580px;
+    padding-top: 52px;
+    padding-bottom: 52px;
+  }
+
+  .mf-home-hero .mf-hero-visual {
+    min-height: 440px;
+  }
+}

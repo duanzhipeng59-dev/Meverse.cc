@@ -42,7 +42,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
 
   return (
     <div className="mf-zr">
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={title} showShare shareTitle={subjectB ? `${title} 合盘报告` : `${title} 八字解读`} />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={title} />
 
       {report.status !== "ready" ? (
         report.status === "failed" ? null : <ReadingGenerating reportId={report.id} />
@@ -53,6 +53,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
           <>
             <StaticReadingReport content={parsed.data} />
             <div id="ask"><StarAskPanel starId={report.id} starName={subjectA.name} reportType="reading-single" suggestions={["我的格局在事业上怎么落地？", "我在合作中最需要注意什么？", "感情相处有什么建议？"]} /></div>
+            <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读，量化评分与财富区间为结构信号的估算表达，仅供娱乐与自我观察参考，不构成医疗、法律或投资建议。</p>
           </>
         );
       })() : (() => {
