@@ -37,7 +37,7 @@ test("server-renders relationship-test discovery inside the workspace", async ()
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /生辰画像/u);
-  assert.match(html, /合盘/u);
+  assert.match(html, /明星生辰画像合集/u); // 列表页独立 SEO 标题(旧断言的"合盘"来自布局级 description)
   assert.match(html, /个人中心/u);
   assert.match(html, /田柾国/u);
   assert.doesNotMatch(html, /关系情境|答题|计分/u);

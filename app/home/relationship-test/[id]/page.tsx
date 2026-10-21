@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
 import ReportDetailWorkspace from "../../reports/[id]/report-detail-workspace";
 import PreviewActions from "./preview-actions";
@@ -6,7 +7,7 @@ import ReportTopbar from "../../../report-topbar";
 import { getConsultOverride } from "../../../myfate-consult-override-store";
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth, dayMasterOf } from "../../../myfate-stars-server";
-import { portraitImage } from "../../../myfate-image";
+import { portraitImage, portraitOgImage } from "../../../myfate-image";
 import { Tag } from "../../../components/ui";
 import { pushRecentStar } from "../../celebrity-match/celebrity-browser";
 import StarVisitTracker from "./preview-visit";
@@ -22,6 +23,33 @@ function groupOf(role: string) {
 function personOf(role: string) {
   const dash = role.indexOf("-");
   return dash > 0 ? role.slice(dash + 1).trim() : role;
+}
+
+// 人物公开预览页的 SEO 信息:按实际档案生成 title/description/OG 图。
+// UUID 是私人报告(未登录 302 跳登录页),标记 noindex 双保险。
+// 查无此人时页面组件走 notFound():流式渲染下状态码仍是 200+404 内容(软 404,
+// 与改动前行为一致;根修需调整 loading.tsx 流式策略,涉及 UX 不在本次范围)。
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  if (UUID_PATTERN.test(id)) return { title: "生辰画像报告", robots: { index: false, follow: false } };
+
+  const star = await getPublishedStar(id);
+  if (!star) return { title: "生辰画像" };
+
+  const dayMaster = dayMasterOf(star.threePillars);
+  const title = `${star.name}${star.nameEn ? ` ${star.nameEn}` : ""}的生辰画像`;
+  const description = `${star.name}（${star.birthDate.replaceAll("-", ".")} 出生${dayMaster ? `，${dayMaster}日主` : ""}）的 AI 生辰画像：性格天赋、事业财富与感情运势解读。${star.description.slice(0, 50)}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/home/relationship-test/${id}` },
+    openGraph: {
+      title,
+      description,
+      url: `/home/relationship-test/${id}`,
+      images: [{ url: portraitOgImage(star.portraitSrc), alt: `${star.name}的人物肖像` }],
+    },
+  };
 }
 
 export default async function RelationshipTargetPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {

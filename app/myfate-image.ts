@@ -34,6 +34,12 @@ export function portraitImage(objectUrl: string, width = 360) {
   });
 }
 
+// 分享卡(og:image)用:不传 format 让代理回源格式(源图为 JPEG),
+// 微信/WhatsApp 等抓取器不支持 WebP 分享图;保持 10:13 原比例避免裁掉人脸。
+export function portraitOgImage(objectUrl: string) {
+  return renderUrl(objectUrl, { width: 1200, height: 1560, resize: "cover", quality: 80 });
+}
+
 // 响应式 srcset:240w/360w/520w,由浏览器按卡片实际宽度选择。
 export function portraitSrcSet(objectUrl: string) {
   return PORTRAIT_WIDTHS.map((width) => `${portraitImage(objectUrl, width)} ${width}w`).join(", ");

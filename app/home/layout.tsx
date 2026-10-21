@@ -6,7 +6,8 @@ import { routeCssHref } from "../route-css-version";
 import { AuthProvider } from "../auth-context";
 
 export const metadata: Metadata = {
-  title: "生辰画像",
+  // 模板让子页面(人物列表、人物预览)的标题统一带上 MeVerse 后缀
+  title: { default: "生辰画像", template: "%s · MeVerse" },
   description: "MeVerse 明星合盘与个人解读工作台",
 };
 
