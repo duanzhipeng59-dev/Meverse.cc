@@ -43,6 +43,7 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
       const content = await generateStaticReading(
         async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { temperature: 0.35, maxTokens: 10000, json: true })).content,
         facts,
+        profile,
       );
       await updateReadingReport(reportId, { status: "ready", content, error: null });
       return;

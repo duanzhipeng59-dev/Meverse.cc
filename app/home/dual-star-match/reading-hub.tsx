@@ -155,6 +155,12 @@ export default function ReadingHub() {
       return `${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
     };
     const statusTag = (status: string) => (<em data-status={status}>{STATUS_LABELS[status] ?? status}</em>);
+    const displaySubjectName = (subject: SubjectInfo): string => {
+      const name = subject.name.trim();
+      if (name && name !== "本人") return name;
+      const [year, month, day] = subject.birthDate.split("-");
+      return `${year}年${month}月${day}日`;
+    };
     // 单人行的副标题 = 该人四柱干支(引擎按 subject 实时排盘)
     const baziOf = (subject: SubjectInfo): string => {
       const city = vedicCities.find((item) => item.id === subject.cityId) ?? vedicCities.find((item) => item.id === "seoul")!;
@@ -174,7 +180,7 @@ export default function ReadingHub() {
 
     for (const row of readings) {
       const isDual = row.mode === "dual";
-      const title = isDual ? `${row.subjectA.name} × ${row.subjectB?.name ?? ""}` : row.subjectA.name;
+      const title = isDual ? `${displaySubjectName(row.subjectA)} × ${row.subjectB ? displaySubjectName(row.subjectB) : ""}` : displaySubjectName(row.subjectA);
       items.push({
         key: row.id,
         ts: timeOf(row.createdAt),

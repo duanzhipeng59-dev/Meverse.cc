@@ -1,10 +1,10 @@
-// Single-person phase-one report: the model explains an engine-owned static chart only.
-// No dayun, annual forecast, score, event prediction or model-derived chart fact is accepted.
+// Single-person report: the model explains the engine-owned chart; deterministic dayun/annual
+// rhythm is merged after validation, so the model never invents timing data or scores.
 import { z } from "zod";
 import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziLifeProfile } from "./myfate-bazi-profile";
 
-const sectionKeys = ["portrait", "pattern", "education", "career", "wealth", "relationship", "wellbeing", "family"] as const;
+const sectionKeys = ["portrait", "pattern", "education", "career", "wealth", "relationship", "wellbeing", "children", "family"] as const;
 const evidenceId = z.string().regex(/^(chart|structure|tenGod|relation|area)\.[a-zA-Z0-9_-]+$/u);
 const insightSchema = z.object({
   label: z.string().min(2).max(16),
@@ -21,16 +21,83 @@ const sectionSchema = z.object({
 
 // v2 起不再要求 AI 回传 evidence 目录与 evidenceIds 引用(页面不展示依据);
 // v1 存量报告仍可解析(evidence 字段可选)。
-export const staticReadingSchema = z.object({
-  schemaVersion: z.enum(["single-static-v1", "single-static-v2"]),
-  scope: z.literal("static-chart-only"),
-  sections: z.object(Object.fromEntries(sectionKeys.map((key) => [key, sectionSchema])) as Record<(typeof sectionKeys)[number], typeof sectionSchema>).strict(),
-  evidence: z.array(z.object({ id: evidenceId, fact: z.string().min(2), source: z.literal("bazi-engine") }).strict()).min(8).optional(),
-  disclaimer: z.string().min(20),
+const rhythmItemSchema = z.object({
+  ganzhi: z.string().length(2),
+  age: z.string().min(2),
+  years: z.string().min(4),
+  label: z.enum(["明显顺势", "温和向好", "平稳蓄力", "波动调整", "谨慎收缩"]),
+  theme: z.string().min(8),
+  opportunity: z.string().min(8),
+  watch: z.string().min(8),
+  action: z.string().min(8),
+  current: z.boolean(),
 }).strict();
+const annualRhythmItemSchema = rhythmItemSchema.omit({ age: true, years: true, current: true }).extend({ year: z.number().int() }).strict();
+const domainTimelineSchema = z.object({
+  dayun: z.array(rhythmItemSchema),
+  annual: z.array(annualRhythmItemSchema),
+}).strict();
+
+export const staticReadingSchema = z.object({
+  schemaVersion: z.enum(["single-static-v1", "single-static-v2", "single-full-v3"]),
+  scope: z.enum(["static-chart-only", "full-reading"]),
+  sections: z.object(Object.fromEntries(sectionKeys.map((key) => [key, key === "children" ? sectionSchema.optional() : sectionSchema])) as Record<(typeof sectionKeys)[number], typeof sectionSchema>).strict(),
+  evidence: z.array(z.object({ id: evidenceId, fact: z.string().min(2), source: z.literal("bazi-engine") }).strict()).min(8).optional(),
+  timelines: z.object({ career: domainTimelineSchema, wealth: domainTimelineSchema, relationship: domainTimelineSchema }).strict().optional(),
+  disclaimer: z.string().min(20),
+}).strict().superRefine((value, ctx) => {
+  if (value.schemaVersion === "single-full-v3" && !value.sections.children) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sections", "children"], message: "single-full-v3 requires children section" });
+  }
+});
 
 export type StaticReading = z.infer<typeof staticReadingSchema>;
 export type StaticReadingFacts = ReturnType<typeof buildStaticReadingFacts>;
+
+type RhythmLabel = "明显顺势" | "温和向好" | "平稳蓄力" | "波动调整" | "谨慎收缩";
+
+function rhythmLabel(tone: "good" | "neutral" | "caution"): RhythmLabel {
+  return tone === "good" ? "明显顺势" : tone === "caution" ? "谨慎收缩" : "平稳蓄力";
+}
+
+function buildDomainTimeline(profile: BaziLifeProfile, domain: "career" | "wealth" | "relationship") {
+  const prefix = domain === "career" ? "事业" : domain === "wealth" ? "资源与财富" : "感情与关系";
+  return {
+    dayun: profile.dayun.map((step) => ({
+      ganzhi: step.ganzhi,
+      age: step.ageText,
+      years: step.yearText,
+      label: rhythmLabel(step.tone),
+      theme: `${prefix}主题：${step.theme}`,
+      opportunity: `${prefix}可关注：${step.focus.map((item) => item.text).join("；")}`,
+      watch: `${prefix}留意：${step.basis.at(-1) ?? "阶段节奏需要结合现实选择判断"}`,
+      action: step.advice,
+      current: step.current,
+    })),
+    annual: profile.annual.map((year) => ({
+      year: year.year,
+      ganzhi: year.ganzhi,
+      label: rhythmLabel(year.tone),
+      theme: `${prefix}年度主题：${year.theme}`,
+      opportunity: year.opportunity,
+      watch: year.watch,
+      action: year.advice,
+    })),
+  };
+}
+
+export function attachFullReadingTimeline(report: StaticReading, profile: BaziLifeProfile): StaticReading {
+  return {
+    ...report,
+    schemaVersion: "single-full-v3",
+    scope: "full-reading",
+    timelines: {
+      career: buildDomainTimeline(profile, "career"),
+      wealth: buildDomainTimeline(profile, "wealth"),
+      relationship: buildDomainTimeline(profile, "relationship"),
+    },
+  };
+}
 
 const inferenceLevel = z.enum(["fact", "strong_inference", "weak_inference"]);
 const plannedClaimSchema = z.object({
@@ -64,7 +131,7 @@ export const STATIC_READING_SYSTEM_PROMPT = `你是 MeVerse 单人八字静态�
 7. 不得用穿戴颜色、方位、饰品、法器或所谓“化解”作为建议；建议必须是现实中可观察、可执行的行为。
 8. 每个风险判断必须同时写出适用条件、缓冲因素或可控制动作，不制造恐惧；不得伪造用户经历、反馈或现实身份。
 
-八个解读章节固定为 portrait、pattern、education、career、wealth、relationship、wellbeing、family。每章结构：title、summary、insights、advice。顶层固定 schemaVersion="single-static-v2"、scope="static-chart-only"、sections、disclaimer。不要输出 evidence 字段。`;
+九个解读章节固定为 portrait、pattern、education、career、wealth、relationship、wellbeing、children、family。每章结构：title、summary、insights、advice。children 只讨论养育互动、陪伴方式和与晚辈的边界，不得判断生育结果、数量或性别。顶层固定 schemaVersion="single-full-v3"、scope="full-reading"、sections、disclaimer。不要输出 evidence 或 timelines 字段，时间节奏由系统合并。`;
 
 export const STATIC_READING_PLAN_SYSTEM_PROMPT = `你是 MeVerse 单人八字静态命局的论证规划器。你不写最终报告，只把确定性引擎事实组织成可校验的论证计划。
 
@@ -75,7 +142,7 @@ export const STATIC_READING_PLAN_SYSTEM_PROMPT = `你是 MeVerse 单人八字静
 4. 禁止大运、流年、年份、年龄、概率、分数、金额、疾病、寿命、子女性别、配偶外貌/职业、学历层级、管理人数和必然事件。
 5. action 必须是可观察行为；禁止颜色、方位、穿戴、饰品、法器、风水物或“化解”。
 6. 风险面必须有缓冲条件或可控制动作，不得恐吓。
-7. 输出单个 JSON 对象，不要 Markdown。结构固定为 {"scope":"static-chart-only","sections":{八个固定章节 key:[每章2-4条 claim]}}。`;
+7. 输出单个 JSON 对象，不要 Markdown。结构固定为 {"scope":"static-chart-only","sections":{九个固定章节 key:[每章2-4条 claim]}}。children 章节只谈养育互动与晚辈边界。`;
 
 function entry(id: string, fact: string) {
   return { id, fact, source: "bazi-engine" as const };
@@ -91,7 +158,9 @@ export function buildStaticReadingFacts(chart: BaziChart, profile: BaziLifeProfi
     entry("structure.cautious", `引擎提示节制：${profile.summary.cautious.join("、")}`),
     ...profile.tenGods.map((god, index) => entry(`tenGod.${index + 1}`, `${god.name}权重${god.value}，层级${god.level}，关键词${god.keywords.join("、")}`)),
     ...profile.relations.map((relation, index) => entry(`relation.${index + 1}`, `${relation.title}：${relation.text}`)),
+    entry("area.children", `时柱${chart.pillars[3].ganzhi}对应长远愿景与晚辈互动，藏干十神为${chart.pillars[3].hideShiShen.join("、")}；食伤权重${profile.tenGods.find((item) => item.name === "食伤")?.value ?? 0}。这里只用于讨论陪伴、表达和边界，不用于预测生育结果。`),
     ...sectionKeys.flatMap((key) => {
+      if (key === "children") return [];
       const areaKey = key === "portrait" || key === "pattern" ? "personality" : key === "education" ? "talent" : key === "relationship" ? "relationship" : key === "wellbeing" ? "wellbeing" : key;
       const area = profile.areas[areaKey as keyof typeof profile.areas];
       const staticDetails = area.details.filter((detail) => !/(大运|流年|具体年份)/u.test(detail));
@@ -125,7 +194,7 @@ export function buildStaticReadingPlanPrompt(facts: StaticReadingFacts) {
   };
   return `请依据下面的确定性事实生成论证计划。
 
-输出必须是单个 JSON 对象,严格匹配下面的模板结构(sections 是以八个章节 key 为字段的对象,每个字段的值是 claim 数组、每章 2-4 条;不要输出模板之外的任何字段):
+输出必须是单个 JSON 对象,严格匹配下面的模板结构(sections 是以九个章节 key 为字段的对象,每个字段的值是 claim 数组、每章 2-4 条;不要输出模板之外的任何字段):
 
 ${JSON.stringify(template, null, 1)}
 
@@ -137,8 +206,8 @@ ${JSON.stringify({ facts }, null, 2)}`;
 export function buildStaticReadingPrompt(facts: StaticReadingFacts, plan: StaticReadingPlan) {
   // 精确输出模板:sections 必须是以章节 key 为字段的对象(不是数组)
   const template = {
-    schemaVersion: "single-static-v2",
-    scope: "static-chart-only",
+    schemaVersion: "single-full-v3",
+    scope: "full-reading",
     sections: Object.fromEntries(sectionKeys.map((key) => [key, {
       title: "章节标题(2-20字)",
       summary: "本章总结(30-360字)",
@@ -147,9 +216,9 @@ export function buildStaticReadingPrompt(facts: StaticReadingFacts, plan: Static
     }])),
     disclaimer: "免责声明(20字以上):本报告基于传统命理文化的自我观察参考,不构成科学预测或决策依据。",
   };
-  return `依据以下已校验论证计划生成八章静态命局解读。不得新增、删除或改变计划中的核心结论。
+  return `依据以下已校验论证计划生成九章命局基础解读。不得新增、删除或改变计划中的核心结论。
 
-输出必须是单个 JSON 对象,严格匹配下面的模板结构(字段名、类型、嵌套完全一致;sections 是以八个章节 key 为字段的对象,不是数组;insights 每章 2-5 条;advice 每章 1-3 条;不要输出模板之外的任何字段):
+输出必须是单个 JSON 对象,严格匹配下面的模板结构(字段名、类型、嵌套完全一致;sections 是以九个章节 key 为字段的对象,不是数组;insights 每章 2-5 条;advice 每章 1-3 条;不要输出模板之外的任何字段):
 
 ${JSON.stringify(template, null, 1)}
 
@@ -233,7 +302,7 @@ function describeValidationError(error: unknown): string {
   return issueMatch ? `字段 ${issueMatch[1]} 结构不符合模板` : message.slice(0, 100);
 }
 
-export async function generateStaticReading(callModel: (system: string, prompt: string) => Promise<string>, facts: StaticReadingFacts) {
+export async function generateStaticReading(callModel: (system: string, prompt: string) => Promise<string>, facts: StaticReadingFacts, profile?: BaziLifeProfile) {
   let planError: unknown;
   let plan: StaticReadingPlan | null = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -251,11 +320,12 @@ export async function generateStaticReading(callModel: (system: string, prompt: 
   let lastError: unknown;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const suffix = attempt
-      ? `\n\n上次输出未通过校验：${describeValidationError(lastError)}。请重新输出完整 JSON：sections 保持以八个章节 key 为字段的对象结构，全文不得出现「大运、流年、具体年份、岁数、概率、百分比、金额、疾病诊断、子女性别、注定、一定会」等预测性表述。`
+      ? `\n\n上次输出未通过校验：${describeValidationError(lastError)}。请重新输出完整 JSON：sections 保持以九个章节 key 为字段的对象结构，全文不得出现「大运、流年、具体年份、岁数、概率、百分比、金额、疾病诊断、子女性别、注定、一定会」等预测性表述。`
       : "";
     try {
       const text = await callModel(STATIC_READING_SYSTEM_PROMPT, buildStaticReadingPrompt(facts, plan) + suffix);
-      return validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      const report = validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      return profile ? attachFullReadingTimeline(report, profile) : report;
     } catch (error) {
       lastError = error;
     }

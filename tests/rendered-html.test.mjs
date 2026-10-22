@@ -208,7 +208,7 @@ test("unified MeVerse branding and bucket-only portraits", async () => {
   assert.deepEqual(leftoverPortraits, [], `public/ 不应再有本地头像: ${leftoverPortraits.join(", ")}`);
 });
 
-test("single reading uses a validated argument plan and renders eight static sections", async () => {
+test("single reading uses a validated argument plan and renders nine competitor-style sections", async () => {
   const [pipeline, contract, page, renderer, provider] = await Promise.all([
     readFile(new URL("../app/myfate-reading-generator.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-static-reading.ts", import.meta.url), "utf8"),
@@ -223,10 +223,14 @@ test("single reading uses a validated argument plan and renders eight static sec
   assert.match(contract, /STATIC_READING_PLAN_UNKNOWN_EVIDENCE/u);
   assert.match(contract, /STATIC_READING_PLAN_WEAK_SUPPORT/u);
   assert.match(contract, /STATIC_READING_PLAN_ACTION_FORBIDDEN/u);
+  assert.match(contract, /single-full-v3/u);
+  assert.match(contract, /timelines: z\.object/u);
   assert.match(contract, /strengthSide[\s\S]*riskSide[\s\S]*action/u);
   assert.match(contract, /buildStaticReadingPrompt\(facts, plan\)/u);
   assert.match(contract, /exclusions: \["dayun", "annual", "forecast"/u);
   assert.match(page, /staticReadingSchema\.safeParse\(report\.content\)/u);
   assert.doesNotMatch(renderer, /命理依据|mf-rr-basis|证据：/u);
+  assert.match(renderer, /一生事业轨迹/u);
+  assert.match(renderer, /近期流年/u);
   assert.match(provider, /options\.json[\s\S]*?json_object/u);
 });

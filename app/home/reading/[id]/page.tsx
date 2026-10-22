@@ -8,6 +8,8 @@ import { dualReportSchema, withPersonNames, type DualReportContent } from "../..
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import StaticReadingReport from "./static-reading-report";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";
+import { buildBaziChart } from "../../../myfate-bazi-engine";
+import { vedicCities } from "../../../myfate-cities";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "解读报告 · MeVerse" };
@@ -39,10 +41,26 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
   const subjectA = report.subjectA as ReadingSubject;
   const subjectB = report.subjectB as ReadingSubject | null;
   const title = subjectB ? `${subjectA.name} × ${subjectB.name}` : subjectA.name;
+  const singleChart = report.mode === "single" ? buildBaziChart({
+    birthDate: subjectA.birthDate,
+    birthTime: subjectA.birthTime,
+    gender: subjectA.gender,
+    city: vedicCities.find((city) => city.id === subjectA.cityId) ?? { id: subjectA.cityId, name: subjectA.cityName, lat: 37.5665, lon: 126.978, tz: "Asia/Shanghai" },
+  }) : null;
+  const singleDisplayName = subjectA.name.trim() && subjectA.name.trim() !== "本人"
+    ? subjectA.name.trim()
+    : (() => {
+      const [year, month, day] = subjectA.birthDate.split("-");
+      return `${year}年${month}月${day}日`;
+    })();
+  const singleTopbarTitle = report.mode === "single" ? singleDisplayName : title;
+  const singleTopbarSubtitle = report.mode === "single" && singleChart
+    ? singleChart.pillars.map((pillar) => pillar.ganzhi).join(" ")
+    : undefined;
 
   return (
     <div className="mf-zr">
-      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={title} />
+      <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={singleTopbarTitle} subtitle={singleTopbarSubtitle} showShare={report.status === "ready"} shareTitle={`${singleTopbarTitle}的八字解读`} />
 
       {report.status !== "ready" ? (
         report.status === "failed" ? null : <ReadingGenerating reportId={report.id} />
@@ -51,7 +69,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
         if (!parsed.success) notFound();
         return (
           <>
-            <StaticReadingReport content={parsed.data} />
+            <StaticReadingReport content={parsed.data} showAdvice={false} />
             <div id="ask"><StarAskPanel starId={report.id} starName={subjectA.name} reportType="reading-single" suggestions={["我的格局在事业上怎么落地？", "我在合作中最需要注意什么？", "感情相处有什么建议？"]} /></div>
             <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读，量化评分与财富区间为结构信号的估算表达，仅供娱乐与自我观察参考，不构成医疗、法律或投资建议。</p>
           </>
