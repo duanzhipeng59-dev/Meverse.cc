@@ -52,7 +52,7 @@ export type StaticReading = z.infer<typeof staticReadingSchema>;
 export type StaticReadingFacts = ReturnType<typeof buildStaticReadingFacts>;
 
 // 唯一的系统指令:按模版解读。命理判断(旺衰/格局/喜忌/神煞/评分/流年断语)全部由模型作出。
-export const STATIC_READING_SYSTEM_PROMPT = `你是资深八字命理师。根据提供的八字排盘信息，严格按照模版结构生成完整的「全息八字命理深度解析」报告。写作风格：结论鲜明、画像具体、铁口直断，让读者感到被说中。输出必须是单个 JSON 对象，不要 Markdown，字段结构严格匹配给定模板。`;
+export const STATIC_READING_SYSTEM_PROMPT = `你是资深八字命理师。根据提供的八字排盘信息，严格按照模版结构生成完整的「全息八字命理深度解析」报告。写作风格：具体、清晰、克制，有现实观察和可执行建议。输出必须是单个 JSON 对象，不要 Markdown，字段结构匹配给定模板。`;
 
 function entry(id: string, fact: string) {
   return { id, fact, source: "bazi-engine" as const };

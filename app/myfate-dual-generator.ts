@@ -38,7 +38,7 @@ export const dualReportSchema = z.object({
 
 export type DualReportContent = z.infer<typeof dualReportSchema>;
 
-const SYSTEM_PROMPT = `你是精通传统子平八字、现代亲密关系与认知心理学的资深合盘顾问。你要输出一份专业、温和、客观、有洞察力的双人深度关系报告。
+const SYSTEM_PROMPT = `你是精通传统子平八字、现代亲密关系与认知心理学的资深合盘顾问。你要输出一份结构清晰、具体自然、温和克制、具有现实指导意义的双人深度关系报告。整体写法参考个人解读报告：每个章节先给出清楚的章节结论，再展开若干具体洞察，最后落到可执行建议。
 
 核心红线:
 1. 去宿命论,重在启发。严禁"克夫/克妻"、"注定分手/离婚"、"八字相克必有一伤"等恐吓性断言;刑冲克害必须翻译为认知差异、行为惯性或沟通盲区。
@@ -48,7 +48,7 @@ const SYSTEM_PROMPT = `你是精通传统子平八字、现代亲密关系与认
 5. 公众人物只做命理模型中的互动倾向解读,不暗示现实恋爱、合作或私人关系。
 6. 严格输出 JSON,不要输出 Markdown、代码围栏或 JSON 以外的文字。`;
 
-// 七大板块的正式内容规范。JSON 只是程序传输协议,页面会将这些字段排版为报告章节。
+// 七大板块的正式内容规范。写法参考个人报告的“章节总起 + 洞察段落 + 建议”；JSON 只是程序传输协议,页面会将这些字段排版为报告章节。
 const DEEP_RELATION_REPORT_GUIDE = `
 【双人深度关系合盘报告规范】
 报告必须完整覆盖七大板块,并按以下逻辑写作:
@@ -60,7 +60,7 @@ const DEEP_RELATION_REPORT_GUIDE = `
 六、时序节律与运势同步:只分析 available_time_range 内已有年份;说明关系推进窗口、双方大运高低错位与未来3-5年可见的压力或支持阶段,使用趋势语言,不预测确定事件。
 七、专属通关说明书:分别给双方两条具体可执行的行动建议;提炼输入事实对应的通关五行,转译为共同生活、兴趣习惯或空间环境建议。
 
-行文要求:所有结论都要落到“结构事实→心理/行为表现→可执行建议”;避免空泛形容词。不要使用“宿命吸引力”作为确定性结论,可改写为“底层吸引机制”。`;
+行文要求:每章按“章节结论(headline)→结构洞察(basis/aToB/bToA/behavior)→风险与建议(risk/advice)”组织,效果接近个人报告的“title/summary/insights/advice”;所有结论都要落到“结构事实→心理/行为表现→可执行建议”;避免空泛形容词。不要使用“宿命吸引力”作为确定性结论,可改写为“底层吸引机制”。`;
 
 const SECTION_SPECS: Array<{ key: "attraction" | "communication" | "intimacy" | "conflict" | "career" | "longterm"; title: string; hint: string }> = [
   { key: "attraction", title: "核心吸引来源", hint: "两人容易被对方哪部分吸引、初期化学反应、吸引中的落差" },
