@@ -41,9 +41,9 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
       const profile = buildBaziLifeProfile(chart);
       const facts = buildStaticReadingFacts(chart, profile);
       // 个人解读固定用 Gemini(双人合盘与其余 AI 功能仍走 MYFATE_AI_PROVIDER,默认 DeepSeek);
-      // 模版化九章节(每章 2-8 小节)输出更长,16k tokens 防截断
+      // 单次调用直出模版化九章节大报告,30k tokens 防截断
       const content = await generateStaticReading(
-        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 16000, json: true })).content,
+        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 30000, json: true })).content,
         facts,
         profile,
       );
