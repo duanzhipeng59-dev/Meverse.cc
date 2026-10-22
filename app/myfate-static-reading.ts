@@ -9,16 +9,16 @@ import type { BaziLifeProfile } from "./myfate-bazi-profile";
 const sectionKeys = ["portrait", "pattern", "education", "career", "wealth", "relationship", "wellbeing", "children", "family"] as const;
 const evidenceId = z.string().regex(/^(chart|structure|tenGod|relation|area)\.[a-zA-Z0-9_-]+$/u);
 const insightSchema = z.object({
-  label: z.string().min(2).max(20),
-  content: z.string().min(20).max(500),
+  label: z.string(),
+  content: z.string(),
   evidenceIds: z.array(evidenceId).min(1).max(4).optional(),
 }).strict();
 const sectionSchema = z.object({
-  title: z.string().min(2).max(20),
-  summary: z.string().min(30).max(500),
+  title: z.string(),
+  summary: z.string(),
   evidenceIds: z.array(evidenceId).min(1).max(5).optional(),
-  insights: z.array(insightSchema).min(2).max(12),
-  advice: z.array(z.string().min(8).max(150)).min(1).max(3),
+  insights: z.array(insightSchema),
+  advice: z.array(z.string()),
 }).strict();
 
 const rhythmItemSchema = z.object({
@@ -45,12 +45,8 @@ export const staticReadingSchema = z.object({
   sections: z.object(Object.fromEntries(sectionKeys.map((key) => [key, key === "children" ? sectionSchema.optional() : sectionSchema])) as Record<(typeof sectionKeys)[number], typeof sectionSchema>).strict(),
   evidence: z.array(z.object({ id: evidenceId, fact: z.string().min(2), source: z.literal("bazi-engine") }).strict()).min(8).optional(),
   timelines: z.object({ career: domainTimelineSchema, wealth: domainTimelineSchema, relationship: domainTimelineSchema }).strict().optional(),
-  disclaimer: z.string().min(20),
-}).strict().superRefine((value, ctx) => {
-  if (value.schemaVersion === "single-full-v3" && !value.sections.children) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sections", "children"], message: "single-full-v3 requires children section" });
-  }
-});
+  disclaimer: z.string(),
+}).strict();
 
 export type StaticReading = z.infer<typeof staticReadingSchema>;
 export type StaticReadingFacts = ReturnType<typeof buildStaticReadingFacts>;
@@ -106,7 +102,7 @@ export function attachFullReadingTimeline(report: StaticReading, profile: BaziLi
 }
 
 // 唯一的系统指令:按模版解读。命理判断(旺衰/格局/喜忌/神煞/评分/流年断语)全部由模型作出。
-export const STATIC_READING_SYSTEM_PROMPT = `你是资深八字命理师。根据提供的八字排盘信息，严格按照模版结构生成完整的「全息八字命理深度解析」报告。写作风格：结论鲜明、画像具体、铁口直断但保留分寸（多半、倾向、更适合），让读者感到被说中。健康章节不做医疗诊断；建议必须是现实中可执行的行为（不用穿戴颜色、方位、法器或所谓"化解"）。输出必须是单个 JSON 对象，不要 Markdown，字段结构严格匹配给定模板。`;
+export const STATIC_READING_SYSTEM_PROMPT = `你是资深八字命理师。根据提供的八字排盘信息，严格按照模版结构生成完整的「全息八字命理深度解析」报告。写作风格：结论鲜明、画像具体、铁口直断，让读者感到被说中。输出必须是单个 JSON 对象，不要 Markdown，字段结构严格匹配给定模板。`;
 
 function entry(id: string, fact: string) {
   return { id, fact, source: "bazi-engine" as const };
@@ -145,7 +141,7 @@ const TEMPLATE_SECTIONS = `【报告模版】九大章节固定为 portrait、pa
 04 career 事业：职业方向（平台属性+角色定位：智囊军师/专业带头人/业务一把手/独立操盘手，不适合的环境）；管理与领导力（风格：中层智囊/铁血开拓/仁怀包容/专业领队，可驾驭规模）；贵人/小人/与上级（类型、场景、向上管理策略）；一生事业轨迹（逐大运：干支+年龄段+评分+阶段定调与断语）；近期流年事业（逐年：年份干支+评分+定调，⚠️风险年/🚀跃升年标记与避坑/作业方向）。
 05 wealth 财富：一生财富高度（量级区间+T1/T2/T3/T4 档+算力来源：财星旺衰/贵格加成/黄金大运推力；开头标注"以下为纯天赋计算值，未考虑地域/家庭/社会等因素影响，仅供参考"）；主要获财方式（正财/偏财、稳扎稳打/资本运作/垂直深耕）；一生财富大运（逐大运：财运承压↓/平稳→/向好↑/强劲↑↑+简评）；近期流年财富（逐年：财务标签，⚠️破财高发/💰攒钱黄金+具体建议）。
 06 relationship 感情：配偶特征（长相气质/性格支配/能力经济/能否旺你/职业方向：经商/自由职业/体制企管/专业技术艺术）；对方家庭（原生家庭条件、长辈介入度与助力）；婚姻稳定性（夫妻宫冲合刑害、稳定型/动态平衡型/易受拉扯型、隐患与沟通心法）；一生婚恋大运（逐大运：天干十神+地支十神+情感特征）；近期感情流年（逐年：缘分概率%+定调，⚠️危机关口/🌹正缘婚动标记与场景）。
-07 wellbeing 健康：身体薄弱器官（五行偏枯受克对应脏腑系统+易出现的症状倾向）；急性病风险（刑冲引发的外伤/炎症/结石手术信号+防护提示，不做医疗诊断）；心理健康倾向（十神偏枯的情绪底色+具体疏导法）。
+07 wellbeing 健康：身体薄弱器官（五行偏枯受克对应脏腑系统+易出现的症状倾向）；急性病风险（刑冲引发的急性外伤/突发炎症/结石手术信号+逢特定地支流年的防护提示）；心理健康倾向（十神偏枯的情绪底色+具体疏导法）。
 08 children 子女：子女缘分（男看官杀/女看食伤旺衰，深厚/适中/偏晚偏淡）；子女性别倾向（乾坤造法则，标注约六到七成参考）；子女关系与特质（子女星喜忌、性格倾向、教育省心/操心、成才高度与远近）。
 09 family 六亲：父亲（偏财星喜忌根气、缘分深薄、实质助力、沟通模式）；母亲（印星喜忌、绝对贵人或操心牵制、关键庇护/压力）；兄弟姐妹与同辈（比劫喜忌、强力助力或财务边界、求助策略）。`;
 
@@ -161,10 +157,10 @@ export function buildStaticReadingPrompt(facts: StaticReadingFacts, profile?: Ba
     schemaVersion: "single-full-v3",
     scope: "full-reading",
     sections: Object.fromEntries(sectionKeys.map((key) => [key, {
-      title: "章节标题(2-20字)",
-      summary: "本章总起(30-500字)",
-      insights: [{ label: "小节名(2-20字)", content: "完整解读段落(20-500字)" }],
-      advice: ["可执行建议(8-150字)"],
+      title: "章节标题",
+      summary: "本章总起",
+      insights: [{ label: "小节名", content: "完整解读段落" }],
+      advice: ["建议"],
     }])),
     disclaimer: "免责声明(20字以上)：本报告基于传统命理文化，仅供自我观察参考，不构成科学预测或决策依据。",
   };
@@ -176,7 +172,7 @@ ${JSON.stringify(chartData, null, 1)}
 
 ${rhythm ? `【大运流年排盘】(模版的时间类小节以此为据，评分为引擎参考分，可自行细化断语)\n\n大运：${rhythm.dayun.join("、")}\n流年：${rhythm.annual.join("、")}\n\n` : ""}${TEMPLATE_SECTIONS}
 
-【输出 JSON 结构】(sections 是以九个章节 key 为字段的对象，不是数组；insights 每章 3-12 条；不要输出模板之外的任何字段)
+【输出 JSON 结构】(sections 是以九个章节 key 为字段的对象，不是数组；不要输出模板之外的任何字段)
 
 ${JSON.stringify(template, null, 1)}`;
 }
