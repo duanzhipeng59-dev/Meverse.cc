@@ -5,8 +5,8 @@ import { vedicCities } from "../../../myfate-cities";
 import { createReadingReport } from "../../../myfate-reading-server";
 import { runReadingGeneration } from "../../../myfate-reading-generator";
 
-// 模版化九章节生成实测 3-5 分钟(两段式模型调用),600s 给校验重试留余量
-export const maxDuration = 600;
+// 单次直出模版化报告实测 ~65s,含最多 3 次结构重试也在 300s 内(套餐函数上限 300s,600 会被拒)
+export const maxDuration = 300;
 
 const cityIds = new Set(vedicCities.map((city) => city.id));
 const subjectSchema = z.object({
