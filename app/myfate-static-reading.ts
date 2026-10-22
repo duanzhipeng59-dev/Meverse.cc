@@ -51,56 +51,6 @@ export const staticReadingSchema = z.object({
 export type StaticReading = z.infer<typeof staticReadingSchema>;
 export type StaticReadingFacts = ReturnType<typeof buildStaticReadingFacts>;
 
-// 模版化评分:大运按引擎 tone 确定性映射(展示用,不依赖模型)
-const DAYUN_SCORE: Record<BaziLifeProfile["dayun"][number]["tone"], number> = { good: 86, neutral: 70, caution: 56 };
-
-function buildDomainTimeline(profile: BaziLifeProfile, domain: "career" | "wealth" | "relationship") {
-  const prefix = domain === "career" ? "事业" : domain === "wealth" ? "资源与财富" : "感情与关系";
-  return {
-    dayun: profile.dayun.map((step) => ({
-      ganzhi: step.ganzhi,
-      age: step.ageText,
-      years: step.yearText,
-      label: toneToLabel(step.tone),
-      score: DAYUN_SCORE[step.tone],
-      theme: `${prefix}主题：${step.theme}`,
-      opportunity: `${prefix}可关注：${step.focus.map((item) => item.text).join("；")}`,
-      watch: `${prefix}留意：${step.basis.at(-1) ?? "阶段节奏需要结合现实选择判断"}`,
-      action: step.advice,
-      current: step.current,
-    })),
-    annual: profile.annual.map((year) => ({
-      year: year.year,
-      ganzhi: year.ganzhi,
-      label: toneToLabel(year.tone),
-      score: year.score,
-      theme: `${prefix}年度主题：${year.theme}`,
-      opportunity: year.opportunity,
-      watch: year.watch,
-      action: year.advice,
-    })),
-  };
-}
-
-type Tone = BaziLifeProfile["dayun"][number]["tone"];
-type RhythmLabel = z.infer<typeof rhythmItemSchema>["label"];
-function toneToLabel(tone: Tone): RhythmLabel {
-  return tone === "good" ? "明显顺势" : tone === "caution" ? "谨慎收缩" : "平稳蓄力";
-}
-
-export function attachFullReadingTimeline(report: StaticReading, profile: BaziLifeProfile): StaticReading {
-  return {
-    ...report,
-    schemaVersion: "single-full-v3",
-    scope: "full-reading",
-    timelines: {
-      career: buildDomainTimeline(profile, "career"),
-      wealth: buildDomainTimeline(profile, "wealth"),
-      relationship: buildDomainTimeline(profile, "relationship"),
-    },
-  };
-}
-
 // 唯一的系统指令:按模版解读。命理判断(旺衰/格局/喜忌/神煞/评分/流年断语)全部由模型作出。
 export const STATIC_READING_SYSTEM_PROMPT = `你是资深八字命理师。根据提供的八字排盘信息，严格按照模版结构生成完整的「全息八字命理深度解析」报告。写作风格：结论鲜明、画像具体、铁口直断，让读者感到被说中。输出必须是单个 JSON 对象，不要 Markdown，字段结构严格匹配给定模板。`;
 
@@ -222,8 +172,7 @@ export async function generateStaticReading(callModel: (system: string, prompt: 
     const suffix = attempt ? `\n\n上次输出未通过结构校验：${describeValidationError(lastError)}。请修正后重新输出完整 JSON。` : "";
     try {
       const text = await callModel(STATIC_READING_SYSTEM_PROMPT, buildStaticReadingPrompt(facts, profile) + suffix);
-      const report = validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
-      return profile ? attachFullReadingTimeline(report, profile) : report;
+      return validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
     } catch (error) {
       lastError = error;
     }

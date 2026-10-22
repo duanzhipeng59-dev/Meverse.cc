@@ -226,7 +226,7 @@ test("single reading hands the model chart + template in one call and renders ni
   assert.doesNotMatch(contract, /staticReadingPlanSchema|STATIC_READING_PLAN_UNKNOWN_EVIDENCE/u);
   assert.match(page, /staticReadingSchema\.safeParse\(report\.content\)/u);
   assert.doesNotMatch(renderer, /命理依据|mf-rr-basis|证据：/u);
-  assert.match(renderer, /一生事业轨迹/u);
-  assert.match(renderer, /近期流年/u);
+  // 引擎时间线区块已移除,报告只呈现模型输出
+  assert.doesNotMatch(renderer, /一生事业轨迹|mf-rr-timeline/u);
   assert.match(provider, /options\.json[\s\S]*?json_object/u);
 });

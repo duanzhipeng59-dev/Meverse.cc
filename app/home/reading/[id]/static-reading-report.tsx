@@ -12,7 +12,6 @@ const ORDER: Array<{ key: keyof StaticReading["sections"]; no: string }> = [
   { key: "family", no: "09" },
 ];
 
-const TIMELINE_TITLE = { career: "一生事业轨迹", wealth: "一生财富节奏", relationship: "一生婚恋节奏" } as const;
 const SECTION_TITLE: Record<string, string> = {
   portrait: "人生画像",
   pattern: "格局",
@@ -25,7 +24,7 @@ const SECTION_TITLE: Record<string, string> = {
   family: "六亲",
 };
 
-// 九大板块静态命局解读:固定竞品式章节名,个性化标题作为副标题保留。
+// 九大板块解读:固定章节名+模型个性化标题,内容为模型输出原样呈现。
 export default function StaticReadingReport({ content, showAdvice = true }: { content: StaticReading; showAdvice?: boolean }) {
   return (
     <>
@@ -34,7 +33,7 @@ export default function StaticReadingReport({ content, showAdvice = true }: { co
         if (!section) return null;
         return (
           <section className="mf-zr-card mf-rr-card" key={key}>
-            <div className="mf-zr-section-head"><span>{no}</span><div><h2>{SECTION_TITLE[key]}</h2><p>{section.title} · 静态命局解读</p></div></div>
+            <div className="mf-zr-section-head"><span>{no}</span><div><h2>{SECTION_TITLE[key]}</h2><p>{section.title}</p></div></div>
             <p className="mf-rr-lead">{section.summary}</p>
             <div className="mf-rr-blocks">
               {section.insights.map((item, index) => (
@@ -44,28 +43,6 @@ export default function StaticReadingReport({ content, showAdvice = true }: { co
               ))}
             </div>
             {showAdvice ? <ul className="mf-rr-advice">{section.advice.map((item, index) => <li key={index}>{item}</li>)}</ul> : null}
-            {key === "career" || key === "wealth" || key === "relationship" ? (() => {
-              const timeline = content.timelines?.[key];
-              if (!timeline) return null;
-              return (
-                <div className="mf-rr-timeline">
-                  <h3>{TIMELINE_TITLE[key]}</h3>
-                  <ul className="mf-rr-steps">
-                    {timeline.dayun.map((item) => (
-                      <li key={`${key}-${item.ganzhi}`} className={item.current ? "is-current" : ""}>
-                        <b>{item.ganzhi}</b><small>{item.age} · {item.label}{item.score != null ? ` · ${item.score}分` : ""}</small><span>{item.theme} {item.action}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <h3>近期流年</h3>
-                  <ul className="mf-rr-years">
-                    {timeline.annual.map((item) => (
-                      <li key={`${key}-${item.year}`}><b>{item.year} {item.ganzhi}</b><small>{key === "relationship" && item.score != null ? `缘分指数 ${item.score}` : `${item.label}${item.score != null ? ` · ${item.score}分` : ""}`}</small><span>{item.theme} {item.action}</span></li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })() : null}
           </section>
         );
       })}
