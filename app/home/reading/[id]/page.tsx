@@ -10,6 +10,7 @@ import StaticReadingReport from "./static-reading-report";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { vedicCities } from "../../../myfate-cities";
+import FailedReading from "./failed-reading";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "解读报告 · MeVerse" };
@@ -63,14 +64,14 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
       <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={singleTopbarTitle} subtitle={singleTopbarSubtitle} showShare={report.status === "ready"} shareTitle={`${singleTopbarTitle}的八字解读`} />
 
       {report.status !== "ready" ? (
-        report.status === "failed" ? null : <ReadingGenerating reportId={report.id} />
+        report.status === "failed" ? <FailedReading mode={report.mode} subjectA={subjectA} subjectB={subjectB} /> : <ReadingGenerating reportId={report.id} />
       ) : report.mode === "single" ? (() => {
         const parsed = staticReadingSchema.safeParse(report.content);
         if (!parsed.success) notFound();
         return (
           <>
             <StaticReadingReport content={parsed.data} showAdvice={false} />
-            <div id="ask"><StarAskPanel starId={report.id} starName={subjectA.name} reportType="reading-single" suggestions={["我的格局在事业上怎么落地？", "我在合作中最需要注意什么？", "感情相处有什么建议？"]} /></div>
+            <div id="ask"><StarAskPanel starId={report.id} starName={singleDisplayName} reportType="reading-single" suggestions={["我的格局在事业上怎么落地？", "我在合作中最需要注意什么？", "感情相处有什么建议？"]} /></div>
             <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读，量化评分与财富区间为结构信号的估算表达，仅供娱乐与自我观察参考，不构成医疗、法律或投资建议。</p>
           </>
         );

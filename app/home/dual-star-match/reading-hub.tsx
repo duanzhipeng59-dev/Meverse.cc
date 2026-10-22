@@ -47,8 +47,8 @@ function DualPersonCard({ label, records, status, source, setSource, pick, setPi
     <section className={`mf-reading-person${hasError ? " has-error" : ""}`}>
       <h3>{label}</h3>
       <div className="mf-reading-source">
-        <button type="button" className={source === "record" ? "is-on" : ""} disabled={status === "ready" && !records.length} onClick={() => setSource("record")}>从记录选</button>
         <button type="button" className={source === "manual" ? "is-on" : ""} onClick={() => setSource("manual")}>手动填写</button>
+        <button type="button" className={source === "record" ? "is-on" : ""} disabled={status === "ready" && !records.length} onClick={() => setSource("record")}>从记录选</button>
       </div>
       {source === "record" ? (
         status === "loading" ? (
@@ -260,9 +260,9 @@ export default function ReadingHub() {
     setVisitA(false);
     setVisitB(false);
     setPersonEditing(null);
-    // 双人弹窗两张卡默认停在「从记录选」(加载中显示 loading,无记录显示空态引导手填)
-    setSourceA("record");
-    setSourceB("record");
+    // 双人弹窗默认直接进入手动填写；已有记录仍可通过切换按钮选择。
+    setSourceA("manual");
+    setSourceB("manual");
     setPickA(personRecords[0]?.key ?? "");
     setPickB(personRecords[1]?.key ?? personRecords[0]?.key ?? "");
     setDialog(mode);

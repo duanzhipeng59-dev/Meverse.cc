@@ -24,6 +24,13 @@ const SECTION_TITLE: Record<string, string> = {
   family: "六亲",
 };
 
+function ReadableText({ text }: { text: string }) {
+  const sentences = text.split(/(?<=[。！？])/).map((part) => part.trim()).filter(Boolean);
+  const parts: string[] = [];
+  for (let index = 0; index < sentences.length; index += 2) parts.push(sentences.slice(index, index + 2).join(""));
+  return <>{(parts.length > 1 ? parts : [text]).map((part, index) => <span className="mf-rr-paragraph" key={`${index}-${part.slice(0, 8)}`}>{part}</span>)}</>;
+}
+
 // 九大板块解读:固定章节名+模型个性化标题,内容为模型输出原样呈现。
 export default function StaticReadingReport({ content, showAdvice = true }: { content: StaticReading; showAdvice?: boolean }) {
   return (
@@ -34,11 +41,11 @@ export default function StaticReadingReport({ content, showAdvice = true }: { co
         return (
           <section className="mf-zr-card mf-rr-card" key={key}>
             <div className="mf-zr-section-head"><span>{no}</span><div><h2>{SECTION_TITLE[key]}</h2><p>{section.title}</p></div></div>
-            <p className="mf-rr-lead">{section.summary}</p>
+            <p className="mf-rr-lead"><ReadableText text={section.summary} /></p>
             <div className="mf-rr-blocks">
               {section.insights.map((item, index) => (
                 <div className="mf-rr-block" key={`${item.label}-${index}`}>
-                  <em>{item.label}</em><p>{item.content}</p>
+                  <em>{item.label}</em><p><ReadableText text={item.content} /></p>
                 </div>
               ))}
             </div>
