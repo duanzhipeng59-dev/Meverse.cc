@@ -11,13 +11,11 @@ import { readPending, removePending, type DualPending } from "./dual-pending";
 import DualHistoryRow from "./dual-history-row";
 import StartReadingForm, { BirthInfoFields, buildBirthSubject, emptyBirthState, type BirthFieldErrors, type BirthState, type StartSubject } from "./start-reading-form";
 
-// 解读页枢纽:两张入口卡(单人解读/双人合盘,点击弹窗填写信息) + 生成记录
-// (自填单/双 reading_reports + 偶像合盘 dual_star_reports + 本地待生成,按时间倒序合并)。
+// 解读页枢纽:两张入口卡(单人解读/双人合盘,点击弹窗填写信息) + 自填生成记录。
 const STATUS_LABELS: Record<string, string> = { ready: "已完成", generating: "生成中", failed: "生成失败", pending: "待生成" };
 
 type SubjectInfo = { name: string; gender: "male" | "female"; birthDate: string; birthTime: string; cityId: string; cityName: string };
 type ReadingRow = { id: string; mode: "single" | "dual"; dualType?: "love" | "career"; status: string; subjectA: SubjectInfo; subjectB: SubjectInfo | null; createdAt: string };
-type DualRow = { id: string; starA: string; starB: string; nameA: string; nameB: string; portraitA: string; portraitB: string; status: string; createdAt: string };
 
 type PersonRecord = { key: string; label: string; subject: SubjectInfo };
 type RecordsStatus = "loading" | "ready" | "error";
@@ -78,7 +76,6 @@ export default function ReadingHub() {
   const { status: authStatus, email } = useAuth();
   const loggedIn = authStatus === "authenticated" && Boolean(email);
   const [readings, setReadings] = useState<ReadingRow[]>([]);
-  const [dualRows, setDualRows] = useState<DualRow[]>([]);
   const [pending, setPending] = useState<DualPending[]>([]);
   const [dialog, setDialog] = useState<"single" | "dual" | null>(null);
   const [manualA, setManualA] = useState<BirthState>(emptyBirthState);
@@ -127,22 +124,16 @@ export default function ReadingHub() {
     // 未登录不展示任何生成记录(含本地待生成)
     if (!loggedIn) {
       setPending([]);
-      setDualRows([]);
       setRecordsStatus("ready");
       return;
     }
     setPending(readPending());
-    // 生成记录列表(自填解读) + 弹窗记录下拉(带状态) + 偶像合盘历史并行拉取
+    // 生成记录列表(自填解读) + 弹窗记录下拉(带状态)
     fetch("/api/reading/list")
       .then((res) => (res.ok ? res.json() as Promise<{ reports?: ReadingRow[] }> : Promise.reject(new Error(String(res.status)))))
       .then((data) => setReadings(data.reports ?? []))
       .catch(() => setReadings([]));
     loadRecords();
-    // 偶像合盘历史同样仅登录后拉取(接口公开,但未登录不展示任何生成记录)
-    fetch("/api/dual-star/bootstrap")
-      .then((res) => (res.ok ? res.json() as Promise<{ history?: DualRow[] }> : Promise.reject(new Error(String(res.status)))))
-      .then((data) => setDualRows(data.history ?? []))
-      .catch(() => setDualRows([]));
   }, [loggedIn]);
 
   const records = useMemo(() => {
@@ -200,25 +191,6 @@ export default function ReadingHub() {
         ),
       });
     }
-    for (const row of dualRows) {
-      items.push({
-        key: `dual-${row.id}`,
-        ts: timeOf(row.createdAt),
-        node: (
-          <DualHistoryRow
-            key={row.id}
-            id={row.id}
-            title={`${row.nameA} × ${row.nameB}`}
-            time={fmt(row.createdAt)}
-            statusLabel={STATUS_LABELS[row.status] ?? row.status}
-            status={row.status}
-            href={`/home/dual-star-match/reports/${row.id}`}
-            deleteEndpoint="/api/dual-star/delete"
-            onDeleted={(id) => setDualRows((current) => current.filter((item) => item.id !== id))}
-          />
-        ),
-      });
-    }
     for (const item of pending) {
       // 本地待生成横条:同样带删除(系统确认弹窗后移除本地记录)
       items.push({
@@ -240,7 +212,7 @@ export default function ReadingHub() {
       });
     }
     return items.sort((a, b) => b.ts - a.ts).map((item) => item.node);
-  }, [readings, dualRows, pending]);
+  }, [readings, pending]);
 
   // 未登录点击入口:弹登录,成功后自动进入对应填写弹窗
   function openOrLogin(mode: "single" | "dual") {
@@ -294,6 +266,15 @@ export default function ReadingHub() {
     if (!a.subject || !b.subject) {
       setPersonErrors({ a: a.errors, b: b.errors });
       // 滚动到第一张出错的卡片(弹窗内部滚动,不清空已填数据)
+      requestAnimationFrame(() => {
+        document.querySelector(".mf-reading-person.has-error")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return;
+    }
+    // 记录模式下两边必须是不同的人，避免生成没有比较意义的自合盘。
+    if (sourceA === "record" && sourceB === "record" && pickA === pickB) {
+      const duplicateMessage = "本人和对方不能选择同一条命盘记录";
+      setPersonErrors({ a: { card: duplicateMessage }, b: { card: duplicateMessage } });
       requestAnimationFrame(() => {
         document.querySelector(".mf-reading-person.has-error")?.scrollIntoView({ behavior: "smooth", block: "center" });
       });

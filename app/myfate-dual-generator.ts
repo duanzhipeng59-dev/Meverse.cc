@@ -46,7 +46,7 @@ const SYSTEM_PROMPT = `你是精通传统子平八字、现代亲密关系与认
 3. 只使用 Input JSON 已提供的干支、十神、五行、柱位、冲合列表、大运与流年事实,严禁补造干支、神煞、事件或年份。
 4. 语言简体中文,专业、克制、具体、有人文关怀,杜绝轻浮的星座占卜口吻。
 5. 公众人物只做命理模型中的互动倾向解读,不暗示现实恋爱、合作或私人关系。
-6. 严格输出 JSON,不要输出 Markdown、代码围栏或 JSON 以外的文字。`;
+6. 直接输出完整报告正文。可以使用 Markdown 标题、列表和段落,不要为了适配程序字段删减或改写内容。`;
 
 // 八大板块的正式内容规范。写法参考个人报告的“章节总起 + 洞察段落 + 建议”；JSON 只是程序传输协议,页面会将这些字段排版为报告章节。
 const DEEP_RELATION_REPORT_GUIDE = `
@@ -185,7 +185,10 @@ future_rhythm(未来关系节奏)规则:
 4. 每个阶段:label 为阶段概括(4-16字,如"关系压力集中阶段"/"关系调整节点");detail 描述该阶段双方关系环境与互动趋势(20-120字),只能使用"更适合/压力可能增加/议题更值得关注"等趋势表达。
 5. 不得输出早于 start_year 或晚于 end_year 的年份,不得补充或推导双方没有共同流年数据的年份。
 
-输出 JSON:
+输出报告正文:
+请按上述八大板块完整输出报告,使用清晰的 Markdown 标题和段落。不要输出 JSON 包装对象,不要省略任何板块或为了满足字段长度压缩内容。
+
+旧版结构化字段参考(仅用于理解内容组织,不要求逐字段输出):
 {
   "keywords": [2-4个关系关键词,每个2-6字],
   "summary": "一句话关系画像,30-90字",
@@ -200,7 +203,7 @@ future_rhythm(未来关系节奏)规则:
 }
 basis 至少 5 条,必须来自 Input JSON 中的结构事实,confidence 与事实强度一致。
 
-行文代称规则:全文(sections 的 headline/aToB/bToA/behavior/risk/advice 与 future_rhythm 的 label/detail)必须直接使用两人真实姓名「${s.starA.name}」和「${s.starB.name}」,不得使用 A/B 或"对方"等代称。`;
+最终输出规则覆盖上面的旧版结构参考：不再强制固定字段、字数、章节数量、JSON 格式或代称替换。请直接输出完整、自然、可交付的报告正文；程序只负责展示层美化。`;
 }
 
 // 双人报告文案归一:把 AI 残留的 A/B 代称替换为两人姓名(独立字母,不误伤英文名)
@@ -217,23 +220,18 @@ function extractJson(text: string) {
 
 export async function generateContent(s: DualStructure, timelineA: PersonTimeline, timelineB: PersonTimeline, range: YearRange | null, opts?: { dualType?: "love" | "career" }): Promise<DualReportContent> {
   const prompt = buildPrompt(s, timelineA, timelineB, range, opts);
-  let lastError: unknown = null;
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const generation = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { temperature: 0.65, maxTokens: 12000 });
-    try {
-      const parsed = dualReportSchema.parse(JSON.parse(extractJson(generation.content)));
-      // 有可分析范围时 future_rhythm 必须存在,缺失视为无效输出触发重试
-      if (range && !parsed.future_rhythm) throw new Error("FUTURE_RHYTHM_MISSING");
-      return {
-        ...parsed,
-        future_rhythm: sanitizeFutureRhythm(parsed.future_rhythm ?? { supportive_periods: [], pressure_periods: [] }, range),
-        available_time_range: range ? { start_year: range.startYear, end_year: range.endYear } : null,
-      };
-    } catch (error) {
-      lastError = error;
-    }
+  const generation = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { temperature: 0.65, maxTokens: 12000 });
+  // 双人报告不再强制 JSON/schema。能解析旧 JSON 时保留兼容展示，否则原文直接落库、原样呈现。
+  try {
+    const parsed = dualReportSchema.parse(JSON.parse(extractJson(generation.content)));
+    return {
+      ...parsed,
+      future_rhythm: sanitizeFutureRhythm(parsed.future_rhythm ?? { supportive_periods: [], pressure_periods: [] }, range),
+      available_time_range: range ? { start_year: range.startYear, end_year: range.endYear } : null,
+    };
+  } catch {
+    return generation.content as unknown as DualReportContent;
   }
-  throw lastError instanceof Error ? lastError : new Error("DUAL_GENERATE_INVALID");
 }
 
 export async function runDualGeneration(reportId: string) {

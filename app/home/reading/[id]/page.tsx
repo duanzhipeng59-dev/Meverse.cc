@@ -76,6 +76,9 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
           </>
         );
       })() : (() => {
+        if (typeof report.content === "string") {
+          return <article className="mf-zr-card mf-rr-card mf-raw-report">{report.content}</article>;
+        }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();
         const content = parsed.data;

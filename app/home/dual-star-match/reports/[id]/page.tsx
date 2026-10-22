@@ -78,6 +78,9 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
             />
           );
         }
+        if (typeof report.content === "string") {
+          return <article className="mf-zr-card mf-rr-card mf-raw-report">{report.content}</article>;
+        }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();
         const content: DualReportContent = parsed.data;

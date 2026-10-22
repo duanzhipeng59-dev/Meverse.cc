@@ -4,9 +4,6 @@
 import { vedicCities } from "./myfate-cities";
 import { buildBaziChart } from "./myfate-bazi-engine";
 import { buildBaziLifeProfile } from "./myfate-bazi-profile";
-import { buildDualChart, buildDualStructure } from "./myfate-dual-engine";
-import { buildPersonTimeline, computeAvailableRange, personAnnualRange } from "./myfate-dual-timeline";
-import { generateContent as generateDualContent } from "./myfate-dual-generator";
 import { generateChatText } from "./api/myfate/personalize/model-provider";
 import { buildStaticReadingFacts, generateStaticReading } from "./myfate-static-reading";
 import { getReadingReport, updateReadingReport, type ReadingSubject } from "./myfate-reading-server";
@@ -27,6 +24,19 @@ function subjectToBirth(subject: ReadingSubject): CelebrityVedicBirth {
     tz: city.tz,
     gender: subject.gender,
   };
+}
+
+function fourPillars(subject: ReadingSubject) {
+  const birth = subjectToBirth(subject);
+  const chart = buildBaziChart({ birthDate: birth.birthDate, birthTime: birth.birthTime, gender: birth.gender === "female" ? "female" : "male", city: { id: birth.starId, name: birth.birthPlace, lat: birth.lat, lon: birth.lon, tz: birth.tz } });
+  return { name: subject.name, birthDate: subject.birthDate, gender: subject.gender, pillars: chart.pillars.map((pillar) => ({ label: pillar.label, ganzhi: pillar.ganzhi })) };
+}
+
+async function generateFourPillarDualReport(subjectA: ReadingSubject, subjectB: ReadingSubject): Promise<string> {
+  const input = { personA: fourPillars(subjectA), personB: fourPillars(subjectB) };
+  const prompt = `请仅依据下面两人的四柱原始信息，直接写出一份完整、专业、自然的八字双人合盘报告。\n\n不要要求或假设大运、流年、神煞、十神扩展、五行评分或其他未提供的数据；如果信息不足，就明确说明边界。可以自由使用 Markdown 标题、列表和段落，内容长度与章节组织由你判断，不要输出 JSON 包装。\n\n${JSON.stringify(input, null, 2)}`;
+  const result = await generateChatText("你是专业、克制、重视事实边界的八字合盘顾问。", [{ role: "user", content: prompt }], { temperature: 0.65, maxTokens: 12000 });
+  return result.content;
 }
 
 export async function runReadingGeneration(reportId: string): Promise<void> {
@@ -53,16 +63,8 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
 
     const subjectB = report.subjectB;
     if (!subjectB) throw new Error("SUBJECT_B_MISSING");
-    const birthB = subjectToBirth(subjectB);
-    const dualA = buildDualChart(birthA);
-    const dualB = buildDualChart(birthB);
-    const structure = buildDualStructure(birthA, birthB, dualA.chart, dualB.chart, dualA.profile, dualB.profile);
-    const currentYear = new Date().getFullYear();
-    const baseRange = personAnnualRange(currentYear);
-    const range = computeAvailableRange(baseRange, baseRange);
-    const timelineA = buildPersonTimeline(dualA.chart, range ?? baseRange);
-    const timelineB = buildPersonTimeline(dualB.chart, range ?? baseRange);
-    const content = await generateDualContent(structure, timelineA, timelineB, range, { dualType: report.dualType });
+    // 自填双人合盘只计算双方四柱；后续婚恋解释完全交给模型，不预先计算岁运与扩展结构。
+    const content = await generateFourPillarDualReport(subjectA, subjectB);
     await updateReadingReport(reportId, { status: "ready", content, error: null });
   } catch (error) {
     const message = error instanceof Error ? error.message : "READING_GENERATE_FAILED";

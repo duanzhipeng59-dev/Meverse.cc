@@ -15,8 +15,7 @@ import {
   type StarGroup,
 } from "./aggregate";
 import type { StarReportView } from "../../myfate-stars-server";
-import type { DualReportRow } from "../../myfate-dual-server";
-import { ConfirmDialog, FilterBar, SearchInput, Tag } from "../../components/ui";
+import { ConfirmDialog, SearchInput } from "../../components/ui";
 
 const STATE_KEY = "myfate_reports_state_v1";
 
@@ -24,13 +23,11 @@ type Phase = "ready" | "refreshing" | "error";
 
 // 浏览记录筛选:三类记录来自同一份"全部"数据,筛选纯前端完成——
 // 点击即时切换选中态与内容,无网络等待;数据刷新单独走 API 且过期结果不落地。
-export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }: { initialGroups: StarGroup[]; dualReports: DualReportRow[]; urlFilter: ReportFilter | null }) {
-  const [dualList, setDualList] = useState(dualReports);
+export default function ReportsBrowser({ initialGroups, urlFilter }: { initialGroups: StarGroup[]; urlFilter: ReportFilter | null }) {
   const [groups, setGroups] = useState(initialGroups);
   const [filter, setFilter] = useState<ReportFilter>(urlFilter ?? "all");
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "generating" | "completed" | "failed">("all");
-  const [pendingDelete, setPendingDelete] = useState<{ kind: "dual" | "single"; id: string; name: string } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ kind: "single"; id: string; name: string } | null>(null);
   const [phase, setPhase] = useState<Phase>("ready");
   const reqId = useRef(0);
   const filterRef = useRef(filter);
@@ -73,19 +70,8 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
     if (!pendingDelete) return;
     const target = pendingDelete;
     setPendingDelete(null);
-    if (target.kind === "dual") {
-      await fetch("/api/dual-star/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reportId: target.id }) }).catch(() => undefined);
-      setDualList((prev) => prev.filter((item) => item.id !== target.id));
-    } else {
-      await fetch("/api/myfate/star-report-views", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ starId: target.id }) }).catch(() => undefined);
-      setGroups((prev) => prev.filter((group) => group.starId !== target.id));
-    }
-  }
-
-  async function retryDual(reportId: string) {
-    setDualList((prev) => prev.map((item) => (item.id === reportId ? { ...item, status: "generating" as const } : item)));
-    await fetch(`/api/dual-star/${reportId}`, { method: "POST" }).catch(() => undefined);
-    setTimeout(() => { window.location.reload(); }, 700);
+    await fetch("/api/myfate/star-report-views", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ starId: target.id }) }).catch(() => undefined);
+    setGroups((prev) => prev.filter((group) => group.starId !== target.id));
   }
 
   function selectFilter(next: ReportFilter) {
@@ -116,15 +102,7 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
   const searchedGroups = keyword
     ? groups.filter((group) => group.name.toLowerCase().includes(keyword) || group.role.toLowerCase().includes(keyword))
     : groups;
-  const statusMatch = (status: string) => statusFilter === "all"
-    || (statusFilter === "completed" && status === "ready")
-    || (statusFilter === "failed" && status === "failed")
-    || (statusFilter === "generating" && status === "generating");
-  const searchedDual = dualList.filter((report) => (!keyword
-    || report.nameA.toLowerCase().includes(keyword) || report.nameB.toLowerCase().includes(keyword))
-    && statusMatch(report.status));
   const visibleGroups = filterGroups(searchedGroups, filter);
-  const visibleDual = searchedDual;
   const empty = EMPTY_COPY[filter];
 
   return (
@@ -152,17 +130,6 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
 
       <div className="mf-lib-toolbar">
         <SearchInput value={query} onChange={setQuery} placeholder="按名称搜索报告" />
-        <FilterBar
-          ariaLabel="状态筛选"
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={[
-            { key: "all", label: "全部状态" },
-            { key: "completed", label: "已完成" },
-            { key: "generating", label: "生成中" },
-            { key: "failed", label: "生成失败" },
-          ]}
-        />
       </div>
 
       <div className="mf-hist-body" aria-busy={phase === "refreshing"} aria-live="polite">
@@ -173,7 +140,7 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
             <p>内容没能加载出来，你的筛选选择已保留。</p>
             <button className="mf-hist-retry" type="button" onClick={refresh}>重新加载</button>
           </section>
-        ) : (filter === "dual" ? visibleDual.length === 0 : visibleGroups.length === 0 && (filter !== "all" || visibleDual.length === 0)) ? (
+        ) : visibleGroups.length === 0 ? (
           <section className="mf-hist-empty">
             <span aria-hidden="true">✦</span>
             <h2>{empty.title}</h2>
@@ -206,36 +173,12 @@ export default function ReportsBrowser({ initialGroups, dualReports, urlFilter }
                 </div>
               </article>
             ))}
-            {(filter === "all" || filter === "dual") && visibleDual.length ? visibleDual.map((report) => (
-              <article className="mf-lib-card" key={report.id}>
-                <button type="button" className="mf-lib-card-del" aria-label="删除这份合盘报告" onClick={() => setPendingDelete({ kind: "dual", id: report.id, name: `${report.nameA} × ${report.nameB}` })}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16" /><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" /><path d="M6.5 7l.8 11.2A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8L17.5 7" /><path d="M10.2 11v4.5M13.8 11v4.5" /></svg>
-                </button>
-                <Link className="mf-lib-card-head" href={`/home/dual-star-match/reports/${report.id}`}>
-                  <span className="mf-lib-card-pair">
-                    <img src={report.portraitA ?? ""} alt="" loading="lazy" decoding="async" aria-hidden="true" />
-                    <img src={report.portraitB ?? ""} alt="" loading="lazy" decoding="async" aria-hidden="true" />
-                  </span>
-                  <div className="mf-lib-card-info">
-                    <b>{report.nameA} × {report.nameB}</b>
-                    <small>双人合盘</small>
-                  </div>
-                </Link>
-                <div className="mf-lib-card-meta">
-                  <div className="mf-lib-card-type mf-lib-card-type-static">
-                    <i>双人合盘报告</i>
-                    <small>{relativeTime(report.createdAt)}</small>
-                    <small><Tag tone={report.status === "ready" ? "good" : report.status === "failed" ? "bad" : "warn"}>{report.status === "ready" ? "已完成" : report.status === "failed" ? "生成失败" : "生成中"}</Tag>{report.status === "failed" ? <button type="button" className="mf-lib-retry" onClick={() => void retryDual(report.id)}>重新生成</button> : null}</small>
-                  </div>
-                </div>
-              </article>
-            )) : null}
           </div>
         )}
         <ConfirmDialog
           open={pendingDelete !== null}
           title="删除记录"
-          message={pendingDelete ? `确定删除「${pendingDelete.name}」的${pendingDelete.kind === "dual" ? "合盘报告,删除后不可恢复" : "浏览记录"}吗?` : ""}
+          message={pendingDelete ? `确定删除「${pendingDelete.name}」的浏览记录吗?` : ""}
           confirmText="删除"
           onConfirm={() => void confirmDelete()}
           onCancel={() => setPendingDelete(null)}

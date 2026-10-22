@@ -8,7 +8,7 @@ import { AuthProvider } from "../auth-context";
 export const metadata: Metadata = {
   // 模板让子页面(人物列表、人物预览)的标题统一带上 MeVerse 后缀
   title: { default: "生辰画像", template: "%s · MeVerse" },
-  description: "MeVerse 明星合盘与个人解读工作台",
+  description: "MeVerse 生辰解读工作台",
 };
 
 export default async function HomeLayout({ children }: { children: ReactNode }) {
