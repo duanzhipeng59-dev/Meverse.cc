@@ -26,6 +26,7 @@ export type BirthState = {
   solarOn: boolean;
   province: string;
   cityId: string;
+  cityName: string;
   district: string;
 };
 
@@ -39,6 +40,7 @@ export const emptyBirthState = (): BirthState => ({
   solarOn: true,
   province: "",
   cityId: "",
+  cityName: "",
   district: "",
 });
 
@@ -107,7 +109,8 @@ export function buildBirthSubject(state: BirthState, fallbackName = "本人"): {
       birthDate: `${y}-${pad(m)}-${pad(d)}`,
       birthTime: `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`,
       cityId: effective.id,
-      cityName: effective.name,
+      // cityId 是真太阳时锚点(非省会城市共用省会),显示名用用户实际选择的城市
+      cityName: state.cityName || effective.name,
     },
     errors: {},
   };
@@ -145,7 +148,9 @@ export function BirthInfoFields({ state, onChange, errors = {} }: {
 
   const city = useMemo(() => vedicCities.find((item) => item.id === state.cityId) ?? null, [state.cityId]);
   const provinceCities = useMemo(() => regionProvinces.find((item) => item.name === state.province)?.cities ?? [], [state.province]);
-  const districts = useMemo(() => provinceCities.find((item) => item.cityId === state.cityId)?.districts ?? [], [provinceCities, state.cityId]);
+  // 城市按 cityId+城市名 双条件定位:非省会城市的 cityId 与省会锚点相同(真太阳时按省会折算),
+  // 只按 cityId 匹配会命中省会的区县列表
+  const districts = useMemo(() => provinceCities.find((item) => item.cityId === state.cityId && item.name === state.cityName)?.districts ?? [], [provinceCities, state.cityId, state.cityName]);
 
   // 历法切换:把当前日期换算成另一历法的同一时刻,其余字段不动
   function switchCalendar(next: "solar" | "lunar") {
@@ -243,13 +248,18 @@ export function BirthInfoFields({ state, onChange, errors = {} }: {
       <div className="mf-start-field">
         <span className="mf-start-label">出生地（精确到区/县，用于真太阳时校正）</span>
         <div className="mf-start-row">
-          <select className="mf-start-select" value={state.province} onChange={(e) => onChange({ ...state, province: e.target.value, cityId: "", district: "" })} aria-label="省份">
+          <select className="mf-start-select" value={state.province} onChange={(e) => onChange({ ...state, province: e.target.value, cityId: "", cityName: "", district: "" })} aria-label="省份">
             <option value="">省</option>
             {regionProvinces.map((item) => (<option key={item.name} value={item.name}>{item.name}</option>))}
           </select>
-          <select className="mf-start-select" value={state.cityId} disabled={!state.province} onChange={(e) => onChange({ ...state, cityId: e.target.value, district: "" })} aria-label="城市">
+          <select className="mf-start-select" value={state.cityId ? `${state.cityId}|${state.cityName}` : ""} disabled={!state.province} onChange={(e) => {
+            // 省内非省会城市共用省会锚点 cityId(真太阳时折算),value 用「锚点|城市名」保证唯一,
+            // 否则选了地级市后 select 会回显到第一个同 value 的省会城市
+            const [anchorId, cityName] = e.target.value.split("|");
+            onChange({ ...state, cityId: anchorId, cityName: cityName ?? "", district: "" });
+          }} aria-label="城市">
             <option value="">市</option>
-            {provinceCities.map((item) => (<option key={item.cityId} value={item.cityId}>{item.name}</option>))}
+            {provinceCities.map((item) => (<option key={`${item.cityId}-${item.name}`} value={`${item.cityId}|${item.name}`}>{item.name}</option>))}
           </select>
           <select className="mf-start-select" value={state.district} disabled={!state.cityId} onChange={(e) => onChange({ ...state, district: e.target.value })} aria-label="区县">
             <option value="">区/县</option>
