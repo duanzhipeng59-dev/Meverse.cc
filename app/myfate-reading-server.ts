@@ -22,6 +22,9 @@ export type ReadingReportRow = {
   createdAt: string;
 };
 
+// 后台任务被平台中断时没有机会回写状态，避免历史记录永久停在「生成中」。
+export const READING_GENERATION_STALE_MS = 15 * 60 * 1000;
+
 function mapRow(row: Record<string, unknown>): ReadingReportRow {
   return {
     id: row.id as string,
@@ -65,6 +68,18 @@ export async function getReadingReport(id: string): Promise<ReadingReportRow | n
     .maybeSingle();
   if (error || !data) return null;
   return mapRow(data as Record<string, unknown>);
+}
+
+export async function recoverStaleReadingReport(report: ReadingReportRow): Promise<ReadingReportRow> {
+  if (report.status !== "generating") return report;
+  const createdAt = Date.parse(report.createdAt);
+  if (!Number.isFinite(createdAt) || Date.now() - createdAt < READING_GENERATION_STALE_MS) return report;
+  try {
+    await updateReadingReport(report.id, { status: "failed", error: "READING_GENERATION_TIMEOUT" });
+    return { ...report, status: "failed" };
+  } catch {
+    return report;
+  }
 }
 
 export async function updateReadingReport(id: string, patch: { status: "ready" | "failed"; content?: unknown; error?: string | null }): Promise<void> {

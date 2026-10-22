@@ -1,5 +1,5 @@
 import { getSessionUser } from "../../auth/server";
-import { listReadingReports } from "../../../myfate-reading-server";
+import { listReadingReports, recoverStaleReadingReport } from "../../../myfate-reading-server";
 
 // 解读页生成记录列表(content 不下发;subject 全量下发,弹窗「从记录选」用完整出生信息)
 export async function GET(request: Request) {
@@ -7,8 +7,9 @@ export async function GET(request: Request) {
   if (!user) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
   try {
     const rows = await listReadingReports(user.id);
+    const recoveredRows = await Promise.all(rows.map(recoverStaleReadingReport));
     return Response.json({
-      reports: rows.map((row) => ({
+      reports: recoveredRows.map((row) => ({
         id: row.id,
         mode: row.mode,
         dualType: row.dualType,
