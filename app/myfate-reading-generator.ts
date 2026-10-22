@@ -40,9 +40,10 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
       const chart = buildBaziChart({ birthDate: birthA.birthDate, birthTime: birthA.birthTime, gender: birthA.gender === "female" ? "female" : "male", city: { id: birthA.starId, name: birthA.birthPlace, lat: birthA.lat, lon: birthA.lon, tz: birthA.tz } });
       const profile = buildBaziLifeProfile(chart);
       const facts = buildStaticReadingFacts(chart, profile);
-      // 个人解读固定用 Gemini(双人合盘与其余 AI 功能仍走 MYFATE_AI_PROVIDER,默认 DeepSeek)
+      // 个人解读固定用 Gemini(双人合盘与其余 AI 功能仍走 MYFATE_AI_PROVIDER,默认 DeepSeek);
+      // 模版化九章节(每章 2-8 小节)输出更长,16k tokens 防截断
       const content = await generateStaticReading(
-        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 10000, json: true })).content,
+        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 16000, json: true })).content,
         facts,
         profile,
       );

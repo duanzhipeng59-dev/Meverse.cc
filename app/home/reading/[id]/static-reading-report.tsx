@@ -53,14 +53,14 @@ export default function StaticReadingReport({ content, showAdvice = true }: { co
                   <ul className="mf-rr-steps">
                     {timeline.dayun.map((item) => (
                       <li key={`${key}-${item.ganzhi}`} className={item.current ? "is-current" : ""}>
-                        <b>{item.ganzhi}</b><small>{item.age} · {item.label}</small><span>{item.theme} {item.action}</span>
+                        <b>{item.ganzhi}</b><small>{item.age} · {item.label}{item.score != null ? ` · ${item.score}分` : ""}</small><span>{item.theme} {item.action}</span>
                       </li>
                     ))}
                   </ul>
                   <h3>近期流年</h3>
                   <ul className="mf-rr-years">
                     {timeline.annual.map((item) => (
-                      <li key={`${key}-${item.year}`}><b>{item.year} {item.ganzhi}</b><small>{item.label}</small><span>{item.theme} {item.action}</span></li>
+                      <li key={`${key}-${item.year}`}><b>{item.year} {item.ganzhi}</b><small>{key === "relationship" && item.score != null ? `缘分指数 ${item.score}` : `${item.label}${item.score != null ? ` · ${item.score}分` : ""}`}</small><span>{item.theme} {item.action}</span></li>
                     ))}
                   </ul>
                 </div>
