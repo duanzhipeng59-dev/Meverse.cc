@@ -52,3 +52,6 @@ skills-lock.json
 *.tsbuildinfo
 worker-configuration.d.ts
 .zcode/
+
+# gen-china-regions 数据缓存
+.cache/
