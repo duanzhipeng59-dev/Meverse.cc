@@ -9,7 +9,14 @@ function inline(text: string) {
 
 /** 将模型返回的轻量 Markdown 转成报告排版，并隐藏技术性边界说明。 */
 export default function RawReportMarkdown({ content }: { content: string }) {
-  const lines = content
+  const cleaned = content
+    // 删除模型附带的技术边界说明，但保留真正的报告内容。
+    .replace(/\s*说明[：:][\s\S]*?(?=\n\s*\n|\n(?=#{1,3}\s)|$)/, "")
+    // 模型偶尔把章节标题和正文连在一行，展示层主动拆开。
+    .replace(/\s+(?=(?:#{1,3}\s|[一二三四五六七八九十]+、|\d+[、.]\s))/g, "\n")
+    // 年份趋势逐年分段。
+    .replace(/\s+(?=(?:19|20)\d{2}\s*[甲乙丙丁戊己庚辛壬癸])/g, "\n");
+  const lines = cleaned
     .replace(/\\\s*$/gm, "")
     .split(/\r?\n/)
     .filter((line) => !/^>\s*说明[：:]/.test(line.trim()) && !/^本报告仅依据上述四柱/.test(line.trim()) && !/^---+$/.test(line.trim()));

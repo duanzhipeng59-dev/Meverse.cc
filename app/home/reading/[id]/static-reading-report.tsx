@@ -25,6 +25,11 @@ const SECTION_TITLE: Record<string, string> = {
 };
 
 function ReadableText({ text }: { text: string }) {
+  // 流年/年份型内容按每个年份单独成段，避免多个年份挤在同一段里。
+  const yearParts = text.split(/(?=(?:19|20)\d{2}\s*[甲乙丙丁戊己庚辛壬癸])/).map((part) => part.trim()).filter(Boolean);
+  if (yearParts.length > 1) {
+    return <>{yearParts.map((part, index) => <span className="mf-rr-paragraph" key={`${index}-${part.slice(0, 8)}`}>{part}</span>)}</>;
+  }
   const sentences = text.split(/(?<=[。！？])/).map((part) => part.trim()).filter(Boolean);
   const parts: string[] = [];
   for (let index = 0; index < sentences.length; index += 2) parts.push(sentences.slice(index, index + 2).join(""));
