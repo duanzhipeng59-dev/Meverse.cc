@@ -95,8 +95,8 @@ async function generateWithGeminiViaOpenAI(
         ...(options.json ? { response_format: { type: "json_object" } } : {}),
         stream: false,
       }),
-      // 模版化报告单段输出 3-4 分钟(16k tokens),90s 必超时;270s 留在函数 maxDuration 内
-      signal: AbortSignal.timeout(270_000),
+      // 大输出单段可达数分钟;240s 上限保证 300s 函数预算内还能写库落状态
+      signal: AbortSignal.timeout(240_000),
     });
     if (response.ok) {
       const parsed = deepSeekResponseSchema.safeParse(await response.json());

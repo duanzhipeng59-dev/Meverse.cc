@@ -47,7 +47,10 @@ ${JSON.stringify({ maleOrA: subjectJson(subjectA), femaleOrB: subjectJson(subjec
   // 双人合盘与个人解读统一走 Gemini，保证线上使用同一套可用的生成链路。
   // 模型偶发漏字段/换命名:带纠错提示重试,而非一次失败整单作废。
   let lastError: unknown;
+  const startedAt = Date.now();
   for (let attempt = 0; attempt < 3; attempt += 1) {
+    // 重试预算:单次上限 240s,总时长超 40s 就不再重试,保证 300s 函数预算内能落 failed 状态
+    if (attempt > 0 && Date.now() - startedAt > 40_000) break;
     const suffix = attempt ? `\n\n上次输出未通过结构校验：${describeIssue(lastError)}。请修正后重新输出完整 JSON（顶层键：overview、profiles、analysis、timeline、actionableAdvice；overview 必须含数值型 matchScore，profiles 必须同时有 male 与 female）。` : "";
     try {
       const result = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: basePrompt + suffix }], { provider: "gemini", temperature: 0.35, maxTokens: 30000, json: true });

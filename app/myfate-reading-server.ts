@@ -23,7 +23,8 @@ export type ReadingReportRow = {
 };
 
 // 后台任务被平台中断时没有机会回写状态，避免历史记录永久停在「生成中」。
-export const READING_GENERATION_STALE_MS = 15 * 60 * 1000;
+// Vercel 函数上限 300s;generating 超 6 分钟必是函数被强杀,轮询时自愈标失败
+export const READING_GENERATION_STALE_MS = 6 * 60 * 1000;
 
 function mapRow(row: Record<string, unknown>): ReadingReportRow {
   return {

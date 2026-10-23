@@ -168,7 +168,10 @@ function describeValidationError(error: unknown): string {
 
 export async function generateStaticReading(callModel: (system: string, prompt: string) => Promise<string>, facts: StaticReadingFacts, profile?: BaziLifeProfile) {
   let lastError: unknown;
+  const startedAt = Date.now();
   for (let attempt = 0; attempt < 3; attempt += 1) {
+    // 重试预算:单次上限 240s,总时长超 40s 就不再重试,保证 300s 函数预算内能落 failed 状态
+    if (attempt > 0 && Date.now() - startedAt > 40_000) break;
     const suffix = attempt ? `\n\n上次输出未通过结构校验：${describeValidationError(lastError)}。请修正后重新输出完整 JSON。` : "";
     try {
       const text = await callModel(STATIC_READING_SYSTEM_PROMPT, buildStaticReadingPrompt(facts, profile) + suffix);
