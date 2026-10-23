@@ -111,14 +111,18 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
         <Link className="mf-workspace-brand" href="/" aria-label="返回 MeVerse 首页">
           <span className="mf-meverse-logo" role="img" aria-label="MeVerse" />
         </Link>
-        <Link
-          className={pathname === "/home/profile" ? "mf-mobile-profile-btn is-active" : "mf-mobile-profile-btn"}
-          href="/home/profile"
-          aria-label="个人中心"
-          aria-current={pathname === "/home/profile" ? "page" : undefined}
-        >
-          个人中心
-        </Link>
+        {status === "authenticated" ? (
+          <Link
+            className={pathname === "/home/profile" ? "mf-mobile-profile-btn is-active" : "mf-mobile-profile-btn"}
+            href="/home/profile"
+            aria-label="个人中心"
+            aria-current={pathname === "/home/profile" ? "page" : undefined}
+          >
+            个人中心
+          </Link>
+        ) : (
+          <LoginModal className="mf-mobile-profile-btn">个人中心</LoginModal>
+        )}
       </header>
 
       <aside className="mf-workspace-sidebar">
@@ -145,6 +149,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="mf-workspace-account" aria-label="账户选项">
+        {status === "authenticated" ? (
           <Link
             className={pathname === "/home/profile" ? "active" : undefined}
             href="/home/profile"
@@ -153,6 +158,12 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
             <span className="mf-workspace-nav-icon"><UserIcon /></span>
             <span>个人中心</span>
           </Link>
+        ) : (
+          <LoginModal className="mf-workspace-account-login">
+            <span className="mf-workspace-nav-icon"><UserIcon /></span>
+            <span>个人中心</span>
+          </LoginModal>
+        )}
           {status === "authenticated" ? (
             <button
               type="button"

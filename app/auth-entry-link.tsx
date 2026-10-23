@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useSyncExternalStore, type ReactNode } from "react";
 import { readLocalSession } from "./local-auth";
+import LoginModal from "./components/login-modal";
 
 // 本地会话变更事件:登录/登出时广播,让同页的入口链接即时同步(跨标签页走 storage 事件)。
 const AUTH_CHANGE_EVENT = "myfate-auth-change";
@@ -27,6 +28,7 @@ export default function AuthEntryLink({
   anonymousFrom?: string;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const subscribe = useCallback((onStoreChange: () => void) => {
     window.addEventListener("storage", onStoreChange);
@@ -44,13 +46,13 @@ export default function AuthEntryLink({
     () => null,
   );
   const authenticated = Boolean(email);
-  const target = authenticated
-    ? href
-    : `/login?next=${encodeURIComponent(anonymousNext ?? href)}&from=${encodeURIComponent(anonymousFrom ?? pathname)}`;
+  if (!authenticated) {
+    return (
+      <LoginModal className={className} onAuthenticated={() => router.push(anonymousNext ?? href)}>
+        {anonymousChildren !== undefined ? anonymousChildren : children}
+      </LoginModal>
+    );
+  }
 
-  return (
-    <Link className={className} href={target}>
-      {!authenticated && anonymousChildren !== undefined ? anonymousChildren : children}
-    </Link>
-  );
+  return <Link className={className} href={href}>{children}</Link>;
 }

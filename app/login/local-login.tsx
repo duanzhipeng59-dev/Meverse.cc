@@ -158,11 +158,6 @@ export default function LocalLogin() {
 
   return (
     <main className="mf-login-page">
-      <Link className="mf-login-brand mf-brand" href="/" aria-label="返回 MeVerse 首页">
-        <span className="mf-brand-mark">M</span>
-        <span>MeVerse</span>
-      </Link>
-
       <section className="mf-login-card">
         <div className="mf-login-card-head">
           <div className="mf-login-mark" aria-hidden="true">

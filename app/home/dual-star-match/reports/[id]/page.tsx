@@ -80,7 +80,23 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
           );
         }
         if (typeof report.content === "string") {
-          return <article className="mf-zr-card mf-rr-card mf-raw-report"><RawReportMarkdown content={report.content} /></article>;
+          const legacyScores = report.scores ?? {};
+          return (
+            <>
+              <DualProfileCards people={profiles} />
+              <section className="mf-zr-card mf-rr-card mf-dual-legacy-summary" id="d-overview">
+                <div className="mf-zr-section-head"><span>01</span><div><h2>关系总览</h2><p>先看整体关系画像，再深入阅读详细分析</p></div></div>
+                <p className="mf-rr-lead">这是一份双人八字关系分析报告，下面将从双方底色、互动模式、现实协作和相处建议几个层面展开。</p>
+                <div className="mf-dual-scores">
+                  {Object.entries(SCORE_LABELS).map(([key, label]) => {
+                    const value = Number(legacyScores[key] ?? 0);
+                    return <div key={key}><span>{label}</span><div className="mf-dual-score-bar"><i style={{ width: `${Math.max(0, Math.min(100, value))}%` }} data-tone={key === "conflict" ? "caution" : value >= 70 ? "good" : "neutral"} /></div><b>{value}</b></div>;
+                  })}
+                </div>
+              </section>
+              <article className="mf-zr-card mf-rr-card mf-raw-report mf-dual-legacy-report"><RawReportMarkdown content={report.content} /></article>
+            </>
+          );
         }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();

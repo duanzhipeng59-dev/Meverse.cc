@@ -148,6 +148,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
         <div className="mf-login-modal-overlay" role="dialog" aria-modal="true" aria-label="登录">
           <div className="mf-login-modal-mask" aria-hidden="true" onClick={() => setOpen(false)} />
           <section className="mf-login-card mf-login-modal-card">
+            <button type="button" className="mf-login-modal-close" aria-label="关闭登录弹窗" onClick={() => setOpen(false)}>×</button>
             <div className="mf-login-card-head">
               <div className="mf-login-mark" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -159,7 +160,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
               </button>
             </div>
             <span className="mf-login-kicker">WELCOME TO MEVERSE</span>
-            <h1>登录后，继续探索</h1>
+            <h1>登录 MeVerse，立即探索</h1>
             <p>使用邮箱验证码登录。首次使用的邮箱会自动创建账号。</p>
 
             <form className="mf-login-form" onSubmit={submit}>
