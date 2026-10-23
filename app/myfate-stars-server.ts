@@ -183,7 +183,13 @@ export async function getPublishedStarList(): Promise<StarListItem[]> {
 
 export async function getHomepageStarList(): Promise<StarListItem[]> {
   const items = await getPublishedStarList();
-  return items.filter((item) => item.homepageFeatured).slice(0, 6);
+  // 首页六卡从全量人物随机轮换(首页 ISR 300s,每个缓存窗口一批),不再固定精选名单
+  const pool = [...items];
+  for (let i = pool.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, 6);
 }
 
 export async function getPublishedStars(): Promise<StarProfile[]> {
