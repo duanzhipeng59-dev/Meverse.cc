@@ -23,9 +23,20 @@ type BaziSubjectInput = ReadingSubject & { fourPillars: Array<{ label: string; g
 function subjectJson(subject: BaziSubjectInput) { return { name: subject.name, gender: subject.gender, birthDate: subject.birthDate, fourPillars: subject.fourPillars }; }
 
 export async function generateBaziMatchReport(subjectA: BaziSubjectInput, subjectB: BaziSubjectInput): Promise<BaziMatchReport> {
-  const prompt = `请严格按要求输出完整 JSON。报告覆盖：基础评分与雷达图、双方本命婚恋底色、五行互补、日柱夫妻宫、沟通与冲突、家庭背景、岁运与神煞边界、双方行动建议。输入只包含双方四柱原始信息，无法从四柱确认的内容必须明确写“未提供，无法判断”，不要自行推导具体年份或神煞。\n\n输入：\n${JSON.stringify({ maleOrA: subjectJson(subjectA), femaleOrB: subjectJson(subjectB) }, null, 2)}\n\nJSON 字段必须完全匹配：overview、profiles、analysis、timeline、actionableAdvice。`;
+  const prompt = `请严格按要求输出完整 JSON。报告覆盖：基础评分与雷达图、双方本命婚恋底色、五行互补、日柱夫妻宫、沟通与冲突、家庭背景、岁运与神煞边界、双方行动建议。输入只包含双方四柱原始信息，无法从四柱确认的内容必须明确写“未提供，无法判断”，不要自行推导具体年份或神煞。
+
+输入：
+${JSON.stringify({ maleOrA: subjectJson(subjectA), femaleOrB: subjectJson(subjectB) }, null, 2)}
+
+只允许输出一个 JSON 对象，禁止使用 report、data、result、output 等外层包装。顶层键必须直接是：overview、profiles、analysis、timeline、actionableAdvice。即使某项无法判断，也必须保留对应键并填入空数组或“未提供，无法判断”。`;
   const result = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 18000, json: true });
   const start = result.content.indexOf("{"); const end = result.content.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("BAZI_DUAL_INVALID_JSON");
-  return baziMatchReportSchema.parse(JSON.parse(result.content.slice(start, end + 1)));
+  const parsed = JSON.parse(result.content.slice(start, end + 1)) as Record<string, unknown>;
+  const candidate = (parsed.report ?? parsed.data ?? parsed.result ?? parsed.output ?? parsed) as Record<string, unknown>;
+  const profiles = (candidate.profiles ?? {}) as Record<string, unknown>;
+  if (!profiles.male && profiles.personA) profiles.male = profiles.personA;
+  if (!profiles.female && profiles.personB) profiles.female = profiles.personB;
+  candidate.profiles = profiles;
+  return baziMatchReportSchema.parse(candidate);
 }
