@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import RawReportMarkdown from "../../../components/raw-report-markdown";
 import ReportTopbar from "../../../report-topbar";
 import ReadingGenerating from "./reading-generating";
 import { requirePageUser } from "../../../require-page-user";
@@ -77,7 +78,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
         );
       })() : (() => {
         if (typeof report.content === "string") {
-          return <article className="mf-zr-card mf-rr-card mf-raw-report">{report.content}</article>;
+          return <article className="mf-zr-card mf-rr-card mf-raw-report"><RawReportMarkdown content={report.content} /></article>;
         }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();

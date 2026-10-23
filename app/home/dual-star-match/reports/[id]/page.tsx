@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import RawReportMarkdown from "../../../../components/raw-report-markdown";
 import StarAskPanel from "../../../relationship-test/[id]/test/ask-panel";
 import ReportTopbar from "../../../../report-topbar";
 import ReportToc from "../../../../report-toc";
@@ -79,7 +80,7 @@ export default async function DualReportPage({ params }: { params: Promise<{ id:
           );
         }
         if (typeof report.content === "string") {
-          return <article className="mf-zr-card mf-rr-card mf-raw-report">{report.content}</article>;
+          return <article className="mf-zr-card mf-rr-card mf-raw-report"><RawReportMarkdown content={report.content} /></article>;
         }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();

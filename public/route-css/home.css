@@ -3107,9 +3107,13 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-rr-lead { margin: 0; color: var(--bz-ink); font-size: 14.5px; line-height: 1.9; text-align: justify; text-justify: inter-ideograph; }
 .mf-rr-paragraph { display: block; text-indent: 2em; text-align: justify; text-justify: inter-ideograph; word-break: break-word; }
 .mf-rr-paragraph + .mf-rr-paragraph { margin-top: 12px; }
-.mf-raw-report { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--bz-ink); font-size: 14px; line-height: 2; }
+.mf-raw-report { overflow-wrap: anywhere; color: var(--bz-ink); font-size: 14px; line-height: 1.9; }
 .mf-raw-report h1, .mf-raw-report h2, .mf-raw-report h3 { margin: 24px 0 10px; color: var(--bz-ink); line-height: 1.35; }
 .mf-raw-report p { margin: 0 0 14px; }
+.mf-raw-report-content strong { color: var(--bz-ink); font-weight: 700; }
+.mf-raw-report-content blockquote { margin: 12px 0 18px; padding: 10px 14px; border-left: 3px solid var(--bz-accent); color: var(--bz-muted); background: rgb(255 255 255 / 3%); }
+.mf-raw-report-content ul { margin: 8px 0 16px; padding-left: 22px; }
+.mf-raw-report-content li { margin: 6px 0; }
 .mf-rr-tags { margin: 0; color: var(--bz-red-bright); font-size: 13px; font-weight: 600; letter-spacing: 0.05em; }
 .mf-rr-p { margin: 0; color: var(--bz-muted); font-size: 13.5px; line-height: 1.75; }
 .mf-rr-blocks { display: grid; gap: 14px; }
