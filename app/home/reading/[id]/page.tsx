@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import RawReportMarkdown from "../../../components/raw-report-markdown";
+import BaziMatchReportView from "./bazi-match-report";
+import { baziMatchReportSchema } from "../../../myfate-bazi-dual-report";
 import ReportTopbar from "../../../report-topbar";
 import ReadingGenerating from "./reading-generating";
 import { requirePageUser } from "../../../require-page-user";
@@ -80,6 +82,8 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
         if (typeof report.content === "string") {
           return <article className="mf-zr-card mf-rr-card mf-raw-report"><RawReportMarkdown content={report.content} /></article>;
         }
+        const baziMatch = baziMatchReportSchema.safeParse(report.content);
+        if (baziMatch.success) return <BaziMatchReportView report={baziMatch.data} />;
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();
         const content = parsed.data;
