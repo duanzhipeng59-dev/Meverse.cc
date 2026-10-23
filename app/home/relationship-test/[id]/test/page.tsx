@@ -2,13 +2,12 @@ import { notFound, redirect } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
 import FortuneCurveCard from "../../../../fortune-curve";
-import { getConsultOverride, type ConsultOverrideContent } from "../../../../myfate-consult-override-store";
+import { getConsultOverride, parseStaticReadingContent, type ConsultOverrideContent } from "../../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, hasStarReportView, recordStarReportView } from "../../../../myfate-stars-server";
 import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
 import Link from "next/link";
 import { ReadingProgress } from "../../../../components/reading-tools";
-import { staticReadingSchema } from "../../../../myfate-static-reading";
 import StaticReadingReport from "../../../reading/[id]/static-reading-report";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
@@ -143,8 +142,8 @@ const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : `/h
 
   // ── 统一体系:static 两阶段报告(single-static-v2)与个人解读同一渲染/同一红线 ──
   // 四柱与徽章由引擎按出生资料实时排盘(content 不再携带 chart 事实,与个人解读一致)
-  const staticParsed = staticReadingSchema.safeParse(consult);
-  if (staticParsed.success) {
+  const staticReport = parseStaticReadingContent(consult);
+  if (staticReport) {
     void recordStarReportView(user.id, id, "bazi");
     const chart = birth ? buildBaziChart({
       birthDate: birth.birthDate,
@@ -162,7 +161,7 @@ const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : `/h
         <div className="mf-zr-overview">
           <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={staticPillars} heroBadges={staticBadges} />
         </div>
-        <StaticReadingReport content={staticParsed.data} showAdvice={false} />
+        <StaticReadingReport content={staticReport} showAdvice={false} />
         <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>
         <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、刑冲合害)对静态命局做文化解读，不构成科学预测</p>
       </div>
