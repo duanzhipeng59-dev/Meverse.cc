@@ -11,6 +11,14 @@ export type ConsultOverrideContent = ConsultReport & {
   heroBadges?: string[];
 };
 
+// 报告内容可能带 heroPillars/heroBadges 附加键(Hero 展示用),strict schema 校验前先剥离。
+export function parseStaticReadingContent(content: unknown) {
+  if (!content || typeof content !== "object") return null;
+  const { heroPillars: _p, heroBadges: _b, ...core } = content as Record<string, unknown>;
+  const parsed = staticReadingSchema.safeParse(core);
+  return parsed.success ? parsed.data : null;
+}
+
 export async function getConsultOverride(starId: string): Promise<ConsultOverrideContent | null> {
   const { data, error } = await createSupabaseAdminClient()
     .from("consult_overrides")
@@ -21,7 +29,7 @@ export async function getConsultOverride(starId: string): Promise<ConsultOverrid
   const content = data.content as ConsultOverrideContent;
   if (!content || typeof content !== "object") return null;
   // 基本结构防线:统一体系(single-static)sections 结构直接放行;旧结构按主章节判无效
-  if (staticReadingSchema.safeParse(content).success) return content;
+  if (parseStaticReadingContent(content)) return content;
   for (const key of ["portrait", "pattern", "education", "career", "wealth", "love"] as const) {
     if (!(key in content)) return null;
   }
@@ -46,7 +54,7 @@ export async function deleteConsultOverride(starId: string): Promise<void> {
 // 追问 AI 的上下文摘要:把上传内容压成紧凑文本,替代旧的引擎实时摘要。
 export function formatConsultOverrideDigest(content: ConsultOverrideContent): string {
   // 统一体系:static 八章压成紧凑摘要(追问 AI 上下文,不含预测性内容)
-  const staticParsed = staticReadingSchema.safeParse(content);
+  const staticParsed = parseStaticReadingContent(content) ? { success: true as const, data: parseStaticReadingContent(content)! } : { success: false as const };
   if (staticParsed.success) {
     return Object.values(staticParsed.data.sections)
       .map((section) => `【${section.title}】${section.summary} ${section.insights.map((item) => `${item.label}:${item.content}`).join("；")}`)

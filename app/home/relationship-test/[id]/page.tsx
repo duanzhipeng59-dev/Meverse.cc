@@ -5,7 +5,7 @@ import ReportDetailWorkspace from "../../reports/[id]/report-detail-workspace";
 import PreviewActions from "./preview-actions";
 import ReportTopbar from "../../../report-topbar";
 import { getConsultOverride } from "../../../myfate-consult-override-store";
-import { staticReadingSchema } from "../../../myfate-static-reading";
+import { parseStaticReadingContent } from "../../../myfate-consult-override-store";
 import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth, dayMasterOf } from "../../../myfate-stars-server";
 import { portraitImage, portraitOgImage } from "../../../myfate-image";
 import { Tag } from "../../../components/ui";
@@ -74,10 +74,10 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
 
   const complete = Boolean(star.birthDate && birth?.birthTime);
   // 三条报告摘要:static 统一体系用八章 title+summary,旧结构用章节首段,缺省用档案描述
-  const staticParsed = consult ? staticReadingSchema.safeParse(consult) : null;
-  const legacyConsult = consult && !staticParsed?.success ? consult : null;
-  const digest: Array<{ title: string; text: string }> = staticParsed?.success
-    ? Object.values(staticParsed.data.sections).slice(0, 3).map((section) => ({ title: section.title, text: section.summary.slice(0, 90) }))
+  const staticReport = consult ? parseStaticReadingContent(consult) : null;
+  const legacyConsult = consult && !staticReport ? consult : null;
+  const digest: Array<{ title: string; text: string }> = staticReport
+    ? Object.values(staticReport.sections).slice(0, 3).map((section) => ({ title: section.title, text: section.summary.slice(0, 90) }))
     : legacyConsult
       ? [
           { title: "人生画像", text: legacyConsult.portrait.strength.content.slice(0, 90) },
