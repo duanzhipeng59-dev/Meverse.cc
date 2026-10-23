@@ -29,7 +29,8 @@ export async function generateBaziMatchReport(subjectA: BaziSubjectInput, subjec
 ${JSON.stringify({ maleOrA: subjectJson(subjectA), femaleOrB: subjectJson(subjectB) }, null, 2)}
 
 只允许输出一个 JSON 对象，禁止使用 report、data、result、output 等外层包装。顶层键必须直接是：overview、profiles、analysis、timeline、actionableAdvice。即使某项无法判断，也必须保留对应键并填入空数组或“未提供，无法判断”。`;
-  const result = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 18000, json: true });
+  // 双人合盘与个人解读统一走 Gemini，保证线上使用同一套可用的生成链路。
+  const result = await generateChatText(SYSTEM_PROMPT, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 30000, json: true });
   const start = result.content.indexOf("{"); const end = result.content.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("BAZI_DUAL_INVALID_JSON");
   const parsed = JSON.parse(result.content.slice(start, end + 1)) as Record<string, unknown>;
