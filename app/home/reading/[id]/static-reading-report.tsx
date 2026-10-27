@@ -24,9 +24,10 @@ const SECTION_TITLE: Record<string, string> = {
   family: "六亲",
 };
 
-function ReadableText({ text }: { text: string }) {
+export function ReadableText({ text }: { text: string }) {
   // 流年/年份型内容按每个年份单独成段，避免多个年份挤在同一段里。
-  const yearParts = text.split(/(?=(?:19|20)\d{2}\s*[甲乙丙丁戊己庚辛壬癸])/).map((part) => part.trim()).filter(Boolean);
+  // 兼容"2026丙午""2026 丙午""2026年丙午""2026年（丙午）· …"等新旧流年格式。
+  const yearParts = text.split(/(?=(?:19|20)\d{2}\s*年?\s*[（(]?\s*[甲乙丙丁戊己庚辛壬癸])/).map((part) => part.trim()).filter(Boolean);
   if (yearParts.length > 1) {
     return <>{yearParts.map((part, index) => <span className="mf-rr-paragraph" key={`${index}-${part.slice(0, 8)}`}>{part}</span>)}</>;
   }
