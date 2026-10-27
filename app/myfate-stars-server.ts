@@ -361,24 +361,8 @@ export async function hasStarReportView(userId: string, starId: string): Promise
   }
 }
 
-// 详情页徽标:该明星已解锁的报告类型(重看免费提示用)。
-export async function getStarReportViewTypes(userId: string, starId: string): Promise<Array<"bazi" | "astrology">> {
-  try {
-    const { data } = await createSupabaseAdminClient()
-      .from("star_report_views")
-      .select("report_type")
-      .eq("user_id", userId)
-      .eq("star_id", starId);
-    return (data ?? [])
-      .map((row) => row.report_type)
-      .filter((type): type is "bazi" | "astrology" => type === "bazi" || type === "astrology");
-  } catch {
-    return [];
-  }
-}
-
-// 浏览记录:报告页真正打开后原子计数(按报告类型区分)。
-export type StarReportType = "bazi" | "astrology";
+// 浏览记录:报告页真正打开后原子计数。
+export type StarReportType = "bazi";
 
 export async function recordStarReportView(userId: string, starId: string, reportType: StarReportType = "bazi") {
   try {
@@ -436,7 +420,7 @@ export async function getStarReportViews(userId: string): Promise<StarReportView
         name: row.celebrity_profiles!.name,
         role: row.celebrity_profiles!.role,
         portraitSrc: row.celebrity_profiles!.portrait_url,
-        reportType: row.report_type === "astrology" ? "astrology" : "bazi",
+        reportType: "bazi",
         askCount: askCounts.get(`${row.star_id}|${row.report_type}`) ?? 0,
         viewCount: row.view_count,
         lastViewedAt: row.last_viewed_at,

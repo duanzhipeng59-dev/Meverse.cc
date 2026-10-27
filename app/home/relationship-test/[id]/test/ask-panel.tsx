@@ -32,7 +32,7 @@ export default function StarAskPanel({
   starId: string;
   starName: string;
   suggestions: string[];
-  reportType?: "bazi" | "astrology" | "dual" | "reading-single" | "reading-dual";
+  reportType?: "bazi" | "dual" | "reading-single" | "reading-dual";
 }) {
   const [entries, setEntries] = useState<AskEntry[]>([]);
   const [loaded, setLoaded] = useState(false);

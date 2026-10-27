@@ -1,13 +1,11 @@
 import { z } from "zod";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { buildStarBaziReport, formatStarBaziReport } from "../../../myfate-star-bazi-report";
-import { formatAstrologyReport, getAstrologyReport } from "../../../myfate-astrology-engine";
 import { formatConsultOverrideDigest, getConsultOverride } from "../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
-import { getDualReport } from "../../../myfate-dual-server";
 import { getReadingReport } from "../../../myfate-reading-server";
 import { staticReadingSchema } from "../../../myfate-static-reading";
-import { dualReportSchema } from "../../../myfate-dual-generator";
+import { dualReportSchema } from "../../../myfate-dual-legacy";
 import {
   appendExchange,
   clearConversation,
@@ -28,7 +26,7 @@ import { isUpgradesEnabled } from "../../../myfate-settings";
 export const maxDuration = 60;
 
 const starIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(100);
-const typeSchema = z.enum(["bazi", "astrology", "dual", "reading-single", "reading-dual"]);
+const typeSchema = z.enum(["bazi", "reading-single", "reading-dual"]);
 const requestSchema = z.object({
   starId: starIdSchema,
   reportType: typeSchema.default("bazi"),
@@ -38,9 +36,11 @@ const requestSchema = z.object({
 
 // 会话键归一:reading 报告以 "reading:{id}" 作 star_id 并复用现有 report_type 枚举
 // (ask_conversations 表有 report_type CHECK 约束且无 DDL 通道,前缀方案保持隔离不变)
-function conversationKey(starId: string, reportType: "bazi" | "astrology" | "dual" | "reading-single" | "reading-dual") {
-  if (reportType === "reading-single") return { starId: `reading:${starId}`, reportType: "bazi" as const };
-  if (reportType === "reading-dual") return { starId: `reading:${starId}`, reportType: "dual" as const };
+type AskReportType = "bazi" | "reading-single" | "reading-dual";
+type StoredReportType = "bazi" | "dual";
+function conversationKey(starId: string, reportType: AskReportType): { starId: string; reportType: StoredReportType } {
+  if (reportType === "reading-single") return { starId: `reading:${starId}`, reportType: "bazi" };
+  if (reportType === "reading-dual") return { starId: `reading:${starId}`, reportType: "dual" };
   return { starId, reportType };
 }
 
@@ -63,7 +63,7 @@ function systemPrompt(starName: string, reportDigest: string, summary: string) {
   ].join("\n");
 }
 
-async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "dual" | "reading-single" | "reading-dual", userId: string) {
+async function buildDigest(starId: string, reportType: AskReportType, userId: string) {
   if (reportType === "reading-single" || reportType === "reading-dual") {
     // 自填/记录解读追问:starId 即 reading 报告 id,归属校验后按报告类型压缩全文
     const report = await getReadingReport(starId);
@@ -99,50 +99,9 @@ async function buildDigest(starId: string, reportType: "bazi" | "astrology" | "d
     return { name: `${report.subjectA.name} × ${subjectB}`, digest: lines.join("\n") };
   }
 
-  if (reportType === "dual") {
-    // 双星追问:starId 即报告 id,上下文来自已生成的合盘报告
-    const report = await getDualReport(starId);
-    if (!report || report.status !== "ready") throw new Error("DUAL_REPORT_NOT_READY");
-    const [starA, starB] = await Promise.all([getPublishedStar(report.starA), getPublishedStar(report.starB)]);
-    const nameA = starA?.name ?? report.starA;
-    const nameB = starB?.name ?? report.starB;
-    const content = report.content as { summary?: string; sections?: Record<string, { title?: string; paragraphs?: string[] }>; basis?: Array<{ term?: string; plain?: string }>; scores?: Record<string, number>; future_rhythm?: { supportive_periods?: Array<{ start_year: number; end_year: number; label: string; detail: string }>; pressure_periods?: Array<{ start_year: number; end_year: number; label: string; detail: string }> }; available_time_range?: { start_year: number; end_year: number } | null } | null;
-    const lines: string[] = [
-      `这是「${nameA} × ${nameB}」双人合盘报告。关系画像:${report.summary}`,
-    ];
-    if (content?.scores) lines.push("评分(相对趋势):" + Object.entries(content.scores).map(([k, v]) => `${k}=${v}`).join(" "));
-    for (const section of Object.values(content?.sections ?? {})) {
-      if (section?.title && section.paragraphs?.length) lines.push(`【${section.title}】` + section.paragraphs.join(" "));
-    }
-    const rhythm = content?.future_rhythm;
-    if (rhythm) {
-      const formatPeriod = (period: { start_year: number; end_year: number; label: string; detail: string }) => `${period.start_year}${period.start_year === period.end_year ? "" : `-${period.end_year}`}年 ${period.label}:${period.detail}`;
-      const range = content?.available_time_range;
-      const parts = [
-        ...(rhythm.supportive_periods ?? []).map((period) => `[支持]${formatPeriod(period)}`),
-        ...(rhythm.pressure_periods ?? []).map((period) => `[压力]${formatPeriod(period)}`),
-      ];
-      if (parts.length) lines.push(`【未来关系节奏${range ? `(可分析区间 ${range.start_year}-${range.end_year} 年,不得谈及区间外年份)` : ""}】` + parts.join(";"));
-    }
-    if (content?.basis?.length) lines.push("命理依据:" + content.basis.map((item) => `${item.term}(${item.plain})`).join(";"));
-    return { name: `${nameA} × ${nameB}`, digest: lines.join("\n") };
-  }
-
   const star = await getPublishedStar(starId);
   if (!star) throw new Error("STAR_NOT_FOUND");
   const birth = await getCelebrityVedicBirth(starId);
-  if (reportType === "astrology") {
-    const report = await getAstrologyReport({
-      name: star.name,
-      birthDate: birth?.birthDate ?? star.birthDate,
-      birthTime: birth?.birthTime,
-      lat: birth?.lat ?? 37.57,
-      lon: birth?.lon ?? 126.98,
-      tz: birth?.tz ?? "Asia/Seoul",
-      timeKnown: Boolean(birth?.birthTime),
-    });
-    return { name: star.name, digest: formatAstrologyReport(report) };
-  }
   // 生辰报告摘要优先用上传内容;尚未上传的明星回退引擎实时摘要
   const override = await getConsultOverride(starId);
   if (override) return { name: star.name, digest: formatConsultOverrideDigest(override) };

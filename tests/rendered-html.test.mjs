@@ -44,7 +44,10 @@ test("server-renders relationship-test discovery inside the workspace", async ()
 });
 
 test("star detail resolves as preview page; unknown ids 404", async () => {
-  const preview = await render("/home/relationship-test/jungkook");
+  // 已知明星用 bang-chan:单人详情的离线兜底名单只有 3 名元老(jungkook 只在
+  // Supabase),测试环境取不到云端时详情页会 404;选兜底名单内的人让断言不依赖数据库可达。
+  // 未知 id 由 generateMetadata 阶段 notFound() 返回硬 404(组件内 notFound 是流式软 404)。
+  const preview = await render("/home/relationship-test/bang-chan");
   assert.equal(preview.status, 200);
   const missing = await render("/home/relationship-test/not-a-real-star");
   assert.equal(missing.status, 404);

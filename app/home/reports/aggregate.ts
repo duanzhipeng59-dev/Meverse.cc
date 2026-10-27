@@ -30,7 +30,6 @@ export type StarGroup = {
 export function aggregateGroups(views: StarReportView[]): StarGroup[] {
   const groups = new Map<string, StarGroup>();
   for (const view of views) {
-    if (view.reportType !== "bazi") continue;
     let group = groups.get(view.starId);
     if (!group) {
       group = { starId: view.starId, name: view.name, role: view.role, portraitSrc: view.portraitSrc, entries: [], latestAt: view.lastViewedAt };

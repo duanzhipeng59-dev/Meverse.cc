@@ -21,7 +21,6 @@ export default function robots(): MetadataRoute.Robots {
           "/home/dual-star-match",
           "/home/relationship-profile",
           "/home/celebrity-match",
-          "/home/relationship-test/*/astrology",
           "/home/relationship-test/*/test",
         ],
       },

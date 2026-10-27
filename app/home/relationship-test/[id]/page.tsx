@@ -27,14 +27,14 @@ function personOf(role: string) {
 
 // 人物公开预览页的 SEO 信息:按实际档案生成 title/description/OG 图。
 // UUID 是私人报告(未登录 302 跳登录页),标记 noindex 双保险。
-// 查无此人时页面组件走 notFound():流式渲染下状态码仍是 200+404 内容(软 404,
-// 与改动前行为一致;根修需调整 loading.tsx 流式策略,涉及 UX 不在本次范围)。
+// 查无此人时在 metadata 阶段 notFound():metadata 先于流式壳冲刷执行,拿到真正的
+// 404 状态码(放在页面组件里 notFound 会落在 200 壳内,成为 SEO 软 404)。
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   if (UUID_PATTERN.test(id)) return { title: "生辰画像报告", robots: { index: false, follow: false } };
 
   const star = await getPublishedStar(id);
-  if (!star) return { title: "生辰画像" };
+  if (!star) notFound();
 
   const dayMaster = dayMasterOf(star.threePillars);
   const title = `${star.name}${star.nameEn ? ` ${star.nameEn}` : ""}的生辰画像`;
@@ -73,22 +73,15 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   if (!star) notFound();
 
   const complete = Boolean(star.birthDate && birth?.birthTime);
-  // 三条报告摘要:static 统一体系用八章 title+summary,旧结构用章节首段,缺省用档案描述
+  // 三条报告摘要:统一九章结构取前章 title+summary,缺省回退档案描述
   const staticReport = consult ? parseStaticReadingContent(consult) : null;
-  const legacyConsult = consult && !staticReport ? consult : null;
   const digest: Array<{ title: string; text: string }> = staticReport
     ? Object.values(staticReport.sections).slice(0, 3).map((section) => ({ title: section.title, text: section.summary.slice(0, 90) }))
-    : legacyConsult
-      ? [
-          { title: "人生画像", text: legacyConsult.portrait.strength.content.slice(0, 90) },
-          { title: "格局", text: legacyConsult.pattern.monthGridRich.content.slice(0, 90) },
-          { title: "感情", text: legacyConsult.love.spouse[0]?.text?.slice(0, 90) ?? legacyConsult.love.family.slice(0, 90) },
-        ]
-      : [
-          { title: "人物简介", text: star.description.slice(0, 90) },
-        ];
+    : [
+        { title: "人物简介", text: star.description.slice(0, 90) },
+      ];
   const chapters = consult
-    ? [["◐", "人生画像"], ["❖", "格局"], ["✎", "学业"], ["◈", "事业"], ["✦", "财富"], ["♡", "感情"]]
+    ? [["◐", "人生画像"], ["❖", "格局"], ["✎", "学业"], ["◈", "事业"], ["✦", "财富"], ["♡", "感情"], ["✚", "健康"], ["❀", "子女"], ["⊹", "六亲"]]
     : [];
   const related = allStars.filter((item) => item.id !== id && groupOf(item.role) === groupOf(star.role)).slice(0, 4);
   const hasReport = Boolean(consult);

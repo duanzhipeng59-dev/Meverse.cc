@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ReadingHub from "./reading-hub";
 
-// 解读页:单人解读/双人合盘两个入口(弹窗填写信息排盘) + 生成记录(自填与偶像合盘合并)。
+// 解读页:单人解读/双人合盘两个入口(弹窗填写信息排盘) + 自填生成记录。
 // 页面壳静态化,记录数据由 ReadingHub 客户端按登录态拉取。
 export const revalidate = 300;
 export const metadata: Metadata = { title: "生辰解读" };

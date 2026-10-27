@@ -1,7 +1,7 @@
-// 报告页加载骨架:暖色(生辰)/深紫(星盘)双主题,循环动画,5 秒后浮现耐心提示。
-export default function SkelReport({ theme }: { theme: "bazi" | "astrology" }) {
+// 报告页加载骨架:暖色(生辰)主题,循环动画,5 秒后浮现耐心提示。
+export default function SkelReport() {
   return (
-    <div className={`mf-skel mf-skel-${theme}`} aria-busy="true" aria-label="正在读取命盘数据">
+    <div className="mf-skel mf-skel-bazi" aria-busy="true" aria-label="正在读取命盘数据">
       {/* 顶栏轮廓:吸顶满宽,左=返回+身份块,右=分享胶囊 */}
       <div className="mf-skel-topbar">
         <span className="mf-skel-backarrow" aria-hidden="true" />

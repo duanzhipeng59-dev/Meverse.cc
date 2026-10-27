@@ -230,7 +230,7 @@ select:focus-visible {
 @keyframes mf-zr-blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
 
-#ask, #astro-ask { scroll-margin-top: 112px; }
+#ask { scroll-margin-top: 112px; }
 
 
 @keyframes mf-skel-shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
@@ -3799,22 +3799,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-zr-relation-grid article.is-caution { border-color: #c47a67; background: #fbf3f0; }
 
 
-.mf-astro-wheel .axis { position: absolute; top: 50%; left: 6%; width: 88%; height: 1px; background: #ddd3e7; transform: rotate(0deg); }
 
 
-.mf-astro-wheel .axis.b { transform: rotate(90deg); }
 
 
-.mf-astro-aspects article.is-strength { border-color: #6c9b83; }
 
 
-.mf-astro-aspects article.is-growth { border-color: #b87876; }
 
 
 .mf-skel-bazi { background: var(--bz-paper); color: var(--bz-ink); }
 
 
-.mf-skel-astrology { background: #14101d; }
 
 
 .mf-skel-topbar { display: flex; justify-content: space-between; }
@@ -3826,7 +3821,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-skel-bazi .mf-skel-hero { border: 1px solid var(--bz-line); background: var(--bz-card); }
 
 
-.mf-skel-astrology .mf-skel-hero { border: 1px solid #2c2540; background: #1a1626; }
 
 
 .mf-skel-hero-copy { display: grid; gap: 12px; flex: 1; }
@@ -3844,7 +3838,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-skel-bazi .mf-skel-card { border: 1px solid var(--bz-line); background: var(--bz-card); }
 
 
-.mf-skel-astrology .mf-skel-card { border: 1px solid #2c2540; background: #1a1626; }
 
 .mf-skel .mf-skel-pillars i {
   background: linear-gradient(100deg, transparent 20%, rgba(0,0,0,0.06) 40%, rgba(0,0,0,0.06) 60%, transparent 80%);
@@ -3853,22 +3846,14 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 
-.mf-skel-astrology .skel-portrait, .mf-skel-astrology .skel-bar, .mf-skel-astrology .skel-line, .mf-skel-astrology .mf-skel-pillars i {
-  background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.07) 60%, transparent 80%);
-  background-size: 220% 100%;
-}
-
-
 .mf-skel-status { margin: 4px 0 0; text-align: center; font-size: 14px; color: var(--bz-muted); }
 
 
-.mf-skel-astrology .mf-skel-status { color: #9b90b3; }
 
 
 .mf-skel-patience { margin: 0; text-align: center; font-size: 12.5px; color: var(--bz-muted); opacity: 0; animation: mf-skel-hint 0.4s 5s forwards; }
 
 
-.mf-skel-astrology .mf-skel-patience { color: #776f8e; }
 
 
 .mf-hist-tabs a.is-active, .mf-hist-tabs button.is-active { border-color: transparent; color: #fff; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); }
@@ -3886,13 +3871,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-zr-relation-grid article.is-caution { border-left-color: var(--bz-gold); background: rgb(210 163 92 / 7%); }
 
 
-.mf-astro-wheel .axis { background: rgb(255 235 242 / 10%); }
 
 
-.mf-astro-aspects article.is-strength { border-left-color: var(--bz-green); }
 
 
-.mf-astro-aspects article.is-growth { border-left-color: var(--bz-gold); }
 
 
 
@@ -3932,34 +3914,24 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-dual-period.is-pressure { border-left-color: var(--bz-red); }
 
 
-.mf-cs-timeline > div.is-current { border-left-color: var(--bz-red); }
 
 
-.mf-cs-years > div.is-good { border-left: 3px solid var(--bz-green); }
 
 
-.mf-cs-years > div.is-good em { color: var(--bz-green); }
 
 
-.mf-cs-years > div.is-warn { border-left: 3px solid var(--bz-error); }
 
 
-.mf-cs-years > div.is-warn em { color: var(--bz-error); }
 
 
-.mf-doc .mf-cs-timeline > div.is-current { border-left-color: var(--doc-red); }
 
 
-.mf-doc .mf-cs-years > div.is-good { border-left-color: var(--bz-green); }
 
 
-.mf-doc .mf-cs-years > div.is-good em { color: var(--bz-green); }
 
 
-.mf-doc .mf-cs-years > div.is-warn { border-left-color: var(--bz-error); }
 
 
-.mf-doc .mf-cs-years > div.is-warn em { color: var(--bz-error); }
 
 
 .mf-zr-hero-pillars > span.is-day { border-color: var(--bz-red); background: var(--bz-selected); }
@@ -3970,7 +3942,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 
 /* 运势曲线精简版:两层标签 + 曲线主体 */
-.mf-fortune-label.is-sub { fill: var(--bz-muted); font-size: 13px; font-weight: 500; }
 
 .mf-zr-overview .mf-zr-hero-pillars > span.is-day { border-color: transparent; }
 
@@ -4005,7 +3976,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .mf-skel-topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; height: 60px; box-sizing: border-box; margin: calc(-1 * clamp(16px, 3vw, 32px)) calc(-1 * clamp(16px, 3vw, 32px)) 16px; padding: 0 clamp(16px, 3vw, 32px); background: var(--bz-paper); border-bottom: 1px solid var(--bz-line); }
 
 
-.mf-skel-astrology .mf-skel-topbar { background: #14101d; }
 
 
 .mf-skel-backarrow { flex-shrink: 0; width: 26px; height: 16px; border-radius: 6px; }

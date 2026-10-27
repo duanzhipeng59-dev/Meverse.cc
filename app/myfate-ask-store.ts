@@ -44,7 +44,7 @@ function mapConversation(row: ConversationRow): AskConversation {
 
 const CONVERSATION_SELECT = "id,summary,summarized_count,message_count,last_message_at";
 
-export async function getOrCreateConversation(userId: string, starId: string, reportType: "bazi" | "astrology" | "dual"): Promise<AskConversation> {
+export async function getOrCreateConversation(userId: string, starId: string, reportType: "bazi" | "dual"): Promise<AskConversation> {
   const supabase = createSupabaseAdminClient();
   const query = () => supabase
     .from("ask_conversations")
@@ -200,7 +200,7 @@ async function listMessagesBefore(conversationId: string, keepFromEnd: number) {
   return rows.slice(0, Math.max(0, rows.length - keepFromEnd)).map((row) => ({ role: row.role, content: row.content }));
 }
 
-export async function clearConversation(userId: string, starId: string, reportType: "bazi" | "astrology" | "dual") {
+export async function clearConversation(userId: string, starId: string, reportType: "bazi" | "dual") {
   const supabase = createSupabaseAdminClient();
   await supabase
     .from("ask_conversations")

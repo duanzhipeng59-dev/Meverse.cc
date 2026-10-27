@@ -7,7 +7,7 @@ import ReportTopbar from "../../../report-topbar";
 import ReadingGenerating from "./reading-generating";
 import { requirePageUser } from "../../../require-page-user";
 import { getReadingReport, type ReadingSubject } from "../../../myfate-reading-server";
-import { dualReportSchema, withPersonNames, type DualReportContent } from "../../../myfate-dual-generator";
+import { dualReportSchema, withPersonNames, type DualReportContent } from "../../../myfate-dual-legacy";
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import StaticReadingReport from "./static-reading-report";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";

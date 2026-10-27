@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 
-// 历史记录横条(偶像合盘与自填解读共用):主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
+// 历史记录横条(自填解读):主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
 // 删除用系统确认弹窗,成功由父组件回调本地移除(入口页静态化后 router.refresh 不会更新客户端数据)。
-export default function DualHistoryRow({ id, title, sub, time, statusLabel, status, href, deleteEndpoint, localDelete, onDeleted }: {
+export default function DualHistoryRow({ id, title, sub, time, statusLabel, status, href, deleteEndpoint, onDeleted }: {
   id: string;
   title: string;
   sub?: string;
@@ -14,8 +14,6 @@ export default function DualHistoryRow({ id, title, sub, time, statusLabel, stat
   status: string;
   href: string;
   deleteEndpoint: string;
-  // 本地记录(如待生成横条)不走服务端接口,确认后直接回调移除
-  localDelete?: () => void;
   onDeleted?: (id: string) => void;
 }) {
   const [deleting, setDeleting] = useState(false);
@@ -23,10 +21,6 @@ export default function DualHistoryRow({ id, title, sub, time, statusLabel, stat
   const doDelete = async () => {
     if (deleting) return;
     if (!window.confirm(`删除「${title}」的记录？删除后不可恢复。`)) return;
-    if (localDelete) {
-      localDelete();
-      return;
-    }
     setDeleting(true);
     try {
       const res = await fetch(deleteEndpoint, {

@@ -7,12 +7,11 @@ import { useAuth } from "../../auth-context";
 import LoginModal from "../../components/login-modal";
 import { vedicCities } from "../../myfate-cities";
 import { buildDualChart } from "../../myfate-dual-engine";
-import { readPending, removePending, type DualPending } from "./dual-pending";
 import DualHistoryRow from "./dual-history-row";
 import StartReadingForm, { BirthInfoFields, buildBirthSubject, emptyBirthState, type BirthFieldErrors, type BirthState, type StartSubject } from "./start-reading-form";
 
 // 解读页枢纽:两张入口卡(单人解读/双人合盘,点击弹窗填写信息) + 自填生成记录。
-const STATUS_LABELS: Record<string, string> = { ready: "已完成", generating: "生成中", failed: "生成失败", pending: "待生成" };
+const STATUS_LABELS: Record<string, string> = { ready: "已完成", generating: "生成中", failed: "生成失败" };
 
 type SubjectInfo = { name: string; gender: "male" | "female"; birthDate: string; birthTime: string; cityId: string; cityName: string };
 type ReadingRow = { id: string; mode: "single" | "dual"; dualType?: "love" | "career"; status: string; subjectA: SubjectInfo; subjectB: SubjectInfo | null; createdAt: string };
@@ -76,7 +75,6 @@ export default function ReadingHub() {
   const { status: authStatus, email } = useAuth();
   const loggedIn = authStatus === "authenticated" && Boolean(email);
   const [readings, setReadings] = useState<ReadingRow[]>([]);
-  const [pending, setPending] = useState<DualPending[]>([]);
   const [dialog, setDialog] = useState<"single" | "dual" | null>(null);
   const [manualA, setManualA] = useState<BirthState>(emptyBirthState);
   const [manualB, setManualB] = useState<BirthState>(emptyBirthState);
@@ -121,13 +119,11 @@ export default function ReadingHub() {
   }
 
   useEffect(() => {
-    // 未登录不展示任何生成记录(含本地待生成)
+    // 未登录不展示任何生成记录
     if (!loggedIn) {
-      setPending([]);
       setRecordsStatus("ready");
       return;
     }
-    setPending(readPending());
     // 生成记录列表(自填解读) + 弹窗记录下拉(带状态)
     fetch("/api/reading/list")
       .then((res) => (res.ok ? res.json() as Promise<{ reports?: ReadingRow[] }> : Promise.reject(new Error(String(res.status)))))
@@ -145,7 +141,6 @@ export default function ReadingHub() {
       const date = new Date(timeOf(iso) + 8 * 3600_000);
       return `${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
     };
-    const statusTag = (status: string) => (<em data-status={status}>{STATUS_LABELS[status] ?? status}</em>);
     const displaySubjectName = (subject: SubjectInfo): string => {
       const name = subject.name.trim();
       if (name && name !== "本人") return name;
@@ -191,28 +186,8 @@ export default function ReadingHub() {
         ),
       });
     }
-    for (const item of pending) {
-      // 本地待生成横条:同样带删除(系统确认弹窗后移除本地记录)
-      items.push({
-        key: `pending-${item.a}-${item.b}`,
-        ts: item.ts,
-        node: (
-          <DualHistoryRow
-            key={`pending-${item.a}-${item.b}`}
-            id={`pending-${item.a}-${item.b}`}
-            title={`${item.nameA} × ${item.nameB}`}
-            time={fmt(new Date(item.ts).toISOString())}
-            statusLabel={STATUS_LABELS.pending ?? "待生成"}
-            status="pending"
-            href={`/home/dual-star-match/new/${encodeURIComponent(item.a)}/${encodeURIComponent(item.b)}`}
-            deleteEndpoint=""
-            localDelete={() => removePending(item.a, item.b)}
-          />
-        ),
-      });
-    }
     return items.sort((a, b) => b.ts - a.ts).map((item) => item.node);
-  }, [readings, pending]);
+  }, [readings]);
 
   // 未登录点击入口:弹登录,成功后自动进入对应填写弹窗
   function openOrLogin(mode: "single" | "dual") {
