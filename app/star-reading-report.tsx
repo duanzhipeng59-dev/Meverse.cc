@@ -76,7 +76,6 @@ export default function StarReadingReport({ content }: { content: StaticReading 
               <span>{no}</span>
               <div>
                 <h2><i aria-hidden="true">{icon}</i>{label}</h2>
-                <p>{section.title}</p>
               </div>
             </div>
             {section.summary ? <p className="mf-sr-lead"><ReadableText text={section.summary} /></p> : null}

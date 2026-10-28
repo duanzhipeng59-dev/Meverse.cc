@@ -46,7 +46,7 @@ export default function StaticReadingReport({ content, showAdvice = true }: { co
         if (!section) return null;
         return (
           <section className="mf-zr-card mf-rr-card" key={key}>
-            <div className="mf-zr-section-head"><span>{no}</span><div><h2>{SECTION_TITLE[key]}</h2><p>{section.title}</p></div></div>
+            <div className="mf-zr-section-head"><span>{no}</span><div><h2>{SECTION_TITLE[key]}</h2></div></div>
             <div className="mf-rr-blocks">
               {section.insights.map((item, index) => (
                 <div className="mf-rr-block" key={`${item.label}-${index}`}>
