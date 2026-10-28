@@ -44,10 +44,10 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
       const chart = buildBaziChart({ birthDate: birthA.birthDate, birthTime: birthA.birthTime, gender: birthA.gender === "female" ? "female" : "male", city: { id: birthA.starId, name: birthA.birthPlace, lat: birthA.lat, lon: birthA.lon, tz: birthA.tz } });
       const profile = buildBaziLifeProfile(chart);
       const facts = buildStaticReadingFacts(chart, profile);
-      // 个人解读固定用 Gemini(双人合盘与其余 AI 功能仍走 MYFATE_AI_PROVIDER,默认 DeepSeek);
-      // 单次调用直出模版化九章节大报告,30k tokens 防截断
+      // 个人解读走 DeepSeek(与双人合盘及其余 AI 功能同一通道,密钥已在各环境配置);
+      // 单次调用直出模版化九章报告,DeepSeek 输出上限 8k,8000 防截断(35字段实测足够)
       const content = await generateStaticReading(
-        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 30000, json: true })).content,
+        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "deepseek", temperature: 0.35, maxTokens: 8000, json: true })).content,
         facts,
         profile,
       );
