@@ -107,7 +107,9 @@ export default async function StarReportPage({ params, searchParams }: { params:
     city: { id: birth.starId, name: birth.birthPlace || "首尔 · 韩国", lat: birth.lat, lon: birth.lon, tz: birth.tz },
   }) : null;
   const profile = chart ? buildBaziLifeProfile(chart) : null;
-  const staticPillars = chart ? chart.pillars.map((pillar) => pillar.ganzhi) : heroPillarsOf(consult, star.threePillars);
+  // 明星出生时间不公开:柱位一律只显示三柱(年/月/日),时柱不展示。
+  // 优先取生成报告时写入的 heroPillars(本就三柱);实时排盘与档案三柱兜底同样截到三柱。
+  const staticPillars = (consult?.heroPillars?.length ? consult.heroPillars : chart ? chart.pillars.map((pillar) => pillar.ganzhi) : heroPillarsOf(consult, star.threePillars)).slice(0, 3);
   const staticBadges = chart && profile ? [chart.dayMaster, profile.summary.strength, `喜${profile.summary.favorable.join("·")}`] : undefined;
   return (
     <div className="mf-zr">
