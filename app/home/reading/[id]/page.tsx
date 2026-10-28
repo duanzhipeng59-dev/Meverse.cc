@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import type { Metadata } from "next";
 import RawReportMarkdown from "../../../components/raw-report-markdown";
 import BaziMatchReportView from "./bazi-match-report";
@@ -6,7 +7,7 @@ import { baziMatchReportSchema } from "../../../myfate-bazi-dual-report";
 import ReportTopbar from "../../../report-topbar";
 import ReadingGenerating from "./reading-generating";
 import { requirePageUser } from "../../../require-page-user";
-import { getReadingReport, type ReadingSubject } from "../../../myfate-reading-server";
+import { getReadingReport, importSharedReadingReport, type ReadingSubject } from "../../../myfate-reading-server";
 import { dualReportSchema, withPersonNames, type DualReportContent } from "../../../myfate-dual-legacy";
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import StaticReadingReport from "./static-reading-report";
@@ -40,7 +41,14 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const user = await requirePageUser(`/home/reading/${id}`);
   const report = await getReadingReport(id);
-  if (!report || report.userId !== user.id) notFound();
+  if (!report) notFound();
+  // 分享访问:链接持有者(登录用户)可查看;非所有者首次打开时,把报告复制进 TA 的解读记录以便反复观看
+  if (report.userId !== user.id) {
+    if (report.status !== "ready") notFound();
+    after(async () => {
+      await importSharedReadingReport(user.id, report).catch(() => undefined);
+    });
+  }
 
   const subjectA = report.subjectA as ReadingSubject;
   const subjectB = report.subjectB as ReadingSubject | null;

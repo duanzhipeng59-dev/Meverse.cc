@@ -91,6 +91,34 @@ export async function updateReadingReport(id: string, patch: { status: "ready" |
   if (error) throw error;
 }
 
+// 分享接收:报告链接的登录非所有者打开时,把这份报告复制进 TA 的解读记录,
+// 之后可从自己的记录反复查看。幂等去重按 用户+模式 拉取后在应用层深比较内容
+// (PostgREST 对 jsonb 的对象等值过滤不可靠;两侧内容均为库内 jsonb,键序规范化一致)。
+export async function importSharedReadingReport(viewerId: string, report: ReadingReportRow): Promise<string | null> {
+  if (report.userId === viewerId || report.status !== "ready") return null;
+  const admin = createSupabaseAdminClient();
+  const { data: existingRows } = await admin.from("reading_reports")
+    .select("id,content")
+    .eq("user_id", viewerId)
+    .eq("mode", report.mode);
+  const duplicated = (existingRows ?? []).find((row) => JSON.stringify(row.content) === JSON.stringify(report.content));
+  if (duplicated?.id) return duplicated.id as string;
+  const { data, error } = await admin.from("reading_reports")
+    .insert({
+      user_id: viewerId,
+      mode: report.mode,
+      dual_type: report.dualType,
+      subject_a: report.subjectA,
+      subject_b: report.subjectB,
+      status: "ready",
+      content: report.content,
+    })
+    .select("id")
+    .single();
+  if (error) throw error;
+  return data.id as string;
+}
+
 export async function deleteReadingReport(id: string): Promise<void> {
   const { error } = await createSupabaseAdminClient()
     .from("reading_reports")
