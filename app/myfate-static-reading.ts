@@ -1,7 +1,6 @@
-// Single-person deep reading: the model receives three things only — the bazi chart
-// data, "interpret it per the template", and the template itself. Dayun/annual ganzhi
-// is handed to the model as chart data (the template's per-year sections need it);
-// deterministic engine timelines with scores are still merged after validation.
+// Single-person deep reading: the engine owns chart facts and chronology; the model
+// only turns those verified facts into prose. Evidence and timelines are merged from
+// engine output after model validation, so the model cannot invent either contract.
 import { z } from "zod";
 import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziLifeProfile } from "./myfate-bazi-profile";
@@ -51,14 +50,16 @@ export const staticReadingSchema = z.object({
 export type StaticReading = z.infer<typeof staticReadingSchema>;
 export type StaticReadingFacts = ReturnType<typeof buildStaticReadingFacts>;
 
-// 唯一的系统指令:按模版解读。命理判断(旺衰/格局/喜忌/神煞/评分/流年断语)全部由模型作出。
-export const STATIC_READING_SYSTEM_PROMPT = `你是高级命理咨询顾问兼人生发展架构师，精通传统子平八字与现代商业咨询、职业规划、认知心理学。根据提供的八字排盘信息，严格按照模版结构生成深度、量化、逻辑严密、去迷信化、极具现实指导价值的《八字个人深度解读报告》。
-表达规范：
-1. 去神棍化与现代化表达：把八字术语翻译为现代人听得懂的语言（如"食伤生财"解释为"才华与技术变现通道"，"比劫夺财"解释为"同辈竞争与合伙利益分流"），术语与白话并用地写进正文。
-2. 客观中立、严谨笃定：既不回避命局中的结构性缺陷，也不做宿命论式的恐吓，重点指出"底层天赋配置"与"后天破局策略"。
-3. 结构化与量化：严格遵循指定的小标题、评分、区间档位、趋势符号和概率百分比输出，杜绝模糊含混的套话。
-4. 格式规范：自然段落与特定标签排版，小标题与字段保持极高一致性。
-输出必须是单个 JSON 对象，不要 Markdown，字段结构匹配给定模板。`;
+export const STATIC_READING_SYSTEM_PROMPT = `你是 MeVerse 的资深命理师与现代人物观察者。排盘引擎负责事实，你只负责在事实边界内写作《MeVerse 个人八字报告 V1.0（蒸馏模板版）》。
+
+写作规则：
+1. 每个字段先给命理师式结论，再写具体盘面依据，最后翻译成现代人物画像或可执行建议；判断必须能回指输入中的 evidenceId。
+2. 传统术语与白话并用。格局写成“结构名＋解读”，不能只报术语，也不能脱离盘面写泛泛人格描述。
+3. 严格保持九章、固定小节与顺序；每字段按内容需要自然展开，不强制统一字数，不为凑长度重复。
+4. 事业、财富、感情的“一生”与“近期”字段，必须逐项覆盖引擎给出的每一步大运和每一个流年；只解释输入中已有的干支、年龄、年份、分数和交接信息。
+5. 不得自行计算或补造旺衰、格局、喜忌、神煞、刑冲合害、大运、流年、分数或事件。输入没有的事实就明确说资料未提供，不作判断。
+6. 不得给出确定性的财富金额、学历、疾病、寿命、婚期、离婚、生育数量或子女性别预言；健康只写生活方式提醒并建议必要时咨询专业人士，财务与关系只写倾向和决策提示。
+7. 输出必须是单个 JSON 对象，不要 Markdown，不要模板外字段。`;
 
 function entry(id: string, fact: string) {
   return { id, fact, source: "bazi-engine" as const };
@@ -89,47 +90,64 @@ export function buildStaticReadingFacts(chart: BaziChart, profile: BaziLifeProfi
   };
 }
 
-const TEMPLATE_SECTIONS = `【报告模版】九大章节固定为 portrait、pattern、education、career、wealth、relationship、wellbeing、children、family，各章 insights 按下列小节组织（label 用小节名，可微调；content 是完整解读段落，可写评分/概率/百分比/年份/金额/趋势符号；正文不要用 Markdown 星号加粗，标签一律用「」或【】）：
+const REPORT_SECTION_SPECS = [
+  ["portrait", "人生画像", ["旺衰定性", "道法与喜忌", "喜神/忌神/闲神", "神煞底色"]],
+  ["pattern", "格局", ["月令格局", "命盘结构特征", "结构清浊"]],
+  ["education", "学业", ["学历与学习方式", "适合专业", "学习节奏节点"]],
+  ["career", "事业", ["职业方向", "管理与领导力", "贵人/小人/与上级", "一生事业轨迹", "近期流年事业"]],
+  ["wealth", "财富", ["财富能力画像", "主要获财方式", "一生财富大运", "近期流年财富"]],
+  ["relationship", "感情", ["伴侣互动画像", "对方家庭/配偶父母", "婚姻稳定性", "一生婚恋大运", "近期感情流年"]],
+  ["wellbeing", "身心", ["身体照护重点", "急性风险防护", "心理健康倾向"]],
+  ["children", "子女", ["子女缘分", "养育议题", "子女发展/亲子关系"]],
+  ["family", "六亲", ["父亲", "母亲", "兄弟姐妹/同辈"]],
+] as const;
 
-01 portrait 人生画像：旺衰定性（命局属性：身强/身弱/从势格/专旺格等，核心五行力量对比；一生最喜的两种五行+现实功能、最忌的两种五行）；道法与喜忌（开头提炼一个道法标签，形如「比劫配财」「印配食伤」「比劫配官杀」「食伤生财」等，再阐明天赋底色的现实意义与做事风格）；喜神/忌神/闲神（分别列出具体十神与五行，括号说明带来的现实赋能或阻碍；闲神若有则分析中性角色，从格注明"从格顺势皆为喜，逆势皆为忌，不单列闲神"）；神煞底色（逐一审查并按【驿马】奔波出海vs稳守本地、【阳刃】极端震荡vs稳健、【桃花】魅力形态与引动时机列出：落在哪柱哪支、有无、现实解读；没有的不写）。
-02 pattern 格局：月令格局（月令藏干透干情况，判定格局名：正印格/偏印格/七杀格/建禄格或未成格多面手；标注成格纯度如"本气透出，层级极高"或"余气透出，偏弱但成立"；阐释一生职业基调与聚焦建议）；命盘结构特征（提炼2~3个最显著的干支生克流通组合，如【食伤生财】【杀印相生】【官星合身】【枭神夺食】【伤官见官】【比劫旺盛】，分别标注（核心优势）（职场加成）（双刃剑）定性，剖析利弊）；结构清浊（五行流通顺畅度与发力集中度）。
-03 education 学业：学历评估（综合印星、食伤的喜忌与配置，给出学历基底与上限区间：本科倾向/本科至硕士/硕博等；分析认知习惯：实用主义/兴趣驱动/深度理论，与应试特点）；适合专业（结合道法与喜神十神，明确推荐2~3类具体专业领域：商科金融/技术研发/创意传媒/文教战略等）；考运关键节点（走何种五行年份考运思维最清晰、容易超常发挥；何种年份容易压抑焦虑、发挥失常需做抗压准备）。
-04 career 事业：职业方向（职场最适生态位：实干经营者/项目操盘手/专业技术骨干/大平台智囊参谋等；是否适合创业或副业）；管理与领导力（领导风格：山头领袖型/军师参谋型/扁平技术型；带队模式：个人魅力/身先士卒/利益捆绑/专业服人；适宜带领的团队规模）；贵人/小人/与上级（贵人=具体十神对应人群如客户/下属/平台领导；小人=具体十神对应形态：竞争型/规则压制型/背刺型；与上级=按官杀状态分析与领导的契合度及服管边界）；一生事业轨迹（按提供的排盘逐大运，格式：XX大运（年龄段）：XX分。事业应期：核心定调与应期事件；关键转折运加⚠️）；近期流年事业（按提供的流年排盘逐年，格式：YYYY年（干支）· 评分XX分：[大运交接标记] 职场动向与行动指南）。
-05 wealth 财富：一生财富高度（content 首行必须输出：以下为纯天赋计算值，未考虑地域/家庭/社会等因素影响，仅供参考。然后给具体量级，如「7000万–1亿 之间（准亿级）」「1000万–2000万（千万级中段）」「100万–300万（偏中上段）」，并详细披露量化计算推导链条：原局财星与身强身弱确立的地基档位T级 + 结构加减档 + 核心打拼期大运推力加减档）；主要获财方式（赚钱来源：技术/创意/商业经营/资产收益；若原局比劫旺为忌，必须明确标注合伙风险：规避合伙、防比劫夺财、坚持独立操盘/独资）；一生财富大运（按提供的排盘逐大运，格式：XX大运（年龄段）：财运状态（↑↑/↑/→/↓/↓↓）。财务象：资金流转、蓄水或破耗特征）；近期流年财富（按提供的流年排盘逐年，每年提炼6-8字标签，格式：YYYY年（干支）· [标签]：具体财务建议，如「偏财爆发窗口」「破财高发年」）。
-06 relationship 感情：配偶特征（长相气质=配偶星五行映射具体长相/体态骨架/气质印象；性格=配偶星十神性格定义；个人能力=经济独立性与能力强弱；能否旺你=配偶星为喜用神者论旺夫/贤内助及实质赋能；另一半职业方向=以配偶星为太极点推演行业偏向，标注仅供参考）；对方家庭/配偶父母（日支喜忌论对方家庭背景帮扶力度；对应六亲十神论岳父岳母/公公婆婆的话语权与介入度）；婚姻稳定性（审查夫妻宫刑冲克害及比劫干扰，指出易产生隔阂的机制与相处处方）；一生婚恋大运（各步大运对感情的影响，重点指出最适合步入婚姻的黄金大运）；近期感情流年（按提供的流年排盘逐年，格式：YYYY年（干支）· 缘分概率XX%：[特殊冲合/危机标记] 状态提示）。
-07 wellbeing 健康：身体薄弱器官（失衡五行推导1~3个中医脏腑与身体系统：肝胆/心血/脾胃消化/呼吸/肾脏泌尿，说明日常易发症状）；急性病风险（原局逢冲克必写：相冲对应的急性病或外伤隐患及高危年份；无冲克则简要说明并给防护方向）；心理健康倾向（性格中紧绷/焦虑/内耗/抑郁倾向的十神根源，给出心理调适与减压出口）。
-08 children 子女：子女缘分（子女星与时柱子女宫的旺衰与喜忌）；子女性别倾向（男命比对官杀强弱、女命比对食伤强弱，给出男女孩倾向概率；统一标注：准确率约60-70%，仅供参考）；子女发展/亲子关系（时柱喜忌看子女未来自立能力、对命主的精神/物质孝顺程度、亲子相处模式）。
-09 family 六亲：父亲（偏财星的透藏/旺衰/喜忌，论父亲能力、缘分深浅及能否带来资源/财务实质助力）；母亲（正印星的透藏/旺衰/喜忌，论母亲关爱模式：支持庇护vs束缚控制/干涉，与缘分厚薄）；兄弟姐妹/同辈（比肩劫财喜忌论断；为忌神时必须强调竞争关系，明确给出"保持界限、合作慎重"的建议）。
+const PARAGRAPH_TEMPLATE = `【精细段落模板】每一条 insight.content 都是完整自然段，不写提纲、关键词堆砌或“可能是/也许是”的空泛套话。按以下四句骨架写作，可根据事实多少自然合并或展开：
+① 断语：先用命理师口吻给出本小节最重要的判断，第一句直接回答“这一项对当事人的核心含义是什么”。
+② 盘据：紧接着引用 1~3 个真实 evidenceId 对应的四柱、十神、五行、关系或引擎摘要，说明“为什么这样判断”；没有证据就写“当前排盘未提供该项依据”，不得补算。
+③ 画像：把术语翻译成现代人物在工作、学习、关系或决策中的可观察表现，避免把抽象术语重复一遍。
+④ 建议：以一到两句给出可执行的取舍、边界或练习；健康、财务、关系只写风险意识和行动选项，不写确定结果。
+每个 insight 只能围绕一个小节主题；summary 是本章总起（先总判断，再点出本章依据与主线）；advice 是本章行动清单（短句、具体、可执行，不重复 insight 原文）。insight.evidenceIds 只能从输入 evidence.id 中选择，至少引用一个真实 ID 时才输出该字段。
 
-【固定算法与映射表】写以下小节时严格执行，不得另立标准：
+【分类型段落写法】
+• 旺衰/格局/结构：先下“结构名＋解读”断语，再按天干、地支、藏干或引擎摘要解释生克流通，最后写成优势与制约并存的现实画像；不能自行创设格局名或成格率。
+• 学业/事业/财富/感情的静态字段：先写底层倾向，再写对应十神或区域事实，最后给适合的环境、协作方式和边界；不把倾向改写成学历、收入、婚姻结果。
+• 大运段落：严格按“XX大运｜年龄段｜年份区间”起句，随后写阶段结论、输入中的依据、该阶段的机会/约束、一个行动重点；不得遗漏或新增大运。
+• 流年段落：严格按“YYYY年（干支）｜引擎分数｜所属大运”起句，随后写当年主题、已给 basis 的解释、可把握处、需留意处和行动；分数原样引用，不自行调整，不写区间外年份。
+• 关系段落：写互动机制、沟通触发点、边界与协商方式；没有配偶外貌、职业、家庭或婚期证据时，明确资料不足，不用五行套模板补齐。
+• 身心段落：只写传统文化视角下的自我照护倾向和减压方式；不得写医学诊断、疾病预测、寿命或高危年份，必要时建议咨询专业人士。
+`;
 
-一、配偶五行外观映射（06 感情·配偶特征的「长相气质」按配偶星五行查此表展开）：
-木=身材挺拔修长、五官清秀、眉眼秀气、发质好；火=眼神有神采、面色红润、五官立体外放、热情有感染力；土=脸型方圆、身形稳重敦厚、皮肉紧实有肉感、给人踏实靠谱感；金=皮肤白净、骨架周正、轮廓棱角分明、气质干练清冷；水=皮肤水灵白皙、眼神灵动聪慧、体态圆润微丰、气质机敏得体。
+const TEMPLATE_SECTIONS = `【报告模板 V1.0】九章顺序固定为 portrait、pattern、education、career、wealth、relationship、wellbeing、children、family。根级 5 个字段，加九章各 4 个固定容器（title、summary、insights、advice），合计 41 个结构字段；不得增删或换序。insights 的 label 必须逐字使用下列小节名并保持顺序，content 按“结论→具体盘面依据→现代画像/建议”自然展开，不强制统一字数：
 
-二、财富 T 档阶梯（05 财富·一生财富高度的地基档位与推导链条按此执行）：
-原局基准：身弱无财/印比重重见微财=T8 档，百万中产起步（100万-300万）；身强财通根透干/食伤生财=T5-T6 档，千万起步（1000万-3000万）；从势格成格/财官双美无破=T3-T4 档，千万中上起步（3000万-7000万）。
-大运修正：25-50岁连走20年财/食伤喜用运，+1~+1.5档（可拔高至准亿/亿级）；25-50岁连走20年印比忌神运（夺财/逆势），-2~-4档（可压回百万级）。
-按「原局基准档±大运修正」得出最终量级区间，并把每一步加减档的理由写进推导链条正文。
+${PARAGRAPH_TEMPLATE}
 
-三、近期流年打分标尺（04 事业/05 财富的逐年评分、06 感情的缘分概率与状态提示统一按此标尺校准，引擎参考分仅作参照）：
-80-95分=流年干支皆为喜用神，且与原局合化为喜用，大运在上行期（高光爆发年）；65-75分=天干透喜、地支为平，或大运良好但流年有小阻力（稳健上升年）；50-64分=喜忌参半、换运过渡期，或有轻微同行竞争（蓄力摸索年）；20-45分=流年干支皆为忌神，刑冲夫妻宫/日主/用神，或发生比劫夺财、印枭夺食（破财/动荡/蛰伏年）。`;
+01 portrait 人生画像：旺衰定性；道法与喜忌；喜神/忌神/闲神；神煞底色。只复述引擎已经给出的旺衰、格局摘要与喜忌；神煞没有引擎证据时明确“不作判断”。
+02 pattern 格局：月令格局；命盘结构特征；结构清浊。格局必须写“结构名＋解读”，结构名只能采用引擎格局摘要，不能自行成格。
+03 education 学业：学历与学习方式（只写学习偏好与认知方式，不预测学历上限）；适合专业（给出 2~3 类方向并说明依据）；学习节奏节点（按已给流年写准备策略，不承诺考试结果）。
+04 career 事业：职业方向；管理与领导力；贵人/小人/与上级；一生事业轨迹；近期流年事业。后两项按引擎列表逐运、逐年分析，分数原样引用，只写阶段倾向与行动建议。
+05 wealth 财富：财富能力画像（写资源观、风险偏好与现金流习惯，不给金额或阶层结论）；主要获财方式；一生财富大运；近期流年财富。逐运逐年只写机会、风险与行动，不写确定性收益。
+06 relationship 感情：伴侣互动画像（只写互动需求与择偶偏好，不推断长相、职业或经济条件）；对方家庭/配偶父母（无直接证据时明确资料不足）；婚姻稳定性；一生婚恋大运；近期感情流年。不得写缘分概率、确定婚期或离婚结论。
+07 wellbeing 身心：身体照护重点；急性风险防护；心理健康倾向。内容只能作为生活方式提醒，不把五行映射写成医学诊断或高危年份。
+08 children 子女：子女缘分；养育议题；子女发展/亲子关系。不得预测性别、数量、健康、成就或孝顺程度。
+09 family 六亲：父亲；母亲；兄弟姐妹/同辈。只写关系互动模式与边界建议，不断言家人的能力、财富或寿命。`;
 
 export function buildStaticReadingPrompt(facts: StaticReadingFacts, profile?: BaziLifeProfile) {
-  const chartData = { evidence: facts.evidence.map((item) => item.fact) };
+  const chartData = { evidence: facts.evidence };
   const rhythm = profile
     ? {
-        dayun: profile.dayun.map((step) => `${step.ganzhi}（${step.ageText}岁段 ${step.yearText}${step.current ? "，当前大运" : ""}）`),
-        annual: profile.annual.map((year) => `${year.year} ${year.ganzhi}（引擎参考分${year.score}）`),
+        dayun: profile.dayun.map((step) => ({ ganzhi: step.ganzhi, age: step.ageText, years: step.yearText, current: step.current, basis: step.basis })),
+        annual: profile.annual.map((year) => ({ year: year.year, ganzhi: year.ganzhi, score: year.score, dayunGanzhi: year.dayunGanzhi, dayunShift: year.dayunShift, basis: year.basis })),
       }
     : undefined;
   const annualRange = profile ? `${profile.annual[0]?.year}–${profile.annual[profile.annual.length - 1]?.year}` : "";
   const template = {
     schemaVersion: "single-full-v3",
     scope: "full-reading",
-    sections: Object.fromEntries(sectionKeys.map((key) => [key, {
-      title: "章节标题",
+    sections: Object.fromEntries(REPORT_SECTION_SPECS.map(([key, title, labels]) => [key, {
+      title,
       summary: "本章总起",
-      insights: [{ label: "小节名", content: "完整解读段落" }],
+      insights: labels.map((label) => ({ label, content: "结论→具体盘面依据→现代画像/建议", evidenceIds: ["从输入 evidence 中选择真实 ID"] })),
       advice: ["建议"],
     }])),
     disclaimer: "免责声明(20字以上)：本报告基于传统命理文化，仅供自我观察参考，不构成科学预测或决策依据。",
@@ -140,7 +158,7 @@ export function buildStaticReadingPrompt(facts: StaticReadingFacts, profile?: Ba
 
 ${JSON.stringify(chartData, null, 1)}
 
-${rhythm ? `【大运流年排盘】(模版的时间类小节以此为据，评分为引擎参考分，可自行细化断语；流年只覆盖 ${annualRange} 年，时间类小节逐年写到该区间为止，不要编造区间外年份)\n\n大运：${rhythm.dayun.join("、")}\n流年（${annualRange}）：${rhythm.annual.join("、")}\n\n` : ""}${TEMPLATE_SECTIONS}
+${rhythm ? `【大运流年排盘】（以下对象均由引擎提供。时间类小节必须逐项覆盖，评分原样引用；禁止补算、改分或编造区间外年份）\n\n大运：${JSON.stringify(rhythm.dayun, null, 1)}\n流年（${annualRange}）：${JSON.stringify(rhythm.annual, null, 1)}\n\n` : ""}${TEMPLATE_SECTIONS}
 
 【输出 JSON 结构】(sections 是以九个章节 key 为字段的对象，不是数组；不要输出模板之外的任何字段)
 
@@ -177,6 +195,53 @@ export function validateStaticReading(raw: unknown): StaticReading {
   return staticReadingSchema.parse(raw);
 }
 
+function validateTemplateLayout(reading: StaticReading) {
+  for (const [key, , labels] of REPORT_SECTION_SPECS) {
+    const actual = reading.sections[key]?.insights.map((item) => item.label);
+    if (!actual || actual.length !== labels.length || actual.some((label, index) => label !== labels[index])) {
+      throw new Error(`STATIC_READING_SECTION_ORDER:${key}`);
+    }
+  }
+}
+
+function rhythmLabel(score?: number, tone?: string): z.infer<typeof rhythmItemSchema>["label"] {
+  if (typeof score === "number") {
+    if (score >= 80) return "明显顺势";
+    if (score >= 65) return "温和向好";
+    if (score >= 50) return "平稳蓄力";
+    if (score >= 40) return "波动调整";
+    return "谨慎收缩";
+  }
+  return tone === "good" ? "温和向好" : tone === "caution" ? "波动调整" : "平稳蓄力";
+}
+
+function buildEngineTimelines(profile: BaziLifeProfile) {
+  const domains = { career: "事业", wealth: "财富", relationship: "关系" } as const;
+  return Object.fromEntries(Object.entries(domains).map(([domain, focusLabel]) => [domain, {
+    dayun: profile.dayun.map((step) => ({
+      ganzhi: step.ganzhi,
+      age: step.ageText,
+      years: step.yearText,
+      label: rhythmLabel(undefined, step.tone),
+      theme: step.theme,
+      opportunity: step.focus.find((item) => item.label === focusLabel)?.text ?? step.focus[0]?.text ?? step.theme,
+      watch: step.basis.join(" "),
+      action: step.advice,
+      current: step.current,
+    })),
+    annual: profile.annual.map((year) => ({
+      ganzhi: year.ganzhi,
+      year: year.year,
+      label: rhythmLabel(year.score),
+      score: year.score,
+      theme: year.theme,
+      opportunity: year.opportunity,
+      watch: year.watch,
+      action: year.advice,
+    })),
+  }])) as { career: z.infer<typeof domainTimelineSchema>; wealth: z.infer<typeof domainTimelineSchema>; relationship: z.infer<typeof domainTimelineSchema> };
+}
+
 // 把结构校验失败原因转成给模型的纠错提示(zod 错误取首个字段路径)
 function describeValidationError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
@@ -195,7 +260,13 @@ export async function generateStaticReading(callModel: (system: string, prompt: 
     const suffix = attempt ? `\n\n上次输出未通过结构校验：${describeValidationError(lastError)}。请修正后重新输出完整 JSON。` : "";
     try {
       const text = await callModel(STATIC_READING_SYSTEM_PROMPT, buildStaticReadingPrompt(facts, profile) + suffix);
-      return validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      const draft = validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      validateTemplateLayout(draft);
+      return validateStaticReading({
+        ...draft,
+        evidence: facts.evidence,
+        ...(profile ? { timelines: buildEngineTimelines(profile) } : {}),
+      });
     } catch (error) {
       lastError = error;
     }

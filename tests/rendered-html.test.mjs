@@ -221,11 +221,27 @@ test("single reading hands the model chart + template in one call and renders ni
   ]);
   assert.match(pipeline, /buildStaticReadingFacts\(chart, profile\)/u);
   assert.doesNotMatch(pipeline, /wealthRangeOf|buildStarFacts|mergeStarAiContent/u);
-  // 架构:模型只收三样东西——排盘数据、按模版解读的指令、模版;无两段式论证计划
+  // V1.0 保持 single-full-v3 九章/41 字段契约；事实与时间线由引擎提供，模型只写文案。
   assert.match(contract, /single-full-v3/u);
   assert.match(contract, /timelines: z\.object/u);
+  assert.match(contract, /REPORT_SECTION_SPECS/u);
+  assert.match(contract, /合计 41 个结构字段/u);
   assert.match(contract, /TEMPLATE_SECTIONS/u);
+  assert.match(contract, /精细段落模板/u);
+  assert.match(contract, /断语：先用命理师口吻/u);
+  assert.match(contract, /盘据：紧接着引用 1~3 个真实 evidenceId/u);
+  assert.match(contract, /画像：把术语翻译成现代人物/u);
+  assert.match(contract, /建议：以一到两句给出可执行/u);
+  assert.match(contract, /大运段落：严格按/u);
+  assert.match(contract, /流年段落：严格按/u);
+  assert.match(contract, /每个 insight 只能围绕一个小节主题/u);
   assert.match(contract, /buildStaticReadingPrompt\(facts, profile\??\)/u);
+  assert.match(contract, /const chartData = \{ evidence: facts\.evidence \}/u);
+  assert.match(contract, /buildEngineTimelines\(profile\)/u);
+  assert.match(contract, /evidence: facts\.evidence/u);
+  assert.match(contract, /排盘引擎负责事实，你只负责在事实边界内写作/u);
+  assert.match(contract, /不得给出确定性的财富金额、学历、疾病、寿命、婚期、离婚、生育数量或子女性别预言/u);
+  assert.doesNotMatch(contract, /财富 T 档阶梯|配偶五行外观映射|缘分概率XX%/u);
   assert.doesNotMatch(contract, /staticReadingPlanSchema|STATIC_READING_PLAN_UNKNOWN_EVIDENCE/u);
   assert.match(page, /staticReadingSchema\.safeParse\(report\.content\)/u);
   assert.doesNotMatch(renderer, /命理依据|mf-rr-basis|证据：/u);
