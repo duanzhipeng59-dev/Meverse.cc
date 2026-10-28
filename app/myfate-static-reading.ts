@@ -175,6 +175,51 @@ const TEMPLATE_SECTIONS = `【报告模版】九章固定为 portrait、pattern�
 
 【最终校验】输出前核对：35字段完整、名称与顺序正确；所有五行十神身份、格局名称、喜忌分类、神煞位置与排盘一致；大运顺逆、起运年龄、流年干支全部来自排盘；无编造的刑冲合害、无重复套话、无机械扩写、无确定性预测或绝对化措辞（例外：财富量级按 T 档阶梯输出且首行为免责声明，感情流年的缘分概率按百分比输出，子女性别倾向带"准确率约60-70%，仅供参考"标注，均属该章标准量化格式）。`;
 
+// ── 表达层约束(压模型浮夸/膨胀漂移):prompt 规则与生成后机器校验共用同一份常量,数字永远同步。
+// 字数上限按本地合格产出(DeepSeek)实测最大值 × ~1.25 余量标定;违规信息经重试通道喂回模型自行压缩改写。
+// 禁词表只收纯营销腔词;「天花板」「碾压」等在财富/忌神语境里是规范用词,不列入避免误伤
+const BANNED_STYLE_WORDS = ["破圈", "出圈", "魅力四射", "聚光灯", "王炸", "暴击", "拿捏", "封神", "杀疯了", "绝绝子", "yyds"];
+const FIELD_CHAR_LIMITS: Record<string, number> = {
+  喜神: 60, 忌神: 60, 闲神: 90, 子女性别倾向: 140,
+  母亲: 155, 父亲: 160, 子女发展: 160, 兄弟姐妹: 165, 适合专业: 170, 考运关键节点: 180,
+  结构清浊: 190, 道法与喜忌: 200, "对方家庭/配偶父母": 210, 神煞底色: 220, 子女缘分: 220,
+  婚姻稳定性: 230, 管理与领导力: 230, 学历评估: 240, 月令格局: 240, 身体薄弱器官: 240,
+  主要获财方式: 250, 旺衰定性: 260, "贵人/小人/与上级": 260, 心理健康倾向: 270, 职业方向: 280,
+  一生财富高度: 340, 性格与行为模式: 370, 配偶特征: 380, 一生婚恋大运: 460, 命盘结构特征: 530,
+  一生财富大运: 600, 近期财富流年: 650, 近期感情流年: 700, 近期流年事业: 800, 一生事业轨迹: 750,
+};
+const DEFAULT_FIELD_CHAR_LIMIT = 400;
+
+const TEMPLATE_STYLE_RULES = `【表达层硬约束】写作风格与篇幅,违反会被系统打回重写:
+- 语气:命理师断语感——克制、具体、有判断力;不堆形容词、不写营销文案腔。
+- 道法标签为4-6字单标签为宜(如「比劫配财」「食神制杀」),最多不超过8字,禁止把多个结构塞进一个标签。
+- 禁用词:破圈/出圈/魅力四射/聚光灯/王炸/暴击/拿捏/封神等浮夸词;每字段感叹号最多2个。
+- 句式:每字段第一句必须是结论句;短句直断,平均句长不超过40字;术语后括号紧跟白话。
+- 各字段字数上限(超出即违规):${Object.entries(FIELD_CHAR_LIMITS).map(([label, limit]) => `${label}${limit}`).join("、")};其余字段400。超限先删修饰语与重复论证,不删命理判断。`;
+
+// 表达层机器校验:返回违规清单(最多3条,控制在重试提示的100字内);空数组=通过。
+export function checkStaticReadingStyle(report: StaticReading): string[] {
+  const violations: string[] = [];
+  const full = JSON.stringify(report);
+  for (const word of BANNED_STYLE_WORDS) {
+    if (full.includes(word)) { violations.push(`禁词「${word}」`); break; }
+  }
+  const daofa = report.sections.portrait.insights.find((item) => item.label.includes("道法"));
+  const daofaTag = daofa ? /「([^」]+)」/.exec(daofa.content)?.[1] : undefined;
+  // 标点不计入标签长度:「财星主导，印星辅助」这类并列双标签放行,真复合长标签仍拦截
+  if (daofaTag && daofaTag.replace(/[，,·、\s]/g, "").length > 8) violations.push(`道法标签「${daofaTag}」超8字`);
+  for (const section of Object.values(report.sections)) {
+    for (const insight of section.insights) {
+      const exclaim = (insight.content.match(/！/g) ?? []).length;
+      if (exclaim > 2) violations.push(`${insight.label}感叹号${exclaim}个`);
+      const limit = FIELD_CHAR_LIMITS[insight.label] ?? DEFAULT_FIELD_CHAR_LIMIT;
+      if (insight.content.length > limit) violations.push(`${insight.label}${insight.content.length}字超限${limit}`);
+      if (violations.length >= 3) return violations;
+    }
+  }
+  return violations;
+}
+
 export function buildStaticReadingPrompt(facts: StaticReadingFacts, profile?: BaziLifeProfile) {
   const chartData = { evidence: facts.evidence.map((item) => item.fact) };
   const rhythm = profile
@@ -201,6 +246,8 @@ export function buildStaticReadingPrompt(facts: StaticReadingFacts, profile?: Ba
 ${JSON.stringify(chartData, null, 1)}
 
 ${rhythm ? `【大运流年排盘】(模版的时间类小节以此为据，评分为引擎参考分，可自行细化断语；流年只覆盖 ${annualRange} 年，时间类小节逐年写到该区间为止，不要编造区间外年份)\n\n大运：${rhythm.dayun.join("、")}\n流年（${annualRange}）：${rhythm.annual.join("、")}\n\n` : ""}${TEMPLATE_SECTIONS}
+
+${TEMPLATE_STYLE_RULES}
 
 【输出 JSON 结构】(sections 是以九个章节 key 为字段的对象，不是数组；不要输出模板之外的任何字段)
 
@@ -255,13 +302,17 @@ export async function generateStaticReading(
   let lastError: unknown;
   const startedAt = Date.now();
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    // 重试预算:单次上限 240s,总时长超 40s 就不再重试,保证 300s 函数预算内能落 failed 状态
-    if (attempt > 0 && Date.now() - startedAt > 40_000) break;
+    // 重试预算:单次上限 240s,总时长超 60s 就不再重试,保证 300s 函数预算内能落 failed 状态
+    if (attempt > 0 && Date.now() - startedAt > 60_000) break;
     const suffix = attempt ? `\n\n上次输出未通过结构校验：${describeValidationError(lastError)}。请修正后重新输出完整 JSON。` : "";
     try {
       const system = options?.systemPrompt ?? STATIC_READING_SYSTEM_PROMPT;
       const text = await callModel(system, buildStaticReadingPrompt(facts, profile) + (options?.promptSuffix ?? "") + suffix);
-      return validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      const validated = validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      // 表达层硬校验:违规抛错走同一条重试通道,模型按违规清单自行压缩改写
+      const styleViolations = checkStaticReadingStyle(validated);
+      if (styleViolations.length) throw new Error(`风格违规：${styleViolations.join("；")}`);
+      return validated;
     } catch (error) {
       lastError = error;
     }
