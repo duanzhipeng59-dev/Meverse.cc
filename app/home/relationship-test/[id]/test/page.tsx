@@ -29,7 +29,7 @@ function heroPillarsOf(consult: ConsultOverrideContent | null, threePillars: str
   return threePillars.split("·").map((part) => part.trim()).filter(Boolean).slice(0, 4);
 }
 
-function HeroBlock({ starName, portraitSrc, birthLine, heroPillars, heroBadges }: { starName: string; portraitSrc: string; birthLine: string; heroPillars: string[]; heroBadges?: string[] }) {
+function HeroBlock({ starName, portraitSrc, birthLine, heroPillars, heroBadges, hourEstimated }: { starName: string; portraitSrc: string; birthLine: string; heroPillars: string[]; heroBadges?: string[]; hourEstimated?: boolean }) {
   return (
     <header className="mf-zr-hero">
       {/* CSS 已按 108×134 object-fit:cover 裁切,直接用 240w WebP 缩放版,不再拉原图 */}
@@ -47,7 +47,7 @@ function HeroBlock({ starName, portraitSrc, birthLine, heroPillars, heroBadges }
       <div className="mf-zr-hero-pillars" aria-label="四柱">
         {heroPillars.map((ganzhi, index) => (
           <span key={`${ganzhi}-${index}`}>
-            <small>{PILLAR_LABELS[index] ?? "柱"}</small>
+            <small>{hourEstimated && index === 3 ? "时·推算" : PILLAR_LABELS[index] ?? "柱"}</small>
             <b>{ganzhi}</b>
           </span>
         ))}
@@ -107,16 +107,16 @@ export default async function StarReportPage({ params, searchParams }: { params:
     city: { id: birth.starId, name: birth.birthPlace || "首尔 · 韩国", lat: birth.lat, lon: birth.lon, tz: birth.tz },
   }) : null;
   const profile = chart ? buildBaziLifeProfile(chart) : null;
-  // 明星出生时间不公开:柱位一律只显示三柱(年/月/日),时柱不展示。
-  // 优先取生成报告时写入的 heroPillars(本就三柱);实时排盘与档案三柱兜底同样截到三柱。
-  const staticPillars = (consult?.heroPillars?.length ? consult.heroPillars : chart ? chart.pillars.map((pillar) => pillar.ganzhi) : heroPillarsOf(consult, star.threePillars)).slice(0, 3);
+  // 出生时间为公开资料推算口径:恢复四柱展示——年/月/日为确定柱,时柱按存档时间实时排盘补出,
+  // 标签标注「时·推算」与确定性区分;无出生资料时回退档案三柱。
+  const staticPillars = chart ? chart.pillars.map((pillar) => pillar.ganzhi) : heroPillarsOf(consult, star.threePillars);
   const staticBadges = chart && profile ? [chart.dayMaster, profile.summary.strength, `喜${profile.summary.favorable.join("·")}`] : undefined;
   return (
     <div className="mf-zr">
       <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={staticPillars.join(" ")} showShare shareTitle={`${personName || star.name} 的生辰画像`} />
       <ReadingProgress starId={id} />
       <div className="mf-zr-overview">
-        <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={staticPillars} heroBadges={staticBadges} />
+        <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={staticPillars} heroBadges={staticBadges} hourEstimated={staticPillars.length > 3} />
       </div>
       <StarReadingReport content={staticReport} />
       <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>
