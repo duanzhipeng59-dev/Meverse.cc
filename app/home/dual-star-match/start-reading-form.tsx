@@ -178,6 +178,16 @@ export function BirthInfoFields({ state, onChange, errors = {} }: {
   }
 
   const monthLabel = (m: number) => (m < 0 ? `闰${-m}月` : `${m}月`);
+
+// 农历日名:初一~初十、十一~十九、二十、廿一~廿九、三十(值仍是数字日,仅展示名变化)
+const LUNAR_DAY_ONES = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+function lunarDayLabel(day: number) {
+  if (day <= 10) return `初${LUNAR_DAY_ONES[day - 1]}`;
+  if (day < 20) return `十${LUNAR_DAY_ONES[day - 11]}`;
+  if (day === 20) return "二十";
+  if (day < 30) return `廿${LUNAR_DAY_ONES[day - 21]}`;
+  return "三十";
+}
   const regionHint = !state.solarOn
     ? "已关闭校准，将按标准时间排盘"
     : city
@@ -209,7 +219,7 @@ export function BirthInfoFields({ state, onChange, errors = {} }: {
             {months.map((m) => (<option key={m} value={m}>{monthLabel(m)}</option>))}
           </select>
           <select className="mf-start-select" value={parts.d} onChange={(e) => setDay(Number(e.target.value))} aria-label="出生日期">
-            {Array.from({ length: dayCount }, (_, index) => index + 1).map((d) => (<option key={d} value={d}>{d}日</option>))}
+            {Array.from({ length: dayCount }, (_, index) => index + 1).map((d) => (<option key={d} value={d}>{state.calendar === "lunar" ? lunarDayLabel(d) : `${d}日`}</option>))}
           </select>
         </div>
         {errors.date ? <small className="mf-start-error">{errors.date}</small> : null}
