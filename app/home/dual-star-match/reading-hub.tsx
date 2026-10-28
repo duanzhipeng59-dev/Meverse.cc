@@ -87,6 +87,8 @@ export default function ReadingHub() {
   const [pickB, setPickB] = useState("");
   const [recordsStatus, setRecordsStatus] = useState<RecordsStatus>("loading");
   const [personRecords, setPersonRecords] = useState<PersonRecord[]>([]);
+  // 后改动性别的一侧(默认"对方"):同性别冲突的提示只挂在这一侧
+  const [lastGenderSide, setLastGenderSide] = useState<"a" | "b">("b");
   const [personErrors, setPersonErrors] = useState<{ a: PersonErrors; b: PersonErrors }>({ a: {}, b: {} });
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
@@ -202,6 +204,7 @@ export default function ReadingHub() {
   function openDialog(mode: "single" | "dual") {
     setManualA(emptyBirthState());
     setManualB(emptyBirthState());
+    setLastGenderSide("b");
     setError("");
     setPersonErrors({ a: {}, b: {} });
     setVisitA(false);
@@ -220,6 +223,23 @@ export default function ReadingHub() {
     sessionStorage.setItem("myfate_reading_confirm_v1", JSON.stringify({ mode: "single", subjectA: subject }));
     router.push("/home/dual-star-match/confirm");
   }
+
+  // 性别提示(不干预选择):记录"后改动性别的一侧",双方同性别时只在那一侧的卡片下提示;
+  // 手动改性别/换记录/切来源都会改变该侧生效性别,均计入"后选择"。start() 提交时仍兜底拦截。
+  function updateManualPerson(which: "a" | "b", next: BirthState) {
+    const prev = which === "a" ? manualA : manualB;
+    if (next.gender !== prev.gender) setLastGenderSide(which);
+    (which === "a" ? setManualA : setManualB)(next);
+  }
+
+  const genderOf = (source: "record" | "manual", pick: string, draft: BirthState) =>
+    source === "record" ? personRecords.find((item) => item.key === pick)?.subject.gender : draft.gender;
+  // 侧别已填写:记录方=已选中某条记录,手动方=进过填写页;两侧都填过才允许显示性别提示
+  const sideFilled = (source: "record" | "manual", pick: string, visited: boolean) =>
+    source === "record" ? personRecords.some((item) => item.key === pick) : visited;
+  const showGenderHint = dialog === "dual" && genderOf(sourceA, pickA, manualA) !== undefined
+    && genderOf(sourceA, pickA, manualA) === genderOf(sourceB, pickB, manualB)
+    && sideFilled(sourceA, pickA, visitA) && sideFilled(sourceB, pickB, visitB);
 
   async function start() {
     if (dialog !== "dual") return;
@@ -250,6 +270,15 @@ export default function ReadingHub() {
     if (sourceA === "record" && sourceB === "record" && pickA === pickB) {
       const duplicateMessage = "本人和对方不能选择同一条命盘记录";
       setPersonErrors({ a: { card: duplicateMessage }, b: { card: duplicateMessage } });
+      requestAnimationFrame(() => {
+        document.querySelector(".mf-reading-person.has-error")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return;
+    }
+    // 合盘约束:双方必须一男一女(记录/手动两种来源都按解析后的性别校验)。
+    if (a.subject.gender === b.subject.gender) {
+      const genderMessage = "合盘双方需要一男一女，请调整其中一方的性别";
+      setPersonErrors({ a: { card: genderMessage }, b: { card: genderMessage } });
       requestAnimationFrame(() => {
         document.querySelector(".mf-reading-person.has-error")?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
@@ -294,7 +323,7 @@ export default function ReadingHub() {
                   </div>
                   <BirthInfoFields
                     state={personEditing === "a" ? manualA : manualB}
-                    onChange={personEditing === "a" ? setManualA : setManualB}
+                    onChange={(next) => updateManualPerson(personEditing === "a" ? "a" : "b", next)}
                     errors={personEditing === "a" ? personErrors.a : personErrors.b}
                   />
                   <button className="mf-login-submit mf-start-submit" type="button" onClick={() => setPersonEditing(null)}>完成</button>
@@ -305,8 +334,8 @@ export default function ReadingHub() {
                     <h1>新建合盘</h1>
                     <button type="button" className="mf-reading-close" aria-label="关闭" onClick={() => setDialog(null)}>×</button>
                   </div>
-                  <DualPersonCard label="本人" records={personRecords} status={recordsStatus} source={sourceA} setSource={setSourceA} pick={pickA} setPick={setPickA} draft={manualA} visited={visitA} onEdit={() => { setVisitA(true); setPersonEditing("a"); }} errors={personErrors.a} onRetry={loadRecords} />
-                  <DualPersonCard label="对方" records={personRecords} status={recordsStatus} source={sourceB} setSource={setSourceB} pick={pickB} setPick={setPickB} draft={manualB} visited={visitB} onEdit={() => { setVisitB(true); setPersonEditing("b"); }} errors={personErrors.b} onRetry={loadRecords} />
+                  <DualPersonCard label="本人" records={personRecords} status={recordsStatus} source={sourceA} setSource={(next) => { setSourceA(next); setLastGenderSide("a"); }} pick={pickA} setPick={(next) => { setPickA(next); setLastGenderSide("a"); }} draft={manualA} visited={visitA} onEdit={() => { setVisitA(true); setPersonEditing("a"); }} errors={showGenderHint && lastGenderSide === "a" ? { ...personErrors.a, card: "双方性别相同，请选择其他性别" } : personErrors.a} onRetry={loadRecords} />
+                  <DualPersonCard label="对方" records={personRecords} status={recordsStatus} source={sourceB} setSource={(next) => { setSourceB(next); setLastGenderSide("b"); }} pick={pickB} setPick={(next) => { setPickB(next); setLastGenderSide("b"); }} draft={manualB} visited={visitB} onEdit={() => { setVisitB(true); setPersonEditing("b"); }} errors={showGenderHint && lastGenderSide === "b" ? { ...personErrors.b, card: "双方性别相同，请选择其他性别" } : personErrors.b} onRetry={loadRecords} />
                   {error ? <p className="mf-reading-dialog-error" role="alert">{error}</p> : null}
                   <button className="mf-login-submit mf-start-submit" type="button" onClick={() => void start()}>开始合盘</button>
                 </>

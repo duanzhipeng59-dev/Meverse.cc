@@ -20,7 +20,12 @@ const subjectSchema = z.object({
 const requestSchema = z.discriminatedUnion("mode", [
   z.object({ mode: z.literal("single"), subjectA: subjectSchema }),
   z.object({ mode: z.literal("dual"), dualType: z.enum(["love", "career"]).default("love"), subjectA: subjectSchema, subjectB: subjectSchema }),
-]);
+]).superRefine((value, ctx) => {
+  // 合盘约束:双方必须一男一女,与解读页表单同一条规则(服务端兜底)。
+  if (value.mode === "dual" && value.subjectA.gender === value.subjectB.gender) {
+    ctx.addIssue({ code: "custom", path: ["subjectB.gender"], message: "合盘双方须为一男一女" });
+  }
+});
 
 // 创建解读报告:校验自填信息 → 建记录(generating) → 响应后后台生成(单/双管线在 myfate-reading-generator)。
 export async function POST(request: Request) {
