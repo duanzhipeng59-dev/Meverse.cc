@@ -235,11 +235,12 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
   const monthBranch = chart.pillars[1].ganzhi[1];
   const monthElement = ZHI_WUXING[monthBranch];
   const support = chart.wuXing[dayElement] + chart.wuXing[sealElement] + (monthElement === dayElement || monthElement === sealElement ? 1 : 0);
-  // 旺衰二分(不设"中和"档):自党力量过半判身强,否则身弱;喜忌随之取强泄弱扶的正统口径
-  const strength = support >= 4 ? "身强" : "身弱";
-  const favorable = strength === "身强" ? [wealthElement, outputElement] : [sealElement, dayElement];
-  const cautious = strength === "身强" ? [dayElement, sealElement] : [officerElement, wealthElement];
   const ordered = (Object.keys(chart.wuXing) as Element[]).sort((a, b) => chart.wuXing[a] - chart.wuXing[b]);
+  // 旺衰三档(不设"中和"档):自党过半判身强;日主孤立无援(除日主外无比劫印星、月令不同党)判从势,
+  // 弃命从势顺势而为;其余身弱。喜忌随之:身强泄耗(财/食伤)、身弱生扶(印/比劫)、从势顺势(命局最旺两行)。
+  const strength = support >= 4 ? "身强" : support <= 1 ? "从势" : "身弱";
+  const favorable = strength === "身强" ? [wealthElement, outputElement] : strength === "从势" ? [ordered[4], ordered[3]] : [sealElement, dayElement];
+  const cautious = strength === "身弱" ? [officerElement, wealthElement] : [dayElement, sealElement];
 
   const counts: Record<string, number> = { 比劫: 0, 印星: 0, 食伤: 0, 财星: 0, 官杀: 0 };
   for (const pillar of chart.pillars) {
@@ -278,7 +279,7 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
   const personalityDetails = [
     CATEGORY_READING[topGod],
     "性格底色是「" + dayMaster + "·" + dayElement + "」——" + ELEMENT_NATURE[dayElement] + "。命盘里" + topGod + "的力量最突出,也就是" + GOD_PLAIN[topGod] + "。",
-    strength === "身强" ? "自己想干嘛就能干起来,不太需要别人推;要修炼的是听劝、给别人留位置。" : strength === "身弱" ? "心思细、会看脸色,擅长借别人的势;找个稳的平台和靠谱的队友,优势会翻倍。" : "能量不多不少,适应力强;关键是早点定下主线,别什么都试。",
+    strength === "身强" ? "自己想干嘛就能干起来,不太需要别人推;要修炼的是听劝、给别人留位置。" : strength === "身弱" ? "心思细、会看脸色,擅长借别人的势;找个稳的平台和靠谱的队友,优势会翻倍。" : "能量选择顺势而为,不与大局硬扛;认准主导方向全力跟进,反而是最聪明的活法。",
   ];
   const talentDetails = [
     topGod + "主导、" + secondGod + "辅助，天赋组合落在“" + CATEGORY_KEYWORDS[topGod].join("、") + "”与“" + CATEGORY_KEYWORDS[secondGod].join("、") + "”。",
@@ -411,7 +412,7 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
       season: monthBranch + "月（" + monthElement + "旺之令）",
       strength,
       pattern: topGod + "主导 · " + secondGod + "辅助",
-      statement: "TA 的核心五行是「" + dayMaster + "·" + dayElement + "」（命理叫日主，相当于性格底色），出生在" + monthBranch + "月。" + (strength === "身强" ? "整体能量偏旺，是个有主见、有干劲的人。" : strength === "身弱" ? "整体能量偏柔和，靠敏感和借力吃饭的人。" : "整体能量均衡，什么环境都能适应。") + "这辈子最该做的，是把「" + CATEGORY_KEYWORDS[topGod].join("、") + "」这些天生优势，变成看得见的成果。",
+      statement: "TA 的核心五行是「" + dayMaster + "·" + dayElement + "」（命理叫日主，相当于性格底色），出生在" + monthBranch + "月。" + (strength === "身强" ? "整体能量偏旺，是个有主见、有干劲的人。" : strength === "身弱" ? "整体能量偏柔和，靠敏感和借力吃饭的人。" : "整体能量弃命从势，跟着主导力量走的人。") + "这辈子最该做的，是把「" + CATEGORY_KEYWORDS[topGod].join("、") + "」这些天生优势，变成看得见的成果。",
       favorable,
       cautious,
     },
