@@ -76,7 +76,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   // 三条报告摘要:统一九章结构取前章 title+summary,缺省回退档案描述
   const staticReport = consult ? parseStaticReadingContent(consult) : null;
   const digest: Array<{ title: string; text: string }> = staticReport
-    ? Object.values(staticReport.sections).slice(0, 3).map((section) => ({ title: section.title, text: section.summary.slice(0, 90) }))
+    ? Object.values(staticReport.sections).slice(0, 3).map((section) => ({ title: section.title, text: (section.summary ?? section.insights[0]?.content ?? "").slice(0, 90) }))
     : [
         { title: "人物简介", text: star.description.slice(0, 90) },
       ];
@@ -99,10 +99,10 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
           {star.nameEn ? <p className="mf-preview-en">{star.nameEn}</p> : null}
           <p className="mf-preview-group">{groupOf(star.role)}</p>
           <p className="mf-preview-birth">出生 · {star.birthDate.replaceAll("-", ".")}{birth?.birthPlace ? ` · ${birth.birthPlace}` : ""}</p>
+          {/* 标签固定两枚:资料完整度 + 日主;人物画像类 traits 标签不展示 */}
           <div className="mf-preview-tags">
             <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
             {dayMasterOf(star.threePillars) ? <Tag>{dayMasterOf(star.threePillars)}</Tag> : null}
-            {(star.traits ?? []).slice(0, 3).map((trait) => <Tag key={trait}>{trait}</Tag>)}
           </div>
         </div>
       </header>

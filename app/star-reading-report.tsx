@@ -79,7 +79,7 @@ export default function StarReadingReport({ content }: { content: StaticReading 
                 <p>{section.title}</p>
               </div>
             </div>
-            <p className="mf-sr-lead"><ReadableText text={section.summary} /></p>
+            {section.summary ? <p className="mf-sr-lead"><ReadableText text={section.summary} /></p> : null}
             <div className="mf-sr-insights">
               {section.insights.map((item, index) => <InsightBlock item={item} key={`${item.label}-${index}`} />)}
             </div>

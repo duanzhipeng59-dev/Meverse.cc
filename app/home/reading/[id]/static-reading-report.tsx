@@ -18,16 +18,16 @@ const SECTION_TITLE: Record<string, string> = {
   education: "学业",
   career: "事业",
   wealth: "财富",
-  relationship: "感情",
+  relationship: "感情婚姻",
   wellbeing: "健康",
   children: "子女",
   family: "六亲",
 };
 
 export function ReadableText({ text }: { text: string }) {
-  // 流年/年份型内容按每个年份单独成段，避免多个年份挤在同一段里。
-  // 兼容"2026丙午""2026 丙午""2026年丙午""2026年（丙午）· …"等新旧流年格式。
-  const yearParts = text.split(/(?=(?:19|20)\d{2}\s*年?\s*[（(]?\s*[甲乙丙丁戊己庚辛壬癸])/).map((part) => part.trim()).filter(Boolean);
+  // 条目式年份（"2026年（丙午）· 标签：""2026 丙午：…""2026（丙午）…"）按每个年份单独成段;
+  // 句内枚举年份（"2028戊申、2030庚戌、2031辛亥年……"）没有条目标记，不拆分，避免碎段。
+  const yearParts = text.split(/(?=(?:19|20)\d{2}\s*年?\s*(?:[（(]|[（(]?\s*[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]\s*[·：:（(]))/).map((part) => part.trim()).filter(Boolean);
   if (yearParts.length > 1) {
     return <>{yearParts.map((part, index) => <span className="mf-rr-paragraph" key={`${index}-${part.slice(0, 8)}`}>{part}</span>)}</>;
   }
@@ -47,7 +47,6 @@ export default function StaticReadingReport({ content, showAdvice = true }: { co
         return (
           <section className="mf-zr-card mf-rr-card" key={key}>
             <div className="mf-zr-section-head"><span>{no}</span><div><h2>{SECTION_TITLE[key]}</h2><p>{section.title}</p></div></div>
-            <p className="mf-rr-lead"><ReadableText text={section.summary} /></p>
             <div className="mf-rr-blocks">
               {section.insights.map((item, index) => (
                 <div className="mf-rr-block" key={`${item.label}-${index}`}>
