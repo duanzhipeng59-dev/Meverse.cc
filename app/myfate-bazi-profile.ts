@@ -235,10 +235,11 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
   const monthBranch = chart.pillars[1].ganzhi[1];
   const monthElement = ZHI_WUXING[monthBranch];
   const support = chart.wuXing[dayElement] + chart.wuXing[sealElement] + (monthElement === dayElement || monthElement === sealElement ? 1 : 0);
-  const strength = support >= 5 ? "身强" : support <= 2 ? "身弱" : "中和";
+  // 旺衰二分(不设"中和"档):自党力量过半判身强,否则身弱;喜忌随之取强泄弱扶的正统口径
+  const strength = support >= 4 ? "身强" : "身弱";
+  const favorable = strength === "身强" ? [wealthElement, outputElement] : [sealElement, dayElement];
+  const cautious = strength === "身强" ? [dayElement, sealElement] : [officerElement, wealthElement];
   const ordered = (Object.keys(chart.wuXing) as Element[]).sort((a, b) => chart.wuXing[a] - chart.wuXing[b]);
-  const favorable = strength === "身强" ? [wealthElement, outputElement] : strength === "身弱" ? [sealElement, dayElement] : [ordered[0], ordered[1]];
-  const cautious = strength === "身强" ? [dayElement, sealElement] : strength === "身弱" ? [officerElement, wealthElement] : [ordered[4]];
 
   const counts: Record<string, number> = { 比劫: 0, 印星: 0, 食伤: 0, 财星: 0, 官杀: 0 };
   for (const pillar of chart.pillars) {
