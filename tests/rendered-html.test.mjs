@@ -227,6 +227,14 @@ test("single reading hands the model chart + template in one call and renders ni
   assert.match(contract, /REPORT_SECTION_SPECS/u);
   assert.match(contract, /合计 41 个结构字段/u);
   assert.match(contract, /TEMPLATE_SECTIONS/u);
+  assert.match(contract, /精细段落模板/u);
+  assert.match(contract, /断语：先用命理师口吻/u);
+  assert.match(contract, /盘据：紧接着引用 1~3 个真实 evidenceId/u);
+  assert.match(contract, /画像：把术语翻译成现代人物/u);
+  assert.match(contract, /建议：以一到两句给出可执行/u);
+  assert.match(contract, /大运段落：严格按/u);
+  assert.match(contract, /流年段落：严格按/u);
+  assert.match(contract, /每个 insight 只能围绕一个小节主题/u);
   assert.match(contract, /buildStaticReadingPrompt\(facts, profile\??\)/u);
   assert.match(contract, /const chartData = \{ evidence: facts\.evidence \}/u);
   assert.match(contract, /buildEngineTimelines\(profile\)/u);
