@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const dayMaster = dayMasterOf(star.threePillars);
   const title = `${star.name}${star.nameEn ? ` ${star.nameEn}` : ""}的生辰画像`;
-  const description = `${star.name}（${star.birthDate.replaceAll("-", ".")} 出生${dayMaster ? `，${dayMaster}日主` : ""}）的 AI 生辰画像：性格天赋、事业财富与感情运势解读。${star.description.slice(0, 50)}`;
+  const description = `${star.name}（${star.birthDate.replaceAll("-", ".")} 出生${dayMaster ? `，${dayMaster}日主` : ""}）的生辰画像：性格天赋、事业财富与感情运势解读。${star.description.slice(0, 50)}`;
   return {
     title,
     description,

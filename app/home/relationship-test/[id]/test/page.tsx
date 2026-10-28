@@ -36,7 +36,7 @@ function HeroBlock({ starName, portraitSrc, birthLine, heroPillars, heroBadges, 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={portraitImage(portraitSrc, 240)} alt={starName} />
       <div className="mf-zr-hero-copy">
-        <h1>{starName} 的 AI 生辰画像</h1>
+        <h1>{starName} 的生辰画像</h1>
         <small>出生 · {birthLine}</small>
         {heroBadges?.length ? (
           <div className="mf-zr-summary" aria-label="命盘核心摘要">
