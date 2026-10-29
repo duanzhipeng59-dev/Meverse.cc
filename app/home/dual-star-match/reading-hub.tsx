@@ -9,9 +9,12 @@ import { vedicCities } from "../../myfate-cities";
 import { buildDualChart } from "../../myfate-dual-engine";
 import DualHistoryRow from "./dual-history-row";
 import StartReadingForm, { BirthInfoFields, buildBirthSubject, emptyBirthState, type BirthFieldErrors, type BirthState, type StartSubject } from "./start-reading-form";
+import { writeConfirmPayload } from "./confirm-storage";
+import RouteSkeleton from "../../route-skeleton";
 
 // 解读页枢纽:两张入口卡(单人解读/双人合盘,点击弹窗填写信息) + 自填生成记录。
-const STATUS_LABELS: Record<string, string> = { ready: "已完成", generating: "生成中", failed: "生成失败" };
+// pending = 进了排盘页但没点「开始解读」就退出,点记录行可回去续走。
+const STATUS_LABELS: Record<string, string> = { ready: "已完成", generating: "生成中", failed: "生成失败", pending: "待生成" };
 
 type SubjectInfo = { name: string; gender: "male" | "female"; birthDate: string; birthTime: string; cityId: string; cityName: string };
 type ReadingRow = { id: string; mode: "single" | "dual"; dualType?: "love" | "career"; status: string; subjectA: SubjectInfo; subjectB: SubjectInfo | null; createdAt: string };
@@ -92,6 +95,8 @@ export default function ReadingHub() {
   const [personErrors, setPersonErrors] = useState<{ a: PersonErrors; b: PersonErrors }>({ a: {}, b: {} });
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
+  // 跳转确认页的瞬间以整屏骨架接管,不等新页 RSC 加载完成才切换
+  const [entering, setEntering] = useState(false);
   const pendingDialog = useRef<null | "single" | "dual">(null);
 
   // 弹窗打开期间锁定背景滚动;Esc 分层退出(编辑页先返回,再关弹窗;登录弹窗让给它处理)
@@ -224,9 +229,10 @@ export default function ReadingHub() {
     setDialog(mode);
   }
 
-  // 单人:与双人同款两段式,先跳确认页展示单人资料卡(登录与创建在确认页)
+  // 单人:与双人同款两段式,先跳确认页展示单人资料卡(待生成记录与登录创建都在确认页)
   function submitSingle(subject: StartSubject) {
-    sessionStorage.setItem("myfate_reading_confirm_v1", JSON.stringify({ mode: "single", subjectA: subject }));
+    writeConfirmPayload({ mode: "single", subjectA: subject });
+    setEntering(true);
     router.push("/home/dual-star-match/confirm");
   }
 
@@ -250,20 +256,20 @@ export default function ReadingHub() {
   async function start() {
     if (dialog !== "dual") return;
     // 记录模式用记录的完整出生信息(按记录 key,不只按姓名);手动模式走与单人弹窗同一套校验折算
-    const resolve = (source: "record" | "manual", pick: string, draft: BirthState, fallbackName: string, visited: boolean): { subject: SubjectInfo | null; errors: PersonErrors } => {
+    const resolve = (source: "record" | "manual", pick: string, draft: BirthState, visited: boolean): { subject: SubjectInfo | null; errors: PersonErrors } => {
       if (source === "record") {
         const record = personRecords.find((item) => item.key === pick);
         return record
           ? { subject: record.subject, errors: {} }
           : { subject: null, errors: { card: personRecords.length ? "请选择命盘记录" : "暂无命盘记录，请切换为手动填写" } };
       }
-      const built = buildBirthSubject(draft, fallbackName);
+      const built = buildBirthSubject(draft);
       if (built.subject) return { subject: built.subject, errors: {} };
       // 尚未进入过填写页时引导点击「填写」;缺的只是出生地时点名地址
       return { subject: null, errors: { ...built.errors, card: !visited ? "请点击「填写」补全出生信息" : built.errors.region ? "请把地址填写完整" : "请把信息填写完整" } };
     };
-    const a = resolve(sourceA, pickA, manualA, "本人", visitA);
-    const b = resolve(sourceB, pickB, manualB, "对方", visitB);
+    const a = resolve(sourceA, pickA, manualA, visitA);
+    const b = resolve(sourceB, pickB, manualB, visitB);
     if (!a.subject || !b.subject) {
       setPersonErrors({ a: a.errors, b: b.errors });
       // 滚动到第一张出错的卡片(弹窗内部滚动,不清空已填数据)
@@ -291,13 +297,15 @@ export default function ReadingHub() {
       return;
     }
     setPersonErrors({ a: {}, b: {} });
-    // 两段式:先跳确认页展示双方八字资料卡(登录与创建在确认页的「开始分析」)
-    sessionStorage.setItem("myfate_reading_confirm_v1", JSON.stringify({ mode: "dual", subjectA: a.subject, subjectB: b.subject }));
+    // 两段式:先跳确认页展示双方八字资料卡(待生成记录与登录创建都在确认页的「开始分析」)
+    writeConfirmPayload({ mode: "dual", subjectA: a.subject, subjectB: b.subject });
+    setEntering(true);
     router.push("/home/dual-star-match/confirm");
   }
 
   return (
     <>
+      <RouteSkeleton active={entering} />
       <div className="mf-reading-cards">
         <button type="button" className="mf-reading-card is-single" onClick={() => openOrLogin("single")}>
           <i className="mf-reading-card-mark" aria-hidden="true">✦</i>

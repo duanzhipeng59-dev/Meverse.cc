@@ -1361,7 +1361,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-profile-zone figure { display: grid; justify-items: center; gap: 10px; padding: 20px 12px 18px; border: 0; border-radius: 24px; background: #f6f1f4; }
 
-.mf-dual-profile-zone figure > b { font-size: 19px; font-weight: 700; color: var(--bz-red); }
+.mf-dual-profile-zone figure > b { font-size: 19px; font-weight: 700; color: #110d12; }
 
 .mf-dual-profile-pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; margin-top: 2px; }
 
@@ -2533,7 +2533,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* ── 统一组件库 mf-ui-*:触控≥44px,过渡 150-250ms,reduced-motion 关闭非必要动画 ── */
 .mf-ui-btn { min-height: 48px; padding: 0 22px; border: 1px solid transparent; border-radius: 12px; font: 600 14px/1 inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background-color .18s ease, border-color .18s ease, opacity .18s ease; }
-.mf-ui-btn.is-primary { background: var(--bz-red); color: #fff; }
+/* 主按钮与「双人合盘」入口卡(mf-reading-card.is-dual)同款:深紫叠层渐变 + 卡片底色,白字 */
+.mf-ui-btn.is-primary { background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); color: #fff; }
 .mf-ui-btn.is-primary:hover { opacity: .9; }
 .mf-ui-btn.is-ghost { border-color: var(--bz-line-strong); background: transparent; color: var(--bz-ink); }
 .mf-ui-btn.is-ghost:hover { border-color: var(--bz-red); color: var(--bz-red); }
@@ -3270,10 +3271,6 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   min-width: 0;
 }
 
-.mf-login-modal-card .mf-login-submit {
-  color: #fff !important;
-}
-
 /* 详情页返回栏与发现页筛选栏保持同一条工作区顶栏：吸顶、满右侧内容区宽度。 */
 @media (min-width: 801px) {
   .mf-workspace-content:has(.mf-preview) {
@@ -3457,8 +3454,22 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-explore-ctrl { padding-left: calc(24px + (50vw - 50%)); padding-right: calc(16px + (50vw - 50%)); }
 .mf-explore-grid { padding-left: clamp(16px, 3vw, 32px); padding-right: clamp(16px, 3vw, 32px); }
 
-/* 预览页主按钮:轻微内阴影 + 10% 灰描边,增加质感层次 */
-.mf-preview-actions .mf-ui-btn.is-primary { border: 1px solid rgb(128 128 128 / 10%); box-shadow: inset 0 1px 3px rgb(0 0 0 / 12%); }
+/* 预览页主按钮质感:与入口卡同语言——紫调描边、顶部高光内阴影、底部内暗、深色外投影;
+   悬停微抬加亮(压过基础规则的 opacity 变暗),按下回落 */
+.mf-preview-actions .mf-ui-btn.is-primary {
+  border: 1px solid rgb(176 157 240 / 42%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), inset 0 -12px 22px rgb(8 5 18 / 22%), 0 10px 28px rgb(10 7 18 / 26%);
+  text-shadow: 0 1px 2px rgb(8 5 18 / 55%);
+  letter-spacing: .05em;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.mf-preview-actions .mf-ui-btn.is-primary:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  border-color: rgb(195 160 244 / 62%);
+  filter: brightness(1.12);
+}
+.mf-preview-actions .mf-ui-btn.is-primary:active { transform: translateY(0); filter: brightness(.96); }
 
 /* 发现页背景换最深黑;解读页保留原渐变但彩色光晕饱和度减半(198,75,115→167,106,128) */
 .mf-workspace-main:has(.mf-explore) { background: #000; }
@@ -3475,3 +3486,16 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* 弹窗卡片(登录/单人和双人解读)圆角统一 12px */
 .mf-login-modal-card { border-radius: 12px; }
+
+/* 即时路由骨架:点击跳转瞬间整屏接管,新页就绪后随旧路由卸载 */
+.mf-route-skeleton { position: fixed; inset: 0; z-index: 80; overflow-y: auto; background: var(--bz-paper); }
+
+/* 排盘确认页主按钮(开始解读/开始分析):与解读弹窗「开始排盘」同款紫粉渐变,白字 */
+.mf-dual-confirm .mf-dual-generate {
+  border-radius: 12px;
+  font-weight: 750;
+  letter-spacing: .02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright));
+  box-shadow: 0 12px 30px rgb(117 103 210 / 35%);
+}

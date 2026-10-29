@@ -15,7 +15,8 @@ export type ReadingReportRow = {
   userId: string;
   mode: "single" | "dual";
   dualType: "love" | "career";
-  status: "generating" | "ready" | "failed";
+  // pending = 已进排盘确认页但未点「开始解读」(退出后以「待生成」保留在生成记录)
+  status: "pending" | "generating" | "ready" | "failed";
   subjectA: ReadingSubject;
   subjectB: ReadingSubject | null;
   content: unknown;
@@ -32,7 +33,7 @@ function mapRow(row: Record<string, unknown>): ReadingReportRow {
     userId: row.user_id as string,
     mode: row.mode as "single" | "dual",
     dualType: (row.dual_type === "career" ? "career" : "love"),
-    status: (row.status === "ready" || row.status === "failed" ? row.status : "generating") as ReadingReportRow["status"],
+    status: (row.status === "pending" || row.status === "ready" || row.status === "failed" ? row.status : "generating") as ReadingReportRow["status"],
     subjectA: row.subject_a as ReadingSubject,
     subjectB: (row.subject_b ?? null) as ReadingSubject | null,
     content: row.content ?? null,
@@ -40,14 +41,52 @@ function mapRow(row: Record<string, unknown>): ReadingReportRow {
   };
 }
 
-export async function createReadingReport(input: { userId: string; mode: "single" | "dual"; dualType?: "love" | "career"; subjectA: ReadingSubject; subjectB?: ReadingSubject | null }): Promise<string> {
-  const { data, error } = await createSupabaseAdminClient()
+// jsonb 的键序与客户端载荷不一致,subject 相等按字段逐一比较
+function subjectsEqual(a: ReadingSubject, b: ReadingSubject): boolean {
+  return a.name === b.name && a.gender === b.gender && a.birthDate === b.birthDate
+    && a.birthTime === b.birthTime && a.cityId === b.cityId && a.cityName === b.cityName;
+}
+
+export async function createReadingReport(input: { userId: string; mode: "single" | "dual"; dualType?: "love" | "career"; subjectA: ReadingSubject; subjectB?: ReadingSubject | null; status?: "generating" | "pending" }): Promise<string> {
+  const admin = createSupabaseAdminClient();
+  // 待生成去重:同一人(或同一对)反复进排盘页又退出,只保留一条「待生成」
+  if (input.status === "pending") {
+    const { data: pendingRows } = await admin.from("reading_reports")
+      .select("id,subject_a,subject_b")
+      .eq("user_id", input.userId)
+      .eq("mode", input.mode)
+      .eq("status", "pending");
+    const duplicated = (pendingRows ?? []).find((row) => {
+      const storedA = row.subject_a as ReadingSubject;
+      if (!storedA || !subjectsEqual(storedA, input.subjectA)) return false;
+      if (input.mode === "single") return true;
+      const storedB = row.subject_b as ReadingSubject | null;
+      return Boolean(storedB && input.subjectB && subjectsEqual(storedB, input.subjectB));
+    });
+    if (duplicated?.id) return duplicated.id as string;
+  }
+  const { data, error } = await admin
     .from("reading_reports")
-    .insert({ user_id: input.userId, mode: input.mode, dual_type: input.dualType ?? "love", subject_a: input.subjectA, subject_b: input.subjectB ?? null })
+    .insert({ user_id: input.userId, mode: input.mode, dual_type: input.dualType ?? "love", subject_a: input.subjectA, subject_b: input.subjectB ?? null, status: input.status ?? "generating" })
     .select("id")
     .single();
   if (error) throw error;
   return data.id as string;
+}
+
+// 待生成 → 生成中:created_at 一并重置,让进度条与超时自愈从启动这一刻起算。
+// update 带 status=pending 条件做比较交换,并发重复启动时第二次返回 null。
+export async function startReadingReport(id: string): Promise<ReadingReportRow | null> {
+  const now = new Date().toISOString();
+  const { data, error } = await createSupabaseAdminClient()
+    .from("reading_reports")
+    .update({ status: "generating", created_at: now, updated_at: now })
+    .eq("id", id)
+    .eq("status", "pending")
+    .select("id,user_id,mode,dual_type,status,subject_a,subject_b,content,created_at")
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapRow(data as Record<string, unknown>) : null;
 }
 
 export async function listReadingReports(userId: string): Promise<ReadingReportRow[]> {

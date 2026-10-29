@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, useToast } from "../../../components/ui";
 import LoginModal from "../../../components/login-modal";
+import RouteSkeleton from "../../../route-skeleton";
 import { readLocalSession } from "../../../local-auth";
 
 // 预览页操作条:查看画像 / 收藏(本地记录,不跳转);分享在页面顶栏
@@ -20,6 +21,8 @@ export default function PreviewActions({ starId }: { starId: string }) {
   // 服务端 requirePageUser 仍是最终权限依据
   const [authed, setAuthed] = useState(true);
   const [pending, setPending] = useState(false);
+  // 跳转瞬间以整屏报告骨架接管,不等新页 RSC 加载完成才切换
+  const [entering, setEntering] = useState(false);
 
   useEffect(() => {
     const sync = () => setAuthed(Boolean(readLocalSession()));
@@ -31,8 +34,10 @@ export default function PreviewActions({ starId }: { starId: string }) {
   useEffect(() => { setFaved(readFavorites().includes(starId)); }, [starId]);
 
   function openReport() {
-    if (authed) router.push(`/home/relationship-test/${starId}/test`);
-    else setPending(true);
+    if (authed) {
+      setEntering(true);
+      router.push(`/home/relationship-test/${starId}/test`);
+    } else setPending(true);
   }
 
   const toggleFav = () => {
@@ -45,6 +50,7 @@ export default function PreviewActions({ starId }: { starId: string }) {
 
   return (
     <div className="mf-preview-actions">
+      <RouteSkeleton active={entering} />
       <Button variant="primary" onClick={openReport}>查看完整画像</Button>
       <Button variant="ghost" className={faved ? "is-faved" : ""} onClick={toggleFav}>
         <svg viewBox="0 0 24 24" fill={faved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.6Z" /></svg>
@@ -55,6 +61,7 @@ export default function PreviewActions({ starId }: { starId: string }) {
         onOpenChange={(open) => { if (!open) setPending(false); }}
         onAuthenticated={() => {
           setPending(false);
+          setEntering(true);
           router.push(`/home/relationship-test/${starId}/test`);
         }}
       />

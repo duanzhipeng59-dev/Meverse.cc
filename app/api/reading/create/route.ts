@@ -18,8 +18,8 @@ const subjectSchema = z.object({
   cityName: z.string().min(1).max(40),
 });
 const requestSchema = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("single"), subjectA: subjectSchema }),
-  z.object({ mode: z.literal("dual"), dualType: z.enum(["love", "career"]).default("love"), subjectA: subjectSchema, subjectB: subjectSchema }),
+  z.object({ mode: z.literal("single"), pending: z.boolean().optional(), subjectA: subjectSchema }),
+  z.object({ mode: z.literal("dual"), dualType: z.enum(["love", "career"]).default("love"), pending: z.boolean().optional(), subjectA: subjectSchema, subjectB: subjectSchema }),
 ]).superRefine((value, ctx) => {
   // 合盘约束:双方必须一男一女,与解读页表单同一条规则(服务端兜底)。
   if (value.mode === "dual" && value.subjectA.gender === value.subjectB.gender) {
@@ -27,7 +27,8 @@ const requestSchema = z.discriminatedUnion("mode", [
   }
 });
 
-// 创建解读报告:校验自填信息 → 建记录(generating) → 响应后后台生成(单/双管线在 myfate-reading-generator)。
+// 创建解读报告:校验自填信息 → 建记录 → 响应后后台生成(单/双管线在 myfate-reading-generator)。
+// pending=true 只落「待生成」记录(进排盘确认页时调用),不启动生成;点「开始解读」由 /api/reading/start 推进。
 export async function POST(request: Request) {
   const { user } = await getSessionUser(request);
   if (!user) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
@@ -45,10 +46,13 @@ export async function POST(request: Request) {
       dualType: parsed.data.mode === "dual" ? parsed.data.dualType : undefined,
       subjectA: parsed.data.subjectA,
       subjectB: parsed.data.mode === "dual" ? parsed.data.subjectB : null,
+      status: parsed.data.pending ? "pending" : "generating",
     });
-    after(async () => {
-      await runReadingGeneration(reportId);
-    });
+    if (!parsed.data.pending) {
+      after(async () => {
+        await runReadingGeneration(reportId);
+      });
+    }
     return Response.json({ reportId });
   } catch (error) {
     console.error("Reading create failed", error);

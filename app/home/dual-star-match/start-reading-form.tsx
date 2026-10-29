@@ -72,8 +72,9 @@ function lunarMonthDays(y: number, m: number): number {
   return 29;
 }
 
-// 校验+折算:通过返回 subject,失败返回字段级错误(不 throw,供单人/双人同一逻辑)
-export function buildBirthSubject(state: BirthState, fallbackName = "本人"): { subject: StartSubject | null; errors: BirthFieldErrors } {
+// 校验+折算:通过返回 subject,失败返回字段级错误(不 throw,供单人/双人同一逻辑)。
+// 未填姓名时以出生年月日(公历折算后,与 birthDate 同源)作为姓名,替代旧「本人/对方」占位。
+export function buildBirthSubject(state: BirthState): { subject: StartSubject | null; errors: BirthFieldErrors } {
   let solar: { y: number; m: number; d: number };
   if (state.calendar === "solar") {
     const probe = new Date(state.parts.y, state.parts.m - 1, state.parts.d);
@@ -104,7 +105,7 @@ export function buildBirthSubject(state: BirthState, fallbackName = "本人"): {
   }
   return {
     subject: {
-      name: state.name.trim() || fallbackName,
+      name: state.name.trim() || `${y}年${m}月${d}日`,
       gender: state.gender,
       birthDate: `${y}-${pad(m)}-${pad(d)}`,
       birthTime: `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`,
