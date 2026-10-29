@@ -3764,7 +3764,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 
 
-.mf-bz-star-cover { position: relative; display: block; aspect-ratio: 3 / 3.8; overflow: hidden; border-radius: 14px; background: #171014; color: inherit; text-decoration: none; isolation: isolate; }
+.mf-bz-star-cover { position: relative; display: block; aspect-ratio: 3 / 3.8; overflow: hidden; border-radius: 11px 11px 0 0; background: #171014; color: inherit; text-decoration: none; isolation: isolate; }
 
 
 .mf-bz-cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform .45s ease; background: var(--bz-line); }

@@ -44,6 +44,18 @@ export default defineConfig(async () => {
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
+  // route-css 手改直发样式:dev 的 RSC 沙箱 cwd=/bundle 读不到文件 mtime,版本参数会退化成
+  // 固定 v=0 被浏览器长期缓存——开发/预览服务器对这类响应强制 no-cache,按 etag 协商,改样式即生效。
+  const routeCssNoCache = {
+    name: "route-css-no-cache",
+    configureServer(server: { middlewares: { use: (prefix: string, fn: (req: unknown, res: { setHeader: (key: string, value: string) => void }, next: () => void) => void) => void } }) {
+      server.middlewares.use("/route-css", (_req, res, next) => { res.setHeader("Cache-Control", "no-cache"); next(); });
+    },
+    configurePreviewServer(server: { middlewares: { use: (prefix: string, fn: (req: unknown, res: { setHeader: (key: string, value: string) => void }, next: () => void) => void) => void } }) {
+      server.middlewares.use("/route-css", (_req, res, next) => { res.setHeader("Cache-Control", "no-cache"); next(); });
+    },
+  };
+
   return {
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
@@ -55,6 +67,7 @@ export default defineConfig(async () => {
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         config: localBindingConfig,
       }),
+      routeCssNoCache,
     ],
   };
 });

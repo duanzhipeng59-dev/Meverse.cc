@@ -111,6 +111,12 @@ export default function ReadingHub() {
     };
   }, [dialog, personEditing]);
 
+  // 任一侧输入变动即清空上次的错误提示:错误只反映「点击开始那一刻」的校验状态,
+  // 换性别/换记录/改填写后旧提示残留会误导用户
+  useEffect(() => {
+    setPersonErrors({ a: {}, b: {} });
+  }, [sourceA, pickA, manualA, sourceB, pickB, manualB]);
+
   // 命盘记录拉取:双人弹窗「从记录选」的数据源(用户自填 subject + 已有报告的明星),带加载/失败态
   function loadRecords() {
     setRecordsStatus("loading");
@@ -253,8 +259,8 @@ export default function ReadingHub() {
       }
       const built = buildBirthSubject(draft, fallbackName);
       if (built.subject) return { subject: built.subject, errors: {} };
-      // 尚未进入过填写页时引导点击「填写」
-      return { subject: null, errors: { ...built.errors, card: !visited ? "请点击「填写」补全出生信息" : "请把信息填写完整" } };
+      // 尚未进入过填写页时引导点击「填写」;缺的只是出生地时点名地址
+      return { subject: null, errors: { ...built.errors, card: !visited ? "请点击「填写」补全出生信息" : built.errors.region ? "请把地址填写完整" : "请把信息填写完整" } };
     };
     const a = resolve(sourceA, pickA, manualA, "本人", visitA);
     const b = resolve(sourceB, pickB, manualB, "对方", visitB);
@@ -276,11 +282,11 @@ export default function ReadingHub() {
       return;
     }
     // 合盘约束:双方必须一男一女(记录/手动两种来源都按解析后的性别校验)。
+    // 同性别不写持久错误——卡片提示由派生的 showGenderHint 呈现(挂在后改动性别的一侧),
+    // 任一侧性别改成不同后提示即时消失;持久写入会让提示在改动后残留。
     if (a.subject.gender === b.subject.gender) {
-      const genderMessage = "合盘双方需要一男一女，请调整其中一方的性别";
-      setPersonErrors({ a: { card: genderMessage }, b: { card: genderMessage } });
       requestAnimationFrame(() => {
-        document.querySelector(".mf-reading-person.has-error")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        document.querySelector(".mf-reading-person")?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
       return;
     }

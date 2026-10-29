@@ -13,6 +13,9 @@ import { dualReadingSchema } from "../../../myfate-dual-reading";
 import DualReadingReport from "./dual-reading-report";
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import StaticReadingReport from "./static-reading-report";
+import { extractFortuneData } from "../../../star-reading-report";
+import FortuneCurveCard from "../../../fortune-curve";
+import PillarsCard from "../../../pillars-card";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { vedicCities } from "../../../myfate-cities";
@@ -81,8 +84,13 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
       ) : report.mode === "single" ? (() => {
         const parsed = staticReadingSchema.safeParse(report.content);
         if (!parsed.success) notFound();
+        const fortune = extractFortuneData(parsed.data, Number(subjectA.birthDate.slice(0, 4)));
         return (
           <>
+            {singleChart ? <PillarsCard pillars={singleChart.pillars.map((pillar) => pillar.ganzhi)} /> : null}
+            {fortune ? (
+              <FortuneCurveCard careerLifetime={fortune.careerLifetime} wealthLifetime={fortune.wealthLifetime} loveMarriage={fortune.loveMarriage} currentAge={fortune.currentAge} />
+            ) : null}
             <StaticReadingReport content={parsed.data} showAdvice={false} />
             <div id="ask"><StarAskPanel starId={report.id} starName={singleDisplayName} reportType="reading-single" /></div>
             <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读，量化评分与财富区间为结构信号的估算表达，仅供娱乐与自我观察参考，不构成医疗、法律或投资建议。</p>

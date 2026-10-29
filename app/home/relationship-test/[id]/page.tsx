@@ -10,6 +10,7 @@ import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth, dayMast
 import { portraitImage, portraitOgImage } from "../../../myfate-image";
 import { Tag } from "../../../components/ui";
 import { pushRecentStar } from "../../celebrity-match/celebrity-browser";
+import { wuxingTagStyle } from "../../../wuxing-tag";
 import StarVisitTracker from "./preview-visit";
 
 export const dynamic = "force-dynamic";
@@ -81,7 +82,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
         { title: "人物简介", text: star.description.slice(0, 90) },
       ];
   const chapters = consult
-    ? [["◐", "人生画像"], ["❖", "格局"], ["✎", "学业"], ["◈", "事业"], ["✦", "财富"], ["♡", "感情"], ["✚", "健康"], ["❀", "子女"], ["⊹", "六亲"]]
+    ? [["✦", "人生运势"], ["◐", "人生画像"], ["❖", "格局"], ["✎", "学业"], ["◈", "事业"], ["✦", "财富"], ["♡", "感情"], ["✚", "健康"], ["❀", "子女"], ["⊹", "六亲"]]
     : [];
   const related = allStars.filter((item) => item.id !== id && groupOf(item.role) === groupOf(star.role)).slice(0, 4);
   const hasReport = Boolean(consult);
@@ -95,14 +96,16 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={portraitImage(star.portraitSrc, 360)} alt={`${star.name}的人物肖像`} />
         <div className="mf-preview-head-copy">
-          <h1>{personOf(star.role) || star.name}</h1>
+          <h1 className={(personOf(star.role) || star.name).length > 8 ? "is-long-name" : undefined}>{personOf(star.role) || star.name}</h1>
           {star.nameEn ? <p className="mf-preview-en">{star.nameEn}</p> : null}
           <p className="mf-preview-group">{groupOf(star.role)}</p>
           <p className="mf-preview-birth">出生 · {star.birthDate.replaceAll("-", ".")}{birth?.birthPlace ? ` · ${birth.birthPlace}` : ""}</p>
-          {/* 标签固定两枚:资料完整度 + 日主;人物画像类 traits 标签不展示 */}
+          {/* 标签固定两枚:资料完整度 + 日主(底色取五行色);人物画像类 traits 标签不展示 */}
           <div className="mf-preview-tags">
             <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
-            {dayMasterOf(star.threePillars) ? <Tag>{dayMasterOf(star.threePillars)}</Tag> : null}
+            {dayMasterOf(star.threePillars) ? (
+              <span className="mf-ui-tag is-default" style={wuxingTagStyle(dayMasterOf(star.threePillars))}>{dayMasterOf(star.threePillars)}</span>
+            ) : null}
           </div>
         </div>
       </header>

@@ -91,6 +91,7 @@ export function buildFortuneCurveControls(inputs: {
   const loveStages = inputs.loveMarriage.map((item) => ({ ...parseRange(item.age), value: LOVE_SCORE[item.tag] ?? 55 }));
 
   function valueAt(stages: Array<{ start: number; end: number; value: number }>, age: number) {
+    if (!stages.length) return 60; // 该维度无数据(如新版报告无感情大运标签)时取中性值
     const hit = stages.find((s) => age >= s.start && age <= s.end);
     if (hit) return hit.value;
     return age < stages[0].start ? stages[0].value : stages[stages.length - 1].value;
@@ -112,15 +113,8 @@ export function buildFortuneCurveControls(inputs: {
     if (first.age > 7) controls.unshift({ age: 7, score: first.score, trend: 'steady' as const, label: '平稳期' });
     if (last.age < 80) controls.push({ age: 80, score: last.score, trend: 'steady' as const, label: '平稳期' });
   }
-  // 精简到 4-6 个主要趋势变化:合并分数接近(|差|<7)的相邻控制点
-  const merged: FortuneControl[] = [];
-  for (const control of controls) {
-    const prev = merged[merged.length - 1];
-    if (prev && Math.abs(control.score - prev.score) < 7) continue;
-    merged.push(control);
-  }
-  controls.length = 0;
-  controls.push(...merged);
+  // 保留每个大运控制点:单调三次插值可优雅处理密集点(无过冲),
+  // 旧版「差<7 合并」会把平缓盘面(如相邻差 4-5 分)压成 2-3 个点,后半生曲线变死平线。
   return controls.map((control, index) => {
     const prev = index > 0 ? controls[index - 1].score : control.score;
     const diff = control.score - prev;

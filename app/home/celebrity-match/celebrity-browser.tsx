@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type { StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
 import { Tag, EmptyState, SkeletonList } from "../../components/ui";
+import { wuxingTagStyle } from "../../wuxing-tag";
 
 const PAGE_SIZE = 12;
 // 返回列表后恢复搜索词/排序/已加载页数/滚动位置(未登录本地存储;登录同步属后续批次)
@@ -314,7 +315,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
                 <b>{star.name}</b>
                 <small>{star.nameEn ? `${groupOf(star.role)}-${star.nameEn}` : groupOf(star.role)}</small>
                 <div className="mf-explore-card-tags">
-                  {dayMaster ? <Tag>{dayMaster}</Tag> : null}
+                  {dayMaster ? <span className="mf-ui-tag is-default" style={wuxingTagStyle(dayMaster)}>{dayMaster}</span> : null}
                   <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
                 </div>
               </Link>

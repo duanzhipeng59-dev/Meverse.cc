@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
-import StarReadingReport from "../../../../star-reading-report";
+import StarReadingReport, { extractFortuneData } from "../../../../star-reading-report";
+import FortuneCurveCard from "../../../../fortune-curve";
+import PillarsCard from "../../../../pillars-card";
 import { getConsultOverride, parseStaticReadingContent, type ConsultOverrideContent } from "../../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, recordStarReportView } from "../../../../myfate-stars-server";
 import { portraitImage } from "../../../../myfate-image";
@@ -13,7 +15,6 @@ import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 
 export const dynamic = "force-dynamic";
 
-const PILLAR_LABELS = ["年", "月", "日", "时"];
 
 // 报告内容以 consult_overrides 手动上传为准(single-full-v3 统一口径);
 // 四柱优先取上传的 heroPillars,缺省回退档案三柱
@@ -22,28 +23,20 @@ function heroPillarsOf(consult: ConsultOverrideContent | null, threePillars: str
   return threePillars.split("·").map((part) => part.trim()).filter(Boolean).slice(0, 4);
 }
 
-function HeroBlock({ starName, portraitSrc, birthLine, heroPillars, heroBadges, hourEstimated }: { starName: string; portraitSrc: string; birthLine: string; heroPillars: string[]; heroBadges?: string[]; hourEstimated?: boolean }) {
+function HeroBlock({ starName, portraitSrc, birthLine, heroBadges }: { starName: string; portraitSrc: string; birthLine: string; heroBadges?: string[] }) {
   return (
     <header className="mf-zr-hero">
       {/* CSS 已按 108×134 object-fit:cover 裁切,直接用 240w WebP 缩放版,不再拉原图 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={portraitImage(portraitSrc, 240)} alt={starName} />
       <div className="mf-zr-hero-copy">
-        <h1>{starName} 的生辰画像</h1>
+        <h1>{starName}</h1>
         <small>出生 · {birthLine}</small>
         {heroBadges?.length ? (
           <div className="mf-zr-summary" aria-label="命盘核心摘要">
             {heroBadges.map((badge) => <span key={badge}>{badge}</span>)}
           </div>
         ) : null}
-      </div>
-      <div className="mf-zr-hero-pillars" aria-label="四柱">
-        {heroPillars.map((ganzhi, index) => (
-          <span key={`${ganzhi}-${index}`}>
-            <small>{hourEstimated && index === 3 ? "时·推算" : PILLAR_LABELS[index] ?? "柱"}</small>
-            <b>{ganzhi}</b>
-          </span>
-        ))}
       </div>
     </header>
   );
@@ -80,9 +73,10 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")}  showShare shareTitle={`${personName || star.name} 的生辰画像`} />
 
         <div className="mf-zr-overview">
-          <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={heroPillars} />
+          <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} />
         </div>
 
+        <PillarsCard pillars={heroPillars} />
         <section className="mf-zr-card mf-doc">
           <div className="mf-doc-head"><i aria-hidden="true">✦</i><h2>报告准备中</h2></div>
           <p className="mf-doc-p">这份生辰画像报告尚未上传，内容正在人工准备与校对中，完成后即可查看。</p>
@@ -109,8 +103,15 @@ export default async function StarReportPage({ params, searchParams }: { params:
       <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={staticPillars.join(" ")} showShare shareTitle={`${personName || star.name} 的生辰画像`} />
       <ReadingProgress starId={id} />
       <div className="mf-zr-overview">
-        <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={staticPillars} heroBadges={staticBadges} hourEstimated={staticPillars.length > 3} />
+        <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroBadges={staticBadges} />
       </div>
+      <PillarsCard pillars={staticPillars} hourEstimated={staticPillars.length > 3} />
+      {(() => {
+        const fortune = extractFortuneData(staticReport, Number((birth?.birthDate ?? star.birthDate).slice(0, 4)));
+        return fortune ? (
+          <FortuneCurveCard careerLifetime={fortune.careerLifetime} wealthLifetime={fortune.wealthLifetime} loveMarriage={fortune.loveMarriage} currentAge={fortune.currentAge} />
+        ) : null;
+      })()}
       <StarReadingReport content={staticReport} />
       <div id="ask"><StarAskPanel starId={id} starName={star.name} /></div>
       <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、刑冲合害)对静态命局做文化解读，不构成科学预测</p>

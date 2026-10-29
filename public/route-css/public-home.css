@@ -31,7 +31,7 @@
 
 
 /* 首页 hero 的主 CTA:与 logo 同色调 */
-.mf-home-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; width: auto; background: linear-gradient(145deg, #a84265, #64233e); box-shadow: 0 8px 22px rgba(122, 41, 78, 0.28); }
+.mf-home-cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; width: auto; border-radius: 12px; background: linear-gradient(145deg, #a84265, #64233e); box-shadow: 0 8px 22px rgba(122, 41, 78, 0.28); }
 @media (max-width: 640px) {
  .mf-home-cta { display: flex; margin-left: auto; }
 }
@@ -80,7 +80,7 @@
 
 .mf-hero-visual::before { content: ""; position: absolute; width: 390px; height: 390px; border-radius: 48% 52% 42% 58% / 52% 42% 58% 48%; background: linear-gradient(145deg, #dfb3bd, #efd4c9); transform: rotate(9deg); box-shadow: var(--mf-shadow); }
 
-.mf-home-fate-map { position: relative; z-index: 2; width: min(410px, 92%); aspect-ratio: 1; overflow: hidden; border: 1px solid rgba(255,255,255,.88); border-radius: 30px; background: radial-gradient(circle at 50% 55%, rgba(221,161,180,.28), transparent 34%), rgba(255,252,248,.9); backdrop-filter: blur(16px); box-shadow: 0 25px 65px rgba(75,33,53,.18); }
+.mf-home-fate-map { position: relative; z-index: 2; width: min(410px, 92%); aspect-ratio: 1; overflow: hidden; border: 1px solid rgba(255,255,255,.88); border-radius: 12px; background: radial-gradient(circle at 50% 55%, rgba(221,161,180,.28), transparent 34%), rgba(255,252,248,.9); backdrop-filter: blur(16px); box-shadow: 0 25px 65px rgba(75,33,53,.18); }
 
 .mf-home-fate-map-stage { position: absolute; inset: 58px 18px 13px; }
 
@@ -163,7 +163,7 @@
   align-content: center;
   gap: clamp(44px, 6vw, 88px);
   border: 1px solid rgba(255, 255, 255, .86);
-  border-radius: 44px;
+  border-radius: 12px;
   background:
     radial-gradient(circle at 84% 22%, rgba(195, 91, 126, .2), transparent 25rem),
     radial-gradient(circle at 8% 94%, rgba(242, 200, 172, .32), transparent 26rem),
@@ -206,7 +206,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid rgba(122, 41, 78, .1);
-  border-radius: 999px;
+  border-radius: 12px;
   color: var(--mf-plum);
   background: rgba(255, 255, 255, .52);
   font-size: 11px;
@@ -252,7 +252,7 @@
   width: min(440px, 96%);
   overflow: hidden;
   border-color: rgba(255, 255, 255, .86);
-  border-radius: 36px;
+  border-radius: 12px;
   background:
     radial-gradient(circle at 50% 54%, rgba(255, 255, 255, .9) 0 11%, rgba(215, 145, 169, .18) 11.5% 28%, transparent 45%),
     conic-gradient(from 18deg, rgba(183, 89, 118, .08), transparent 16%, rgba(194, 154, 105, .08) 28%, transparent 43%, rgba(183, 89, 118, .07) 62%, transparent 78%),
@@ -337,7 +337,7 @@
 }
 
 
-.mf-stars-section, .mf-how { width: min(1180px, calc(100% - 48px)); margin: 16px auto 16px; padding: 26px 24px; border: 1px solid var(--bz-line); border-radius: 20px; background: var(--bz-card); box-sizing: border-box; }
+.mf-stars-section, .mf-how { width: min(1180px, calc(100% - 48px)); margin: 16px auto 16px; padding: 26px 24px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); box-sizing: border-box; }
 
 .mf-star-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 22px; }
 
@@ -345,7 +345,7 @@
 
 .mf-home-star-card { cursor: default; }
 
-.mf-star-portrait { --portrait-image: none; position: relative; aspect-ratio: 3 / 4.15; overflow: hidden; border-radius: 22px; background-image: var(--portrait-image); background-repeat: no-repeat; background-size: cover; background-position: center; box-shadow: 0 12px 35px rgba(55, 35, 43, .1); transition: transform .35s ease, box-shadow .35s ease; }
+.mf-star-portrait { --portrait-image: none; position: relative; aspect-ratio: 3 / 4.15; overflow: hidden; border-radius: 12px; background-image: var(--portrait-image); background-repeat: no-repeat; background-size: cover; background-position: center; box-shadow: 0 12px 35px rgba(55, 35, 43, .1); transition: transform .35s ease, box-shadow .35s ease; }
 
 .mf-star-card:hover .mf-star-portrait { transform: translateY(-5px); box-shadow: 0 22px 44px rgba(55, 35, 43, .17); }
 
@@ -408,7 +408,7 @@
 }
 @media (max-width: 800px) {
 
-  .mf-home-fate-map { width: min(330px, 96%); border-radius: 24px; }
+  .mf-home-fate-map { width: min(330px, 96%); border-radius: 12px; }
 }
 @media (max-width: 800px) {
 
@@ -427,10 +427,14 @@
   .mf-home-header {
     top: 7px;
     width: calc(100% - 20px);
-    height: 58px;
+    height: 52px;
     margin-top: 7px;
-    padding: 0 8px 0 13px;
+    padding: 0 7px 0 12px;
   }
+  /* 58→52(≈0.9 等比):内部元素按同比例缩小 */
+  .mf-home-header .mf-brand img { height: 15px; margin-left: 7px; }
+  .mf-home-header .mf-nav a { padding: 8px 12px; font-size: 12.5px; }
+  .mf-header-cta { min-height: 36px; padding: 0 18px; font-size: 12.5px; }
 }
 @media (max-width: 800px) {
 
@@ -444,7 +448,7 @@
     padding: 28px 20px 34px;
     min-height: 0;
     gap: 32px;
-    border-radius: 30px;
+    border-radius: 12px;
   }
 }
 @media (max-width: 800px) {
@@ -469,7 +473,7 @@
 }
 @media (max-width: 800px) {
 
-  .mf-home-hero .mf-home-fate-map { width: min(330px, 100%); border-radius: 26px; }
+  .mf-home-hero .mf-home-fate-map { width: min(330px, 100%); border-radius: 12px; }
 }
 @media (max-width: 800px) {
 
@@ -490,7 +494,7 @@
 }
 @media (max-width: 800px) {
 
-  .mf-star-portrait { border-radius: 16px; }
+  .mf-star-portrait { border-radius: 12px; }
 }
 @media (max-width: 800px) {
 
@@ -498,7 +502,7 @@
 }
 @media (max-width: 800px) {
 
-  .mf-star-overlay h3 { font-size: 23px; }
+  .mf-star-overlay h3 { font-size: 20px; }
 }
 @media (max-width: 800px) {
 
@@ -628,10 +632,7 @@
   --mv-purple: #c3a0f4;
   --mv-pink: #efa7d4;
   --mv-gradient: linear-gradient(110deg, var(--mv-blue) 0%, var(--mv-purple) 48%, var(--mv-pink) 100%);
-  background:
-    radial-gradient(circle at 86% 5%, rgb(157 156 255 / 8%), transparent 26rem),
-    radial-gradient(circle at 12% 42%, rgb(239 167 212 / 5%), transparent 28rem),
-    #0a080c;
+  background: #000;
 }
 
 .mf-home-header-cta,
@@ -657,9 +658,9 @@
 
 .mf-home-hero {
   background:
-    radial-gradient(circle at 82% 22%, rgb(157 156 255 / 17%), transparent 24rem),
-    radial-gradient(circle at 8% 94%, rgb(239 167 212 / 10%), transparent 26rem),
-    linear-gradient(135deg, #17121b, #100c11);
+    radial-gradient(circle at 82% 22%, rgb(157 156 255 / 14%), transparent 24rem),
+    radial-gradient(circle at 8% 94%, rgb(239 167 212 / 8%), transparent 26rem),
+    linear-gradient(135deg, #120e16, #0d0a0d);
 }
 
 .mf-home-hero::after { background: rgb(195 160 244 / 13%); }
@@ -706,3 +707,7 @@
     min-height: 440px;
   }
 }
+
+/* 字体规范:主按钮用站内无衬线(现代 CTA),步骤编号用标题同款衬线加粗(与章节标题呼应) */
+.mf-home-cta { font-family: Inter, ui-sans-serif, -apple-system, "system-ui", "PingFang SC", sans-serif; font-weight: 650; }
+.mf-how-grid span { font: 700 20px/1 var(--font-serif-display); font-style: normal; }
