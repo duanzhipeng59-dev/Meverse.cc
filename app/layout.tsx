@@ -19,13 +19,13 @@ export const metadata: Metadata = {
     locale: "zh_CN",
     url: "/",
     siteName: "MeVerse",
-    images: [{ url: "/og.png", width: 1731, height: 909, alt: "MeVerse · AI 生辰画像" }],
+    images: [{ url: "/og-meverse.jpg", width: 1602, height: 982, alt: "MeVerse · AI 生辰画像" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "MeVerse · 读懂 TA 的生辰画像",
     description: "偶像 AI 生辰画像，基于八字命理引擎生成。",
-    images: ["/og.png"],
+    images: ["/og-meverse.jpg"],
   },
 };
 
