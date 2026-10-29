@@ -18,44 +18,8 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "演员",
       "英国"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/emma-watson.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/emma-watson-b2.webp",
     "createdAt": "2026-10-21T21:47:03.932+00:00",
-    "homepageFeatured": false
-  },
-  {
-    "id": "woozi",
-    "name": "李知勳",
-    "nameEn": "Woozi",
-    "role": "SEVENTEEN成员-李知勳",
-    "birthDate": "1996-11-22",
-    "birthTime": "16:30",
-    "gender": "male",
-    "mbti": "ISTJ",
-    "categories": [
-      "韩国明星",
-      "SEVENTEEN",
-      "HYBE"
-    ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/woozi-kp2.webp",
-    "createdAt": "2026-10-08T02:22:05.414304+00:00",
-    "homepageFeatured": false
-  },
-  {
-    "id": "hoshi",
-    "name": "李知勋",
-    "nameEn": "Hoshi",
-    "role": "SEVENTEEN成员-李知勋",
-    "birthDate": "1996-06-15",
-    "birthTime": "14:30",
-    "gender": "male",
-    "mbti": "INFJ",
-    "categories": [
-      "韩国明星",
-      "SEVENTEEN",
-      "HYBE"
-    ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/hoshi-kp2.webp",
-    "createdAt": "2026-10-08T02:22:01.634174+00:00",
     "homepageFeatured": false
   },
   {
@@ -72,7 +36,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "演员",
       "美国"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/leonardo-dicaprio.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/leonardo-dicaprio-b2.webp",
     "createdAt": "2026-10-19T04:47:01.615+00:00",
     "homepageFeatured": false
   },
@@ -91,7 +55,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "BTS",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/homepage/suga.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/suga-b2.webp",
     "createdAt": "2026-10-05T13:43:55.780262+00:00",
     "homepageFeatured": true
   },
@@ -109,7 +73,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "SEVENTEEN",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/mingyu-kp2.webp",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/mingyu-b2.webp",
     "createdAt": "2026-10-08T02:22:08.375943+00:00",
     "homepageFeatured": false
   },
@@ -127,7 +91,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "SEVENTEEN",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/seungkwan-kp2.webp",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/seungkwan-b1.webp",
     "createdAt": "2026-10-08T02:22:11.531958+00:00",
     "homepageFeatured": false
   },
@@ -145,7 +109,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "SEVENTEEN",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/jeonghan-kp2.webp",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/jeonghan-b1.webp",
     "createdAt": "2026-10-08T02:21:55.748757+00:00",
     "homepageFeatured": false
   },
@@ -164,7 +128,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "BTS",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/jin.png",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/jin-b1.webp",
     "createdAt": "2026-10-05T13:43:55.780262+00:00",
     "homepageFeatured": true
   },
@@ -182,7 +146,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "歌手",
       "加拿大"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/the-weeknd.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/the-weeknd-b1.webp",
     "createdAt": "2026-10-20T08:47:00.525+00:00",
     "homepageFeatured": false
   },
@@ -200,7 +164,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "歌手",
       "美国"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/billie-eilish.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/billie-eilish-b1.webp",
     "createdAt": "2026-10-20T10:46:57.498+00:00",
     "homepageFeatured": false
   },
@@ -218,7 +182,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "企业家",
       "科技"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/mark-zuckerberg.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/mark-zuckerberg-b1.webp",
     "createdAt": "2026-10-18T19:47:06.509+00:00",
     "homepageFeatured": false
   },
@@ -237,7 +201,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "唱作人",
       "美国"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/taylor-swift.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/taylor-swift-b1.webp",
     "createdAt": "2026-10-18T19:46:56.073+00:00",
     "homepageFeatured": false
   },
@@ -255,7 +219,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "演员",
       "美国"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/scarlett-johansson.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/scarlett-johansson-b1.webp",
     "createdAt": "2026-10-21T03:47:02.972+00:00",
     "homepageFeatured": false
   },
@@ -292,7 +256,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "SEVENTEEN",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/vernon-kp2.webp",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/vernon-b1.webp",
     "createdAt": "2026-10-08T02:22:13.18924+00:00",
     "homepageFeatured": false
   },
@@ -310,7 +274,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "SEVENTEEN",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/dino-kp2.webp",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/dino-b1.webp",
     "createdAt": "2026-10-08T02:22:14.767222+00:00",
     "homepageFeatured": false
   },
@@ -334,24 +298,6 @@ export const STAR_SNAPSHOT: StarListItem[] = [
     "homepageFeatured": true
   },
   {
-    "id": "jeff-bezos",
-    "name": "杰夫·贝索斯",
-    "nameEn": "Jeff Bezos",
-    "role": "企业家-杰夫·贝索斯",
-    "birthDate": "1964-01-12",
-    "birthTime": "12:00",
-    "gender": "male",
-    "mbti": "ENTJ",
-    "categories": [
-      "欧美明星",
-      "企业家",
-      "科技"
-    ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/jeff-bezos.jpg",
-    "createdAt": "2026-10-22T07:47:05.081+00:00",
-    "homepageFeatured": false
-  },
-  {
     "id": "jimin",
     "name": "朴智旻",
     "nameEn": "Jimin",
@@ -369,24 +315,6 @@ export const STAR_SNAPSHOT: StarListItem[] = [
     "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/homepage/jimin.jpg",
     "createdAt": "2026-10-05T13:43:55.780262+00:00",
     "homepageFeatured": true
-  },
-  {
-    "id": "elon-musk",
-    "name": "埃隆·马斯克",
-    "nameEn": "Elon Musk",
-    "role": "企业家-埃隆·马斯克",
-    "birthDate": "1971-06-28",
-    "birthTime": "12:00",
-    "gender": "male",
-    "mbti": "INTJ",
-    "categories": [
-      "欧美明星",
-      "企业家",
-      "科技"
-    ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/elon-musk.jpg",
-    "createdAt": "2026-10-20T11:47:04.562+00:00",
-    "homepageFeatured": false
   },
   {
     "id": "joshua",
@@ -439,7 +367,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "BTS",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/homepage/j-hope.png",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/j-hope-b1.webp",
     "createdAt": "2026-10-05T13:43:55.780262+00:00",
     "homepageFeatured": true
   },
@@ -457,7 +385,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "SEVENTEEN",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/wonwoo-kp2.webp",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/wonwoo-b1.webp",
     "createdAt": "2026-10-08T02:22:03.085575+00:00",
     "homepageFeatured": false
   },
@@ -475,7 +403,7 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "SEVENTEEN",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/dk-kp2.webp",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/dk-b1.webp",
     "createdAt": "2026-10-08T02:22:06.921738+00:00",
     "homepageFeatured": false
   },
@@ -494,26 +422,8 @@ export const STAR_SNAPSHOT: StarListItem[] = [
       "BTS",
       "HYBE"
     ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/homepage/rm.jpg",
+    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/rm-b1.webp",
     "createdAt": "2026-09-29T05:23:22.535819+00:00",
     "homepageFeatured": true
-  },
-  {
-    "id": "ed-sheeran",
-    "name": "艾德·希兰",
-    "nameEn": "Ed Sheeran",
-    "role": "英国歌手-艾德·希兰",
-    "birthDate": "1991-02-17",
-    "birthTime": "12:00",
-    "gender": "male",
-    "mbti": "ISFP",
-    "categories": [
-      "欧美明星",
-      "歌手",
-      "英国"
-    ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/ed-sheeran.jpg",
-    "createdAt": "2026-10-22T04:46:58.222+00:00",
-    "homepageFeatured": false
   }
 ];
