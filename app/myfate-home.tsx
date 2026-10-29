@@ -9,6 +9,7 @@ export const revalidate = 300;
 
 export default async function MyfateHome() {
   const stars = await getHomepageStarList();
+  // 星轨图仅在宽屏(≥1181px)显示,CSS 控制显隐;轨道参数按内外两圈固定布点
   const previewOrbits = [
     { radius: "20%", angle: "-90deg", counterAngle: "90deg", duration: "48s", size: "56px", mobileSize: "48px" },
     { radius: "20%", angle: "30deg", counterAngle: "-30deg", duration: "48s", size: "52px", mobileSize: "46px" },
@@ -49,7 +50,8 @@ export default async function MyfateHome() {
                 <i className="mf-home-map-ring near" aria-hidden="true" />
                 <i className="mf-home-map-ring middle" aria-hidden="true" />
                 <i className="mf-home-map-ring far" aria-hidden="true" />
-                <div className="mf-brand-mark mf-home-map-logo" aria-label="MeVerse">M</div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="mf-home-map-icon" src="/favicon.svg?v=8" alt="" aria-hidden="true" />
                 {stars.slice(0, 6).map((star, index) => (
                   <div
                     className={`mf-home-map-star-orbit ${index < 3 ? "is-near" : "is-far"}`}

@@ -90,17 +90,17 @@
 
 .mf-home-map-ring.far { width: 94%; height: 94%; border-style: dashed; }
 
-.mf-home-map-logo {
+/* 中心图标:正方框 + object-fit cover 裁成圆,双色描边同头像质感 */
+.mf-home-map-icon {
   position: absolute;
   top: 50%;
   left: 50%;
   z-index: 4;
-  width: 72px;
-  height: 72px;
-  box-sizing: border-box;
-  border: 5px solid rgba(255, 255, 255, .92);
-  font-size: 25px;
-  box-shadow: 0 16px 34px rgba(122, 41, 78, .32), 0 0 0 9px rgba(183, 89, 118, .08);
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgb(27 21 29 / 90%), 0 0 0 5px rgb(157 156 255 / 35%), 0 6px 18px rgb(0 0 0 / 40%);
   transform: translate(-50%, -50%);
 }
 
@@ -153,13 +153,14 @@
 .mf-home-hero {
   position: relative;
   isolation: isolate;
-  width: min(1240px, calc(100% - 32px));
-  min-height: 680px;
+  width: min(1180px, calc(100% - 48px));
+  min-height: 460px;
   box-sizing: border-box;
   margin-top: 18px;
-  padding: 72px clamp(40px, 5.4vw, 78px);
+  padding: 44px clamp(40px, 5.4vw, 78px);
   overflow: hidden;
-  grid-template-columns: minmax(0, 1.04fr) minmax(410px, .96fr);
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
   gap: clamp(44px, 6vw, 88px);
   border: 1px solid rgba(255, 255, 255, .86);
   border-radius: 44px;
@@ -168,6 +169,18 @@
     radial-gradient(circle at 8% 94%, rgba(242, 200, 172, .32), transparent 26rem),
     linear-gradient(135deg, rgba(255, 255, 255, .76), rgba(252, 238, 239, .7));
   box-shadow: 0 30px 90px rgba(82, 35, 58, .1), inset 0 1px 0 rgba(255, 255, 255, .92);
+}
+
+/* 星图默认隐藏;宽屏(≥1181px)恢复双栏布局,右侧星图回归 */
+.mf-home-hero .mf-hero-visual { display: none; }
+
+@media (min-width: 1181px) {
+  .mf-home-hero { grid-template-columns: minmax(0, 1.04fr) minmax(410px, .96fr); }
+  .mf-home-hero .mf-hero-visual { display: block; }
+  /* 双栏下左栏变窄,标题字号降一档,防止 nowrap 的第二行压进右侧星图底板 */
+  .mf-home-hero .mf-hero-copy h1 { font-size: clamp(44px, 3.9vw, 64px); }
+  /* 最外轨道(47%)+头像半径≈stage半高,头像转到上下向几乎贴卡片边;加大 stage 内边把外伸包进卡片 */
+  .mf-home-hero .mf-home-fate-map .mf-home-fate-map-stage { inset: 34px; }
 }
 
 .mf-home-hero::before,
@@ -426,9 +439,10 @@
 @media (max-width: 800px) {
 
   .mf-home-hero {
-    width: calc(100% - 20px);
+    width: calc(100% - 32px);
     margin-top: 10px;
-    padding: 45px 20px 34px;
+    padding: 28px 20px 34px;
+    min-height: 0;
     gap: 32px;
     border-radius: 30px;
   }
@@ -463,9 +477,6 @@
 }
 @media (max-width: 800px) {
 
-  .mf-home-map-logo { width: 62px; height: 62px; border-width: 4px; font-size: 22px; }
-}
-@media (max-width: 800px) {
 
   .mf-home-hero .mf-home-map-star > span { width: var(--mf-home-avatar-mobile-size, 42px); height: var(--mf-home-avatar-mobile-size, 42px); }
 }
@@ -596,7 +607,7 @@
 .mf-home-hero .mf-home-fate-map {
   border-color: rgba(255, 235, 242, 0.12);
   background:
-    radial-gradient(circle at 50% 54%, rgb(247 240 242 / 90%) 0 11%, rgb(198 75 115 / 22%) 11.5% 28%, transparent 45%),
+    radial-gradient(circle at 50% 54%, rgb(198 75 115 / 22%) 0 28%, transparent 45%),
     conic-gradient(from 18deg, rgb(222 107 145 / 10%), transparent 16%, rgb(210 163 92 / 9%) 28%, transparent 43%, rgb(222 107 145 / 8%) 62%, transparent 78%),
     rgb(28 21 26 / 88%);
   box-shadow: 0 30px 76px rgb(0 0 0 / 45%), inset 0 0 0 9px rgb(255 255 255 / 4%), inset 0 1px 0 rgb(255 255 255 / 8%);
@@ -670,7 +681,7 @@
 .mf-home-hero .mf-home-fate-map {
   border-color: rgb(195 160 244 / 18%);
   background:
-    radial-gradient(circle at 50% 54%, rgb(247 243 255 / 94%) 0 11%, rgb(157 156 255 / 24%) 11.5% 28%, transparent 45%),
+    radial-gradient(circle at 50% 54%, rgb(157 156 255 / 24%) 0 28%, transparent 45%),
     conic-gradient(from 18deg, rgb(157 156 255 / 13%), transparent 16%, rgb(239 167 212 / 11%) 30%, transparent 45%, rgb(195 160 244 / 11%) 64%, transparent 80%),
     rgb(27 21 29 / 90%);
 }
