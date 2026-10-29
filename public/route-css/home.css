@@ -1359,6 +1359,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-status-title { margin: 24px 0 0; display: inline-flex; align-items: center; gap: 8px; color: var(--bz-ink); font-size: 14px; }
 
 .mf-dual-status .mf-dual-status-note { margin: 6px 0 0; color: var(--bz-muted); font-size: 12.5px; }
+.mf-dual-status .mf-dual-status-time { margin: 4px 0 0; color: var(--bz-muted); font-size: 11px; opacity: 0.78; font-variant-numeric: tabular-nums; }
 
 .mf-dual-status .mf-dual-actions { margin-top: 14px; justify-content: center; }
 
@@ -1394,6 +1395,10 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-dual-progress > span[data-state="done"] i { transform: scaleX(1); }
 
 .mf-dual-progress > span[data-state="active"] i { animation: mf-dual-fill 4s linear forwards; }
+
+/* 真实进度条:时间驱动连续填充(95%封顶卡住,完成走满),不带百分比数字 */
+.mf-dual-progress.is-real { display: block; height: 3px; border-radius: 999px; background: rgb(255 235 242 / 8%); overflow: hidden; }
+.mf-dual-progress.is-real > .mf-dual-progress-fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--bz-red), var(--bz-red-bright)); transition: width 1s linear; }
 
 @keyframes mf-dual-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 

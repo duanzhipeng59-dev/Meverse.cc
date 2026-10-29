@@ -94,7 +94,7 @@ const YI_MA_OF: Record<string, string> = { 申: "寅", 子: "寅", 辰: "寅", �
 const TAO_HUA_OF: Record<string, string> = { 申: "酉", 子: "酉", 辰: "酉", 寅: "卯", 午: "卯", 戌: "卯", 巳: "午", 酉: "午", 丑: "午", 亥: "子", 卯: "子", 未: "子" };
 const YANG_REN_OF: Record<string, string> = { 甲: "卯", 丙: "午", 戊: "午", 庚: "酉", 壬: "子" };
 
-function buildShenShaFacts(chart: BaziChart) {
+export function buildShenShaFacts(chart: BaziChart) {
   const pillars = chart.pillars.map((pillar) => ({ label: pillar.label, branch: pillar.ganzhi[1] ?? "" }));
   // 以年支/日支为基准查目标支,命中其余三柱(不含基准柱自身);同柱多基准命中时合并为一条
   const scanByRefs = (targetOf: (branch: string) => string | undefined) => {
@@ -178,7 +178,7 @@ const TEMPLATE_SECTIONS = `【报告模版】九章固定为 portrait、pattern�
 // ── 表达层约束(压模型浮夸/膨胀漂移):prompt 规则与生成后机器校验共用同一份常量,数字永远同步。
 // 字数上限按本地合格产出(DeepSeek)实测最大值 × ~1.25 余量标定;违规信息经重试通道喂回模型自行压缩改写。
 // 禁词表只收纯营销腔词;「天花板」「碾压」等在财富/忌神语境里是规范用词,不列入避免误伤
-const BANNED_STYLE_WORDS = ["破圈", "出圈", "魅力四射", "聚光灯", "王炸", "暴击", "拿捏", "封神", "杀疯了", "绝绝子", "yyds"];
+export const BANNED_STYLE_WORDS = ["破圈", "出圈", "魅力四射", "聚光灯", "王炸", "暴击", "拿捏", "封神", "杀疯了", "绝绝子", "yyds"];
 const FIELD_CHAR_LIMITS: Record<string, number> = {
   喜神: 60, 忌神: 60, 闲神: 90, 子女性别倾向: 140,
   母亲: 155, 父亲: 160, 子女发展: 160, 兄弟姐妹: 165, 适合专业: 170, 考运关键节点: 180,
@@ -254,7 +254,7 @@ ${TEMPLATE_STYLE_RULES}
 ${JSON.stringify(template, null, 1)}`;
 }
 
-function extractJson(text: string) {
+export function extractJson(text: string) {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("STATIC_READING_NO_JSON");
@@ -262,7 +262,7 @@ function extractJson(text: string) {
 }
 
 // 宽容剥离:AI 顺手塞进 insight 的多余字段按白名单丢弃,避免 strict 校验整体拒收。
-function sanitizeReportDraft(raw: unknown): unknown {
+export function sanitizeReportDraft(raw: unknown): unknown {
   if (!raw || typeof raw !== "object") return raw;
   const draft = raw as { sections?: Record<string, unknown> };
   if (!draft.sections || typeof draft.sections !== "object") return raw;
@@ -293,12 +293,17 @@ function describeValidationError(error: unknown): string {
   return issueMatch ? `字段 ${issueMatch[1]} 结构不符合模板` : message.slice(0, 100);
 }
 
-export async function generateStaticReading(
+// 通用生成内核:模型直出 → JSON 提取 → 宽容剥离 → 结构校验 → 表达层校验,
+// 任一环失败把纠错提示喂回模型重试(最多3轮/60s预算)。个人与双人报告共用。
+export async function generateValidatedReport<T>(
   callModel: (system: string, prompt: string) => Promise<string>,
-  facts: StaticReadingFacts,
-  profile?: BaziLifeProfile,
-  options?: { systemPrompt?: string; promptSuffix?: string },
-) {
+  options: {
+    system: string;
+    buildPrompt: (retrySuffix: string) => string;
+    validate: (raw: unknown) => T;
+    styleCheck?: (report: T) => string[];
+  },
+): Promise<T> {
   let lastError: unknown;
   const startedAt = Date.now();
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -306,18 +311,30 @@ export async function generateStaticReading(
     if (attempt > 0 && Date.now() - startedAt > 60_000) break;
     const suffix = attempt ? `\n\n上次输出未通过结构校验：${describeValidationError(lastError)}。请修正后重新输出完整 JSON。` : "";
     try {
-      const system = options?.systemPrompt ?? STATIC_READING_SYSTEM_PROMPT;
-      const text = await callModel(system, buildStaticReadingPrompt(facts, profile) + (options?.promptSuffix ?? "") + suffix);
-      const validated = validateStaticReading(sanitizeReportDraft(JSON.parse(extractJson(text))));
-      // 表达层硬校验:违规抛错走同一条重试通道,模型按违规清单自行压缩改写
-      const styleViolations = checkStaticReadingStyle(validated);
+      const text = await callModel(options.system, options.buildPrompt(suffix));
+      const validated = options.validate(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      const styleViolations = options.styleCheck?.(validated) ?? [];
       if (styleViolations.length) throw new Error(`风格违规：${styleViolations.join("；")}`);
       return validated;
     } catch (error) {
       lastError = error;
     }
   }
-  throw lastError instanceof Error ? lastError : new Error("STATIC_READING_INVALID");
+  throw lastError instanceof Error ? lastError : new Error("GENERATION_INVALID");
+}
+
+export async function generateStaticReading(
+  callModel: (system: string, prompt: string) => Promise<string>,
+  facts: StaticReadingFacts,
+  profile?: BaziLifeProfile,
+  options?: { systemPrompt?: string; promptSuffix?: string },
+) {
+  return generateValidatedReport(callModel, {
+    system: options?.systemPrompt ?? STATIC_READING_SYSTEM_PROMPT,
+    buildPrompt: (retrySuffix) => buildStaticReadingPrompt(facts, profile) + (options?.promptSuffix ?? "") + retrySuffix,
+    validate: validateStaticReading,
+    styleCheck: checkStaticReadingStyle,
+  });
 }
 
 export function isStaticReading(value: unknown): value is StaticReading {

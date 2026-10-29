@@ -8,7 +8,7 @@ import { generateChatText } from "./api/myfate/personalize/model-provider";
 import { buildStaticReadingFacts, generateStaticReading } from "./myfate-static-reading";
 import { getReadingReport, updateReadingReport, type ReadingSubject } from "./myfate-reading-server";
 import type { CelebrityVedicBirth } from "./myfate-stars-server";
-import { generateBaziMatchReport } from "./myfate-bazi-dual-report";
+import { generateDualReading } from "./myfate-dual-reading";
 
 // subject → 引擎 birth(城市坐标只认站点城市库,忽略任意外部坐标)
 function subjectToBirth(subject: ReadingSubject): CelebrityVedicBirth {
@@ -25,12 +25,6 @@ function subjectToBirth(subject: ReadingSubject): CelebrityVedicBirth {
     tz: city.tz,
     gender: subject.gender,
   };
-}
-
-function fourPillars(subject: ReadingSubject) {
-  const birth = subjectToBirth(subject);
-  const chart = buildBaziChart({ birthDate: birth.birthDate, birthTime: birth.birthTime, gender: birth.gender === "female" ? "female" : "male", city: { id: birth.starId, name: birth.birthPlace, lat: birth.lat, lon: birth.lon, tz: birth.tz } });
-  return { name: subject.name, birthDate: subject.birthDate, gender: subject.gender, pillars: chart.pillars.map((pillar) => ({ label: pillar.label, ganzhi: pillar.ganzhi })) };
 }
 
 export async function runReadingGeneration(reportId: string): Promise<void> {
@@ -57,11 +51,8 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
 
     const subjectB = report.subjectB;
     if (!subjectB) throw new Error("SUBJECT_B_MISSING");
-    // 新版双人合盘：四柱作为唯一事实来源，模型输出前端可直接消费的结构化报告。
-    const content = await generateBaziMatchReport(
-      { ...subjectA, fourPillars: fourPillars(subjectA).pillars },
-      { ...subjectB, fourPillars: fourPillars(subjectB).pillars },
-    );
+    // 双人合盘:与个人解读同构的蒸馏管线(双方排盘+跨盘关系事实→模版→表达层校验)。
+    const content = await generateDualReading(subjectA, subjectB);
     await updateReadingReport(reportId, { status: "ready", content, error: null });
   } catch (error) {
     const message = error instanceof Error ? error.message : "READING_GENERATE_FAILED";

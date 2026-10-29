@@ -9,6 +9,8 @@ import ReadingGenerating from "./reading-generating";
 import { requirePageUser } from "../../../require-page-user";
 import { getReadingReport, importSharedReadingReport, type ReadingSubject } from "../../../myfate-reading-server";
 import { dualReportSchema, withPersonNames, type DualReportContent } from "../../../myfate-dual-legacy";
+import { dualReadingSchema } from "../../../myfate-dual-reading";
+import DualReadingReport from "./dual-reading-report";
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import StaticReadingReport from "./static-reading-report";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";
@@ -75,7 +77,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
       <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={singleTopbarTitle} subtitle={singleTopbarSubtitle} showShare={report.status === "ready"} shareTitle={`${singleTopbarTitle}的八字解读`} />
 
       {report.status !== "ready" ? (
-        report.status === "failed" ? <FailedReading mode={report.mode} subjectA={subjectA} subjectB={subjectB} /> : <ReadingGenerating reportId={report.id} />
+        report.status === "failed" ? <FailedReading mode={report.mode} subjectA={subjectA} subjectB={subjectB} /> : <ReadingGenerating reportId={report.id} createdAt={report.createdAt} />
       ) : report.mode === "single" ? (() => {
         const parsed = staticReadingSchema.safeParse(report.content);
         if (!parsed.success) notFound();
@@ -90,8 +92,27 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
         if (typeof report.content === "string") {
           return <article className="mf-zr-card mf-rr-card mf-raw-report"><RawReportMarkdown content={report.content} /></article>;
         }
+        // 新契约:蒸馏管线产出的九章合盘报告(dual-reading-v1)
+        const dualReading = dualReadingSchema.safeParse(report.content);
+        if (dualReading.success) {
+          return (
+            <>
+              <DualReadingReport content={dualReading.data} />
+              <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" suggestions={["我们最大的互补点是什么？", "摩擦点怎么化解更有效？", "未来几年关系节奏怎么把握？"]} /></div>
+              <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
+            </>
+          );
+        }
         const baziMatch = baziMatchReportSchema.safeParse(report.content);
-        if (baziMatch.success) return <BaziMatchReportView report={baziMatch.data} />;
+        if (baziMatch.success) {
+          return (
+            <>
+              <BaziMatchReportView report={baziMatch.data} />
+              <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" suggestions={["我们最大的互补点是什么？", "压力阶段相处要注意什么？", "怎么让关系节奏更顺？"]} /></div>
+              <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
+            </>
+          );
+        }
         const parsed = dualReportSchema.safeParse(report.content);
         if (!parsed.success) notFound();
         const content = parsed.data;

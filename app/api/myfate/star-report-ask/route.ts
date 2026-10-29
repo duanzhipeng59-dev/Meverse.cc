@@ -5,6 +5,7 @@ import { formatConsultOverrideDigest, getConsultOverride } from "../../../myfate
 import { getCelebrityVedicBirth, getPublishedStar } from "../../../myfate-stars-server";
 import { getReadingReport } from "../../../myfate-reading-server";
 import { staticReadingSchema } from "../../../myfate-static-reading";
+import { dualReadingSchema } from "../../../myfate-dual-reading";
 import { dualReportSchema } from "../../../myfate-dual-legacy";
 import {
   appendExchange,
@@ -78,6 +79,16 @@ async function buildDigest(starId: string, reportType: AskReportType, userId: st
         lines.push(`【${section.title}】${section.summary} ${section.insights.map((item) => `${item.label}:${item.content}`).join("；")} 建议:${section.advice.join("；")}`);
       }
       return { name: report.subjectA.name, digest: lines.join("\n") };
+    }
+    // 新契约:蒸馏管线产出的九章合盘报告(dual-reading-v1)优先;旧结构回退 legacy 解析
+    const dualReading = dualReadingSchema.safeParse(report.content);
+    if (dualReading.success) {
+      const subjectB0 = report.subjectB?.name ?? "对方";
+      const readingLines = [`这是「${report.subjectA.name} × ${subjectB0}」双人合盘报告。`];
+      for (const section of Object.values(dualReading.data.sections)) {
+        readingLines.push(`【${section.title}】${section.insights.map((item) => `${item.label}:${item.content}`).join("；")}`);
+      }
+      return { name: `${report.subjectA.name} × ${subjectB0}`, digest: readingLines.join("\n") };
     }
     const parsed = dualReportSchema.safeParse(report.content);
     if (!parsed.success) throw new Error("READING_REPORT_NOT_READY");
