@@ -176,7 +176,6 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                     autoComplete="one-time-code"
                     placeholder="000000"
                     maxLength={EMAIL_CODE_LENGTH}
-                    autoFocus
                     required
                   />
                 </div>
@@ -193,7 +192,6 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                       onChange={(event) => { setEmail(event.target.value); setError(""); }}
                       autoComplete="email"
                       placeholder="youremail@gmail.com"
-                      autoFocus
                       required
                     />
                   </label>
