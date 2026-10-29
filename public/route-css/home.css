@@ -2671,11 +2671,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-preview-birth { margin: 4px 0 0; color: var(--bz-faint); font-size: 12px; }
 .mf-preview-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
 .mf-preview-actions { display: grid; gap: 10px; }
-.mf-preview-actions-row { display: flex; gap: 8px; }
-.mf-preview-actions-row .mf-ui-iconbtn { border: 1px solid var(--bz-line); }
-/* 已收藏:星星以主题色填充 */
-.mf-preview-actions-row .mf-ui-iconbtn.is-faved { color: var(--bz-red-bright); border-color: var(--bz-red); }
-.mf-preview-actions-row .mf-ui-iconbtn.is-faved svg { fill: currentColor; }
+/* 已收藏:星星填充并弹跳一下,按钮描边与文字转主题色 */
+.mf-preview-actions .mf-ui-btn svg { width: 16px; height: 16px; }
+.mf-preview-actions .mf-ui-btn.is-faved { color: var(--bz-red-bright); border-color: var(--bz-red); }
+.mf-preview-actions .mf-ui-btn.is-faved svg { fill: currentColor; animation: mf-fav-pop .34s cubic-bezier(.23, 1, .32, 1); }
+@keyframes mf-fav-pop { 0% { transform: scale(.5); } 55% { transform: scale(1.28); } 100% { transform: scale(1); } }
 .mf-preview-section h2 { margin: 0 0 12px; color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
 .mf-preview-section blockquote { margin: 0 0 10px; padding: 12px 16px; border-left: 2px solid var(--bz-red); border-radius: 0 12px 12px 0; background: var(--bz-card); }
 .mf-preview-section blockquote b { display: block; margin-bottom: 4px; color: var(--bz-red-bright); font-size: 12px; }
@@ -2732,7 +2732,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* text-align 防御:弹窗可能挂在 text-align:center 的容器里(如合盘确认页的 mf-dual-status),
    卡片内容必须保持登录页同款的左对齐 */
 .mf-login-modal-card { position: relative; z-index: 1; max-height: calc(100dvh - 40px); overflow-y: auto; text-align: left; animation: mf-login-modal-in .22s ease; }
-.mf-login-modal-close { position: absolute !important; top: 54px !important; right: 16px !important; left: auto !important; z-index: 2; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 0; color: var(--bz-muted); background: transparent; font: 300 26px/1 Arial, sans-serif; cursor: pointer; transition: color .16s ease, transform .16s ease; }
+/* × 的纵向中心与「登录 / 注册」标题行中心对齐:桌面 36px,移动端在下方媒体查询内取 24px */
+.mf-login-modal-close { position: absolute !important; top: 36px !important; right: 14px !important; left: auto !important; z-index: 2; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 0; color: var(--bz-muted); background: transparent; font: 300 26px/1 Arial, sans-serif; cursor: pointer; transition: color .16s ease, transform .16s ease; }
 .mf-login-modal-close:hover { color: var(--bz-ink); background: transparent; }
 .mf-login-modal-close:active { transform: scale(.94); }
 .mf-login-modal-card .mf-login-card-head { display: none; }
@@ -2740,6 +2741,40 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-login-back { min-height: 40px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid rgba(255, 235, 242, 0.22); border-radius: 999px; color: #bdaeb4; background: transparent; font-size: 11px; font-weight: 680; cursor: pointer; }
 .mf-login-back:hover { color: #de6b91; background: rgba(255, 255, 255, 0.08); }
 @keyframes mf-login-modal-in { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+
+/* ── 登录弹窗改版(设计稿布局,配色统一取站内 --bz-* 主色令牌):仅 .mf-login-modal-card 作用域内生效,
+      不影响 /login 页与解读弹窗共用的 mf-login-card 基础样式 ── */
+.mf-login-modal-card { width: min(520px, calc(100vw - 40px)); padding: 40px 44px 34px; border: 1px solid var(--bz-line-strong); border-radius: 12px; background: linear-gradient(180deg, var(--bz-card-raised) 0%, var(--bz-paper-warm) 100%); box-shadow: 0 24px 80px rgb(8 4 16 / 60%), 0 0 44px rgb(117 103 210 / 16%), inset 0 1px 0 rgb(255 255 255 / 6%); }
+.mf-login-modal-card h1 { margin: 0 0 10px; font-family: inherit; font-weight: 700; font-size: 26px; line-height: 1.3; letter-spacing: -0.01em; color: var(--bz-ink); }
+.mf-login-modal-card > p { color: var(--bz-muted); font-size: 13px; }
+.mf-login-modal-card .mf-login-form { margin-top: 0; gap: 16px; }
+.mf-login-modal-card .mf-login-form label > span { color: var(--bz-muted); }
+.mf-login-modal-card .mf-login-form input { min-height: 50px; border: 1px solid var(--bz-line-strong); border-radius: 12px; background: rgb(255 255 255 / 4%); font-weight: 500; }
+.mf-login-modal-card .mf-login-form input:focus { border-color: var(--bz-red); background: rgb(255 255 255 / 6%); box-shadow: 0 0 0 4px rgb(169 156 255 / 16%); }
+.mf-login-modal-card .mf-login-form input::placeholder { color: var(--bz-faint); }
+.mf-login-modal-card .mf-login-code-field button { top: 7px; right: 7px; min-height: 36px; border: 1px solid rgba(139, 92, 246, 0.45); border-radius: 999px; color: #c4b5fd; background: rgba(139, 92, 246, 0.08); }
+.mf-login-modal-card .mf-login-code-field button:disabled { color: #8d7fa5; background: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.2); }
+.mf-login-modal-card .mf-login-submit { min-height: 50px; border-radius: 12px; font-family: inherit; font-weight: 750; font-size: 15px; letter-spacing: 0.02em; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); box-shadow: 0 12px 30px rgb(117 103 210 / 35%); }
+.mf-login-modal-card .mf-login-submit:disabled { opacity: 0.68; box-shadow: 0 8px 20px rgb(117 103 210 / 18%); }
+.mf-login-modal-card .mf-login-feedback .error { color: var(--bz-error); }
+.mf-login-modal-card > small { color: #8d8398; font-size: 10px; }
+/* 两步式登录:步骤切换有轻微上入动画;第二步的已发送提示与文字操作按钮 */
+.mf-login-modal-card .mf-login-step { animation: mf-login-step-in .18s ease; }
+.mf-login-modal-card .mf-login-step h1 { margin: 0 0 8px; font-family: inherit; font-weight: 700; font-size: 20px; line-height: 1.3; letter-spacing: -0.01em; color: var(--bz-ink); }
+.mf-login-modal-card .mf-login-step p { margin: 0 0 14px; color: var(--bz-muted); font-size: 13px; }
+.mf-login-modal-card .mf-login-divider { height: 1px; margin: 0 0 18px; background: linear-gradient(90deg, transparent, rgb(169 156 255 / 30%), transparent); }
+@keyframes mf-login-step-in { from { opacity: 0; transform: translateY(6px); } }
+/* 第二步验证码视图(设计稿:邮箱高亮的已发送提示 + 居中大字距验证码框 + 按钮下方居中倒计时/重发) */
+.mf-login-modal-card .mf-login-code-sent b { color: var(--bz-red); font-weight: 700; }
+.mf-login-modal-card .mf-login-form .mf-login-code-input { min-height: 74px; padding-left: 0.45em; text-align: center; font-size: 26px; font-weight: 700; letter-spacing: 0.45em; }
+.mf-login-modal-card .mf-login-resend { display: flex; justify-content: center; }
+.mf-login-modal-card .mf-login-resend > span { color: var(--bz-faint); font-size: 12px; }
+.mf-login-modal-card .mf-login-resend > button { padding: 0; border: 0; background: transparent; color: var(--bz-red); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.mf-login-modal-card .mf-login-resend > button:hover { color: var(--bz-red-bright); }
+@media (max-width: 640px) {
+  .mf-login-modal-card { padding: 28px 22px 26px; }
+  .mf-login-modal-close { top: 24px !important; }
+}
 
 /* 以下为登录页卡片样式副本(login.css),仅供弹窗在 /home 内使用 */
 .mf-login-card { position: relative; width: min(470px, calc(100vw - 40px)); box-sizing: border-box; padding: 34px 44px 34px; border: 1px solid rgba(255, 235, 242, 0.12); border-radius: 30px; background: rgb(28 21 26 / 88%); box-shadow: 0 30px 90px rgb(0 0 0 / 50%), inset 0 1px 0 rgb(255 255 255 / 6%); backdrop-filter: blur(28px) saturate(140%); -webkit-backdrop-filter: blur(28px) saturate(140%); }
@@ -2811,6 +2846,11 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* 预览页:容器切换为 padding 型边距,顶栏负 margin 才能贴合视口顶/左/右 */
 @media (max-width: 800px) {
   .mf-workspace-content:has(.mf-preview) { width: 100%; padding: 0 20px 20px; --mf-rep-pad: 20px; }
+}
+
+/* 预览页顶栏内距 20px,报告页(.mf-zr)手机端 13px:分享按钮负 margin 右移 7px,两页右缘对齐 */
+@media (max-width: 640px) {
+  .mf-workspace-content:has(.mf-preview) .mf-preview > .mf-zr-topbar .mf-topbar-share { margin-right: -7px; }
 }
 
 /* 顶栏分享按钮 */
@@ -2952,7 +2992,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-rr-p { margin: 0; color: var(--bz-muted); font-size: 13.5px; line-height: 1.75; }
 .mf-rr-blocks { display: grid; gap: 14px; }
 .mf-rr-block { display: grid; gap: 8px; padding: 16px 17px; border: 1px solid var(--bz-line); border-radius: 14px; background: rgb(255 235 242 / 3%); }
-.mf-rr-block em { font-style: normal; color: var(--bz-red-bright); font-size: 11.5px; font-weight: 650; letter-spacing: 0.08em; }
+/* 小标题与正文合流:标签以内联胶囊(同明星报告 mf-sr-insight 徽章)领起正文 */
+.mf-rr-block em { display: inline-block; margin: 0 8px 2px 0; padding: 4px 12px; border: 1px solid rgb(222 107 145 / 32%); border-radius: 999px; background: rgb(198 75 115 / 10%); font-style: normal; color: var(--bz-red-bright); font-size: 12px; font-weight: 650; letter-spacing: .05em; vertical-align: middle; }
 .mf-rr-block p { margin: 0; color: var(--bz-ink); font-size: 14px; line-height: 2; text-align: justify; text-justify: inter-ideograph; }
 .mf-rr-basis, .mf-rr-basis-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
 .mf-rr-basis li { color: var(--bz-faint); font-size: 12px; line-height: 1.6; }
@@ -3357,7 +3398,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* insight 子卡:label 徽章 + 正文 */
 .mf-sr-insights { display: grid; gap: 12px; }
-.mf-sr-insight { padding: 14px 16px 13px 19px; border: 1px solid var(--bz-line); border-left: 3px solid var(--bz-red); border-radius: 4px 12px 12px 4px; background: var(--bz-paper-warm); }
+.mf-sr-insight { padding: 14px 16px 13px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-paper-warm); }
 .mf-sr-insight > em { display: inline-block; margin: 0 0 8px; padding: 4px 12px; border: 1px solid rgb(222 107 145 / 32%); border-radius: 999px; background: rgb(198 75 115 / 10%); color: var(--bz-red-bright); font-style: normal; font-size: 12px; font-weight: 650; letter-spacing: .05em; }
 .mf-sr-insight > p { margin: 0; color: var(--bz-ink); font-size: 14px; line-height: 1.9; text-align: justify; text-justify: inter-ideograph; }
 
@@ -3378,7 +3419,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 @media (max-width: 640px) {
 
-  .mf-sr-insight { padding: 12px 13px 12px 15px; }
+  .mf-sr-insight { padding: 12px 13px; }
 
   .mf-sr-timeline > li { padding: 10px 0 10px 19px; }
 

@@ -89,7 +89,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   return (
     <div className="mf-workspace-content">
     <div className="mf-preview">
-      <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} backLabel="" />
+      <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} backLabel="" showShare shareTitle={`${star.name}${star.nameEn ? ` ${star.nameEn}` : ""} 的生辰画像`} />
       <StarVisitTracker starId={id} />
       <header className="mf-preview-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -107,7 +107,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
         </div>
       </header>
 
-      <PreviewActions starId={id} nameEn={star.nameEn} />
+      <PreviewActions starId={id} />
 
       {digest.length ? (
         <section className="mf-preview-section" aria-label="报告摘要">

@@ -1,9 +1,8 @@
-import ReportToc from "./report-toc";
 import type { StaticReading } from "./myfate-static-reading";
 import { ReadableText } from "./home/reading/[id]/static-reading-report";
 
 // 明星报告可视化渲染器:消费手写 single-full-v3 九章结构,与个人解读的
-// StaticReadingReport 同源不同皮——章节卡 + 标签子卡 + 大运时间轴 + 吸顶导航。
+// StaticReadingReport 同源不同皮——章节卡 + 标签子卡 + 大运时间轴。
 const CHAPTERS = [
   { key: "portrait", no: "01", icon: "◐", label: "人生画像" },
   { key: "pattern", no: "02", icon: "❖", label: "格局" },
@@ -66,7 +65,6 @@ export default function StarReadingReport({ content }: { content: StaticReading 
   const present = CHAPTERS.filter(({ key }) => Boolean(content.sections[key]));
   return (
     <>
-      <ReportToc items={present.map(({ key, label }) => ({ id: `sr-${key}`, label }))} />
       {present.map(({ key, no, icon, label }) => {
         const section = content.sections[key];
         if (!section) return null;

@@ -170,9 +170,14 @@ export default function StarAskPanel({
       });
       startTyping(answerId, cleanText(body.answer as string));
       succeeded = true;
-    } catch (error) {
-      setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
-      setError(controller.signal.aborted ? "已停止生成,该问题可重新发送。" : "网络异常,输入已保留,请重试。");
+    } catch {
+      if (controller.signal.aborted) {
+        // 手动停止:不标失败、不提示,问题保留在输入框里可直接重发
+        setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "completed" } : entry)));
+      } else {
+        setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
+        setError("网络异常,输入已保留,请重试。");
+      }
     } finally {
       // 成功才清空输入;失败/停止都保留,便于直接重发
       if (succeeded) setInput("");

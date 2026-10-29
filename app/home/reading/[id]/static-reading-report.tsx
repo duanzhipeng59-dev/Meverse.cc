@@ -50,7 +50,7 @@ export default function StaticReadingReport({ content, showAdvice = true }: { co
             <div className="mf-rr-blocks">
               {section.insights.map((item, index) => (
                 <div className="mf-rr-block" key={`${item.label}-${index}`}>
-                  <em>{item.label}</em><p><ReadableText text={item.content} /></p>
+                  <p>{item.label ? <em>{item.label}</em> : null}<ReadableText text={item.content} /></p>
                 </div>
               ))}
             </div>

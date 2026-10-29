@@ -160,65 +160,66 @@ export default function LoginModal({ className, children, open: openProp, onOpen
               </button>
             </div>
             <span className="mf-login-kicker">WELCOME TO MEVERSE</span>
-            <h1>登录 MeVerse，立即探索</h1>
-            <p>使用邮箱验证码登录。首次使用的邮箱会自动创建账号。</p>
 
-            <form className="mf-login-form" onSubmit={submit}>
-              <label>
-                <span>邮箱</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => {
-                    setEmail(event.target.value);
-                    setError("");
-                    if (sentEmail && normalizeEmail(event.target.value) !== sentEmail) {
-                      setSentEmail("");
-                      setCode("");
-                      setMessage("");
-                    }
-                  }}
-                  autoComplete="email"
-                  placeholder="name@example.com"
-                  required
-                />
-              </label>
-
-              <label>
-                <span>邮箱验证码</span>
-                <div className="mf-login-code-field">
+            {/* 两步式:第一步填邮箱点「发送验证码」;发送后进入第二步,单独的验证码输入框+登录 */}
+            <form className="mf-login-form" onSubmit={sentEmail ? submit : (event) => { event.preventDefault(); void sendCode(); }}>
+              {sentEmail ? (
+                <div className="mf-login-step" key="code">
+                  <h1>输入验证码</h1>
+                  <p className="mf-login-code-sent">验证码已发送至 <b>{sentEmail}</b></p>
                   <input
+                    className="mf-login-code-input"
                     type="text"
                     value={code}
-                    onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, EMAIL_CODE_LENGTH))}
+                    onChange={(event) => { setCode(event.target.value.replace(/\D/g, "").slice(0, EMAIL_CODE_LENGTH)); setError(""); }}
                     inputMode="numeric"
                     autoComplete="one-time-code"
-                    placeholder={`${EMAIL_CODE_LENGTH} 位验证码`}
+                    placeholder="000000"
                     maxLength={EMAIL_CODE_LENGTH}
+                    autoFocus
                     required
                   />
-                  <button type="button" onClick={() => void sendCode()} disabled={sendingCode || codeCooldown > 0}>
-                    {sendingCode
-                      ? "发送中…"
-                      : codeCooldown > 0
-                        ? `${codeCooldown}s 后重试`
-                        : sentEmail === normalizeEmail(email)
-                          ? "重新获取"
-                          : "获取验证码"}
-                  </button>
                 </div>
-              </label>
+              ) : (
+                <div className="mf-login-step" key="email">
+                  <h1>登录 / 注册</h1>
+                  <p>登录后查看你的人生轨迹和天赋</p>
+                  <div className="mf-login-divider" aria-hidden="true" />
+                  <label>
+                    <span>邮箱</span>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(event) => { setEmail(event.target.value); setError(""); }}
+                      autoComplete="email"
+                      placeholder="youremail@gmail.com"
+                      autoFocus
+                      required
+                    />
+                  </label>
+                </div>
+              )}
 
-              <div className="mf-login-feedback" aria-live="polite">
-                {error ? <span className="error">{error}</span> : message ? <span>{message}</span> : null}
-              </div>
+              {error || message ? (
+                <div className="mf-login-feedback" aria-live="polite">
+                  {error ? <span className="error">{error}</span> : <span>{message}</span>}
+                </div>
+              ) : null}
 
-              <button className="mf-login-submit" type="submit" disabled={verifyingCode}>
-                {verifyingCode ? "正在验证…" : "登录"}
+              <button className="mf-login-submit" type="submit" disabled={sentEmail ? verifyingCode : sendingCode}>
+                {sentEmail
+                  ? verifyingCode ? "正在验证…" : "登录"
+                  : sendingCode ? "发送中…" : "发送验证码"}
               </button>
-            </form>
 
-            <small>验证码仅用于本次登录，10 分钟内有效，请勿转发给他人。</small>
+              {sentEmail ? (
+                <div className="mf-login-resend">
+                  {sendingCode ? <span>发送中…</span>
+                    : codeCooldown > 0 ? <span>{codeCooldown} 秒后可重新获取</span>
+                    : <button type="button" onClick={() => void sendCode()}>重新发送</button>}
+                </div>
+              ) : null}
+            </form>
           </section>
         </div>
       ), document.body) : null}
