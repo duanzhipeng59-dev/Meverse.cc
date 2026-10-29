@@ -6,12 +6,9 @@ import FortuneCurveCard from "../../../../fortune-curve";
 import PillarsCard from "../../../../pillars-card";
 import { getConsultOverride, parseStaticReadingContent, type ConsultOverrideContent } from "../../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, recordStarReportView } from "../../../../myfate-stars-server";
-import { portraitImage } from "../../../../myfate-image";
 import { requirePageUser } from "../../../../require-page-user";
-import Link from "next/link";
 import { ReadingProgress } from "../../../../components/reading-tools";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
-import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -21,25 +18,6 @@ export const dynamic = "force-dynamic";
 function heroPillarsOf(consult: ConsultOverrideContent | null, threePillars: string): string[] {
   if (consult?.heroPillars?.length) return consult.heroPillars.slice(0, 4);
   return threePillars.split("·").map((part) => part.trim()).filter(Boolean).slice(0, 4);
-}
-
-function HeroBlock({ starName, portraitSrc, birthLine, heroBadges }: { starName: string; portraitSrc: string; birthLine: string; heroBadges?: string[] }) {
-  return (
-    <header className="mf-zr-hero">
-      {/* CSS 已按 108×134 object-fit:cover 裁切,直接用 240w WebP 缩放版,不再拉原图 */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={portraitImage(portraitSrc, 240)} alt={starName} />
-      <div className="mf-zr-hero-copy">
-        <h1>{starName}</h1>
-        <small>出生 · {birthLine}</small>
-        {heroBadges?.length ? (
-          <div className="mf-zr-summary" aria-label="命盘核心摘要">
-            {heroBadges.map((badge) => <span key={badge}>{badge}</span>)}
-          </div>
-        ) : null}
-      </div>
-    </header>
-  );
 }
 
 export default async function StarReportPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; prev?: string }> }) {
@@ -63,7 +41,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const prevStarId = prev && allStars.some((item) => item.id === prev) ? prev : null;
   // 返回目标:从其它报告跳入回上一份报告,否则回本人的预览页(而非发现页)
   const backHref = prevStarId ? `/home/relationship-test/${prevStarId}/test` : `/home/relationship-test/${id}`;
-  const birthLine = `${star.birthDate.replaceAll("-", ".")} · ${birth?.birthPlace || "首尔 · 韩国"}`;
 
   // ── 报告内容未上传(或仍是待替换的旧结构):占位提示,不扣费、不解锁、不开放追问 ──
   const staticReport = parseStaticReadingContent(consult);
@@ -71,10 +48,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
     return (
       <div className="mf-zr">
         <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")}  showShare shareTitle={`${personName || star.name} 的生辰画像`} />
-
-        <div className="mf-zr-overview">
-          <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} />
-        </div>
 
         <PillarsCard pillars={heroPillars} />
         <section className="mf-zr-card mf-doc">
@@ -93,18 +66,13 @@ export default async function StarReportPage({ params, searchParams }: { params:
     gender: birth.gender === "female" ? "female" : "male",
     city: { id: birth.starId, name: birth.birthPlace || "首尔 · 韩国", lat: birth.lat, lon: birth.lon, tz: birth.tz },
   }) : null;
-  const profile = chart ? buildBaziLifeProfile(chart) : null;
   // 出生时间为公开资料推算口径:恢复四柱展示——年/月/日为确定柱,时柱按存档时间实时排盘补出,
   // 标签标注「时·推算」与确定性区分;无出生资料时回退档案三柱。
   const staticPillars = chart ? chart.pillars.map((pillar) => pillar.ganzhi) : heroPillarsOf(consult, star.threePillars);
-  const staticBadges = chart && profile ? [chart.dayMaster, profile.summary.strength, `喜${profile.summary.favorable.join("·")}`] : undefined;
   return (
     <div className="mf-zr">
       <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={staticPillars.join(" ")} showShare shareTitle={`${personName || star.name} 的生辰画像`} />
       <ReadingProgress starId={id} />
-      <div className="mf-zr-overview">
-        <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroBadges={staticBadges} />
-      </div>
       <PillarsCard pillars={staticPillars} hourEstimated={staticPillars.length > 3} />
       {(() => {
         const fortune = extractFortuneData(staticReport, Number((birth?.birthDate ?? star.birthDate).slice(0, 4)));

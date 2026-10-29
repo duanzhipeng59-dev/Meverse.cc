@@ -203,7 +203,9 @@ export async function POST(request: Request) {
     const history = await contextMessages(conversation);
     const messages: Array<{ role: AskRole; content: string }> = [...history, { role: "user", content: finalQuestion }];
 
+    // 追问固定用 Gemini,与个人解读报告的生成管线同源
     const generation = await generateChatText(systemPrompt(name, digest, conversation.summary), messages, {
+      provider: "gemini",
       temperature: 0.8,
       maxTokens: 1200,
     });
@@ -234,7 +236,7 @@ export async function POST(request: Request) {
           const result = await generateChatText(
             "你是对话摘要器。把给定的命理追问对话压缩成 200 字以内的要点摘要,保留用户关注的问题与已给出的结论,不要寒暄。",
             [{ role: "user", content: (previous ? `已有摘要:${previous}\n` : "") + older.map((item) => `${item.role === "user" ? "用户" : "AI"}:${item.content}`).join("\n") }],
-            { temperature: 0.3, maxTokens: 500 },
+            { provider: "gemini", temperature: 0.3, maxTokens: 500 },
           );
           return result.content;
         } catch {

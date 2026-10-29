@@ -90,6 +90,8 @@ export default function ReadingHub() {
   const [pickB, setPickB] = useState("");
   const [recordsStatus, setRecordsStatus] = useState<RecordsStatus>("loading");
   const [personRecords, setPersonRecords] = useState<PersonRecord[]>([]);
+  // 生成记录首拉完成标记:未完成前用骨架占位,避免先闪「还没有解读记录」再弹列表
+  const [readingsLoaded, setReadingsLoaded] = useState(false);
   // 后改动性别的一侧(默认"对方"):同性别冲突的提示只挂在这一侧
   const [lastGenderSide, setLastGenderSide] = useState<"a" | "b">("b");
   const [personErrors, setPersonErrors] = useState<{ a: PersonErrors; b: PersonErrors }>({ a: {}, b: {} });
@@ -135,15 +137,20 @@ export default function ReadingHub() {
     // 未登录不展示任何生成记录
     if (!loggedIn) {
       setRecordsStatus("ready");
+      setReadingsLoaded(true);
       return;
     }
     // 生成记录列表(自填解读) + 弹窗记录下拉(带状态)
     fetch("/api/reading/list")
       .then((res) => (res.ok ? res.json() as Promise<{ reports?: ReadingRow[] }> : Promise.reject(new Error(String(res.status)))))
       .then((data) => setReadings(data.reports ?? []))
-      .catch(() => setReadings([]));
+      .catch(() => setReadings([]))
+      .finally(() => setReadingsLoaded(true));
     loadRecords();
   }, [loggedIn]);
+
+  // 登录态解析中或已登录但列表未拉到:一律骨架,不闪空文案
+  const recordsLoading = authStatus === "loading" || (loggedIn && !readingsLoaded);
 
   const records = useMemo(() => {
     type Item = { key: string; ts: number; node: React.ReactNode };
@@ -321,7 +328,22 @@ export default function ReadingHub() {
 
       <section className="mf-reading-records" aria-label="生成记录">
         <h2>生成记录</h2>
-        {records.length ? <div className="mf-reading-record-list">{records}</div> : <p className="mf-reading-empty">还没有解读记录，从上方开始第一次排盘。</p>}
+        {recordsLoading ? (
+          <div className="mf-reading-record-skel" aria-hidden="true">
+            {[0, 1, 2].map((index) => (
+              <div className="mf-reading-record-skel-row" key={index}>
+                <span className="mf-reading-record-skel-main">
+                  <span className="mf-reading-record-skel-line">
+                    <span className="mf-skeleton mf-reading-record-skel-title" />
+                    <span className="mf-skeleton mf-reading-record-skel-pill" />
+                  </span>
+                  <span className="mf-skeleton mf-reading-record-skel-sub" />
+                </span>
+                <span className="mf-skeleton mf-reading-record-skel-time" />
+              </div>
+            ))}
+          </div>
+        ) : records.length ? <div className="mf-reading-record-list">{records}</div> : <p className="mf-reading-empty">还没有解读记录，从上方开始第一次排盘。</p>}
       </section>
 
       {dialog ? (

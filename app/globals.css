@@ -4387,11 +4387,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 800px) {
 
 
-  .mf-mobile-profile-btn.is-active { border-color: rgb(239 167 212 / 55%); background: linear-gradient(115deg, rgb(157 156 255 / 17%), rgb(239 167 212 / 12%)); }
-}
-@media (max-width: 800px) {
-
-
   .mf-workspace-shell:not(.is-detail) .mf-workspace-main { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
   /* 底部 tab 栏的避让已由 main 的 66px 独自承担,内容区不再叠加底 padding,分页/列表贴紧底部 */
   .mf-workspace-shell:not(.is-detail) .mf-workspace-content { padding-bottom: 7px; }

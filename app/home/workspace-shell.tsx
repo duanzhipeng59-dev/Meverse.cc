@@ -12,9 +12,11 @@ const menuItems = [
   { icon: "dual", label: "解读", description: "单人与双人八字解读排盘", href: "/home/dual-star-match" },
 ];
 
+// 底部 Tab 三项:发现/解读/我的(我的=个人中心入口,未登录点它弹登录)
 const tabItems = [
   { icon: "heart", label: "发现", href: "/home/relationship-test" },
   { icon: "dual", label: "解读", href: "/home/dual-star-match" },
+  { icon: "user", label: "我的", href: "/home/profile" },
 ];
 
 function HeartIcon() {
@@ -111,18 +113,6 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
         <Link className="mf-workspace-brand" href="/" aria-label="返回 MeVerse 首页">
           <span className="mf-meverse-logo" role="img" aria-label="MeVerse" />
         </Link>
-        {status === "authenticated" ? (
-          <Link
-            className={pathname === "/home/profile" ? "mf-mobile-profile-btn is-active" : "mf-mobile-profile-btn"}
-            href="/home/profile"
-            aria-label="个人中心"
-            aria-current={pathname === "/home/profile" ? "page" : undefined}
-          >
-            个人中心
-          </Link>
-        ) : (
-          <LoginModal className="mf-mobile-profile-btn">个人中心</LoginModal>
-        )}
       </header>
 
       <aside className="mf-workspace-sidebar">
@@ -189,7 +179,12 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
       </main>
 
       <nav className="mf-mobile-tabbar" aria-label="底部导航">
-        {tabItems.map((item) => (
+        {tabItems.map((item) => item.href === "/home/profile" && status !== "authenticated" ? (
+          <LoginModal className="mf-mobile-tab" key={item.href}>
+            <span className="mf-mobile-tab-icon"><MenuIcon icon={item.icon} /></span>
+            <span>{item.label}</span>
+          </LoginModal>
+        ) : (
           <Link
             className={isActive(item.href) ? "mf-mobile-tab is-active" : "mf-mobile-tab"}
             href={item.href}

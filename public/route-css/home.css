@@ -2476,17 +2476,18 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-secondary-button { color: var(--mf-ink); border-color: rgba(255, 235, 242, 0.20); }
 
-/* ── 手机端底部导航 Tab(替代汉堡抽屉;桌面隐藏,报告详情页隐藏;个人中心在顶栏右上角) ── */
+/* ── 手机端底部导航 Tab(替代汉堡抽屉;桌面隐藏,报告详情页隐藏;我的=个人中心入口) ── */
 .mf-mobile-tabbar { display: none; }
 
-.mf-mobile-profile-btn { display: none; }
 @media (max-width: 800px) {
 
-  .mf-mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); height: calc(54px + env(safe-area-inset-bottom)); box-sizing: border-box; padding: 0 8px env(safe-area-inset-bottom); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .mf-mobile-tabbar { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: calc(54px + env(safe-area-inset-bottom)); box-sizing: border-box; padding: 0 8px env(safe-area-inset-bottom); background: rgb(15 11 14 / 96%); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
 }
 @media (max-width: 800px) {
 
   .mf-mobile-tab { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 3px; color: var(--mf-muted); text-decoration: none; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; }
+  /* 未登录时「我的」Tab 是 LoginModal 渲染的 button,清掉浏览器默认按钮样式 */
+  button.mf-mobile-tab { padding: 0; border: 0; background: none; cursor: pointer; font-family: inherit; }
 }
 @media (max-width: 800px) {
 
@@ -2495,10 +2496,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 @media (max-width: 800px) {
 
   .mf-mobile-tab-icon svg { width: 21px; height: 21px; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; fill: none; }
-}
-@media (max-width: 800px) {
-
-  .mf-mobile-profile-btn { display: inline-flex; align-items: center; height: 32.5px; padding: 0 12.5px; margin-left: auto; border-radius: 8px; border: 1px solid rgb(195 160 244 / 38%); background: transparent; color: var(--bz-red-bright, #DE6B91); text-decoration: none; font-size: 12.5px; font-weight: 600; }
 }
 
 /* 历史合盘横条删除:右端垃圾桶图标入口(低调,按下才显红);点击后整行切换为红色确认条 */
@@ -2611,12 +2608,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
   color: #fff;
 }
 
-@media (max-width: 800px) {
-  .mf-mobile-profile-btn.is-active {
-    border-color: #c3a0f4;
-    color: #efa7d4;
-  }
-}
 @keyframes mf-ui-up { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
 @keyframes mf-ui-pop { from { transform: translate(-50%, -46%) scale(.96); opacity: .4; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
 @keyframes mf-ui-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -2935,6 +2926,17 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-reading-records h2 { margin: 0 0 10px; color: var(--bz-muted); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; }
 .mf-reading-record-list { display: grid; gap: 8px; }
 .mf-reading-empty { margin: 4px 0 0; color: var(--bz-faint); font-size: 12.5px; }
+
+/* 生成记录加载骨架:占位行与真实记录行同构(标题+状态胶囊+副行+时间),复用 mf-skeleton 微光 */
+.mf-reading-record-skel { display: grid; gap: 8px; }
+.mf-reading-record-skel-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); }
+.mf-reading-record-skel-main { flex: 1; display: grid; gap: 7px; }
+.mf-reading-record-skel-line { display: flex; align-items: center; gap: 8px; }
+.mf-reading-record-skel-row .mf-skeleton { background: var(--bz-card-raised); }
+.mf-reading-record-skel-title { width: 38%; height: 14px; border-radius: 4px; }
+.mf-reading-record-skel-pill { width: 52px; height: 17px; border-radius: 999px; }
+.mf-reading-record-skel-sub { width: 58%; height: 11px; border-radius: 4px; }
+.mf-reading-record-skel-time { flex-shrink: 0; width: 56px; height: 11px; border-radius: 4px; }
 
 .mf-reading-failed { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; margin-top: 22px; padding: 22px; border: 1px solid rgb(224 109 124 / 32%); border-radius: 18px; background: linear-gradient(135deg, rgb(224 109 124 / 10%), rgb(255 235 242 / 3%)); }
 .mf-reading-failed-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: rgb(224 109 124 / 16%); color: var(--bz-error); font: 700 18px/1 var(--font-serif-display); }

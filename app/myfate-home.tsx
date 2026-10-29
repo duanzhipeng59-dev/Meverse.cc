@@ -37,11 +37,11 @@ export default async function MyfateHome() {
         <section className="mf-hero mf-home-hero">
           <div className="mf-hero-copy">
             <div className="mf-home-eyebrow"><span>✦</span> AI 生辰画像</div>
-            <h1><span>每一位偶像，</span><em>都有一份 AI 生辰画像</em></h1>
+            <h1><span>每一位生灵，</span><em>都有一份 AI 生辰画像</em></h1>
             <p>
-              基于 TA 的公开出生资料排盘，一页读懂性格天赋、事业财富、关系家庭、身心节律与未来运势，还能继续向 AI 命理师追问。
+              输入生辰即可排盘，一页读懂性格天赋、事业财富、感情家庭、身心节律与未来运势，还能继续向 AI 命理师追问。
             </p>
-            <Link className="mf-bz-btn mf-home-cta" href="/home/relationship-test">立即探索 <span aria-hidden="true">→</span></Link>
+            <Link className="mf-bz-btn mf-home-cta" href="/home/dual-star-match">立即探索 <span aria-hidden="true">→</span></Link>
           </div>
 
           <div className="mf-hero-visual">
@@ -110,9 +110,9 @@ export default async function MyfateHome() {
 
         <section className="mf-how" id="how-it-works">
           <div className="mf-how-grid">
-            <article><span>01</span><h3>选择 TA</h3><p>在偶像档案中按分类浏览或直接搜索名字，找到你关心的那位偶像。</p></article>
-            <article><span>02</span><h3>打开 AI 生辰画像</h3><p>系统按 TA 的公开出生资料排盘，呈现性格天赋、事业财富、关系家庭、身心节律与大运流年。</p></article>
-            <article><span>03</span><h3>继续追问</h3><p>报告下方可以直接提问，解读会基于 TA 的盘面继续展开，越问越细。</p></article>
+            <article><span>01</span><h3>填写生辰</h3><p>输入出生日期、时间与出生地，支持公历/农历与真太阳时校准，单人解读或双人合盘都从这里开始。</p></article>
+            <article><span>02</span><h3>生成 AI 解读</h3><p>系统按出生资料排出四柱命盘，呈现性格天赋、事业财富、感情家庭、身心节律与大运流年。</p></article>
+            <article><span>03</span><h3>继续追问</h3><p>报告下方可以直接提问，解读会基于盘面继续展开，越问越细。</p></article>
           </div>
         </section>
       </main>
