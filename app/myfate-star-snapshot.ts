@@ -59,24 +59,6 @@ export const STAR_SNAPSHOT: StarListItem[] = [
     "homepageFeatured": false
   },
   {
-    "id": "jun",
-    "name": "文俊辉",
-    "nameEn": "Jun",
-    "role": "SEVENTEEN成员-文俊辉",
-    "birthDate": "1996-06-10",
-    "birthTime": "12:30",
-    "gender": "male",
-    "mbti": "ESTJ",
-    "categories": [
-      "韩国明星",
-      "SEVENTEEN",
-      "HYBE"
-    ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/jun-kp2.webp",
-    "createdAt": "2026-10-08T02:22:00.120226+00:00",
-    "homepageFeatured": false
-  },
-  {
     "id": "leonardo-dicaprio",
     "name": "莱昂纳多·迪卡普里奥",
     "nameEn": "Leonardo DiCaprio",
@@ -422,24 +404,6 @@ export const STAR_SNAPSHOT: StarListItem[] = [
     ],
     "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/joshua-kp2.webp",
     "createdAt": "2026-10-08T02:21:57.675291+00:00",
-    "homepageFeatured": false
-  },
-  {
-    "id": "the8",
-    "name": "徐明浩",
-    "nameEn": "The8",
-    "role": "SEVENTEEN成员-徐明浩",
-    "birthDate": "1997-11-07",
-    "birthTime": "14:30",
-    "gender": "male",
-    "mbti": "ISTJ",
-    "categories": [
-      "韩国明星",
-      "SEVENTEEN",
-      "HYBE"
-    ],
-    "portraitSrc": "https://jhsoksaxkpujbcludxyw.supabase.co/storage/v1/object/public/celebrity-portraits/profiles/the8-kp2.webp",
-    "createdAt": "2026-10-08T02:22:09.955179+00:00",
     "homepageFeatured": false
   },
   {
