@@ -787,14 +787,6 @@
 
 .mf-zr-ask-typing i { display: inline-block; animation: mf-zr-blink 1.2s infinite ease-in-out; font-style: normal; }
 
-.mf-zr-ask-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
-
-.mf-zr-ask-chips button { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--bz-line-strong); background: transparent; color: var(--bz-red-bright); font-size: 13px; cursor: pointer; transition: all 0.15s ease; }
-
-.mf-zr-ask-chips button:hover:not(:disabled) { background: var(--bz-red); color: #fff; border-color: var(--bz-red); }
-
-.mf-zr-ask-chips button:disabled { opacity: 0.5; cursor: default; }
-
 .mf-zr-ask-error { margin: 0; color: var(--bz-error); font-size: 13px; }
 
 .mf-zr-ask-form { display: flex; gap: 10px; }

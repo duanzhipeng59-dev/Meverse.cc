@@ -26,12 +26,10 @@ function cleanText(text: string) {
 export default function StarAskPanel({
   starId,
   starName,
-  suggestions,
   reportType = "bazi",
 }: {
   starId: string;
   starName: string;
-  suggestions: string[];
   reportType?: "bazi" | "dual" | "reading-single" | "reading-dual";
 }) {
   const [entries, setEntries] = useState<AskEntry[]>([]);
@@ -234,14 +232,6 @@ export default function StarAskPanel({
           </div>
         ) : null}
       </div>
-
-      {!hasHistory ? (
-        <div className="mf-zr-ask-chips">
-          {suggestions.map((item) => (
-            <button type="button" key={item} onClick={() => void ask(item)} disabled={loading}>{item}</button>
-          ))}
-        </div>
-      ) : null}
 
       {error ? <p className="mf-zr-ask-error" role="alert">{error}</p> : null}
 

@@ -13,13 +13,6 @@ import { buildBaziLifeProfile } from "../../../../myfate-bazi-profile";
 
 export const dynamic = "force-dynamic";
 
-// 追问建议与报告口径一致:不引导流年/财富等预测性问题
-const ASK_SUGGESTIONS = [
-  "TA 的性格底色适合怎样的合作方式？",
-  "TA 的格局在事业上怎么落地？",
-  "和 TA 相处最需要注意什么？",
-];
-
 const PILLAR_LABELS = ["年", "月", "日", "时"];
 
 // 报告内容以 consult_overrides 手动上传为准(single-full-v3 统一口径);
@@ -119,7 +112,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
         <HeroBlock starName={personName || star.name} portraitSrc={star.portraitSrc} birthLine={birthLine} heroPillars={staticPillars} heroBadges={staticBadges} hourEstimated={staticPillars.length > 3} />
       </div>
       <StarReadingReport content={staticReport} />
-      <div id="ask"><StarAskPanel starId={id} starName={star.name} suggestions={ASK_SUGGESTIONS} /></div>
+      <div id="ask"><StarAskPanel starId={id} starName={star.name} /></div>
       <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、刑冲合害)对静态命局做文化解读，不构成科学预测</p>
     </div>
   );

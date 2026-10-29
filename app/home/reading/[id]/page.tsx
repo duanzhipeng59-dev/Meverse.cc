@@ -84,7 +84,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
         return (
           <>
             <StaticReadingReport content={parsed.data} showAdvice={false} />
-            <div id="ask"><StarAskPanel starId={report.id} starName={singleDisplayName} reportType="reading-single" suggestions={["我的格局在事业上怎么落地？", "我在合作中最需要注意什么？", "感情相处有什么建议？"]} /></div>
+            <div id="ask"><StarAskPanel starId={report.id} starName={singleDisplayName} reportType="reading-single" /></div>
             <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读，量化评分与财富区间为结构信号的估算表达，仅供娱乐与自我观察参考，不构成医疗、法律或投资建议。</p>
           </>
         );
@@ -98,7 +98,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
           return (
             <>
               <DualReadingReport content={dualReading.data} />
-              <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" suggestions={["我们最大的互补点是什么？", "摩擦点怎么化解更有效？", "未来几年关系节奏怎么把握？"]} /></div>
+              <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" /></div>
               <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
             </>
           );
@@ -108,7 +108,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
           return (
             <>
               <BaziMatchReportView report={baziMatch.data} />
-              <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" suggestions={["我们最大的互补点是什么？", "压力阶段相处要注意什么？", "怎么让关系节奏更顺？"]} /></div>
+              <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" /></div>
               <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
             </>
           );
@@ -170,7 +170,7 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
               </SectionCard>
             ) : null}
 
-            <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" suggestions={["我们最大的互补点是什么？", "压力阶段相处要注意什么？", "怎么让关系节奏更顺？"]} /></div>
+            <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" /></div>
             <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
           </>
         );
