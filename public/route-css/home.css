@@ -3661,3 +3661,8 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* 明星报告页与发现/解读页统一 660 内容列 */
 .mf-zr-narrow { width: 100%; max-width: min(660px, 100%); margin-inline: auto; }
+
+/* 验证码步骤:「重新发送 | 更换邮箱」同行水平对齐 */
+.mf-login-resend-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 4px; }
+.mf-login-back-email { flex-shrink: 0; border: 0; padding: 2px 0; background: none; color: var(--bz-faint); font-family: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
+.mf-login-back-email:hover { color: var(--bz-red-bright); }

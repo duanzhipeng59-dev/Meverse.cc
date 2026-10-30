@@ -98,8 +98,8 @@ export default function LocalLogin() {
     if (sendingCode || codeCooldown > 0) return;
     // 点击瞬间即锁定(与登录弹窗共用同一份持久化状态),失败再回滚
     setSendingCode(true);
-    setCodeCooldown(60);
-    markCodeSent(normalized);
+    setCodeCooldown(120);
+    markCodeSent(normalized, 120);
     setError("");
     setMessage("");
     try {
@@ -118,13 +118,13 @@ export default function LocalLogin() {
       setSentEmail(normalized);
       setCode("");
       if (result.alreadySent) {
-        const retryAfter = Math.min(Math.max(result.retryAfter ?? 60, 1), 60);
+        const retryAfter = Math.min(Math.max(result.retryAfter ?? 120, 1), 120);
         setCodeCooldown(retryAfter);
         markCodeSent(normalized, retryAfter);
         setMessage(`验证码已发送，请查看邮箱，${retryAfter} 秒后可重新获取`);
       } else {
-        setCodeCooldown(result.retryAfter ?? 60);
-        markCodeSent(normalized, result.retryAfter ?? 60);
+        setCodeCooldown(result.retryAfter ?? 120);
+        markCodeSent(normalized, result.retryAfter ?? 120);
         setMessage("验证码已发送，请检查收件箱和垃圾邮件");
       }
     } catch {

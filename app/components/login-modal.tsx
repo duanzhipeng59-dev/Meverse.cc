@@ -4,7 +4,7 @@
 // 背后是唤起页的模糊倒影)。登录成功后就地刷新登录态并留当前页;首页营销入口仍走 /login 页面链路。
 // 注意:卡片视觉复用登录页 mf-login-card 体系,样式在 home.css 内有一份副本,改版需两处同步。
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { clearSentCodeState, markCodeSent } from "./login-code-store";
+import { clearSentCodeState, getSentCodeState, markCodeSent } from "./login-code-store";
 import { createPortal } from "react-dom";
 import { useAuth } from "../auth-context";
 import { EMAIL_CODE_LENGTH } from "../auth-code-config";
@@ -40,7 +40,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
   };
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
-  const [sentEmail, setSentEmail] = useState("");
+  const [sentEmail, setSentEmail] = useState<string | null>(null);
   const [sendingCode, setSendingCode] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [codeCooldown, setCodeCooldown] = useState(0);
@@ -53,13 +53,22 @@ export default function LoginModal({ className, children, open: openProp, onOpen
     return () => window.clearTimeout(timer);
   }, [codeCooldown]);
 
-  // 关闭弹窗即回到初始状态(邮箱输入第一步):重复发码由服务端全局原子锁兜底,
-  // 再点发送会收到 alreadySent 提示与剩余倒计时,不会重复发信
+  // 关闭弹窗只清验证码输入和提示,保留"已发码"流程状态;重新打开时从 localStorage 恢复,
+  // 用户继续输入之前收到的验证码而非重新发码
   useEffect(() => {
-    if (open) { setError(""); setMessage(""); return; }
-    setSentEmail("");
-    setCode("");
-    setCodeCooldown(0);
+    if (!open) {
+      setCode("");
+      setError("");
+      setMessage("");
+      return;
+    }
+    const shared = getSentCodeState();
+    if (shared?.email) {
+      setSentEmail(shared.email);
+      setEmail(shared.email);
+      const remain = Math.ceil((shared.cooldownUntil - Date.now()) / 1000);
+      setCodeCooldown(remain > 0 ? remain : 0);
+    }
   }, [open]);
 
   useEffect(() => {
@@ -82,8 +91,8 @@ export default function LoginModal({ className, children, open: openProp, onOpen
     if (sendingCode || codeCooldown > 0) return;
     // 点击瞬间即锁定(禁用+倒计时+持久化),不等接口返回;失败再回滚
     setSendingCode(true);
-    setCodeCooldown(60);
-    markCodeSent(normalized);
+    setCodeCooldown(120);
+    markCodeSent(normalized, 120);
     setError("");
     setMessage("");
     try {
@@ -103,13 +112,13 @@ export default function LoginModal({ className, children, open: openProp, onOpen
       setCode("");
       if (result.alreadySent) {
         // 全局锁判定:验证码刚才已发出,展示剩余倒计时,不误报为失败
-        const retryAfter = Math.min(Math.max(result.retryAfter ?? 60, 1), 60);
+        const retryAfter = Math.min(Math.max(result.retryAfter ?? 120, 1), 120);
         setCodeCooldown(retryAfter);
         markCodeSent(normalized, retryAfter);
         setMessage(`验证码已发送，请查看邮箱，${retryAfter} 秒后可重新获取`);
       } else {
-        setCodeCooldown(result.retryAfter ?? 60);
-        markCodeSent(normalized, result.retryAfter ?? 60);
+        setCodeCooldown(result.retryAfter ?? 120);
+        markCodeSent(normalized, result.retryAfter ?? 120);
         setMessage("验证码已发送，请检查收件箱和垃圾邮件");
       }
     } catch {
@@ -234,10 +243,13 @@ export default function LoginModal({ className, children, open: openProp, onOpen
               </button>
 
               {sentEmail ? (
-                <div className="mf-login-resend">
-                  {sendingCode ? <span>发送中…</span>
-                    : codeCooldown > 0 ? <span>{codeCooldown} 秒后可重新获取</span>
-                    : <button type="button" onClick={() => void sendCode()}>重新发送</button>}
+                <div className="mf-login-resend-row">
+                  <div className="mf-login-resend">
+                    {sendingCode ? <span>发送中…</span>
+                      : codeCooldown > 0 ? <span>{codeCooldown} 秒后可重新获取</span>
+                      : <button type="button" onClick={() => void sendCode()}>重新发送</button>}
+                  </div>
+                  <button type="button" className="mf-login-back-email" onClick={() => { setSentEmail(null); setCode(""); setError(""); setMessage(""); }}>更换邮箱</button>
                 </div>
               ) : null}
             </form>

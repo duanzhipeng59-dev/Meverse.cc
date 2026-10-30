@@ -47,7 +47,7 @@ export function getSentCodeState(): SentCodeState | null {
   return state;
 }
 
-export function markCodeSent(email: string, cooldownSeconds = 60): void {
+export function markCodeSent(email: string, cooldownSeconds = 120): void {
   hydrate();
   state = { email, sentAt: Date.now(), cooldownUntil: Date.now() + cooldownSeconds * 1000 };
   persist();
