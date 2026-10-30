@@ -249,7 +249,21 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                       : codeCooldown > 0 ? <span>{codeCooldown} 秒后可重新获取</span>
                       : <button type="button" onClick={() => void sendCode()}>重新发送</button>}
                   </div>
-                  <button type="button" className="mf-login-back-email" onClick={() => { setSentEmail(null); setCode(""); setError(""); setMessage(""); }}>更换邮箱</button>
+                  <button
+                    type="button"
+                    className="mf-login-back-email"
+                    onClick={() => {
+                      clearSentCodeState();
+                      setSentEmail(null);
+                      setEmail("");
+                      setCode("");
+                      setCodeCooldown(0);
+                      setError("");
+                      setMessage("");
+                    }}
+                  >
+                    邮箱填错了？<span>更换邮箱</span>
+                  </button>
                 </div>
               ) : null}
             </form>

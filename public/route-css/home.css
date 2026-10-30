@@ -3663,6 +3663,9 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-zr-narrow { width: 100%; max-width: min(660px, 100%); margin-inline: auto; }
 
 /* 验证码步骤:「重新发送 | 更换邮箱」同行水平对齐 */
-.mf-login-resend-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 4px; }
-.mf-login-back-email { flex-shrink: 0; border: 0; padding: 2px 0; background: none; color: var(--bz-faint); font-family: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; }
+.mf-login-resend-row { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 20px; margin-top: 4px; }
+.mf-login-resend-row .mf-login-resend { justify-content: flex-start; }
+.mf-login-back-email { flex-shrink: 0; margin-left: auto; border: 0; padding: 2px 0; background: none; color: var(--bz-faint); font-family: inherit; font-size: 12px; cursor: pointer; }
+.mf-login-back-email span { color: var(--bz-red); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .mf-login-back-email:hover { color: var(--bz-red-bright); }
+.mf-login-back-email:hover span { color: var(--bz-red-bright); }
