@@ -131,27 +131,21 @@ function safeHttpsUrl(value: unknown) {
   }
 }
 
-function parseProviderResult(value: unknown): Record<string, unknown> {
-  let parsed = value;
-  for (let depth = 0; depth < 2 && typeof parsed === "string"; depth += 1) {
-    parsed = JSON.parse(parsed) as unknown;
-  }
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error("EPAY_CHECKOUT_INVALID_RESPONSE");
-  }
-  return parsed as Record<string, unknown>;
-}
-
+// 页面支付:submit.php 由网关 302 到托管收银台(api.z-pay.cn/pay.html),
+// 手机端同样展示「二维码 + 打开支付宝支付」的页面,不会直接吊起支付宝。
+// (旧 mapi.php API 模式返回的 payurl 是裸的 qr.alipay.com 链接,手机打开即唤起 App。)
 export async function createProviderCheckout({
   orderNo,
   product,
   notifyUrl,
+  returnUrl,
   clientIp,
   device,
 }: {
   orderNo: string;
   product: { name: string; amount: string | number };
   notifyUrl: string;
+  returnUrl?: string;
   clientIp: string;
   device: "mobile" | "pc";
 }) {
@@ -168,37 +162,14 @@ export async function createProviderCheckout({
     param: orderNo,
     sign_type: "MD5",
   };
+  if (returnUrl) payload.return_url = returnUrl;
   payload.sign = signPayload(payload, key);
 
-  const response = await fetch(new URL("mapi.php", apiUrl), {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "content-type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams(payload),
-    cache: "no-store",
-  });
-  if (!response.ok) throw new Error("EPAY_CHECKOUT_UNAVAILABLE");
-
-  const result = parseProviderResult(await response.text());
-  if (Number(result.code) !== 1) {
-    console.error(
-      JSON.stringify({
-        level: "error",
-        message: "EPay rejected checkout request",
-        providerCode: result.code ?? null,
-        providerMessage:
-          result.msg ?? result.message ?? result.error ?? "unknown",
-      }),
-    );
-    throw new Error("EPAY_CHECKOUT_FAILED");
-  }
-
-  const checkoutUrl = safeHttpsUrl(result.payurl);
-  const qrContent = safeHttpsUrl(result.qrcode) ?? checkoutUrl;
-  if (!checkoutUrl || !qrContent) throw new Error("EPAY_CHECKOUT_INVALID");
-  return { checkoutUrl, qrContent };
+  const checkoutUrl = safeHttpsUrl(
+    `${apiUrl}submit.php?${new URLSearchParams(payload).toString()}`,
+  );
+  if (!checkoutUrl) throw new Error("EPAY_CHECKOUT_INVALID");
+  return { checkoutUrl, qrContent: checkoutUrl };
 }
 
 export function callbackPayload(params: URLSearchParams) {

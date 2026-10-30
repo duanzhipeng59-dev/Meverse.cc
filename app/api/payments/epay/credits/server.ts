@@ -79,6 +79,7 @@ export async function createCreditCheckout({
     orderNo,
     product: pack,
     notifyUrl: `${origin}/api/payments/epay/notify`,
+    returnUrl: `${origin}/api/payments/epay/return`,
     clientIp,
     device,
   });
