@@ -2,6 +2,7 @@ import { createSupabaseAdminClient } from "../../../auth/server";
 import {
   createAccessToken,
   createOrderNumber,
+  envValue,
   getPublicOrigin,
   hashAccessToken,
   amountsMatch,
@@ -121,9 +122,9 @@ export async function acceptCreditPayment(payload: Record<string, string>) {
 
 export async function refreshCreditOrderFromProvider(order: ReportCreditOrder) {
   if (order.status !== "pending") return order;
-  const pid = process.env.EPAY_PID;
-  const key = process.env.EPAY_KEY;
-  const apiUrl = (process.env.EPAY_API_URL ?? "https://zpayz.cn/").replace(/\/?$/u, "/");
+  const pid = envValue("EPAY_PID");
+  const key = envValue("EPAY_KEY");
+  const apiUrl = (envValue("EPAY_API_URL") ?? "https://zpayz.cn/").replace(/\/?$/u, "/");
   if (!pid || !key) return order;
   const queryUrl = new URL("api.php", apiUrl);
   queryUrl.search = new URLSearchParams({ act: "order", pid, key, out_trade_no: order.out_trade_no }).toString();

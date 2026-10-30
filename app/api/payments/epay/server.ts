@@ -53,10 +53,17 @@ export type PaymentOrder = {
   created_at: string;
 };
 
+// 平台环境变量框里可能把 .dev.vars 的引号一起粘进来,统一剥掉首尾引号与空白
+export function envValue(name: string): string | undefined {
+  const raw = process.env[name];
+  if (raw == null) return raw;
+  return raw.trim().replace(/^["']|["']$/g, "");
+}
+
 function gatewayConfig() {
-  const pid = process.env.EPAY_PID;
-  const key = process.env.EPAY_KEY;
-  const apiUrl = process.env.EPAY_API_URL ?? "https://zpayz.cn/";
+  const pid = envValue("EPAY_PID");
+  const key = envValue("EPAY_KEY");
+  const apiUrl = envValue("EPAY_API_URL") ?? "https://zpayz.cn/";
   if (!pid || !key) {
     throw new Error("EPAY_PID and EPAY_KEY are required");
   }
@@ -71,7 +78,7 @@ function gatewayConfig() {
 }
 
 export function getPublicOrigin(request: Request) {
-  const configured = process.env.PUBLIC_APP_URL;
+  const configured = envValue("PUBLIC_APP_URL");
   if (configured) return new URL(configured).origin;
 
   const requestUrl = new URL(request.url);
