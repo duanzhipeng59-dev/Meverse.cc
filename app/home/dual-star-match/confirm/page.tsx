@@ -179,7 +179,7 @@ export default function ReadingConfirmPage() {
             <p className="mf-dual-status-note mf-dual-confirm-hint">{single ? "点击下方按钮，看见你的八字解读。" : "点击下方按钮，看见你们的合盘。"}</p>
             <div className="mf-dual-confirm-cta">
               <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => void begin()}>
-                {creating ? "正在创建…" : single ? "开始解读" : "开始分析"}
+                {creating ? "正在创建…" : "开始分析"}
               </button>
               {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
             </div>

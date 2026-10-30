@@ -90,6 +90,7 @@ export default function UpgradeShelf() {
 
       {boxes.map((box) => (
         <div className={`mf-upgrade-box${box.best ? " is-best" : ""}`} key={box.id}>
+          {box.best ? <em className="mf-upgrade-box-badge" aria-label="推荐">推荐</em> : null}
           <div className="mf-upgrade-box-body">
             <b>{box.title}</b>
             {box.desc ? <p className="mf-upgrade-box-desc">{box.desc}</p> : null}
@@ -113,9 +114,10 @@ export default function UpgradeShelf() {
               disabled={Boolean(pending) || Boolean(submittingId) || paidId === box.id}
               onClick={() => void buyBox(box.id)}
             >
-              {submittingId === box.id ? "下单中…" : pending?.planId === box.id ? "等待支付…" : paidId === box.id ? "已到账 ✓" : "立即购买"}
+              {submittingId === box.id ? "跳转中..." : pending?.planId === box.id ? "等待支付…" : paidId === box.id ? "已到账 ✓" : "立即购买"}
             </button>
           </div>
+          {paidId === box.id ? <p className="mf-upgrade-paid">✓ 支付成功，次数已到账，可直接去生成解读。</p> : null}
         </div>
       ))}
 
@@ -125,7 +127,6 @@ export default function UpgradeShelf() {
           <a href={pending.checkoutUrl} target="_blank" rel="noopener noreferrer">打不开？点这里去支付</a>
         </div>
       ) : null}
-      {paidId ? <p className="mf-upgrade-paid">✓ 支付成功，次数已到账，可直接去生成解读。</p> : null}
       {buyError ? <p className="mf-reading-dialog-error" role="alert">{buyError}</p> : null}
     </>
   );

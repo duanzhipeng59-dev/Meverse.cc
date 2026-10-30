@@ -56,7 +56,7 @@ export default function WorkspaceProfile() {
             <div className="mf-me-credits">
               <div className="mf-me-credit-card">
                 <span className="mf-me-credit-icon is-report" aria-hidden="true">✦</span>
-                <span className="mf-me-credit-copy"><small>解读次数</small><b>{credits ?? "…"}</b></span>
+                <span className="mf-me-credit-copy"><small>报告次数</small><b>{credits ?? "…"}</b></span>
               </div>
               <div className="mf-me-credit-card">
                 <span className="mf-me-credit-icon is-ask" aria-hidden="true">✧</span>

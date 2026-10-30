@@ -3619,8 +3619,9 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   .mf-workspace-content.mf-reading-page { width: min(660px, calc(100% - 72px)); }
 }
 
-/* 四大主按钮统一配色(开始排盘/开始合盘/开始解读/立即购买):紫灰渐变 + 白字 */
+/* 五大主按钮统一配色(开始排盘/开始分析/立即购买/登录弹窗提交):紫灰渐变 + 白字 */
 .mf-login-modal-card .mf-start-submit,
+.mf-login-modal-card .mf-login-submit,
 .mf-dual-confirm .mf-dual-generate,
 .mf-upgrade-box-buy {
   border: 0;
@@ -3640,3 +3641,13 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* 普通套餐卡:去掉内容与底部价格横条之间的分隔线(高亮的高级版保留) */
 .mf-upgrade-box:not(.is-best) .mf-upgrade-box-bar { border-top: 0; padding-top: 0; }
+
+/* 高级版卡片右上角「推荐」胶囊角标 */
+.mf-upgrade-box { position: relative; }
+.mf-upgrade-box-badge { position: absolute; top: 24px; right: 22px; padding: 5px 13px; border-radius: 999px; background: rgb(255 255 255 / 10%); color: var(--bz-red-bright); font-size: 11px; font-style: normal; font-weight: 700; letter-spacing: .1em; }
+
+/* 到账提示显示在对应卡片内部(价格横条下方),不再页面级统一展示 */
+.mf-upgrade-box .mf-upgrade-paid { margin: 0; padding: 0 22px 14px; text-align: left; }
+
+/* 三张卡统一:高级版的价格横条同样去掉分隔线与上边距,消除卡高差异造成的"内容偏上"感 */
+.mf-upgrade-box .mf-upgrade-box-bar { border-top: 0; padding-top: 0; }
