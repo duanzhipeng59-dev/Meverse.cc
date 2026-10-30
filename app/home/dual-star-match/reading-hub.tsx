@@ -92,6 +92,22 @@ export default function ReadingHub() {
   const [personRecords, setPersonRecords] = useState<PersonRecord[]>([]);
   // 生成记录首拉完成标记:未完成前用骨架占位,避免先闪「还没有解读记录」再弹列表
   const [readingsLoaded, setReadingsLoaded] = useState(false);
+  // 支付回跳提示:带 ?paid= 进入(收银台 return 路由跳来)时显示成功横幅,6 秒后自动消失并清掉参数
+  const [paidNotice, setPaidNotice] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get("paid")) return;
+    params.delete("paid");
+    const query = params.toString();
+    window.history.replaceState(null, "", query ? `?${query}` : window.location.pathname);
+    const raf = requestAnimationFrame(() => setPaidNotice(true));
+    const timer = window.setTimeout(() => setPaidNotice(false), 6000);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+    };
+  }, []);
   // 后改动性别的一侧(默认"对方"):同性别冲突的提示只挂在这一侧
   const [lastGenderSide, setLastGenderSide] = useState<"a" | "b">("b");
   const [personErrors, setPersonErrors] = useState<{ a: PersonErrors; b: PersonErrors }>({ a: {}, b: {} });
@@ -313,6 +329,7 @@ export default function ReadingHub() {
   return (
     <>
       <RouteSkeleton active={entering} />
+      {paidNotice ? <div className="mf-reading-paid-banner" role="status">✓ 支付成功，次数已到账</div> : null}
       <div className="mf-reading-cards">
         <button type="button" className="mf-reading-card is-single" onClick={() => openOrLogin("single")}>
           <i className="mf-reading-card-mark" aria-hidden="true">✦</i>

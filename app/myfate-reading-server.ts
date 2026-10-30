@@ -95,7 +95,7 @@ export async function listReadingReports(userId: string): Promise<ReadingReportR
     .select("id,user_id,mode,dual_type,status,subject_a,subject_b,content,created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(20);
   if (error) throw error;
   return (data ?? []).map((row) => mapRow(row as Record<string, unknown>));
 }
