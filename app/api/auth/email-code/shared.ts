@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { EMAIL_CODE_LENGTH, EMAIL_CODE_TTL_SECONDS } from "../../../auth-code-config";
 
 export const CODE_TTL_SECONDS = EMAIL_CODE_TTL_SECONDS;
@@ -5,6 +6,12 @@ export { EMAIL_CODE_LENGTH };
 
 export function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
+}
+
+// Stable, non-reversible identifier for correlating send/verify events without
+// putting an email address or OTP into production logs.
+export function emailLogId(email: string) {
+  return createHash("sha256").update(normalizeEmail(email)).digest("hex").slice(0, 12);
 }
 
 export function isValidEmail(value: string) {
