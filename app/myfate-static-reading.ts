@@ -3,6 +3,7 @@
 // is handed to the model as chart data (the template's per-year sections need it);
 // deterministic engine timelines with scores are still merged after validation.
 import { z } from "zod";
+import { jsonrepair } from "jsonrepair";
 import type { BaziChart } from "./myfate-bazi-engine";
 import type { BaziLifeProfile } from "./myfate-bazi-profile";
 
@@ -63,7 +64,7 @@ export const STATIC_READING_SYSTEM_PROMPT = `你是精通传统八字命理、�
 7. 禁止编造命理事实：四柱藏干十神、旺衰格局喜忌、神煞及其位置、刑冲合害、大运顺序与起运、流年干支只能来自排盘数据；证据不足时降低判断强度或注明依据不足，不得补造。
 8. 不写确定事实：不写必然结婚或破裂的年份、疾病诊断、子女数量或未来成就、未经验证的概率与准确率；不用"注定""必然""一定发财""绝不会"等绝对化措辞；命理解读保持传统文化解释属性（例外：财富章按 T 档阶梯输出天赋计算量级（首行免责声明），感情流年按百分比输出缘分概率，子女章的性别倾向判断（必须带"准确率约60-70%，仅供参考"标注），均属该章标准量化格式）。
 9. 核心结论字段必须用中文引号「」括注（前端将其渲染为主题色重点，便于速读）：旺衰定性（「身强」/「身弱」/「从势」）、格局名（如「偏财格」，连同"格"字）、学历档（如「本科档」）、管理类型（如「军师参谋型」）、财富量级区间（如「1000万-3000万」）、健康薄弱系统（如「肝胆机能」「呼吸系统」，每个系统单独括注）、子女性别倾向（「生男孩」/「生女孩」）、子女缘分（如「缘分很深」）、婚姻稳定性（如「偏中等」）。每个小节至少给出一处「」标注的结论字段；「」专用于此类结论词，普通措辞不要滥用。
-输出必须是单个 JSON 对象，不要 Markdown，字段结构匹配给定模板。`;
+输出必须是单个 JSON 对象，不要 Markdown，字段结构匹配给定模板。字符串值内部禁止出现英文双引号(")和反斜杠，引用措辞一律用「」；键与值之间的冒号、字段之间的逗号不可省略，不要尾逗号。`;
 
 // 明星报告版系统指令:与个人版同一套蒸馏模版与写作规则,仅称呼改为「TA」(上传规范硬性规则:全文用TA)。
 export const STATIC_READING_STAR_SYSTEM_PROMPT = `你是精通传统八字命理、擅长现代人物画像的资深命理分析师。你的任务不是重新创作命理文章，而是根据八字引擎提供的确定性排盘数据，按九章35字段蒸馏模板生成专业、具体、有个人针对性的《MeVerse 明星生辰报告》——像经验丰富的命理师在直接解读这位公众人物，而不是 AI 在解释命理知识。
@@ -77,7 +78,7 @@ export const STATIC_READING_STAR_SYSTEM_PROMPT = `你是精通传统八字命理
 7. 禁止编造命理事实：四柱藏干十神、旺衰格局喜忌、神煞及其位置、刑冲合害、大运顺序与起运、流年干支只能来自排盘数据；证据不足时降低判断强度或注明依据不足，不得补造。
 8. 不写确定事实：不写必然结婚或破裂的年份、疾病诊断、子女数量或未来成就、未经验证的概率与准确率；不用"注定""必然""一定发财""绝不会"等绝对化措辞；命理解读保持传统文化解释属性（例外：财富章按 T 档阶梯输出天赋计算量级（首行免责声明），感情流年按百分比输出缘分概率，子女章的性别倾向判断（必须带"准确率约60-70%，仅供参考"标注），均属该章标准量化格式）。
 9. 核心结论字段必须用中文引号「」括注（前端将其渲染为主题色重点，便于速读）：旺衰定性（「身强」/「身弱」/「从势」）、格局名（如「偏财格」，连同"格"字）、学历档（如「本科档」）、管理类型（如「军师参谋型」）、财富量级区间（如「1000万-3000万」）、健康薄弱系统（如「肝胆机能」「呼吸系统」，每个系统单独括注）、子女性别倾向（「生男孩」/「生女孩」）、子女缘分（如「缘分很深」）、婚姻稳定性（如「偏中等」）。每个小节至少给出一处「」标注的结论字段；「」专用于此类结论词，普通措辞不要滥用。
-输出必须是单个 JSON 对象，不要 Markdown，字段结构匹配给定模板。`;
+输出必须是单个 JSON 对象，不要 Markdown，字段结构匹配给定模板。字符串值内部禁止出现英文双引号(")和反斜杠，引用措辞一律用「」；键与值之间的冒号、字段之间的逗号不可省略，不要尾逗号。`;
 
 // 明星报告附加规则,拼在用户 prompt 末尾:三柱盘(时柱未定)的写作约束。
 export const STAR_REPORT_PROMPT_SUFFIX = `\n\n【明星报告附加规则】
@@ -263,6 +264,21 @@ export function extractJson(text: string) {
   return text.slice(start, end + 1);
 }
 
+// 模型直出 JSON 的解析:先严格 parse,失败再用 jsonrepair 修复常见手误
+// (字符串内裸英文双引号、缺冒号/逗号、尾逗号)——线上实测两类失败签名均在可修范围。
+export function parseModelJson(text: string): unknown {
+  const candidate = extractJson(text);
+  try {
+    return JSON.parse(candidate);
+  } catch (originalError) {
+    try {
+      return JSON.parse(jsonrepair(candidate));
+    } catch {
+      throw originalError;
+    }
+  }
+}
+
 // 宽容剥离:AI 顺手塞进 insight 的多余字段按白名单丢弃,避免 strict 校验整体拒收。
 export function sanitizeReportDraft(raw: unknown): unknown {
   if (!raw || typeof raw !== "object") return raw;
@@ -296,7 +312,7 @@ function describeValidationError(error: unknown): string {
 }
 
 // 通用生成内核:模型直出 → JSON 提取 → 宽容剥离 → 结构校验 → 表达层校验,
-// 任一环失败把纠错提示喂回模型重试(最多3轮/60s预算)。个人与双人报告共用。
+// 任一环失败把纠错提示喂回模型重试(最多3轮/150s预算)。个人与双人报告共用。
 export async function generateValidatedReport<T>(
   callModel: (system: string, prompt: string) => Promise<string>,
   options: {
@@ -309,12 +325,13 @@ export async function generateValidatedReport<T>(
   let lastError: unknown;
   const startedAt = Date.now();
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    // 重试预算:单次上限 240s,总时长超 60s 就不再重试,保证 300s 函数预算内能落 failed 状态
-    if (attempt > 0 && Date.now() - startedAt > 60_000) break;
+    // 重试预算:单次上限 240s,总时长超 150s 就不再重试——单人直出实测 ~60s/次,
+    // 预算内容得下一次完整重试(60+60=120s<150s),仍留足给 failed 落库与退款的余量(300s 函数上限)
+    if (attempt > 0 && Date.now() - startedAt > 150_000) break;
     const suffix = attempt ? `\n\n上次输出未通过结构校验：${describeValidationError(lastError)}。请修正后重新输出完整 JSON。` : "";
     try {
       const text = await callModel(options.system, options.buildPrompt(suffix));
-      const validated = options.validate(sanitizeReportDraft(JSON.parse(extractJson(text))));
+      const validated = options.validate(sanitizeReportDraft(parseModelJson(text)));
       const styleViolations = options.styleCheck?.(validated) ?? [];
       if (styleViolations.length) throw new Error(`风格违规：${styleViolations.join("；")}`);
       return validated;

@@ -19,7 +19,6 @@ import PillarsCard from "../../../pillars-card";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";
 import { buildBaziChart } from "../../../myfate-bazi-engine";
 import { vedicCities } from "../../../myfate-cities";
-import FailedReading from "./failed-reading";
 import PendingReading from "./pending-reading";
 
 export const dynamic = "force-dynamic";
@@ -80,10 +79,11 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
     <div className="mf-zr">
       <ReportTopbar backHref="/home/dual-star-match" backLabel="返回解读页" title={singleTopbarTitle} subtitle={singleTopbarSubtitle} showShare={report.status === "ready"} shareTitle={`${singleTopbarTitle}的八字解读`} />
 
-      {report.status === "pending" ? (
-        <PendingReading reportId={report.id} mode={report.mode} subjectA={subjectA} subjectB={subjectB} />
+      {report.status === "pending" || report.status === "failed" ? (
+        // 失败记录同样回排盘页重走(确认页按 retry 态展示「重新分析」);原失败记录保留作历史
+        <PendingReading reportId={report.status === "pending" ? report.id : undefined} retry={report.status === "failed"} mode={report.mode} subjectA={subjectA} subjectB={subjectB} />
       ) : report.status !== "ready" ? (
-        report.status === "failed" ? <FailedReading mode={report.mode} subjectA={subjectA} subjectB={subjectB} /> : <ReadingGenerating reportId={report.id} createdAt={report.createdAt} />
+        <ReadingGenerating reportId={report.id} createdAt={report.createdAt} />
       ) : report.mode === "single" ? (() => {
         const parsed = staticReadingSchema.safeParse(report.content);
         if (!parsed.success) notFound();

@@ -3,7 +3,7 @@
 export const CONFIRM_STORAGE_KEY = "myfate_reading_confirm_v1";
 
 export type ConfirmSubject = { name: string; gender: "male" | "female"; birthDate: string; birthTime: string; cityId: string; cityName: string };
-export type ConfirmPayload = { mode: "single" | "dual"; subjectA: ConfirmSubject; subjectB?: ConfirmSubject; reportId?: string };
+export type ConfirmPayload = { mode: "single" | "dual"; subjectA: ConfirmSubject; subjectB?: ConfirmSubject; reportId?: string; retry?: boolean };
 
 export function writeConfirmPayload(payload: ConfirmPayload) {
   sessionStorage.setItem(CONFIRM_STORAGE_KEY, JSON.stringify(payload));
@@ -23,6 +23,7 @@ export function readConfirmPayload(): ConfirmPayload | null {
       subjectA: parsed.subjectA,
       subjectB: mode === "dual" ? parsed.subjectB : undefined,
       reportId: typeof parsed.reportId === "string" && parsed.reportId ? parsed.reportId : undefined,
+      retry: parsed.retry === true,
     };
   } catch {
     return null;

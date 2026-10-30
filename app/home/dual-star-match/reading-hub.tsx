@@ -97,10 +97,14 @@ export default function ReadingHub() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (!params.get("paid")) return;
+    const paid = params.get("paid");
+    if (!paid) return;
+    // 同一笔订单只提示一次:Next 客户端路由/浏览器返回可能带着旧 URL 复活,横幅只弹首次
     params.delete("paid");
     const query = params.toString();
     window.history.replaceState(null, "", query ? `?${query}` : window.location.pathname);
+    if (sessionStorage.getItem("mf_paid_notice") === paid) return;
+    sessionStorage.setItem("mf_paid_notice", paid);
     const raf = requestAnimationFrame(() => setPaidNotice(true));
     const timer = window.setTimeout(() => setPaidNotice(false), 6000);
     return () => {
