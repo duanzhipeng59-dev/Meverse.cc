@@ -4,6 +4,7 @@
 // 背后是唤起页的模糊倒影)。登录成功后就地刷新登录态并留当前页;首页营销入口仍走 /login 页面链路。
 // 注意:卡片视觉复用登录页 mf-login-card 体系,样式在 home.css 内有一份副本,改版需两处同步。
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { clearSentCodeState, getSentCodeState, markCodeSent } from "./login-code-store";
 import { createPortal } from "react-dom";
 import { useAuth } from "../auth-context";
 import { EMAIL_CODE_LENGTH } from "../auth-code-config";
@@ -60,6 +61,14 @@ export default function LoginModal({ className, children, open: openProp, onOpen
     if (!open) return;
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", onKey);
+    // 跨实例恢复:别的入口刚发过验证码,这里直接续上(第二步+剩余冷却),不再发新邮件
+    const shared = getSentCodeState();
+    if (shared && shared.email) {
+      setSentEmail(shared.email);
+      setEmail(shared.email);
+      const remain = Math.ceil((shared.cooldownUntil - Date.now()) / 1000);
+      setCodeCooldown(remain > 0 ? remain : 0);
+    }
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
@@ -91,6 +100,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
       setSentEmail(normalized);
       setCode("");
       setCodeCooldown(60);
+      markCodeSent(normalized);
       setMessage("验证码已发送，请检查收件箱和垃圾邮件");
     } catch {
       setError(AUTH_ERROR_MESSAGES.email_service_unavailable);
@@ -130,6 +140,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
         writeBasicProfile(user.email, guestProfile);
       }
       markAuthenticated(user.email);
+      clearSentCodeState();
       setOpen(false);
       onAuthenticated?.();
     } catch {

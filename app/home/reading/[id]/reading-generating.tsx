@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import GeneratingFrame, { GENERATING_PHASES as PHASES } from "./generating-frame";
 
-const PHASES = ["正在排定命盘…", "正在分析十神格局…", "正在撰写章节解读…", "正在整理大运流年…"];
+
 // 进度按真实耗时推进:预计 75 秒走满 95%,之后卡住等真实完成,ready 后先走满 100% 再进报告。
 // 全程只显示进度条,不出现百分比数字。
+// 阶段文案与静态首帧共用(GENERATING_PHASES)。
 const EXPECTED_SECONDS = 75;
 const CAP_PERCENT = 95;
 
@@ -62,7 +64,8 @@ export default function ReadingGenerating({ reportId, createdAt }: { reportId: s
 
   // 时钟未校准(SSR 首帧)时只占位不画进度条:校准后第一帧直接落在真实进度上,
   // 避免重进页面时"从 0 追赶到当前位置"的动画;此后每秒推进才有平滑过渡。
-  if (now === null) return <div className="mf-dual-status" aria-hidden="true" />;
+  // SSR/水合首帧与路由 loading 同构,水合后校准时钟再进入计时动画
+  if (now === null) return <GeneratingFrame />;
 
   const elapsed = Math.max(0, Math.floor((now - startedAt) / 1000));
   const percent = completing ? 100 : Math.max(2, Math.min(CAP_PERCENT, Math.round((elapsed / EXPECTED_SECONDS) * CAP_PERCENT)));

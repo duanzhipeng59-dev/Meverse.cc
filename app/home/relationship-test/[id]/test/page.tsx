@@ -45,7 +45,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
   const staticReport = parseStaticReadingContent(consult);
   if (!staticReport) {
     return (
-      <div className="mf-zr">
+      <div className="mf-zr mf-zr-narrow">
         <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={heroPillars.join(" ")}  showShare shareTitle={`${personName || star.name} 的生辰画像`} />
 
         <PillarsCard pillars={heroPillars} />
@@ -69,7 +69,7 @@ export default async function StarReportPage({ params, searchParams }: { params:
   // 标签标注「时·推算」与确定性区分;无出生资料时回退档案三柱。
   const staticPillars = chart ? chart.pillars.map((pillar) => pillar.ganzhi) : heroPillarsOf(consult, star.threePillars);
   return (
-    <div className="mf-zr">
+    <div className="mf-zr mf-zr-narrow">
       <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={staticPillars.join(" ")} showShare shareTitle={`${personName || star.name} 的生辰画像`} />
       <ReadingProgress starId={id} />
       <PillarsCard pillars={staticPillars} hourEstimated={staticPillars.length > 3} />

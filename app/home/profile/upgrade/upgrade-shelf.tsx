@@ -11,9 +11,9 @@ type BoxPerk = string | { text: string; denied?: boolean };
 type TrialBox = { id: string; title: string; desc?: string; price: string; perks: readonly BoxPerk[]; best?: boolean };
 
 const TRIAL_BOXES: readonly TrialBox[] = [
-  { id: "bundle_trial", title: "生成画像 体验版", desc: "顶级AI加持，严谨推演，先花几分钟看看准不准", perks: ["生辰报告3次", "追问10条"], price: "89" },
-  { id: "bundle_adv", title: "全站通用 高级版", desc: "一顿饭的价钱，请一位随叫随到的命理师", perks: ["生辰报告10次", "追问50条"], price: "239", best: true },
-  { id: "bundle_full", title: "全站通用 完整版", desc: "像做一次基因检测，把自己完全看清楚", perks: ["生辰报告30次", "追问300条"], price: "599" },
+  { id: "bundle_trial", title: "生辰画像 体验版", desc: "顶级AI加持，严谨推演，先花几分钟看看准不准", perks: ["生辰报告3次", "追问10条"], price: "89" },
+  { id: "bundle_adv", title: "生辰画像 高级版", desc: "一顿饭的价钱，请一位随叫随到的命理师", perks: ["生辰报告10次", "追问50条"], price: "239", best: true },
+  { id: "bundle_full", title: "生辰画像 完整版", desc: "像做一次基因检测，把自己完全看清楚", perks: ["生辰报告30次", "追问300条"], price: "599" },
 ];
 
 // 按次购买页签单独的套餐框

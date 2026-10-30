@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../auth-context";
 import LoginModal from "../../components/login-modal";
@@ -172,6 +172,15 @@ export default function ReadingHub() {
   // 登录态解析中或已登录但列表未拉到:一律骨架,不闪空文案
   const recordsLoading = authStatus === "loading" || (loggedIn && !readingsLoaded);
 
+  // 待生成/失败记录直跳排盘页:数据就在行内,免去 /home/reading/[id] 的服务端往返与 loading 闪帧
+  const resumeRow = useCallback((row: ReadingRow) => {
+    writeConfirmPayload(row.status === "failed"
+      ? { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, retry: true }
+      : { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, reportId: row.id });
+    setEntering(true);
+    router.push("/home/dual-star-match/confirm");
+  }, [router]);
+
   const records = useMemo(() => {
     type Item = { key: string; ts: number; node: React.ReactNode };
     const items: Item[] = [];
@@ -220,6 +229,7 @@ export default function ReadingHub() {
             statusLabel={STATUS_LABELS[row.status] ?? row.status}
             status={row.status}
             href={`/home/reading/${row.id}`}
+            onNavigate={row.status === "pending" || row.status === "failed" ? () => resumeRow(row) : undefined}
             deleteEndpoint="/api/reading/delete"
             onDeleted={(id) => setReadings((current) => current.filter((item) => item.id !== id))}
           />
@@ -227,7 +237,7 @@ export default function ReadingHub() {
       });
     }
     return items.sort((a, b) => b.ts - a.ts).map((item) => item.node);
-  }, [readings]);
+  }, [readings, resumeRow]);
 
   // 未登录点击入口:弹登录,成功后自动进入对应填写弹窗
   function openOrLogin(mode: "single" | "dual") {

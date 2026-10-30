@@ -5,7 +5,7 @@ import { useState } from "react";
 
 // 历史记录横条(自填解读):主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
 // 删除用系统确认弹窗,成功由父组件回调本地移除(入口页静态化后 router.refresh 不会更新客户端数据)。
-export default function DualHistoryRow({ id, title, sub, time, statusLabel, status, href, deleteEndpoint, onDeleted }: {
+export default function DualHistoryRow({ id, title, sub, time, statusLabel, status, href, deleteEndpoint, onDeleted, onNavigate }: {
   id: string;
   title: string;
   sub?: string;
@@ -15,6 +15,8 @@ export default function DualHistoryRow({ id, title, sub, time, statusLabel, stat
   href: string;
   deleteEndpoint: string;
   onDeleted?: (id: string) => void;
+  // 提供时拦截点击(如待生成/失败记录客户端直跳排盘页,省一次服务端往返不闪 loading)
+  onNavigate?: () => void;
 }) {
   const [deleting, setDeleting] = useState(false);
 
@@ -38,7 +40,11 @@ export default function DualHistoryRow({ id, title, sub, time, statusLabel, stat
 
   return (
     <div className="mf-dual-history-row-wrap">
-      <Link className="mf-dual-history-row" href={href}>
+      <Link
+        className="mf-dual-history-row"
+        href={href}
+        onClick={onNavigate ? (event) => { event.preventDefault(); onNavigate(); } : undefined}
+      >
         <span className="mf-dual-history-main">
           <span className="mf-dual-history-title">
             <b>{title}</b>

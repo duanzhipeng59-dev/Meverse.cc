@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ReportTopbar from "../../../report-topbar";
 import DualProfileCards, { type DualProfilePerson } from "../dual-profile-cards";
 import LoginModal from "../../../components/login-modal";
+import RouteSkeleton from "../../../route-skeleton";
 import PurchasePanel from "../../../components/purchase-panel";
 import { readLocalSession } from "../../../local-auth";
 import { vedicCities } from "../../../myfate-cities";
@@ -25,18 +26,28 @@ export default function ReadingConfirmPage() {
   const [loginOpen, setLoginOpen] = useState(false);
   // 额度不足(402)时弹购买面板,支付成功后自动重试「开始解读」
   const [purchaseOpen, setPurchaseOpen] = useState(false);
-  // 解读额度余额:不足 1 次时「开始解读」按钮切成「查看套餐 · 立即解锁」直达购买面板
+  // 解读额度余额:loading 期间用同尺寸占位,避免先闪「开始分析」再切成解锁板块
+  const [creditsState, setCreditsState] = useState<"loading" | "known" | "unavailable">("loading");
   const [credits, setCredits] = useState<number | null>(null);
 
-  function refreshCredits() {
+  // silent=true 用于支付到账后的刷新:不回退到整页等待,避免内容闪没
+  function refreshCredits(silent = false) {
+    if (!silent) setCreditsState("loading");
     fetch("/api/myfate/credits")
-      .then((res) => (res.ok ? res.json() as Promise<{ balance?: number }> : null))
-      .then((data) => { if (typeof data?.balance === "number") setCredits(data.balance); })
-      .catch(() => undefined);
+      .then((res) => (res.ok ? res.json() as Promise<{ balance?: number }> : Promise.reject(new Error(String(res.status)))))
+      .then((data) => {
+        if (typeof data?.balance === "number") {
+          setCredits(data.balance);
+          setCreditsState("known");
+        } else {
+          setCreditsState("unavailable");
+        }
+      })
+      .catch(() => setCreditsState("unavailable"));
   }
 
   useEffect(() => {
-    // 未登录(401)保持未知态:登录流程本身会先于计费判断
+    // 未登录(401)/查询失败落 unavailable:按有额度渲染,计费判断交给 begin 的 402 兜底
     refreshCredits();
   }, []);
   // 全新进入时后台落「待生成」记录;点开始时若还在途就等它(失败则退回完整创建)
@@ -97,7 +108,9 @@ export default function ReadingConfirmPage() {
 
   const single = payload?.mode === "single";
   // 已知余额不足:按钮变「查看套餐 · 立即解锁」,点击直达购买面板而非 begin
-  const needBuy = credits !== null && credits < 1;
+  const needBuy = creditsState === "known" && credits !== null && credits < 1;
+  // 余额未知:占位骨架,防止先闪「开始分析」再换板块
+  const creditsLoading = creditsState === "loading";
 
   async function begin() {
     if (creating || !payload) return;
@@ -143,7 +156,16 @@ export default function ReadingConfirmPage() {
     }
   }
 
-  if (!ready) return <div className="mf-zr" />;
+  // 资料卡与按钮区一起渲染:余额未定(loading)时整页等待,杜绝"先出八字再补按钮"的两拍感;
+  // 等待期间以整屏报告骨架提示加载,不让用户面对白屏
+  if (!ready || creditsLoading) {
+    return (
+      <>
+        <RouteSkeleton active />
+        <div className="mf-zr" aria-hidden="true" />
+      </>
+    );
+  }
 
   if (!payload || !people) {
     // 直开链接/数据已被消费:送回解读页重新选择
@@ -187,7 +209,7 @@ export default function ReadingConfirmPage() {
           </>
         )}
         <LoginModal open={loginOpen} onOpenChange={setLoginOpen} onAuthenticated={() => { setLoginOpen(false); void begin(); }} />
-        {purchaseOpen ? <PurchasePanel onClose={() => setPurchaseOpen(false)} onPaid={() => { refreshCredits(); void begin(); }} /> : null}
+        {purchaseOpen ? <PurchasePanel onClose={() => setPurchaseOpen(false)} onPaid={() => { refreshCredits(true); void begin(); }} /> : null}
       </div>
     </div>
   );
