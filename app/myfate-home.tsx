@@ -51,7 +51,7 @@ export default async function MyfateHome() {
                 <i className="mf-home-map-ring middle" aria-hidden="true" />
                 <i className="mf-home-map-ring far" aria-hidden="true" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="mf-home-map-icon" src="/favicon.svg?v=8" alt="" aria-hidden="true" />
+                <img className="mf-home-map-icon" src="/meverse-logo-round.png" alt="" aria-hidden="true" />
                 {stars.slice(0, 6).map((star, index) => (
                   <div
                     className={`mf-home-map-star-orbit ${index < 3 ? "is-near" : "is-far"}`}
