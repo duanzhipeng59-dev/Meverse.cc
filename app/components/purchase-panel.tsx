@@ -100,7 +100,7 @@ export default function PurchasePanel({ onClose, onPaid }: {
             {PACKS.map((pack) => (
               <button type="button" key={pack.id} className={`mf-purchase-pack${"best" in pack && pack.best ? " is-best" : ""}`} disabled={busy} onClick={() => void buy(pack.id)}>
                 <span className="mf-purchase-pack-main">
-                  <b>{pack.credits > 0 ? `${pack.credits} 次报告` : "追问包"}</b>
+                  <b>{busy ? "下单中…" : pack.credits > 0 ? `${pack.credits} 次报告` : "追问包"}</b>
                   <small>{pack.note}</small>
                 </span>
                 <span className="mf-purchase-pack-price"><em>¥</em>{pack.amount}</span>

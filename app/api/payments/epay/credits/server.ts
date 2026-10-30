@@ -70,8 +70,9 @@ export async function createCreditCheckout({
   });
   if (error) throw error;
 
-  const userAgent = request.headers.get("user-agent") ?? "";
-  const device = /android|iphone|ipad|mobile/u.test(userAgent) ? "mobile" as const : "pc" as const;
+  // 统一要 PC 版收银台:手机端也是「二维码 + 打开支付宝支付按钮」的页面,而不是 H5 直接吊起
+  void request.headers.get("user-agent");
+  const device = "pc" as const;
   const clientIp = request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "";
   const origin = getPublicOrigin(request);
   const checkout = await createProviderCheckout({

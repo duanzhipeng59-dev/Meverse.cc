@@ -26,6 +26,8 @@ export default function UpgradeShelf() {
   const [tab, setTab] = useState<"sub" | "pack">("sub");
   const boxes: readonly TrialBox[] = tab === "pack" ? PACK_BOXES : TRIAL_BOXES;
   const [pending, setPending] = useState<PendingOrder | null>(null);
+  // 点击下单到接口返回之间的过渡态(防止无反馈/连点)
+  const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [paidId, setPaidId] = useState<string | null>(null);
   const [buyError, setBuyError] = useState("");
 
@@ -54,7 +56,8 @@ export default function UpgradeShelf() {
 
   // 下单:packageId 即套餐框 id(与服务端价格簿一致),新开收银台后轮询到账
   async function buyBox(packageId: string) {
-    if (pending) return;
+    if (pending || submittingId) return;
+    setSubmittingId(packageId);
     setBuyError("");
     try {
       const res = await fetch("/api/payments/epay/credits/create", {
@@ -65,13 +68,16 @@ export default function UpgradeShelf() {
       const data = await res.json() as { checkoutUrl?: string; orderNo?: string; accessToken?: string; error?: string };
       if (!res.ok || !data.checkoutUrl || !data.orderNo || !data.accessToken) {
         setBuyError(data.error === "login_required" ? "请先登录后再购买" : "下单失败，请稍后重试");
+        setSubmittingId(null);
         return;
       }
       // 异步上下文里 window.open 可能被拦截,打不开时用卡片下的链接手动打开
       window.open(data.checkoutUrl, "_blank", "noopener");
       setPending({ planId: packageId, orderNo: data.orderNo, token: data.accessToken, checkoutUrl: data.checkoutUrl });
+      setSubmittingId(null);
     } catch {
       setBuyError("网络异常，请重试");
+      setSubmittingId(null);
     }
   }
 
@@ -104,10 +110,10 @@ export default function UpgradeShelf() {
             <button
               type="button"
               className="mf-upgrade-box-buy"
-              disabled={Boolean(pending) || paidId === box.id}
+              disabled={Boolean(pending) || Boolean(submittingId) || paidId === box.id}
               onClick={() => void buyBox(box.id)}
             >
-              {pending?.planId === box.id ? "等待支付…" : paidId === box.id ? "已到账 ✓" : "立即购买"}
+              {submittingId === box.id ? "下单中…" : pending?.planId === box.id ? "等待支付…" : paidId === box.id ? "已到账 ✓" : "立即购买"}
             </button>
           </div>
         </div>
