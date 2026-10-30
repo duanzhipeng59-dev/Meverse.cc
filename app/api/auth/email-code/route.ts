@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       return apiError("email_send_failed", 502);
     }
 
-    return Response.json({ ok: true, expiresIn: CODE_TTL_SECONDS, retryAfter: 120 });
+    return Response.json({ ok: true, expiresIn: CODE_TTL_SECONDS, retryAfter: 60 });
   } catch (error) {
     console.error("Email verification request failed", error);
     return apiError("email_service_unavailable", 500);

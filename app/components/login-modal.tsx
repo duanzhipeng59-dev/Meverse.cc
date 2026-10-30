@@ -91,8 +91,8 @@ export default function LoginModal({ className, children, open: openProp, onOpen
     if (sendingCode || codeCooldown > 0) return;
     // 点击瞬间即锁定(禁用+倒计时+持久化),不等接口返回;失败再回滚
     setSendingCode(true);
-    setCodeCooldown(120);
-    markCodeSent(normalized, 120);
+    setCodeCooldown(60);
+    markCodeSent(normalized);
     setError("");
     setMessage("");
     try {
@@ -112,13 +112,13 @@ export default function LoginModal({ className, children, open: openProp, onOpen
       setCode("");
       if (result.alreadySent) {
         // 全局锁判定:验证码刚才已发出,展示剩余倒计时,不误报为失败
-        const retryAfter = Math.min(Math.max(result.retryAfter ?? 120, 1), 120);
+        const retryAfter = Math.min(Math.max(result.retryAfter ?? 60, 1), 120);
         setCodeCooldown(retryAfter);
         markCodeSent(normalized, retryAfter);
         setMessage(`验证码已发送，请查看邮箱，${retryAfter} 秒后可重新获取`);
       } else {
-        setCodeCooldown(result.retryAfter ?? 120);
-        markCodeSent(normalized, result.retryAfter ?? 120);
+        setCodeCooldown(result.retryAfter ?? 60);
+        markCodeSent(normalized, result.retryAfter ?? 60);
         setMessage("验证码已发送，请检查收件箱和垃圾邮件");
       }
     } catch {
