@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Button, ConfirmDialog } from "../../../../components/ui";
 
 type AskEntry = {
@@ -42,6 +43,8 @@ export default function StarAskPanel({
   const abortRef = useRef<AbortController | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [error, setError] = useState("");
+  // 追问余额不足:显示去充值引导(发起提问时清除)
+  const [needRecharge, setNeedRecharge] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
   // 逐字呈现:最新的 AI 回答打字机输出
@@ -124,6 +127,7 @@ export default function StarAskPanel({
     if (!text || loading) return;
     dirtyRef.current = true;
     setError("");
+    setNeedRecharge(false);
     const optimisticId = retryOf ?? -Date.now();
     const optimistic: AskEntry = { id: optimisticId, role: "user", content: text, status: "sending", createdAt: new Date().toISOString() };
     if (retryOf) {
@@ -144,6 +148,18 @@ export default function StarAskPanel({
       });
       if (response.status === 401) {
         window.location.reload();
+        return;
+      }
+      if (response.status === 402) {
+        // 本报告的追问次数已用完:移除乐观条目并提示(与失败重试区分开)
+        if (retryOf) {
+          setEntries((prev) => prev.map((entry) => (entry.id === retryOf ? { ...entry, status: "failed" } : entry)));
+        } else {
+          setEntries((prev) => prev.slice(0, -1));
+        }
+        setError("追问次数不足");
+        setNeedRecharge(true);
+        if (!retryOf) setInput(text);
         return;
       }
       const body = await response.json() as { answer?: string; messageId?: number };
@@ -234,6 +250,12 @@ export default function StarAskPanel({
       </div>
 
       {error ? <p className="mf-zr-ask-error" role="alert">{error}</p> : null}
+      {needRecharge ? (
+        <div className="mf-zr-ask-recharge">
+          <span>追问余额不足，充值后可继续向 AI 命理师提问。</span>
+          <Link className="mf-zr-ask-recharge-btn" href="/home/profile/upgrade">去充值</Link>
+        </div>
+      ) : null}
 
       <ConfirmDialog
         open={confirmClear}

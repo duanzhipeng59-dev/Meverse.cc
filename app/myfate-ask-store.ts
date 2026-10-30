@@ -209,3 +209,19 @@ export async function clearConversation(userId: string, starId: string, reportTy
     .eq("star_id", starId)
     .eq("report_type", reportType);
 }
+
+// ── 追问余额(购买充值,每问 1 条扣 1 次,无免费额度) ──
+export async function getAskBank(userId: string): Promise<number> {
+  const { data, error } = await createSupabaseAdminClient()
+    .rpc("get_ask_credit_bank", { p_user_id: userId });
+  if (error) throw error;
+  return typeof data === "number" ? data : 0;
+}
+
+// 一次成功回答后扣 1 次追问余额(RPC 内带用户锁,不足抛 INSUFFICIENT_ASK_CREDITS),返回新余额
+export async function consumeAskBank(userId: string): Promise<number> {
+  const { data, error } = await createSupabaseAdminClient()
+    .rpc("consume_ask_credit_bank", { p_user_id: userId });
+  if (error) throw error;
+  return typeof data === "number" ? data : 0;
+}

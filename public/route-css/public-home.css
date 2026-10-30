@@ -711,3 +711,10 @@
 /* 字体规范:主按钮用站内无衬线(现代 CTA),步骤编号用标题同款衬线加粗(与章节标题呼应) */
 .mf-home-cta { font-family: Inter, ui-sans-serif, -apple-system, "system-ui", "PingFang SC", sans-serif; font-weight: 650; }
 .mf-how-grid span { font: 700 20px/1 var(--font-serif-display); font-style: normal; }
+
+/* 首页「立即探索」与站内四大主按钮同款:紫灰渐变 + 白字 */
+.mf-home-cta {
+  background: linear-gradient(105deg, #645797, #8d6f9e);
+  color: #fff;
+  box-shadow: 0 10px 28px rgb(157 156 255 / 25%);
+}

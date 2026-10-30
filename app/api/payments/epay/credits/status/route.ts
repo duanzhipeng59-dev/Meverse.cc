@@ -1,5 +1,5 @@
 import { jsonResponse } from "../../server";
-import { getCreditOrder, getReportCredits, refreshCreditOrderFromProvider } from "../server";
+import { cancelStalePendingCreditOrders, getCreditOrder, getReportCredits, refreshCreditOrderFromProvider } from "../server";
 import { getSessionUser } from "../../../../auth/server";
 
 export async function GET(request: Request) {
@@ -10,6 +10,8 @@ export async function GET(request: Request) {
     if (!orderNo || !accessToken) {
       return jsonResponse({ error: "invalid_order" }, { status: 400 });
     }
+    // 顺带清理长期 pending 的过期订单(幂等,失败不影响状态查询)
+    void cancelStalePendingCreditOrders().catch(() => undefined);
     let order = await getCreditOrder(orderNo, accessToken);
     if (!order) {
       return jsonResponse({ error: "order_not_found" }, { status: 404 });

@@ -11,7 +11,9 @@ import {
   appendExchange,
   clearConversation,
   completeRetry,
+  consumeAskBank,
   contextMessages,
+  getAskBank,
   getOrCreateConversation,
   getMessageById,
   listMessages,
@@ -19,12 +21,12 @@ import {
   summarizeIfNeeded,
   type AskRole,
 } from "../../../myfate-ask-store";
-import { createSupabaseAdminClient } from "../../auth/server";
 import { generateChatText } from "../personalize/model-provider";
 import { requireReportUser } from "../reports/server";
-import { isUpgradesEnabled } from "../../../myfate-settings";
 
 export const maxDuration = 60;
+
+// 追问计费:无免费额度,每问 1 条扣 1 次追问余额(套餐/追问包充值)
 
 const starIdSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u).max(100);
 const typeSchema = z.enum(["bazi", "reading-single", "reading-dual"]);
@@ -168,16 +170,6 @@ export async function POST(request: Request) {
   const session = await requireReportUser(request);
   if (!session) return Response.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
-  // 追问额度 = 累计解读次数 × 10 − 已用追问,不足则 402 引导购买;免费模式跳过计量
-  const metered = await isUpgradesEnabled();
-  const admin = createSupabaseAdminClient();
-  if (metered) {
-    const { data: askQuota } = await admin.rpc("remaining_ask_credits", { p_user_id: session.user.id });
-    if (typeof askQuota !== "number" || askQuota <= 0) {
-      return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
-    }
-  }
-
   const body = await request.json().catch(() => null);
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) return Response.json({ error: "BAD_REQUEST" }, { status: 400 });
@@ -188,6 +180,11 @@ export async function POST(request: Request) {
     const key = conversationKey(starId, reportType);
     const conversation = await getOrCreateConversation(session.user.id, key.starId, key.reportType);
     conversationId = conversation.id;
+    // 追问余额不足直接 402(重试失败问题也要求有余额——重试成功同样消耗一次)
+    const askBank = await getAskBank(session.user.id);
+    if (askBank < 1) {
+      return Response.json({ error: "ASK_CREDITS_REQUIRED" }, { status: 402 });
+    }
     const { name, digest } = await buildDigest(starId, reportType, session.user.id);
 
     // 重试:复用原用户消息内容,不新建问题
@@ -212,17 +209,6 @@ export async function POST(request: Request) {
     // 模型偶发输出 markdown 星号(加粗/斜体/列表),统一清洗后再落库与返回
     const answer = generation.content.replaceAll("*", "");
 
-    // 成功后落库并扣 1 次追问(免费模式不扣)
-    let asksRemaining: number | null = null;
-    if (metered) {
-      try {
-        const consumed = await admin.rpc("consume_ask_credit", { p_user_id: session.user.id });
-        if (typeof consumed.data === "number") asksRemaining = consumed.data;
-      } catch (consumeError) {
-        console.error("consume_ask_credit failed", consumeError);
-      }
-    }
-
     let userMessageId: number;
     if (retryOf) {
       await completeRetry(conversation.id, retryOf, answer);
@@ -245,7 +231,15 @@ export async function POST(request: Request) {
       }).catch(() => undefined);
     }
 
-    return Response.json({ answer, asksRemaining, userMessageId, conversationId });
+    // 成功回答后扣 1 次追问余额;扣费失败不影响回答返回(只记日志)
+    let askRemaining: number | null = null;
+    try {
+      askRemaining = await consumeAskBank(session.user.id);
+    } catch (consumeError) {
+      console.error("consume_ask_credit_bank failed", consumeError);
+    }
+
+    return Response.json({ answer, userMessageId, conversationId, askRemaining });
   } catch (error) {
     // 生成失败:保留用户问题为 failed 供前端重试(未扣费,重试成功才扣)
     if (!retryOf && question) {

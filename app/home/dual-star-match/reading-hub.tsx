@@ -140,7 +140,7 @@ export default function ReadingHub() {
       setReadingsLoaded(true);
       return;
     }
-    // 生成记录列表(自填解读) + 弹窗记录下拉(带状态)
+    // 生成记录列表(自填解读) + 弹窗记录下拉(带状态);购买入口在确认页 402 时自动弹出
     fetch("/api/reading/list")
       .then((res) => (res.ok ? res.json() as Promise<{ reports?: ReadingRow[] }> : Promise.reject(new Error(String(res.status)))))
       .then((data) => setReadings(data.reports ?? []))

@@ -165,3 +165,18 @@ export async function deleteReadingReport(id: string): Promise<void> {
     .eq("id", id);
   if (error) throw error;
 }
+
+// ── 解读额度计费:次数包购买进 ledger,生成扣 1 次,失败自动退款(均按报告幂等) ──
+
+// 生成前扣 1 次;余额不足时 PostgREST 报 INSUFFICIENT_CREDITS(路由层转 402)
+export async function consumeReadingCredit(userId: string, reportId: string): Promise<void> {
+  const { error } = await createSupabaseAdminClient()
+    .rpc("consume_report_credit_for_reading", { p_user_id: userId, p_report_id: reportId });
+  if (error) throw new Error(error.message);
+}
+
+// 生成失败退 1 次:幂等,未扣过费/已退过都是 no-op
+export async function refundReadingCredit(userId: string, reportId: string): Promise<void> {
+  await createSupabaseAdminClient()
+    .rpc("refund_reading_credit", { p_user_id: userId, p_report_id: reportId });
+}

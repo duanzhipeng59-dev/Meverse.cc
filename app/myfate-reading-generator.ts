@@ -6,7 +6,7 @@ import { buildBaziChart } from "./myfate-bazi-engine";
 import { buildBaziLifeProfile } from "./myfate-bazi-profile";
 import { generateChatText } from "./api/myfate/personalize/model-provider";
 import { buildStaticReadingFacts, generateStaticReading } from "./myfate-static-reading";
-import { getReadingReport, updateReadingReport, type ReadingSubject } from "./myfate-reading-server";
+import { getReadingReport, refundReadingCredit, updateReadingReport, type ReadingSubject } from "./myfate-reading-server";
 import type { CelebrityVedicBirth } from "./myfate-stars-server";
 import { generateDualReading } from "./myfate-dual-reading";
 
@@ -58,5 +58,7 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
     const message = error instanceof Error ? error.message : "READING_GENERATE_FAILED";
     console.error("Reading generation failed", reportId, message);
     await updateReadingReport(reportId, { status: "failed", error: message.slice(0, 200) });
+    // 生成失败退回扣掉的 1 次额度(幂等,未扣过费则 no-op);退款失败不影响状态落库
+    await refundReadingCredit(report.userId, reportId).catch(() => undefined);
   }
 }

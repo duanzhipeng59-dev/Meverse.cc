@@ -2667,11 +2667,6 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-preview-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
 .mf-preview-tags .mf-ui-tag { border-radius: 12px; }
 .mf-preview-actions { display: grid; gap: 10px; }
-/* 已收藏:星星填充并弹跳一下,按钮描边与文字转主题色 */
-.mf-preview-actions .mf-ui-btn svg { width: 16px; height: 16px; }
-.mf-preview-actions .mf-ui-btn.is-faved { color: var(--bz-red-bright); border-color: var(--bz-red); }
-.mf-preview-actions .mf-ui-btn.is-faved svg { fill: currentColor; animation: mf-fav-pop .34s cubic-bezier(.23, 1, .32, 1); }
-@keyframes mf-fav-pop { 0% { transform: scale(.5); } 55% { transform: scale(1.28); } 100% { transform: scale(1); } }
 .mf-preview-section h2 { margin: 0 0 12px; color: var(--bz-ink); font: 700 15px/1.4 var(--font-serif-display); letter-spacing: .08em; }
 .mf-preview-section blockquote { margin: 0 0 10px; padding: 12px 16px; border-left: 2px solid var(--bz-red); border-radius: 0 12px 12px 0; background: var(--bz-card); }
 .mf-preview-section blockquote b { display: block; margin-bottom: 4px; color: var(--bz-red-bright); font-size: 12px; }
@@ -3501,3 +3496,147 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
   background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright));
   box-shadow: 0 12px 30px rgb(117 103 210 / 35%);
 }
+
+/* ── 解读次数购买(次数包/易支付) ── */
+.mf-purchase-packs { display: grid; gap: 10px; }
+.mf-purchase-pack { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card); cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease; }
+.mf-purchase-pack:hover:not(:disabled) { border-color: var(--bz-red); }
+.mf-purchase-pack:disabled { opacity: .55; cursor: default; }
+.mf-purchase-pack.is-best { border-color: rgb(212 85 131 / 55%); background: var(--bz-card-raised); }
+.mf-purchase-pack-main { display: grid; gap: 4px; }
+.mf-purchase-pack-main b { color: var(--bz-ink); font-size: 15px; }
+.mf-purchase-pack-main small { color: var(--bz-faint); font-size: 11.5px; }
+.mf-purchase-pack-price { color: var(--bz-red-bright); font-size: 17px; font-weight: 700; white-space: nowrap; }
+.mf-purchase-pack-price em { font-style: normal; font-size: 12px; }
+.mf-purchase-note { margin: 4px 0 0; color: var(--bz-faint); font-size: 11.5px; line-height: 1.6; }
+.mf-purchase-paying { display: grid; gap: 12px; justify-items: center; padding: 8px 0 4px; text-align: center; }
+.mf-purchase-paying-main { margin: 0; color: var(--bz-ink); font-size: 13.5px; line-height: 1.7; }
+.mf-purchase-reselect { border: 0; background: none; padding: 4px 8px; color: var(--bz-faint); font-family: inherit; font-size: 12.5px; cursor: pointer; text-decoration: underline; }
+
+/* 我的页「我的额度」区块:双卡片仪表盘(圆形图标底 + 灰紫小标签 + 白色大数字) */
+.mf-me-section-head { display: flex; align-items: center; justify-content: space-between; margin: 0 0 12px; }
+.mf-me-section-head h2 { margin: 0; color: var(--bz-ink); font: 600 17px/1.4 var(--font-sans); white-space: nowrap; }
+.mf-me-credits { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mf-me-credit-card { display: flex; align-items: center; gap: 13px; padding: 17px 15px; border: 1px solid rgb(59 53 72 / 90%); border-radius: 13px; background: linear-gradient(180deg, #2c2737, #262130); }
+.mf-me-credit-icon { flex-shrink: 0; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #3e3552; font-size: 17px; }
+.mf-me-credit-icon.is-report { color: #ffd166; }
+.mf-me-credit-icon.is-ask { color: #d6cdf0; }
+.mf-me-credit-copy { display: grid; gap: 1px; min-width: 0; }
+.mf-me-credit-copy small { color: #b4aec4; font-size: 12px; letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mf-me-credit-copy b { color: #fff; font-size: 26px; font-weight: 700; line-height: 1.15; }
+
+/* 「我的」订阅升级入口横条(我的额度下方) */
+.mf-me-upgrade-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-top: 28px; padding: 16px 18px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease; }
+.mf-me-upgrade-bar:hover { border-color: rgb(195 160 244 / 62%); }
+.mf-me-upgrade-bar-copy { display: grid; gap: 3px; }
+.mf-me-upgrade-bar-copy b { color: var(--bz-ink); font-size: 15px; font-weight: 700; }
+.mf-me-upgrade-bar-copy small { color: var(--bz-faint); font-size: 11.5px; }
+.mf-me-upgrade-bar-arrow { color: var(--bz-red-bright); font-size: 20px; line-height: 1; }
+
+/* 订阅升级货架卡片:竖版渐变紫卡(名称印卡上) + 推荐卡更高凸出 + 右上角「推荐」角标 */
+.mf-upgrade-seg { margin-bottom: 16px; }
+.mf-upgrade-plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: end; }
+/* 只有一张卡时撑满左右整行 */
+.mf-upgrade-plans:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+.mf-upgrade-plan { position: relative; display: grid; gap: 9px; justify-items: start; align-content: center; aspect-ratio: 168 / 230; text-align: left; padding: 18px 16px; border: 0; border-radius: 16px; background: linear-gradient(170deg, #5b4b8c, #8c7ab8); box-shadow: 0 10px 24px rgb(10 7 18 / 22%); }
+.mf-upgrade-plan-desc { margin: 0; color: rgb(255 255 255 / 78%); font-size: 11px; line-height: 1.6; }
+.mf-upgrade-plan.is-best { aspect-ratio: 168 / 254; background: linear-gradient(170deg, #6b3fa0, #b065c0); }
+.mf-upgrade-plan-badge { position: absolute; top: 10px; right: 10px; padding: 3px 9px; border-radius: 999px; background: rgb(16 10 26 / 45%); color: #fff; font-size: 10px; font-style: normal; font-weight: 700; letter-spacing: .05em; }
+.mf-upgrade-plan-name { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .06em; }
+.mf-upgrade-plan-price { margin: 0; color: #fff; font-size: 27px; font-weight: 800; line-height: 1; }
+.mf-upgrade-plan-price em { font-style: normal; font-size: 14px; margin-right: 1px; }
+.mf-upgrade-plan-price small { color: rgb(255 255 255 / 75%); font-size: 11px; font-weight: 500; margin-left: 2px; }
+.mf-upgrade-plan-buy { margin-top: 2px; width: 100%; border: 1px solid rgb(255 255 255 / 24%); border-radius: 999px; padding: 8px 0; background: rgb(16 10 26 / 38%); color: #fff; font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; }
+.mf-upgrade-plan-buy:disabled { opacity: .6; cursor: default; }
+.mf-upgrade-plan-buy.is-soon { border-style: dashed; }
+.mf-upgrade-plan-perks { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.mf-upgrade-plan-perks li { color: rgb(255 255 255 / 82%); font-size: 10.5px; line-height: 1.5; }
+.mf-upgrade-pay-wait { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: var(--bz-card); display: grid; gap: 6px; justify-items: center; text-align: center; }
+.mf-upgrade-pay-wait p { margin: 0; color: var(--bz-muted); font-size: 12.5px; }
+.mf-upgrade-pay-wait a { color: #a99cff; font-size: 12px; }
+.mf-upgrade-paid { margin: 14px 0 0; color: var(--bz-green, #72b58a); font-size: 12.5px; font-weight: 600; text-align: center; }
+
+/* 确认页「解锁完整解读」付费卡(额度不足时替代提示语+CTA 区) */
+.mf-confirm-unlock { width: min(360px, 100%); margin-inline: auto; display: grid; justify-items: center; gap: 10px; margin-top: 18px; padding: 24px 20px 20px; border-radius: 16px; background: linear-gradient(180deg, #2c2737, #262130); text-align: center; }
+.mf-confirm-unlock h2 { margin: 2px 0 0; color: #fff; font-size: 17px; font-weight: 700; letter-spacing: .02em; }
+.mf-confirm-unlock p { margin: 0; max-width: 280px; color: #b4aec4; font-size: 12.5px; line-height: 1.75; }
+.mf-confirm-unlock .mf-dual-generate { width: 100%; margin-top: 4px; }
+.mf-confirm-unlock-demo { color: #a99cff; font-size: 12px; text-decoration: none; }
+.mf-confirm-unlock-demo span { margin-left: 2px; }
+
+/* 订阅升级独立页(/home/profile/upgrade):货架列宽收窄,避免桌面端三卡过宽 */
+.mf-upgrade-page { display: block; }
+.mf-upgrade-body { width: min(640px, 100%); margin: 20px auto 0; padding: 0 4px; }
+
+
+/* 套餐购买页:分栏下的矩形占位框(内容后续填入) */
+.mf-upgrade-box { margin-top: 16px; border: 1px solid var(--bz-line-strong); border-radius: 16px; background: var(--bz-card); }
+.mf-upgrade-box-body { box-sizing: border-box; display: grid; gap: 10px; justify-items: start; align-content: start; padding: 24px 22px; text-align: left; }
+.mf-upgrade-box-body > b { color: var(--bz-ink); font-size: 17px; font-weight: 700; letter-spacing: .02em; }
+.mf-upgrade-box-desc { margin: 0; color: var(--bz-muted); font-size: 12px; line-height: 1.7; }
+.mf-upgrade-box-body > b + .mf-upgrade-box-desc { margin-top: -5px; }
+.mf-upgrade-box-body ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.mf-upgrade-box-body li { display: flex; align-items: center; gap: 7px; color: var(--bz-muted); font-size: 12.5px; line-height: 1.5; }
+.mf-upgrade-box-body li i { display: grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; background: rgb(114 181 138 / 16%); color: var(--bz-green, #72b58a); font-style: normal; font-size: 9px; font-weight: 700; }
+
+/* 矩形框底部价格横条:左价格、右「立即购买」 */
+.mf-upgrade-box-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding: 14px 22px 16px; border-top: 1px solid var(--bz-line); }
+.mf-upgrade-box-bar-price { color: var(--bz-red-bright); font-size: 25px; font-weight: 800; line-height: 1; }
+.mf-upgrade-box-bar-price em { font-style: normal; font-size: 14px; margin-right: 1px; }
+.mf-upgrade-box-buy { min-width: 132px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 999px; padding: 11px 26px; background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); color: var(--bz-ink); font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: border-color .18s ease; }
+.mf-upgrade-box-buy:hover { border-color: rgb(195 160 244 / 62%); }
+/* 套餐框排除项(叉):红叉圆底 + 更淡的文字 */
+.mf-upgrade-box-body li.is-denied { color: rgb(184 175 194 / 80%); }
+.mf-upgrade-box-body li.is-denied i { background: rgb(224 109 124 / 14%); color: #ff4d5e; }
+
+/* 我的页:额度卡 + 订阅升级入口 共用一个矩形底板 */
+.mf-me-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--bz-line-strong); border-radius: 16px; background: var(--bz-card); }
+.mf-me-panel .mf-me-upgrade-bar { margin-top: 0; width: 100%; box-sizing: border-box; }
+
+/* 额度卡与订阅升级横条等高(77px),内部元素同比缩小 */
+.mf-me-panel .mf-me-credit-card { height: 77px; box-sizing: border-box; padding: 10px 13px; gap: 11px; }
+.mf-me-panel .mf-me-credit-icon { width: 36px; height: 36px; font-size: 14px; }
+.mf-me-panel .mf-me-credit-copy small { font-size: 11px; }
+.mf-me-panel .mf-me-credit-copy b { font-size: 21px; }
+
+/* 「开始排盘/开始合盘」弹窗提交按钮:与「单人解读」入口卡同款配色 */
+.mf-login-modal-card .mf-start-submit { border: 1px solid rgb(239 167 212 / 14%); background: linear-gradient(125deg, rgb(239 167 212 / 24%), rgb(157 156 255 / 13%)), var(--bz-card-raised); color: var(--bz-ink); }
+
+/* 追问余额不足的充值引导条 */
+.mf-zr-ask-recharge { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; padding: 11px 14px; border: 1px solid rgb(239 167 212 / 38%); border-radius: 12px; background: rgb(212 85 131 / 10%); }
+.mf-zr-ask-recharge span { color: var(--bz-muted); font-size: 12px; line-height: 1.5; }
+.mf-zr-ask-recharge-btn { flex-shrink: 0; border: 0; border-radius: 999px; padding: 8px 16px; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; cursor: pointer; }
+
+/* 桌面端筛选栏铺满内容区即可:同时重置 3195 段的出血宽度/负边距公式
+   (该公式假设容器仍有 5vw 内边距,与"贴边"改动叠加后会把栏撑出容器、搜索图标被顶出屏幕),
+   左右留白与网格对齐 */
+@media (min-width: 801px) {
+  .mf-explore-ctrl { width: auto; margin-inline: 0; padding-inline: clamp(16px, 3vw, 32px); }
+}
+
+/* 解读页内容列收窄 10%:732px → 660px(桌面端,窄屏仍自适应) */
+@media (min-width: 801px) {
+  .mf-workspace-content.mf-reading-page { width: min(660px, calc(100% - 72px)); }
+}
+
+/* 四大主按钮统一配色(开始排盘/开始合盘/开始解读/立即购买):紫灰渐变 + 白字 */
+.mf-login-modal-card .mf-start-submit,
+.mf-dual-confirm .mf-dual-generate,
+.mf-upgrade-box-buy {
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 650;
+  background: linear-gradient(105deg, #645797, #8d6f9e);
+  box-shadow: 0 10px 28px rgb(157 156 255 / 25%);
+}
+
+/* 高级版套餐卡:明星卡选中态同款(粉描边 + 粉紫光晕 + 淡粉紫罩染) */
+.mf-upgrade-box.is-best {
+  border-color: var(--bz-red);
+  background: linear-gradient(125deg, rgb(239 167 212 / 16%), rgb(157 156 255 / 12%)), #262031;
+  box-shadow: 0 10px 28px rgb(198 75 115 / 22%), 0 6px 20px rgb(157 156 255 / 18%);
+}
+
+/* 普通套餐卡:去掉内容与底部价格横条之间的分隔线(高亮的高级版保留) */
+.mf-upgrade-box:not(.is-best) .mf-upgrade-box-bar { border-top: 0; padding-top: 0; }

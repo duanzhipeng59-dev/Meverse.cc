@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import StarAskPanel from "./ask-panel";
 import ReportTopbar from "../../../../report-topbar";
 import StarReadingReport, { extractFortuneData } from "../../../../star-reading-report";
 import FortuneCurveCard from "../../../../fortune-curve";
@@ -81,7 +80,6 @@ export default async function StarReportPage({ params, searchParams }: { params:
         ) : null;
       })()}
       <StarReadingReport content={staticReport} />
-      <div id="ask"><StarAskPanel starId={id} starName={star.name} /></div>
       <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、刑冲合害)对静态命局做文化解读，不构成科学预测</p>
     </div>
   );

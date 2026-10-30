@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { z } from "zod";
 import { getSessionUser } from "../../auth/server";
 import { vedicCities } from "../../../myfate-cities";
-import { createReadingReport } from "../../../myfate-reading-server";
+import { consumeReadingCredit, createReadingReport, deleteReadingReport } from "../../../myfate-reading-server";
 import { runReadingGeneration } from "../../../myfate-reading-generator";
 
 // 单次直出模版化报告实测 ~65s,含最多 3 次结构重试也在 300s 内(套餐函数上限 300s,600 会被拒)
@@ -49,6 +49,17 @@ export async function POST(request: Request) {
       status: parsed.data.pending ? "pending" : "generating",
     });
     if (!parsed.data.pending) {
+      // 直出生成(确认页兜底路径):先扣 1 次额度;不足则删除刚建的记录并 402,不给免费生成
+      try {
+        await consumeReadingCredit(user.id, reportId);
+      } catch (creditError) {
+        await deleteReadingReport(reportId).catch(() => undefined);
+        const message = creditError instanceof Error ? creditError.message : "";
+        if (message.includes("INSUFFICIENT_CREDITS")) {
+          return Response.json({ error: "CREDITS_REQUIRED" }, { status: 402 });
+        }
+        throw creditError;
+      }
       after(async () => {
         await runReadingGeneration(reportId);
       });

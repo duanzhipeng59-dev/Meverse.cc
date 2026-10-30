@@ -5,26 +5,27 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../auth-context";
 import LoginModal from "../../components/login-modal";
-import { portraitImage } from "../../myfate-image";
-import { readFavorites } from "../relationship-test/[id]/preview-actions";
-import type { StarListItem } from "../../myfate-stars-server";
 
-// 我的页:账户卡(头像/邮箱+说明+登录或退出) / 收藏人物 / 功能入口。
-// 规格:区块间距 28px、卡片内边距 20px、人物图 88×112、登录按钮 48px、功能入口 64px。
-export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
+// 我的页:账户卡(邮箱+登录/退出) + 我的额度(解读次数/追问规则展示) + 订阅升级入口(独立页面)。
+// 购买次数的即用入口在确认页额度不足时引导;这里承载后续的订阅/次数包货架。
+export default function WorkspaceProfile() {
   const { status, email, markSignedOut } = useAuth();
   const router = useRouter();
-  const [favs, setFavs] = useState<StarListItem[]>([]);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [askBank, setAskBank] = useState<number | null>(null);
 
   useEffect(() => {
-    // 收藏仅登录后展示;未登录一律空(显示引导态)
-    if (status !== "authenticated") {
-      setFavs([]);
-      return;
+    // 未登录不展示额度区块,无需清状态;登录态变化时重新拉取
+    if (status === "authenticated") {
+      fetch("/api/myfate/credits")
+        .then((res) => (res.ok ? res.json() as Promise<{ balance?: number; askBank?: number }> : null))
+        .then((data) => {
+          setCredits(typeof data?.balance === "number" ? data.balance : null);
+          setAskBank(typeof data?.askBank === "number" ? data.askBank : null);
+        })
+        .catch(() => { setCredits(null); setAskBank(null); });
     }
-    const byId = new Map(stars.map((star) => [star.id, star]));
-    setFavs(readFavorites().map((id) => byId.get(id)).filter((x): x is StarListItem => Boolean(x)));
-  }, [stars, status]);
+  }, [status]);
 
   if (status === "loading") {
     return <div className="mf-bz-profile"><p className="mf-bz-profile-loading">正在读取…</p></div>;
@@ -37,7 +38,7 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
       <section className="mf-me-account" aria-label="账户">
         <div className="mf-me-account-copy">
           <b>{loggedIn ? email : "尚未登录"}</b>
-          {loggedIn ? null : <p>登录后可同步收藏，以及查看完整报告</p>}
+          {loggedIn ? null : <p>登录后可查看完整报告</p>}
         </div>
         {loggedIn ? (
           <button type="button" className="mf-me-logout" onClick={() => { markSignedOut(); router.replace("/"); }}>退出登录</button>
@@ -46,27 +47,31 @@ export default function WorkspaceProfile({ stars }: { stars: StarListItem[] }) {
         )}
       </section>
 
-      <PeopleRow title="收藏人物" empty={loggedIn ? "还没有收藏,在人物页点 ♡ 收藏" : "登录之后即可查看收藏记录"} list={favs} />
-    </div>
-  );
-}
-
-function PeopleRow({ title, empty, list }: { title: string; empty: string; list: StarListItem[] }) {
-  return (
-    <section className="mf-me-section" aria-label={title}>
-      <h2>{title}</h2>
-      {list.length === 0 ? (
-        <div className="mf-me-empty"><i aria-hidden="true">◌</i><p>{empty}</p></div>
-      ) : (
-        <div className="mf-me-row">
-          {list.map((star) => (
-            <Link href={`/home/relationship-test/${star.id}?from=profile`} key={star.id}>
-              <span style={{ backgroundImage: `url("${portraitImage(star.portraitSrc, 240)}")` }} role="img" aria-label={star.name} />
-              <b>{star.name}</b>
-            </Link>
-          ))}
+      <section className="mf-me-section" aria-label="我的额度">
+        <div className="mf-me-section-head">
+          <h2>我的额度</h2>
         </div>
-      )}
-    </section>
+        <div className="mf-me-panel">
+          {loggedIn ? (
+            <div className="mf-me-credits">
+              <div className="mf-me-credit-card">
+                <span className="mf-me-credit-icon is-report" aria-hidden="true">✦</span>
+                <span className="mf-me-credit-copy"><small>解读次数</small><b>{credits ?? "…"}</b></span>
+              </div>
+              <div className="mf-me-credit-card">
+                <span className="mf-me-credit-icon is-ask" aria-hidden="true">✧</span>
+                <span className="mf-me-credit-copy"><small>追问次数</small><b>{askBank ?? "…"}</b></span>
+              </div>
+            </div>
+          ) : (
+            <div className="mf-me-empty"><i aria-hidden="true">◌</i><p>登录后可查看与购买解读次数</p></div>
+          )}
+          <Link className="mf-me-upgrade-bar" href="/home/profile/upgrade">
+            <span className="mf-me-upgrade-bar-copy"><b>订阅升级</b><small>解锁更多额度与专属权益</small></span>
+            <span className="mf-me-upgrade-bar-arrow" aria-hidden="true">›</span>
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }

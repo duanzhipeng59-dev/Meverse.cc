@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ReportTopbar from "../../../report-topbar";
 import DualProfileCards, { type DualProfilePerson } from "../dual-profile-cards";
 import LoginModal from "../../../components/login-modal";
+import PurchasePanel from "../../../components/purchase-panel";
 import { readLocalSession } from "../../../local-auth";
 import { vedicCities } from "../../../myfate-cities";
 import { buildDualChart } from "../../../myfate-dual-engine";
@@ -21,6 +23,22 @@ export default function ReadingConfirmPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
+  // 额度不足(402)时弹购买面板,支付成功后自动重试「开始解读」
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  // 解读额度余额:不足 1 次时「开始解读」按钮切成「查看套餐 · 立即解锁」直达购买面板
+  const [credits, setCredits] = useState<number | null>(null);
+
+  function refreshCredits() {
+    fetch("/api/myfate/credits")
+      .then((res) => (res.ok ? res.json() as Promise<{ balance?: number }> : null))
+      .then((data) => { if (typeof data?.balance === "number") setCredits(data.balance); })
+      .catch(() => undefined);
+  }
+
+  useEffect(() => {
+    // 未登录(401)保持未知态:登录流程本身会先于计费判断
+    refreshCredits();
+  }, []);
   // 全新进入时后台落「待生成」记录;点开始时若还在途就等它(失败则退回完整创建)
   const pendingCreate = useRef<Promise<string | null> | null>(null);
 
@@ -78,6 +96,8 @@ export default function ReadingConfirmPage() {
   }, [payload]);
 
   const single = payload?.mode === "single";
+  // 已知余额不足:按钮变「查看套餐 · 立即解锁」,点击直达购买面板而非 begin
+  const needBuy = credits !== null && credits < 1;
 
   async function begin() {
     if (creating || !payload) return;
@@ -105,6 +125,12 @@ export default function ReadingConfirmPage() {
         });
       const data = await response.json() as { reportId?: string; detail?: string };
       if (!response.ok || !data.reportId) {
+        if (response.status === 402) {
+          // 解读额度不足:弹购买面板,支付成功后 onPaid 自动重试 begin
+          setPurchaseOpen(true);
+          setCreating(false);
+          return;
+        }
         setError(data.detail || "生成请求失败，请重试。");
         setCreating(false);
         return;
@@ -140,14 +166,27 @@ export default function ReadingConfirmPage() {
 
       <div className="mf-dual-status mf-dual-confirm">
         <DualProfileCards people={people} />
-        <p className="mf-dual-status-note mf-dual-confirm-hint">{single ? "点击下方按钮，看见你的八字解读。" : "点击下方按钮，看见你们的合盘。"}</p>
-        <div className="mf-dual-confirm-cta">
-          <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => void begin()}>
-            {creating ? "正在创建…" : single ? "开始解读" : "开始分析"}
-          </button>
-          {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
-          <LoginModal open={loginOpen} onOpenChange={setLoginOpen} onAuthenticated={() => { setLoginOpen(false); void begin(); }} />
-        </div>
+        {needBuy ? (
+          <div className="mf-confirm-unlock">
+            <h2>解锁完整解读</h2>
+            <p>购买报告次数后可查看完整内容：性格、事业、财富、感情全维度深度报告，以及 AI 追问。</p>
+            <button className="mf-primary-button mf-dual-generate" type="button" onClick={() => router.push("/home/profile/upgrade")}>查看套餐 · 立即解锁</button>
+            <Link className="mf-confirm-unlock-demo" href="/home/relationship-test">查看生辰画像示例报告 <span aria-hidden="true">↗</span></Link>
+            {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
+          </div>
+        ) : (
+          <>
+            <p className="mf-dual-status-note mf-dual-confirm-hint">{single ? "点击下方按钮，看见你的八字解读。" : "点击下方按钮，看见你们的合盘。"}</p>
+            <div className="mf-dual-confirm-cta">
+              <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => void begin()}>
+                {creating ? "正在创建…" : single ? "开始解读" : "开始分析"}
+              </button>
+              {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
+            </div>
+          </>
+        )}
+        <LoginModal open={loginOpen} onOpenChange={setLoginOpen} onAuthenticated={() => { setLoginOpen(false); void begin(); }} />
+        {purchaseOpen ? <PurchasePanel onClose={() => setPurchaseOpen(false)} onPaid={() => { refreshCredits(); void begin(); }} /> : null}
       </div>
     </div>
   );

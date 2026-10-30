@@ -1,13 +1,10 @@
 import { getSessionUser } from "../../../../auth/server";
-import { isUpgradesEnabled } from "../../../../../myfate-settings";
 import { jsonResponse } from "../../server";
 import { createCreditCheckout, isReportPackageId } from "../server";
 
+// 次数包下单:价格由服务端 RPC 定价,计费闸口在各生成接口(402 引导到这里),下单不再需要全局开关。
 export async function POST(request: Request) {
   try {
-    if (!(await isUpgradesEnabled())) {
-      return jsonResponse({ error: "upgrades_disabled" }, { status: 403 });
-    }
     const body = (await request.json().catch(() => null)) as { packageId?: string } | null;
     const packageId = body?.packageId ?? "";
     if (!isReportPackageId(packageId)) {
