@@ -1,23 +1,22 @@
-// 邮箱验证码发送冷却:实例内内存实现(Vercel 多实例下为近似限流,叠加 Supabase 自身 429)。
-const COOLDOWN_MS = 60_000;
-const MAX_KEYS = 5_000;
+import { createHash } from "node:crypto";
+import { createSupabaseAdminClient } from "../server";
 
-const nextAllowed = new Map<string, number>();
-
-export function emailCodeRateLimit(key: string): { allowed: boolean; retryAfterSeconds: number } {
-  const now = Date.now();
-  if (nextAllowed.size > MAX_KEYS) {
-    for (const [k, ts] of nextAllowed) {
-      if (ts <= now) nextAllowed.delete(k);
-    }
-    if (nextAllowed.size > MAX_KEYS) nextAllowed.clear();
+// 邮箱验证码发送的全局原子锁(Supabase 表 + 条件 upsert,见迁移 20261030160000):
+// 60 秒内同一 邮箱+IP 只有第一个请求能抢到,跨部署实例全局生效;
+// 抢不到直接告知"已发送+剩余秒数",不再触发出码与发信,防止验证码被第二次请求覆盖。
+// 锁服务本身故障时放行(可用性优先),仅记录日志。
+export async function tryAcquireEmailCodeLock(email: string, ip: string): Promise<{ acquired: boolean; retryAfter: number }> {
+  const lockKey = createHash("sha256").update(`${email}|${ip}`).digest("hex");
+  const { data, error } = await createSupabaseAdminClient().rpc("try_acquire_email_code_lock", {
+    p_lock_key: lockKey,
+    p_cooldown_seconds: 60,
+  });
+  if (error) {
+    console.error("Email code lock unavailable", error.message);
+    return { acquired: true, retryAfter: 0 };
   }
-  const blockedUntil = nextAllowed.get(key);
-  if (blockedUntil !== undefined && blockedUntil > now) {
-    return { allowed: false, retryAfterSeconds: Math.ceil((blockedUntil - now) / 1000) };
-  }
-  nextAllowed.set(key, now + COOLDOWN_MS);
-  return { allowed: true, retryAfterSeconds: 0 };
+  const retryAfter = typeof data === "number" ? data : 0;
+  return { acquired: retryAfter <= 0, retryAfter: Math.max(retryAfter, 1) };
 }
 
 export function clientIpFrom(request: Request) {

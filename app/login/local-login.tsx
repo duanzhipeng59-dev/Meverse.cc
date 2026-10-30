@@ -7,6 +7,7 @@ import { useAuth } from "../auth-context";
 import { EMAIL_CODE_LENGTH } from "../auth-code-config";
 import { ensureLocalUser, normalizeEmail } from "../local-auth";
 import { readBasicProfile, writeBasicProfile } from "../myfate-progressive-profile";
+import { clearSentCodeState, getSentCodeState, markCodeSent } from "../components/login-code-store";
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_email: "请输入有效的邮箱地址",
@@ -45,6 +46,17 @@ export default function LocalLogin() {
   const [sendingCode, setSendingCode] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [codeCooldown, setCodeCooldown] = useState(0);
+
+  // 跨入口恢复:别的页面/标签页刚发过验证码,这里直接续上第二步与剩余冷却
+  useEffect(() => {
+    const shared = getSentCodeState();
+    if (shared?.email) {
+      setSentEmail(shared.email);
+      setEmail(shared.email);
+      const remain = Math.ceil((shared.cooldownUntil - Date.now()) / 1000);
+      setCodeCooldown(remain > 0 ? remain : 0);
+    }
+  }, []);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [returnHref, setReturnHref] = useState("/");
@@ -84,8 +96,10 @@ export default function LocalLogin() {
       return;
     }
     if (sendingCode || codeCooldown > 0) return;
-
+    // 点击瞬间即锁定(与登录弹窗共用同一份持久化状态),失败再回滚
     setSendingCode(true);
+    setCodeCooldown(60);
+    markCodeSent(normalized);
     setError("");
     setMessage("");
     try {
@@ -94,16 +108,28 @@ export default function LocalLogin() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: normalized }),
       });
-      const result = (await response.json()) as AuthApiResult;
+      const result = (await response.json()) as AuthApiResult & { alreadySent?: boolean; retryAfter?: number };
       if (!response.ok) {
+        setCodeCooldown(0);
+        clearSentCodeState();
         setError(authErrorMessage(result.error));
         return;
       }
       setSentEmail(normalized);
       setCode("");
-      setCodeCooldown(60);
-      setMessage("验证码已发送，请检查收件箱和垃圾邮件");
+      if (result.alreadySent) {
+        const retryAfter = Math.min(Math.max(result.retryAfter ?? 60, 1), 60);
+        setCodeCooldown(retryAfter);
+        markCodeSent(normalized, retryAfter);
+        setMessage(`验证码已发送，请查看邮箱，${retryAfter} 秒后可重新获取`);
+      } else {
+        setCodeCooldown(result.retryAfter ?? 60);
+        markCodeSent(normalized, result.retryAfter ?? 60);
+        setMessage("验证码已发送，请检查收件箱和垃圾邮件");
+      }
     } catch {
+      setCodeCooldown(0);
+      clearSentCodeState();
       setError(AUTH_ERROR_MESSAGES.email_service_unavailable);
     } finally {
       setSendingCode(false);
@@ -144,6 +170,7 @@ export default function LocalLogin() {
         writeBasicProfile(user.email, guestProfile);
       }
       markAuthenticated(user.email);
+      clearSentCodeState();
       router.replace(destination());
     } catch {
       setError(AUTH_ERROR_MESSAGES.auth_unavailable);
