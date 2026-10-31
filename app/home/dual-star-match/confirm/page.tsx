@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ReportTopbar from "../../../report-topbar";
 import DualProfileCards, { type DualProfilePerson } from "../dual-profile-cards";
 import LoginModal from "../../../components/login-modal";
+import { SkeletonBlock } from "../../skeletons";
 import PurchasePanel from "../../../components/purchase-panel";
 import { readLocalSession } from "../../../local-auth";
 import { vedicCities } from "../../../myfate-cities";
@@ -111,6 +112,8 @@ export default function ReadingConfirmPage() {
   const single = payload?.mode === "single";
   // 已知余额不足:按钮变「查看套餐 · 立即解锁」,点击直达购买面板而非 begin
   const needBuy = creditsState === "known" && credits !== null && credits < 1;
+  // 余额在途:CTA 以同尺寸占位,防止先闪「开始分析」、余额回来再切成解锁板块
+  const creditsLoading = creditsState === "loading";
   async function begin() {
     if (creating || !payload) return;
     if (!readLocalSession()) {
@@ -155,8 +158,8 @@ export default function ReadingConfirmPage() {
     }
   }
 
-  // 资料卡与按钮区一起渲染:余额未定(loading)时整页等待,杜绝"先出八字再补按钮"的两拍感;
-  // 等待期间以整屏报告骨架提示加载,不让用户面对白屏
+  // 资料卡与按钮区一起渲染:资料卡首帧即出;余额未定(loading)时按钮以同尺寸占位,
+  // 杜绝"先闪开始分析、余额返回再切成解锁板块"的两拍感
   if (!ready) {
     return null;
   }
@@ -194,9 +197,13 @@ export default function ReadingConfirmPage() {
           <>
             <p className="mf-dual-status-note mf-dual-confirm-hint">{single ? "点击下方按钮，看见你的八字解读。" : "点击下方按钮，看见你们的合盘。"}</p>
             <div className="mf-dual-confirm-cta">
-              <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => void begin()}>
-                {creating ? "正在创建…" : payload.retry ? "重新分析" : "开始分析"}
-              </button>
+              {creditsLoading ? (
+                <SkeletonBlock className="mf-confirm-skeleton-button" />
+              ) : (
+                <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => void begin()}>
+                  {creating ? "正在创建…" : payload.retry ? "重新分析" : "开始分析"}
+                </button>
+              )}
               {payload.retry ? <p className="mf-confirm-retry-note">命盘信息已保留，次数已退还，可以重新生成一份报告</p> : null}
               {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
             </div>

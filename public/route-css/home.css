@@ -1405,6 +1405,9 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 .mf-dual-confirm-cta .mf-dual-generate { width: min(280px, 100%); }
 
+/* 余额在途占位:与「开始分析」按钮同尺寸,余额返回后再换成真按钮或解锁板块 */
+.mf-dual-confirm-cta .mf-confirm-skeleton-button { width: min(280px, 100%); height: 48px; border-radius: 12px; }
+
 .mf-dual-report-hero { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; padding: 24px; border: 1px solid var(--mf-rep-hero-border, rgba(198, 75, 115, 0.16)); border-radius: 12px; background: var(--mf-rep-hero-bg, linear-gradient(150deg, #231319, #170f13)); position: relative; }
 
 .mf-dual-report-people { display: flex; align-items: center; gap: 10px; }
