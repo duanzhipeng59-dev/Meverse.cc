@@ -30,11 +30,20 @@ export default function ReadingConfirmPage() {
   const [loginOpen, setLoginOpen] = useState(false);
   // 额度不足(402)时弹购买面板,支付成功后自动重试「开始解读」
   const [purchaseOpen, setPurchaseOpen] = useState(false);
-  // 解读额度余额:loading 期间用同尺寸占位,避免先闪「开始分析」再切成解锁板块
-  const [creditsState, setCreditsState] = useState<"loading" | "known" | "unavailable">("loading");
-  const [credits, setCredits] = useState<number | null>(null);
+  // 解读额度余额:入口已预检的(payload.credits)首帧即定 CTA——与资料卡同帧出「开始分析」或解锁卡;
+  // 未经预检(旧会话刷新/直开)才从 loading 起步,占位期间按钮区用同尺寸骨架,避免先闪按钮再换板块
+  const [creditsState, setCreditsState] = useState<"loading" | "known" | "unavailable">(() => {
+    if (typeof window === "undefined") return "loading";
+    const snapshot = readConfirmPayload()?.credits;
+    return typeof snapshot === "number" ? "known" : snapshot === null ? "unavailable" : "loading";
+  });
+  const [credits, setCredits] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const snapshot = readConfirmPayload()?.credits;
+    return typeof snapshot === "number" ? snapshot : null;
+  });
 
-  // silent=true 用于支付到账后的刷新:不回退到整页等待,避免内容闪没
+  // silent=true:静默复检/支付到账刷新,不回退 loading;已有快照时查询失败不降级(不让解锁卡闪回按钮)
   function refreshCredits(silent = false) {
     if (!silent) setCreditsState("loading");
     fetch("/api/myfate/credits")
@@ -43,16 +52,18 @@ export default function ReadingConfirmPage() {
         if (typeof data?.balance === "number") {
           setCredits(data.balance);
           setCreditsState("known");
-        } else {
+        } else if (!silent) {
           setCreditsState("unavailable");
         }
       })
-      .catch(() => setCreditsState("unavailable"));
+      .catch(() => {
+        if (!silent) setCreditsState("unavailable");
+      });
   }
 
   useEffect(() => {
-    // 未登录(401)/查询失败落 unavailable:按有额度渲染,计费判断交给 begin 的 402 兜底
-    refreshCredits();
+    // 静默复检:入口快照数秒前才取,仅用于纠偏;未登录(401)/失败不覆盖已有判定,计费交给 begin 的 402 兜底
+    refreshCredits(true);
   }, []);
   // 全新进入时后台落「待生成」记录;点开始时若还在途就等它(失败则退回完整创建)
   const pendingCreate = useRef<Promise<string | null> | null>(null);

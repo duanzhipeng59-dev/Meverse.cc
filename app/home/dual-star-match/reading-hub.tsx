@@ -9,7 +9,7 @@ import { vedicCities } from "../../myfate-cities";
 import { buildDualChart } from "../../myfate-dual-engine";
 import DualHistoryRow from "./dual-history-row";
 import StartReadingForm, { BirthInfoFields, buildBirthSubject, emptyBirthState, type BirthFieldErrors, type BirthState, type StartSubject } from "./start-reading-form";
-import { writeConfirmPayload } from "./confirm-storage";
+import { precheckCredits, writeConfirmPayload } from "./confirm-storage";
 
 // 解读页枢纽:两张入口卡(单人解读/双人合盘,点击弹窗填写信息) + 自填生成记录。
 // pending = 进了排盘页但没点「开始解读」就退出,点记录行可回去续走。
@@ -116,6 +116,8 @@ export default function ReadingHub() {
   const [personErrors, setPersonErrors] = useState<{ a: PersonErrors; b: PersonErrors }>({ a: {}, b: {} });
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
+  // 额度预检中:提交按钮转「正在排盘/合盘…」,防止预检期间重复提交
+  const [starting, setStarting] = useState(false);
   // 跳转确认页的瞬间以整屏骨架接管,不等新页 RSC 加载完成才切换
   const pendingDialog = useRef<null | "single" | "dual">(null);
 
@@ -171,12 +173,15 @@ export default function ReadingHub() {
   const recordsLoading = authStatus === "loading" || (loggedIn && !readingsLoaded);
 
   // 待生成/失败记录直跳排盘页:数据就在行内,免去 /home/reading/[id] 的服务端往返与 loading 闪帧
-  const resumeRow = useCallback((row: ReadingRow) => {
+  const resumeRow = useCallback(async (row: ReadingRow) => {
+    if (starting) return;
+    setStarting(true);
+    const credits = await precheckCredits();
     writeConfirmPayload(row.status === "failed"
-      ? { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, retry: true }
-      : { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, reportId: row.id });
+      ? { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, retry: true, credits }
+      : { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, reportId: row.id, credits });
     router.push("/home/dual-star-match/confirm");
-  }, [router]);
+  }, [router, starting]);
 
   const records = useMemo(() => {
     type Item = { key: string; ts: number; node: React.ReactNode };
@@ -264,8 +269,11 @@ export default function ReadingHub() {
   }
 
   // 单人:与双人同款两段式,先跳确认页展示单人资料卡(待生成记录与登录创建都在确认页)
-  function submitSingle(subject: StartSubject) {
-    writeConfirmPayload({ mode: "single", subjectA: subject });
+  async function submitSingle(subject: StartSubject) {
+    if (starting) return;
+    setStarting(true);
+    const credits = await precheckCredits();
+    writeConfirmPayload({ mode: "single", subjectA: subject, credits });
     router.push("/home/dual-star-match/confirm");
   }
 
@@ -331,7 +339,10 @@ export default function ReadingHub() {
     }
     setPersonErrors({ a: {}, b: {} });
     // 两段式:先跳确认页展示双方八字资料卡(待生成记录与登录创建都在确认页的「开始分析」)
-    writeConfirmPayload({ mode: "dual", subjectA: a.subject, subjectB: b.subject });
+    if (starting) return;
+    setStarting(true);
+    const credits = await precheckCredits();
+    writeConfirmPayload({ mode: "dual", subjectA: a.subject, subjectB: b.subject, credits });
     router.push("/home/dual-star-match/confirm");
   }
 
@@ -398,7 +409,7 @@ export default function ReadingHub() {
                   <DualPersonCard label="本人" records={personRecords} status={recordsStatus} source={sourceA} setSource={(next) => { setSourceA(next); setLastGenderSide("a"); }} pick={pickA} setPick={(next) => { setPickA(next); setLastGenderSide("a"); }} draft={manualA} visited={visitA} onEdit={() => { setVisitA(true); setPersonEditing("a"); }} errors={showGenderHint && lastGenderSide === "a" ? { ...personErrors.a, card: "双方性别相同，请选择其他性别" } : personErrors.a} onRetry={loadRecords} />
                   <DualPersonCard label="对方" records={personRecords} status={recordsStatus} source={sourceB} setSource={(next) => { setSourceB(next); setLastGenderSide("b"); }} pick={pickB} setPick={(next) => { setPickB(next); setLastGenderSide("b"); }} draft={manualB} visited={visitB} onEdit={() => { setVisitB(true); setPersonEditing("b"); }} errors={showGenderHint && lastGenderSide === "b" ? { ...personErrors.b, card: "双方性别相同，请选择其他性别" } : personErrors.b} onRetry={loadRecords} />
                   {error ? <p className="mf-reading-dialog-error" role="alert">{error}</p> : null}
-                  <button className="mf-login-submit mf-start-submit" type="button" onClick={() => void start()}>开始合盘</button>
+                  <button className="mf-login-submit mf-start-submit" type="button" disabled={starting} onClick={() => void start()}>{starting ? "正在合盘…" : "开始合盘"}</button>
                 </>
               )
             ) : (
@@ -407,7 +418,7 @@ export default function ReadingHub() {
                   <h1>开始解读</h1>
                   <button type="button" className="mf-reading-close" aria-label="关闭" onClick={() => setDialog(null)}>×</button>
                 </div>
-                <StartReadingForm creating={false} apiError={error} onSubmit={submitSingle} />
+                <StartReadingForm creating={starting} apiError={error} onSubmit={submitSingle} />
               </>
             )}
           </section>
