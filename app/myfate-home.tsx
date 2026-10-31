@@ -120,6 +120,10 @@ export default async function MyfateHome() {
       <footer className="mf-footer">
         <Link className="mf-brand" href="/"><span>MeVerse</span></Link>
         <p>以全新视角，探索性格、正缘与人生节律。</p>
+        <p>
+          联系我们：
+          <a className="mf-footer-mail" href="mailto:support@meverse.cc">support@meverse.cc</a>
+        </p>
       </footer>
     </div>
   );
