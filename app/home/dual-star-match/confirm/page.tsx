@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import ReportTopbar from "../../../report-topbar";
 import DualProfileCards, { type DualProfilePerson } from "../dual-profile-cards";
 import LoginModal from "../../../components/login-modal";
-import RouteSkeleton from "../../../route-skeleton";
 import PurchasePanel from "../../../components/purchase-panel";
 import { readLocalSession } from "../../../local-auth";
 import { vedicCities } from "../../../myfate-cities";
@@ -19,8 +18,11 @@ import { CONFIRM_STORAGE_KEY, readConfirmPayload, type ConfirmPayload, type Conf
 // 点「开始解读/开始分析」把该记录推进为 generating 并后台生成(reading_reports 体系)。
 export default function ReadingConfirmPage() {
   const router = useRouter();
-  const [payload, setPayload] = useState<ConfirmPayload | null>(null);
-  const [ready, setReady] = useState(false);
+  // 入口跳转前已将资料写入 sessionStorage；在客户端首帧直接读取，避免确认页先空白再补内容。
+  const [payload, setPayload] = useState<ConfirmPayload | null>(() => (
+    typeof window === "undefined" ? null : readConfirmPayload()
+  ));
+  const [ready, setReady] = useState(() => typeof window !== "undefined");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
@@ -109,9 +111,6 @@ export default function ReadingConfirmPage() {
   const single = payload?.mode === "single";
   // 已知余额不足:按钮变「查看套餐 · 立即解锁」,点击直达购买面板而非 begin
   const needBuy = creditsState === "known" && credits !== null && credits < 1;
-  // 余额未知:占位骨架,防止先闪「开始分析」再换板块
-  const creditsLoading = creditsState === "loading";
-
   async function begin() {
     if (creating || !payload) return;
     if (!readLocalSession()) {
@@ -158,13 +157,8 @@ export default function ReadingConfirmPage() {
 
   // 资料卡与按钮区一起渲染:余额未定(loading)时整页等待,杜绝"先出八字再补按钮"的两拍感;
   // 等待期间以整屏报告骨架提示加载,不让用户面对白屏
-  if (!ready || creditsLoading) {
-    return (
-      <>
-        <RouteSkeleton active />
-        <div className="mf-zr" aria-hidden="true" />
-      </>
-    );
+  if (!ready) {
+    return null;
   }
 
   if (!payload || !people) {

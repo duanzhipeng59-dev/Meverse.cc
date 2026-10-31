@@ -33,7 +33,7 @@ export default function PreviewActions({ starId }: { starId: string }) {
 
   return (
     <div className="mf-preview-actions">
-      <RouteSkeleton active={entering} />
+      <RouteSkeleton active={entering} variant="star-report" />
       <Button variant="primary" onClick={openReport}>查看完整画像</Button>
       <LoginModal
         open={pending}

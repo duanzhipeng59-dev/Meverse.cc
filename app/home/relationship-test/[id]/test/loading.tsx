@@ -1,5 +1,5 @@
-import SkelReport from "../skel-report";
+import { StarReportSkeleton } from "../../../skeletons";
 
 export default function Loading() {
-  return <SkelReport />;
+  return <StarReportSkeleton />;
 }

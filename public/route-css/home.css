@@ -3371,13 +3371,62 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-report-route-skeleton .mf-workspace-skeleton { padding: 0; }
 
 .mf-star-route-skeleton { min-height: 100vh; }
-.mf-star-route-skeleton .mf-skeleton-hero { min-height: 180px; }
+
+/* 深层页面骨架按最终报告的 660px 阅读栏排版，避免通用骨架在工作台主区被横向放大。 */
+.mf-report-page-skeleton {
+  width: min(660px, calc(100% - 48px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 0 70px;
+}
+
+.mf-report-skeleton-topbar {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 14px;
+  min-height: 92px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--bz-line);
+}
+
+.mf-report-skeleton-topbar > div:nth-child(2) { display: grid; gap: 8px; }
+.mf-report-skeleton-topbar .mf-skel-backarrow { width: 19px; height: 19px; border-radius: 50%; }
+.mf-report-skeleton-share { width: 32px; height: 32px; border-radius: 50%; }
+
+.mf-report-skeleton-card {
+  display: grid;
+  gap: 14px;
+  margin: 24px 22px 0;
+  padding: 22px;
+  border: 1px solid var(--bz-line);
+  border-radius: 20px;
+  background: var(--bz-card);
+}
+
+.mf-report-skeleton-card.is-pillars { min-height: 188px; }
+.mf-report-skeleton-card.is-chart { min-height: 250px; }
+.mf-report-skeleton-card.is-section { min-height: 176px; align-content: start; }
+
+.mf-report-skeleton-pillars {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.mf-report-skeleton-pillars .mf-skeleton { min-height: 96px; border-radius: 14px; }
+.mf-report-skeleton-chart { min-height: 138px; border-radius: 14px; }
 
 @media (max-width: 800px) {
   .mf-report-route-skeleton {
     width: calc(100% - 32px);
     padding: 20px 0 66px;
   }
+
+  .mf-report-page-skeleton { width: 100%; padding-bottom: 66px; }
+  .mf-report-skeleton-topbar { min-height: 74px; padding: 12px 20px; }
+  .mf-report-skeleton-card { margin: 18px 16px 0; padding: 18px; border-radius: 18px; }
 }
 
 @media (max-width: 640px) {
@@ -3485,7 +3534,11 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-login-modal-card { border-radius: 12px; }
 
 /* 即时路由骨架:点击跳转瞬间整屏接管,新页就绪后随旧路由卸载 */
-.mf-route-skeleton { position: fixed; inset: 0; z-index: 80; overflow-y: auto; background: var(--bz-paper); }
+.mf-route-skeleton { position: fixed; inset: 0 0 0 272px; z-index: 80; overflow-y: auto; background: var(--bz-paper); }
+
+@media (max-width: 800px) {
+  .mf-route-skeleton { inset: 0; }
+}
 
 /* 排盘确认页主按钮(开始解读/开始分析):与解读弹窗「开始排盘」同款紫粉渐变,白字 */
 .mf-dual-confirm .mf-dual-generate {

@@ -10,7 +10,6 @@ import { buildDualChart } from "../../myfate-dual-engine";
 import DualHistoryRow from "./dual-history-row";
 import StartReadingForm, { BirthInfoFields, buildBirthSubject, emptyBirthState, type BirthFieldErrors, type BirthState, type StartSubject } from "./start-reading-form";
 import { writeConfirmPayload } from "./confirm-storage";
-import RouteSkeleton from "../../route-skeleton";
 
 // 解读页枢纽:两张入口卡(单人解读/双人合盘,点击弹窗填写信息) + 自填生成记录。
 // pending = 进了排盘页但没点「开始解读」就退出,点记录行可回去续走。
@@ -118,7 +117,6 @@ export default function ReadingHub() {
   const [error, setError] = useState("");
   const [loginOpen, setLoginOpen] = useState(false);
   // 跳转确认页的瞬间以整屏骨架接管,不等新页 RSC 加载完成才切换
-  const [entering, setEntering] = useState(false);
   const pendingDialog = useRef<null | "single" | "dual">(null);
 
   // 弹窗打开期间锁定背景滚动;Esc 分层退出(编辑页先返回,再关弹窗;登录弹窗让给它处理)
@@ -177,7 +175,6 @@ export default function ReadingHub() {
     writeConfirmPayload(row.status === "failed"
       ? { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, retry: true }
       : { mode: row.mode, subjectA: row.subjectA, subjectB: row.subjectB ?? undefined, reportId: row.id });
-    setEntering(true);
     router.push("/home/dual-star-match/confirm");
   }, [router]);
 
@@ -269,7 +266,6 @@ export default function ReadingHub() {
   // 单人:与双人同款两段式,先跳确认页展示单人资料卡(待生成记录与登录创建都在确认页)
   function submitSingle(subject: StartSubject) {
     writeConfirmPayload({ mode: "single", subjectA: subject });
-    setEntering(true);
     router.push("/home/dual-star-match/confirm");
   }
 
@@ -336,13 +332,11 @@ export default function ReadingHub() {
     setPersonErrors({ a: {}, b: {} });
     // 两段式:先跳确认页展示双方八字资料卡(待生成记录与登录创建都在确认页的「开始分析」)
     writeConfirmPayload({ mode: "dual", subjectA: a.subject, subjectB: b.subject });
-    setEntering(true);
     router.push("/home/dual-star-match/confirm");
   }
 
   return (
     <>
-      <RouteSkeleton active={entering} />
       {paidNotice ? <div className="mf-reading-paid-banner" role="status">✓ 支付成功，次数已到账</div> : null}
       <div className="mf-reading-cards">
         <button type="button" className="mf-reading-card is-single" onClick={() => openOrLogin("single")}>
