@@ -10,6 +10,7 @@ import { useAuth } from "../auth-context";
 import { EMAIL_CODE_LENGTH } from "../auth-code-config";
 import { ensureLocalUser, normalizeEmail } from "../local-auth";
 import { readBasicProfile, writeBasicProfile } from "../myfate-progressive-profile";
+import { gaEvent } from "../ga";
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_email: "请输入有效的邮箱地址",
@@ -161,6 +162,8 @@ export default function LoginModal({ className, children, open: openProp, onOpen
         writeBasicProfile(user.email, guestProfile);
       }
       markAuthenticated(user.email);
+      // GA4 漏斗:新邮箱记 sign_up、老用户记 login(ensureLocalUser 的 created 标记是否首建)
+      gaEvent(user.created ? "sign_up" : "login", { method: "email" });
       clearSentCodeState();
       setOpen(false);
       onAuthenticated?.();

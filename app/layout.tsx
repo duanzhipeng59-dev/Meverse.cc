@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { SITE_URL } from "./site-url";
 
@@ -31,6 +32,10 @@ export const metadata: Metadata = {
 
 // 根布局保持纯服务端:认证/语言 Provider 只挂到真正需要的子布局,
 // 公开首页因此不再请求 /api/auth/session,也不加载 i18n 翻译数据。
+// GA4 只在配置了 NEXT_PUBLIC_GA_ID 时加载(本地不配即静默);增强型衡量自动追踪
+// SPA 路由切换的 page_view,业务事件见 app/ga.ts 与 app/ga-measurement.ts。
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,10 +45,23 @@ export default function RootLayout({
     <html lang="zh-CN">
       <head>
         <link rel="icon" href="/favicon.png?v=9" type="image/png" sizes="64x64" />
-        <link rel="shortcut icon" href="/favicon.png?v=9" type="image/png" sizes="64x64" />
+        <link rel="shortcut icon" href="/favicon-180.png?v=9" type="image/png" sizes="64x64" />
         <link rel="apple-touch-icon" href="/favicon-180.png?v=9" sizes="180x180" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {GA_ID ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_ID}');`}
+            </Script>
+          </>
+        ) : null}
+      </body>
     </html>
   );
 }

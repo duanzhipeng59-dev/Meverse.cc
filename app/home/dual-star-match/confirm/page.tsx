@@ -9,6 +9,7 @@ import LoginModal from "../../../components/login-modal";
 import { SkeletonBlock } from "../../skeletons";
 import PurchasePanel from "../../../components/purchase-panel";
 import { readLocalSession } from "../../../local-auth";
+import { gaEvent } from "../../../ga";
 import { vedicCities } from "../../../myfate-cities";
 import { buildDualChart } from "../../../myfate-dual-engine";
 import { CONFIRM_STORAGE_KEY, readConfirmPayload, type ConfirmPayload, type ConfirmSubject } from "../confirm-storage";
@@ -151,6 +152,8 @@ export default function ReadingConfirmPage() {
         return;
       }
       sessionStorage.removeItem(CONFIRM_STORAGE_KEY);
+      // GA4 漏斗:生成请求已受理(真正交付在后台,purchase 由服务端支付回调上报)
+      gaEvent("generate_report", { method: payload.mode, is_retry: Boolean(payload.retry) });
       router.push(`/home/reading/${data.reportId}`);
     } catch {
       setError("网络异常，请重试。");

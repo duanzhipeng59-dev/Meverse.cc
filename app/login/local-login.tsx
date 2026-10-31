@@ -7,6 +7,7 @@ import { useAuth } from "../auth-context";
 import { EMAIL_CODE_LENGTH } from "../auth-code-config";
 import { ensureLocalUser, normalizeEmail } from "../local-auth";
 import { readBasicProfile, writeBasicProfile } from "../myfate-progressive-profile";
+import { gaEvent } from "../ga";
 import { clearSentCodeState, getSentCodeState, markCodeSent } from "../components/login-code-store";
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
@@ -170,6 +171,8 @@ export default function LocalLogin() {
         writeBasicProfile(user.email, guestProfile);
       }
       markAuthenticated(user.email);
+      // GA4 漏斗:与工作台登录弹窗同款,新邮箱记 sign_up、老用户记 login
+      gaEvent(user.created ? "sign_up" : "login", { method: "email" });
       clearSentCodeState();
       router.replace(destination());
     } catch {

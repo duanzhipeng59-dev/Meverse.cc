@@ -4,6 +4,7 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import { createSupabaseAdminClient } from "../../auth/server";
+import { gaTrackPurchase } from "../../../ga-measurement";
 
 export type BillingMode = "monthly" | "annual";
 export type MonthlyDuration = 1 | 3 | 6 | 12;
@@ -222,6 +223,15 @@ export async function fulfillOrder(
     p_provider_payload: providerPayload,
   });
   if (error) throw error;
+  // GA4 purchase:仅在 pending→fulfilled 的首次履约上报(重复回调/轮询到达时已非 pending),上报失败不影响履约
+  if (order.status === "pending" && order.user_id) {
+    await gaTrackPurchase({
+      userId: order.user_id,
+      transactionId: `sub:${order.out_trade_no}`,
+      value: Number(order.amount),
+      itemName: order.product_name,
+    });
+  }
 }
 
 export async function acceptProviderPayment(

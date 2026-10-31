@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient } from "../../../auth/server";
+import { gaTrackPurchase } from "../../../../ga-measurement";
 import {
   createAccessToken,
   createOrderNumber,
@@ -107,6 +108,15 @@ async function fulfillCreditOrder(order: ReportCreditOrder, providerTradeNo: str
     p_provider_payload: providerPayload,
   });
   if (error) throw error;
+  // GA4 purchase:仅在 pending→paid 首次履约上报(重复回调到达时已非 pending),上报失败不影响履约
+  if (order.status === "pending" && order.user_id) {
+    await gaTrackPurchase({
+      userId: order.user_id,
+      transactionId: `credit:${order.out_trade_no}`,
+      value: Number(order.amount),
+      itemName: order.package_id,
+    });
+  }
 }
 
 export async function acceptCreditPayment(payload: Record<string, string>) {
