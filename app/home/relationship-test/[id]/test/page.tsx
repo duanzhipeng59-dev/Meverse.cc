@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import ReportTopbar from "../../../../report-topbar";
 import { extractFortuneData } from "../../../../star-fortune-extract";
 import PillarsCard from "../../../../pillars-card";
@@ -10,6 +11,21 @@ import { ReadingProgress } from "../../../../components/reading-tools";
 import { buildBaziChart } from "../../../../myfate-bazi-engine";
 
 export const dynamic = "force-dynamic";
+
+// 报告页标题:按明星档案生成,不再落回布局默认的「生辰画像」;
+// 与预览页同款命名(中文名+英文艺名),尾缀「报告」区分阅读态
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const star = await getPublishedStar(id);
+  if (!star) return {};
+  const dash = star.role.indexOf("-");
+  const personName = dash > 0 ? star.role.slice(dash + 1).trim() : star.name;
+  return {
+    title: `${personName}${star.nameEn ? `（${star.nameEn}）` : ""}的生辰画像报告`,
+    description: `${star.name}的八字命盘深度解读：人生画像、格局、学业事业、财富感情与大运流年。`,
+    robots: { index: false, follow: false },
+  };
+}
 
 
 // 报告内容以 consult_overrides 手动上传为准(single-full-v3 统一口径);
