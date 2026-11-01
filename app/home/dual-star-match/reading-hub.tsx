@@ -98,6 +98,16 @@ export default function ReadingHub() {
   const [readingsLoaded, setReadingsLoaded] = useState(false);
   // 支付回跳提示:带 ?paid= 进入(收银台 return 路由跳来)时显示成功横幅,6 秒后自动消失并清掉参数
   const [paidNotice, setPaidNotice] = useState(false);
+  // 预选合盘:明星预览页「加入合盘」写入 sessionStorage,挂载时一次性读取并清除
+  // (key 与 preview-actions.tsx 的 PENDING_DUAL_KEY 一致;直接用字面量避免跨目录耦合)
+  const [pendingDual, setPendingDual] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const key = sessionStorage.getItem("myfate-pending-dual");
+      if (key) setPendingDual(key);
+      sessionStorage.removeItem("myfate-pending-dual");
+    } catch { /* 隐私模式忽略 */ }
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -246,6 +256,22 @@ export default function ReadingHub() {
     }
     return items.sort((a, b) => b.ts - a.ts).map((item) => item.node);
   }, [readings, resumeRow, t]);
+
+  // 预选合盘消费:登录且记录加载完成后自动开双人弹窗,对方侧选中该明星。
+  // openDialog 内部会重置 B 侧默认值,预选在其后覆盖(React 批处理后者生效);
+  // 记录里找不到该明星(缺出生时间)则只开弹窗不预选。同性别提示挂到本人侧。
+  useEffect(() => {
+    if (!pendingDual || dialog || !loggedIn || recordsStatus !== "ready") return;
+    setPendingDual(null);
+    openDialog("dual");
+    const match = personRecords.find((item) => item.key === pendingDual);
+    if (match) {
+      setSourceB("record");
+      setPickB(match.key);
+      setLastGenderSide("a");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- openDialog 是组件内函数,依赖已由状态变量覆盖
+  }, [pendingDual, dialog, loggedIn, recordsStatus, personRecords]);
 
   // 未登录点击入口:弹登录,成功后自动进入对应填写弹窗
   function openOrLogin(mode: "single" | "dual") {

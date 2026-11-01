@@ -2624,10 +2624,10 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-explore-ctrl { display: flex; align-items: center; gap: 14px; min-height: 38px; padding: 4px calc(50vw - 50%); position: sticky; top: calc(53px + env(safe-area-inset-top)); z-index: 15; margin: -1px calc(50% - 50vw) 0; background: rgb(15 11 14 / 70%); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-sizing: border-box; }
 @media (min-width: 801px) { .mf-explore-ctrl { top: 0; } }
 .mf-explore-tabs { flex: 1; min-width: 0; display: flex; align-items: center; gap: 18px; }
-.mf-explore-tabs button { position: relative; display: inline-flex; align-items: center; height: 36px; padding: 0 1px; border: 0; background: none; color: var(--bz-muted); font-size: 11px; font-weight: 600; letter-spacing: .02em; cursor: pointer; transition: color .18s ease; }
+.mf-explore-tabs button { position: relative; display: inline-flex; align-items: center; height: 40px; padding: 0 1px; border: 0; background: none; color: var(--bz-muted); font-size: 15px; font-weight: 600; letter-spacing: .02em; cursor: pointer; transition: color .18s ease; }
 .mf-explore-tabs button.is-active { color: var(--bz-ink); }
 .mf-explore-tabs button.is-active::after { content: ""; position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); width: 14px; height: 2px; border-radius: 2px; background: var(--bz-ink); }
-.mf-explore-searchbtn { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border: 0; background: none; color: var(--bz-muted); cursor: pointer; }
+.mf-explore-searchbtn { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; background: none; color: var(--bz-muted); cursor: pointer; }
 .mf-explore-searchbtn svg { width: 17px; height: 17px; }
 .mf-explore-searchbox { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 4px; animation: mf-searchin .25s ease; }
 .mf-explore-searchbox input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--bz-ink); caret-color: var(--bz-red-bright); font-size: 13.5px; }
@@ -2636,7 +2636,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-explore-cancel { flex: none; border: 0; background: none; padding: 4px 0; color: var(--bz-muted); font-size: 13.5px; font-weight: 600; cursor: pointer; }
 .mf-ui-filterbar { position: relative; }
 .mf-ui-filterbar::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 26px; background: linear-gradient(90deg, transparent, var(--bz-paper)); pointer-events: none; }
-.mf-explore-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 22px 0 0; animation: mf-explorefade .22s ease; }
+.mf-explore-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 20px 0 0; animation: mf-explorefade .22s ease; }
 @media (max-width: 800px) { .mf-explore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
 @media (min-width: 641px) and (max-width: 800px) { .mf-explore-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .mf-explore-grid { margin-top: 18px; } }
@@ -2658,6 +2658,12 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 /* ── 人物预览页 ── */
 .mf-preview { display: grid; gap: 20px; max-width: 720px; margin: 14px auto 0; }
 .mf-preview-hero { display: flex; gap: 20px; align-items: center; }
+/* 「加入合盘」入口:标签行内的右端超链,与「资料完整」标签水平对齐(替代原大按钮);
+   head-copy 拉伸填满 hero,链接经 margin-left:auto 贴齐容器右边界 */
+.mf-preview-head-copy { flex: 1 1 auto; min-width: 0; }
+.mf-preview-actions.is-hero-link { display: flex; align-items: center; margin-left: auto; padding-left: 6px; }
+.mf-preview-join-link { position: relative; top: 2px; color: var(--bz-faint); font-size: 10px; font-weight: 650; letter-spacing: .02em; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgb(131 122 143 / 55%); transition: color .18s ease; }
+.mf-preview-join-link:hover { color: var(--bz-ink); text-decoration-color: currentColor; }
 .mf-preview-hero img { width: 132px; height: 172px; flex-shrink: 0; object-fit: cover; object-position: var(--portrait-position, center); border-radius: 12px; border: 1px solid var(--bz-line); }
 .mf-preview-head-copy h1 { margin: 0; color: var(--bz-ink); font: 700 clamp(22px, 3vw, 28px)/1.25 var(--font-serif-display); }
 /* 超过 8 字会折成两行的长名字:手机端降到 16px,两行更收敛 */
@@ -2674,6 +2680,15 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-preview-section blockquote { margin: 0 0 10px; padding: 12px 16px; border-left: 2px solid var(--bz-red); border-radius: 0 12px 12px 0; background: var(--bz-card); }
 .mf-preview-section blockquote b { display: block; margin-bottom: 4px; color: var(--bz-red-bright); font-size: 12px; }
 .mf-preview-section blockquote p { margin: 0; color: var(--bz-muted); font-size: 13px; line-height: 1.7; }
+/* 带全文的摘要块可点击弹整章;hover 描边提示 */
+.mf-preview-section blockquote.is-clickable { cursor: pointer; transition: border-color .18s ease, background-color .18s ease; }
+.mf-preview-section blockquote.is-clickable:hover, .mf-preview-section blockquote.is-clickable:focus-visible { border-left-color: var(--bz-red-bright); background: var(--bz-card-raised); outline: none; }
+/* 摘要章节全文弹窗:无标题/关闭钮/外层卡片——遮罩上直接浮内容块;
+   宽度响应式:手机 85%(半宽太挤),≥640px 桌面 50%;超高滚动;position/z-index 必须有,否则被 blur 遮罩盖住 */
+.mf-preview-digest-modal { position: relative; z-index: 1; display: grid; gap: 12px; align-content: start; width: 85%; max-height: calc(100dvh - 296px); overflow-y: auto; padding: 2px; }
+/* 弹窗内 insight 卡底色与摘要块(blockquote)统一为 --bz-card,不用全局 sr 的暖纸色 */
+.mf-preview-digest-modal .mf-sr-insight { background: var(--bz-card); }
+@media (min-width: 640px) { .mf-preview-digest-modal { width: 50%; } }
 .mf-preview-chapters { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .mf-preview-chapters li { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid var(--bz-line); border-radius: 12px; color: var(--bz-ink); font-size: 13px; font-weight: 600; }
 .mf-preview-chapters li i { font-style: normal; color: var(--bz-red-bright); }
@@ -2900,6 +2915,8 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 
 /* ── 解读页:入口卡 + 填写弹窗 + 生成记录 ─────────────────────────── */
 .mf-reading-head { padding: 6px 2px 18px; border-bottom: 1px solid var(--bz-line); }
+/* 解读页内容整体上移 6px(离顶栏更近) */
+.mf-reading-page { margin-top: -6px; }
 
 @media (min-width: 801px) {
   /* 解读入口页与发现页保持相同的顶部节奏，减少工作区首屏空白。 */
@@ -3137,14 +3154,14 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 /* 工作台导航品牌：使用原始 MeVerse 图并在容器内裁掉大面积黑色留白。 */
 .mf-meverse-logo {
   display: block;
-  width: 76px;
+  width: 80px;
   aspect-ratio: 4.85 / 1;
   flex: none;
   background: url("/meverse-logo.png") center / 148% 286% no-repeat;
   mix-blend-mode: screen;
 }
 
-.mf-workspace-sidebar .mf-meverse-logo { width: 92px; }
+.mf-workspace-sidebar .mf-meverse-logo { width: 97px; }
 
 /* ── MeVerse 品牌色统一：工作台 / 发现 / 详情 / 测试 / 报告 ───────── */
 .mf-workspace-sidebar {
@@ -3370,7 +3387,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 }
 
 @media (max-width: 800px) {
-  .mf-workspace-mobile-bar .mf-meverse-logo { width: 65px; }
+  .mf-workspace-mobile-bar .mf-meverse-logo { width: 69px; }
 }
 
 
@@ -3595,7 +3612,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-me-upgrade-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 64px; box-sizing: border-box; margin-top: 28px; padding: 13px 15px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease; }
 .mf-me-upgrade-bar:hover { border-color: rgb(195 160 244 / 62%); }
 .mf-me-upgrade-bar-copy { display: grid; gap: 2px; }
-.mf-me-upgrade-bar-copy b { color: var(--bz-ink); font-size: 12.5px; font-weight: 700; }
+.mf-me-upgrade-bar-copy b { color: var(--bz-ink); font-size: 15px; font-weight: 700; }
 .mf-me-upgrade-bar-copy small { color: var(--bz-faint); font-size: 9.5px; }
 .mf-me-upgrade-bar-arrow { color: var(--bz-red-bright); font-size: 16px; line-height: 1; }
 
@@ -3738,7 +3755,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 /* 我的页:额度卡 + 订阅升级入口 共用一个矩形底板 */
 .mf-me-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: var(--bz-card); }
 /* 标题做进面板内:间距交给网格 gap,不吃外层 h2 的 12px 下边距;字号 12.5 */
-.mf-me-panel h2 { margin: 0; font-size: 12.5px; }
+.mf-me-panel h2 { margin: 0; font-size: 15px; }
 .mf-me-panel .mf-me-upgrade-bar { margin-top: 0; width: 100%; box-sizing: border-box; }
 
 /* 额度卡与订阅升级横条等高(64px),内部元素同比缩小(×0.83) */

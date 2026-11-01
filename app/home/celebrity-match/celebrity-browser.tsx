@@ -6,8 +6,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type { StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
 import { Tag, EmptyState, SkeletonList } from "../../components/ui";
-import { wuxingTagStyle } from "../../wuxing-tag";
 import { useLanguage } from "../../language-context";
+import { wuxingTagStyle } from "../../wuxing-tag";
 
 const PAGE_SIZE = 12;
 // 返回列表后恢复搜索词/排序/已加载页数/滚动位置(未登录本地存储;登录同步属后续批次)

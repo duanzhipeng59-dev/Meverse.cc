@@ -81,11 +81,20 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   const complete = Boolean(star.birthDate && birth?.birthTime);
   // 三条报告摘要:统一九章结构取前章 title+summary,缺省回退档案描述
   const staticReport = consult ? parseStaticReadingContent(consult) : null;
-  // 摘要三条:简体原文交给 TradDigest 客户端按语言转换(含「人物简介」兜底标题)
-  const digest: Array<{ title: string; text: string }> = staticReport
-    ? Object.values(staticReport.sections).slice(0, 3).map((section) => ({ title: section.title, text: (section.summary ?? section.insights[0]?.content ?? "").slice(0, 90) }))
+  // 摘要三条:章节 key + 截断摘要 + 该章完整内容(弹窗用);无报告时只有人物简介(不可点弹窗)
+  const digest: Array<{ key: string; title: string; text: string; section?: { title: string; summary?: string; insights: Array<{ label: string; content: string }> } }> = staticReport
+    ? Object.entries(staticReport.sections).slice(0, 3).map(([key, section]) => ({
+        key,
+        title: section.title,
+        text: (section.summary ?? section.insights[0]?.content ?? "").slice(0, 90),
+        section: {
+          title: section.title,
+          summary: section.summary,
+          insights: section.insights.map((item) => ({ label: item.label, content: item.content })),
+        },
+      }))
     : [
-        { title: "人物简介", text: star.description.slice(0, 90) },
+        { key: "profile", title: "人物简介", text: star.description.slice(0, 90) },
       ];
   // 章节标签存 i18n key(简繁切换),图标不变
   const chapters = consult
@@ -137,17 +146,17 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
           {star.nameEn ? <p className="mf-preview-en">{star.nameEn}</p> : null}
           <p className="mf-preview-group"><TradText text={groupOf(star.role)} /></p>
           <p className="mf-preview-birth"><TradText text={`出生 · ${star.birthDate.replaceAll("-", ".")}${birth?.birthPlace ? ` · ${birth.birthPlace}` : ""}`} /></p>
-          {/* 标签固定两枚:资料完整度 + 日主(底色取五行色);人物画像类 traits 标签不展示 */}
+          {/* 标签固定两枚:资料完整度 + 日主(底色取五行色);人物画像类 traits 标签不展示。
+              「加入合盘」超链同行居右,与标签水平对齐 */}
           <div className="mf-preview-tags">
             <Tag tone={complete ? "good" : "warn"}>{complete ? <Trans k="discover.tag.complete" /> : <Trans k="discover.tag.incomplete" />}</Tag>
             {dayMasterOf(star.threePillars) ? (
               <span className="mf-ui-tag is-default" style={wuxingTagStyle(dayMasterOf(star.threePillars))}>{dayMasterOf(star.threePillars)}</span>
             ) : null}
+            <PreviewActions starId={id} starKey={`star:${id}`} />
           </div>
         </div>
       </header>
-
-      <PreviewActions starId={id} />
 
       {digest.length ? (
         <section className="mf-preview-section" aria-label="报告摘要">

@@ -265,6 +265,7 @@ const zh: TranslationDict = {
 
   /* ── 明星预览页(relationship-test/[id]) ── */
   "preview.viewFull": "查看完整画像",
+  "preview.joinDual": "加入合盘",
   "preview.digest": "报告摘要",
   "preview.preparing": "完整报告正在准备中,可先浏览人物简介。",
   "preview.chapters": "完整报告章节",
@@ -561,6 +562,7 @@ const zhTW: TranslationDict = {
 
   /* ── 明星預覽頁(relationship-test/[id]) ── */
   "preview.viewFull": "查看完整畫像",
+  "preview.joinDual": "加入合盤",
   "preview.digest": "報告摘要",
   "preview.preparing": "完整報告正在準備中,可先瀏覽人物簡介。",
   "preview.chapters": "完整報告章節",
