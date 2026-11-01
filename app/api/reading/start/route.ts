@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSessionUser } from "../../auth/server";
 import { consumeReadingCredit, getReadingReport, startReadingReport } from "../../../myfate-reading-server";
 import { runReadingGeneration } from "../../../myfate-reading-generator";
+import { runReadingGenerationTrad } from "../../../myfate-reading-trad";
 
 // 单次直出模版化报告实测 ~65s,含最多 3 次结构重试也在 300s 内(套餐函数上限 300s,600 会被拒)
 export const maxDuration = 300;
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   const { user } = await getSessionUser(request);
   if (!user) return Response.json({ error: "LOGIN_REQUIRED" }, { status: 401 });
 
-  const parsed = z.object({ reportId: z.string().min(1) }).safeParse(await request.json().catch(() => null));
+  const parsed = z.object({ reportId: z.string().min(1), lang: z.enum(["zh", "zh-TW"]).optional() }).safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "INVALID_REPORT" }, { status: 400 });
 
   const report = await getReadingReport(parsed.data.reportId);
@@ -34,7 +35,8 @@ export async function POST(request: Request) {
       }
       await startReadingReport(report.id);
       after(async () => {
-        await runReadingGeneration(report.id);
+        // lang 分流:繁体走独立链路,简体走原链路
+        await (parsed.data.lang === "zh-TW" ? runReadingGenerationTrad(report.id) : runReadingGeneration(report.id));
       });
     }
     return Response.json({ reportId: report.id });

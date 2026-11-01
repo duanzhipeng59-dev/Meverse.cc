@@ -4,6 +4,7 @@ import { getSessionUser } from "../../auth/server";
 import { vedicCities } from "../../../myfate-cities";
 import { consumeReadingCredit, createReadingReport, deleteReadingReport } from "../../../myfate-reading-server";
 import { runReadingGeneration } from "../../../myfate-reading-generator";
+import { runReadingGenerationTrad } from "../../../myfate-reading-trad";
 
 // 单次直出模版化报告实测 ~65s,含最多 3 次结构重试也在 300s 内(套餐函数上限 300s,600 会被拒)
 export const maxDuration = 300;
@@ -18,8 +19,8 @@ const subjectSchema = z.object({
   cityName: z.string().min(1).max(40),
 });
 const requestSchema = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("single"), pending: z.boolean().optional(), subjectA: subjectSchema }),
-  z.object({ mode: z.literal("dual"), dualType: z.enum(["love", "career"]).default("love"), pending: z.boolean().optional(), subjectA: subjectSchema, subjectB: subjectSchema }),
+  z.object({ mode: z.literal("single"), pending: z.boolean().optional(), lang: z.enum(["zh", "zh-TW"]).optional(), subjectA: subjectSchema }),
+  z.object({ mode: z.literal("dual"), dualType: z.enum(["love", "career"]).default("love"), pending: z.boolean().optional(), lang: z.enum(["zh", "zh-TW"]).optional(), subjectA: subjectSchema, subjectB: subjectSchema }),
 ]).superRefine((value, ctx) => {
   // 合盘约束:双方必须一男一女,与解读页表单同一条规则(服务端兜底)。
   if (value.mode === "dual" && value.subjectA.gender === value.subjectB.gender) {
@@ -61,7 +62,8 @@ export async function POST(request: Request) {
         throw creditError;
       }
       after(async () => {
-        await runReadingGeneration(reportId);
+        // lang 分流:繁体走独立链路,简体走原链路(两条链路互不嵌语言逻辑)
+        await (parsed.data.lang === "zh-TW" ? runReadingGenerationTrad(reportId) : runReadingGeneration(reportId));
       });
     }
     return Response.json({ reportId });

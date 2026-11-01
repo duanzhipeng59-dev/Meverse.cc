@@ -31,7 +31,7 @@ const SECTION_TITLE: Record<string, string> = {
 const GAN = "[甲乙丙丁戊己庚辛壬癸]";
 const ZHI = "[子丑寅卯辰巳午未申酉戌亥]";
 const MARK_PATTERN = new RegExp(
-  `(${GAN}${ZHI}大运[（(]\\d{1,3}[–—\\-~至]\\d{1,3}岁[^（）()]*[）)]\\s*[：:](?:[^。。]{1,14}。。?)?` +
+  `(${GAN}${ZHI}大[运運][（(]\\d{1,3}[–—\\-~至]\\d{1,3}[岁歲][^（）()]*[）)]\\s*[：:](?:[^。。]{1,14}。。?)?` +
   `|(?:19|20)\\d{2}年[（(]${GAN}${ZHI}[）)](?:\\s*·\\s*[^：:，。〔]{1,14}(?:〔[^：:〕]{0,40}〕)?)?[：:]` +
   `|「[^」]{1,24}」)`,
   "gu",
@@ -45,7 +45,7 @@ function highlightMarks(text: string): ReactNode {
 export function ReadableText({ text }: { text: string }) {
   // 条目标记起段:条目式年份("2026年（丙午）· 标签：")与干支大运("戊申大运（8–17岁）：55分。…")各成一段,
   // 不依赖句数配对(大运描述多一句就会整体错位);句内枚举年份("2028戊申、2030庚戌…")没有条目标记,不拆分。
-  const yearParts = text.split(/(?=(?:(?:19|20)\d{2}\s*年?\s*(?:[（(]|[（(]?\s*[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]\s*[·：:（(])|[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]大运[（(]))/u).map((part) => part.trim()).filter(Boolean);
+  const yearParts = text.split(/(?=(?:(?:19|20)\d{2}\s*年?\s*(?:[（(]|[（(]?\s*[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]\s*[·：:（(])|[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]大[运運][（(]))/u).map((part) => part.trim()).filter(Boolean);
   if (yearParts.length > 1) {
     return <>{yearParts.map((part, index) => <span className="mf-rr-paragraph" key={`${index}-${part.slice(0, 8)}`}>{highlightMarks(part)}</span>)}</>;
   }

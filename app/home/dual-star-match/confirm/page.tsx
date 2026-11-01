@@ -137,20 +137,25 @@ export default function ReadingConfirmPage() {
     setCreating(true);
     setError("");
     try {
+      // 界面语言随生成请求传给服务端:繁中用户走繁体生成链路(报告正文原生繁体)
+      let genLang: "zh" | "zh-TW" = "zh";
+      try {
+        genLang = sessionStorage.getItem("myfate-lang") === "zh-TW" ? "zh-TW" : "zh";
+      } catch { /* 隐私模式按简体 */ }
       // 优先推进进页时落的「待生成」记录(在途则等它);没有则退回完整创建
       const pendingId = payload.reportId ?? (await pendingCreate.current);
       const response = pendingId
         ? await fetch("/api/reading/start", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ reportId: pendingId }),
+          body: JSON.stringify({ reportId: pendingId, lang: genLang }),
         })
         : await fetch("/api/reading/create", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(payload.mode === "dual"
-            ? { mode: "dual", subjectA: payload.subjectA, subjectB: payload.subjectB }
-            : { mode: "single", subjectA: payload.subjectA }),
+            ? { mode: "dual", lang: genLang, subjectA: payload.subjectA, subjectB: payload.subjectB }
+            : { mode: "single", lang: genLang, subjectA: payload.subjectA }),
         });
       const data = await response.json() as { reportId?: string; detail?: string };
       if (!response.ok || !data.reportId) {

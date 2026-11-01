@@ -175,11 +175,12 @@ ${DUAL_TEMPLATE_SECTIONS}`;
 }
 
 // 双人合盘与个人解读同通道(线上 Gemini 30k;本机无 Gemini 密钥时可用 callModel 注入 DeepSeek 预览)。
-export async function generateDualReading(subjectA: ReadingSubject, subjectB: ReadingSubject, callModel?: (system: string, prompt: string) => Promise<string>): Promise<DualReading> {
+// options.systemPrompt 为引擎级覆盖:繁体链路(myfate-reading-trad)传入原生繁体系统指令,本函数不含语言分支。
+export async function generateDualReading(subjectA: ReadingSubject, subjectB: ReadingSubject, callModel?: (system: string, prompt: string) => Promise<string>, options?: { systemPrompt?: string }): Promise<DualReading> {
   const model = callModel ?? (async (system, prompt) =>
     (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 30000, json: true })).content);
   return generateValidatedReport(model, {
-    system: DUAL_READING_SYSTEM_PROMPT,
+    system: options?.systemPrompt ?? DUAL_READING_SYSTEM_PROMPT,
     buildPrompt: (retrySuffix) => buildDualReadingPrompt(subjectA, subjectB) + retrySuffix,
     validate: (raw) => dualReadingSchema.parse(raw),
     styleCheck: checkDualReadingStyle,

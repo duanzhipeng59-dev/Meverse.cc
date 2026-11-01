@@ -8,21 +8,24 @@ import type { StaticReading } from "./myfate-static-reading";
 const GAN = "[甲乙丙丁戊己庚辛壬癸]";
 const ZHI = "[子丑寅卯辰巳午未申酉戌亥]";
 const AGE = "(\\d{1,3})\\s*[–—\\-~至]\\s*(\\d{1,3})";
-const DAYUN_A = new RegExp(`${GAN}${ZHI}(?:大)?运[（(]${AGE}\\s*岁[^）)]*[）)]\\s*[：:]\\s*(\\d{1,3})分`, "gu");
+// 「当前」标记与「财运状态」条目简繁双匹配(繁体链路生成的报告同样可解析)
+const hasCurrent = (text: string) => text.includes("当前") || text.includes("當前");
+const isWealthEntry = (text: string) => text.includes("财运状态") || text.includes("財運狀態");
+const DAYUN_A = new RegExp(`${GAN}${ZHI}(?:大)?[运運][（(]${AGE}\\s*[岁歲][^）)]*[）)]\\s*[：:]\\s*(\\d{1,3})分`, "gu");
 // 括号内混合式:干支运（[YYYY–YYYY，][N–M岁[，/]]评分?N分?）——年份区间与年龄区间至少有其一
-const DAYUN_INNER = new RegExp(`${GAN}${ZHI}(?:大)?运[（(](?:((?:19|20)\\d{2})\\s*[–—\\-~至]\\s*((?:19|20)\\d{2})\\s*[，,]?\\s*)?(?:(\\d{1,3})\\s*[–—\\-~至]\\s*(\\d{1,3})\\s*岁\\s*[，,/]?\\s*)?(?:评分)?\\s*(\\d{1,3})\\s*分?`, "gu");
-const DAYUN_C = new RegExp(`((?:19|20)\\d{2})\\s*[–—\\-~至]\\s*((?:19|20)\\d{2})\\s*年\\s*${GAN}${ZHI}(?:大)?运[（(]\\s*(\\d{1,3})\\s*分[^）)]*[）)]`, "gu");
-const WEALTH_STEP = new RegExp(`${GAN}${ZHI}(?:大)?运[（(]${AGE}\\s*岁[^）)]*[）)]\\s*[：:]\\s*财运状态[（(](↑↑|↑|→|↓|↓↓)[）)]`, "gu");
+const DAYUN_INNER = new RegExp(`${GAN}${ZHI}(?:大)?[运運][（(](?:((?:19|20)\\d{2})\\s*[–—\\-~至]\\s*((?:19|20)\\d{2})\\s*[，,]?\\s*)?(?:(\\d{1,3})\\s*[–—\\-~至]\\s*(\\d{1,3})\\s*[岁歲]\\s*[，,/]?\\s*)?(?:评分)?\\s*(\\d{1,3})\\s*分?`, "gu");
+const DAYUN_C = new RegExp(`((?:19|20)\\d{2})\\s*[–—\\-~至]\\s*((?:19|20)\\d{2})\\s*年\\s*${GAN}${ZHI}(?:大)?[运運][（(]\\s*(\\d{1,3})\\s*分[^）)]*[）)]`, "gu");
+const WEALTH_STEP = new RegExp(`${GAN}${ZHI}(?:大)?[运運][（(]${AGE}\\s*[岁歲][^）)]*[）)]\\s*[：:]\\s*(?:财运状态|財運狀態)[（(](↑↑|↑|→|↓|↓↓)[）)]`, "gu");
 const WEALTH_TREND: Record<string, string> = { "↑↑": "强劲 ↑↑", "↑": "向好 ↑", "→": "平稳 →", "↓": "承压 ↓", "↓↓": "承压 ↓" };
 
 export function extractFortuneData(content: StaticReading, birthYear?: number) {
   const texts = content.sections.career?.insights.map((item) => item.content) ?? [];
-  const text = texts.find((t) => /运[（(]/u.test(t));
+  const text = texts.find((t) => /[运運][（(]/u.test(t));
   if (!text) return null;
   type Pt = { start: number; end: number; score: number; current: boolean };
   const collect = (pattern: RegExp, toPoint: (m: RegExpMatchArray) => Pt | null) =>
     Array.from(text.matchAll(pattern)).map(toPoint).filter((p): p is Pt => p !== null);
-  let points = collect(DAYUN_A, (m) => ({ start: Number(m[1]), end: Number(m[2]), score: Number(m[3]), current: m[0].includes("当前") }));
+  let points = collect(DAYUN_A, (m) => ({ start: Number(m[1]), end: Number(m[2]), score: Number(m[3]), current: hasCurrent(m[0]) }));
   if (points.length < 3) points = collect(DAYUN_INNER, (m) => {
     const score = Number(m[5]);
     if (score > 100) return null; // 括号内是年份等非分数内容
@@ -33,14 +36,14 @@ export function extractFortuneData(content: StaticReading, birthYear?: number) {
       end = Number(m[2]) - birthYear;
     }
     if (start === null || end === null || start < 1 || end > 120 || end - start > 30) return null;
-    return { start, end, score, current: m[0].includes("当前") };
+    return { start, end, score, current: hasCurrent(m[0]) };
   });
   if (points.length < 3 && birthYear) {
     points = collect(DAYUN_C, (m) => {
       const start = Number(m[1]) - birthYear;
       const end = Number(m[2]) - birthYear;
       if (start < 1 || end > 120 || end - start > 30) return null;
-      return { start, end, score: Number(m[3]), current: m[0].includes("当前") };
+      return { start, end, score: Number(m[3]), current: hasCurrent(m[0]) };
     });
   }
   if (points.length < 3) return null;
@@ -52,7 +55,7 @@ export function extractFortuneData(content: StaticReading, birthYear?: number) {
     : birthYear
       ? Math.min(80, Math.max(7, new Date().getFullYear() - birthYear))
       : null;
-  const wealthText = content.sections.wealth?.insights.map((item) => item.content).find((t) => t.includes("财运状态"));
+  const wealthText = content.sections.wealth?.insights.map((item) => item.content).find((t) => isWealthEntry(t));
   const wealthLifetime: Array<{ age: string; trend: string }> = [];
   if (wealthText) {
     for (const match of wealthText.matchAll(WEALTH_STEP)) {
