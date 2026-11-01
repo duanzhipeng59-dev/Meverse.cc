@@ -7,15 +7,17 @@ import type { StarListItem } from "../../myfate-stars-server";
 import PortraitImg from "../../portrait-img";
 import { Tag, EmptyState, SkeletonList } from "../../components/ui";
 import { wuxingTagStyle } from "../../wuxing-tag";
+import { useLanguage } from "../../language-context";
 
 const PAGE_SIZE = 12;
 // 返回列表后恢复搜索词/排序/已加载页数/滚动位置(未登录本地存储;登录同步属后续批次)
 const STATE_KEY = "mf_discover_v1";
 
+// 排序标签走 i18n key(简繁切换),渲染时经 t() 取
 const SORTS = [
-  { key: "default", label: "全部" },
-  { key: "hot", label: "热门" },
-  { key: "new", label: "最新收录" },
+  { key: "default", labelKey: "discover.sort.all" },
+  { key: "hot", labelKey: "discover.sort.hot" },
+  { key: "new", labelKey: "discover.sort.new" },
 ] as const;
 type SortKey = (typeof SORTS)[number]["key"];
 
@@ -105,6 +107,7 @@ function readPersisted(): PersistedState | null {
 // 人物发现页:排序标签 + 搜索icon(点击icon展开搜索框,取消收起) + 无限滚动,返回恢复全部浏览状态。
 export default function CelebrityBrowser({ stars, basePath = "/home/relationship-test" }: { stars: StarListItem[]; basePath?: string }) {
   const urlQuery = useSearchParams().get("q") ?? "";
+  const { t } = useLanguage();
   const [initial, setInitial] = useState<PersistedState | null>(null);
   const [sort, setSort] = useState<SortKey>("default");
   const [query, setQuery] = useState(urlQuery);
@@ -277,8 +280,8 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="搜索本地结果"
-                aria-label="搜索人物"
+                placeholder={t("discover.search.placeholder")}
+                aria-label={t("discover.search.aria")}
                 enterKeyHint="search"
                 autoFocus
               />
@@ -289,12 +292,12 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
               className="mf-explore-cancel"
               onClick={() => { setSearchOpen(false); setQuery(""); }}
             >
-              取消
+              {t("discover.cancel")}
             </button>
           </>
         ) : (
           <>
-            <nav className="mf-explore-tabs" aria-label="排序方式">
+            <nav className="mf-explore-tabs" aria-label={t("discover.tabs.aria")}>
               {SORTS.map((item) => (
                 <button
                   key={item.key}
@@ -303,11 +306,11 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
                   aria-pressed={sort === item.key}
                   onClick={() => setSort(item.key)}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </button>
               ))}
             </nav>
-            <button type="button" className="mf-explore-searchbtn" aria-label="搜索" onClick={() => setSearchOpen(true)}>
+            <button type="button" className="mf-explore-searchbtn" aria-label={t("discover.search.btn")} onClick={() => setSearchOpen(true)}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.6" /><path d="m16 16 4.5 4.5" /></svg>
             </button>
           </>
@@ -316,7 +319,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
       {filtered.length === 0 ? (
         query ? (
-          <EmptyState title="没有找到相关人物" hint="换个关键词试试" />
+          <EmptyState title={t("discover.empty.title")} hint={t("discover.empty.hint")} />
         ) : (
           <SkeletonList rows={6} kind="portrait" />
         )
@@ -332,12 +335,12 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
                 key={star.id}
                 onClick={() => pushRecentStar(star.id)}
               >
-                <span className="mf-bz-star-cover"><PortraitImg src={star.portraitSrc} alt={`${star.name}的人物肖像`} priority={index < 4} /></span>
+                <span className="mf-bz-star-cover"><PortraitImg src={star.portraitSrc} alt={t("discover.portrait.aria", { name: star.name })} priority={index < 4} /></span>
                 <b>{star.name}</b>
                 <small>{star.nameEn ? `${groupOf(star.role)}-${star.nameEn}` : groupOf(star.role)}</small>
                 <div className="mf-explore-card-tags">
                   {dayMaster ? <span className="mf-ui-tag is-default" style={wuxingTagStyle(dayMaster)}>{dayMaster}</span> : null}
-                  <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
+                  <Tag tone={complete ? "good" : "warn"}>{complete ? t("discover.tag.complete") : t("discover.tag.incomplete")}</Tag>
                 </div>
               </Link>
             );
@@ -347,10 +350,10 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
 
       {hasMore ? (
         <div ref={sentinelRef} className="mf-explore-more">
-          <button type="button" onClick={loadMore}>加载更多</button>
+          <button type="button" onClick={loadMore}>{t("discover.loadMore")}</button>
         </div>
       ) : filtered.length > 0 ? (
-        <p className="mf-explore-end">已经全部加载（{filtered.length} 人）</p>
+        <p className="mf-explore-end">{t("discover.end", { n: filtered.length })}</p>
       ) : null}
     </div>
   );

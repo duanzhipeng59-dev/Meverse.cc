@@ -8,10 +8,14 @@ import { getConsultOverride } from "../../../myfate-consult-override-store";
 import { parseStaticReadingContent } from "../../../myfate-consult-override-store";
 import { getPublishedStar, getPublishedStarList, getCelebrityVedicBirth, dayMasterOf } from "../../../myfate-stars-server";
 import { portraitImage, portraitOgImage } from "../../../myfate-image";
+import { SITE_URL } from "../../../site-url";
 import { Tag } from "../../../components/ui";
 import { pushRecentStar } from "../../celebrity-match/celebrity-browser";
 import { wuxingTagStyle } from "../../../wuxing-tag";
 import StarVisitTracker from "./preview-visit";
+import TradDigest from "./trad-digest";
+import TradText from "../../../trad-text";
+import Trans from "../../../trans";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +42,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!star) notFound();
 
   const dayMaster = dayMasterOf(star.threePillars);
-  const title = `${star.name}${star.nameEn ? ` ${star.nameEn}` : ""}的生辰画像`;
-  const description = `${star.name}（${star.birthDate.replaceAll("-", ".")} 出生${dayMaster ? `，${dayMaster}日主` : ""}）的生辰画像：性格天赋、事业财富与感情运势解读。${star.description.slice(0, 50)}`;
+  // SEO:title 锚「八字命盘/生辰画像」双关键词(用户搜的是「XX 八字」「XX 生辰」),nameEn 入括号不占前缀
+  const title = `${star.name}${star.nameEn ? `（${star.nameEn}）` : ""}的八字命盘与生辰画像`;
+  const description = `${star.name}（${star.birthDate.replaceAll("-", ".")} 出生${dayMaster ? `，${dayMaster}日主` : ""}）的八字命盘与生辰画像解读：性格天赋、事业财富与感情运势。${star.description.slice(0, 50)}`;
   return {
     title,
     description,
@@ -76,33 +81,65 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   const complete = Boolean(star.birthDate && birth?.birthTime);
   // 三条报告摘要:统一九章结构取前章 title+summary,缺省回退档案描述
   const staticReport = consult ? parseStaticReadingContent(consult) : null;
+  // 摘要三条:简体原文交给 TradDigest 客户端按语言转换(含「人物简介」兜底标题)
   const digest: Array<{ title: string; text: string }> = staticReport
     ? Object.values(staticReport.sections).slice(0, 3).map((section) => ({ title: section.title, text: (section.summary ?? section.insights[0]?.content ?? "").slice(0, 90) }))
     : [
         { title: "人物简介", text: star.description.slice(0, 90) },
       ];
+  // 章节标签存 i18n key(简繁切换),图标不变
   const chapters = consult
-    ? [["✦", "人生运势"], ["◐", "人生画像"], ["❖", "格局"], ["✎", "学业"], ["◈", "事业"], ["✦", "财富"], ["♡", "感情"], ["✚", "健康"], ["❀", "子女"], ["⊹", "六亲"]]
+    ? [["✦", "preview.chapter.fortune"], ["◐", "preview.chapter.portrait"], ["❖", "preview.chapter.pattern"], ["✎", "preview.chapter.study"], ["◈", "preview.chapter.career"], ["✦", "preview.chapter.wealth"], ["♡", "preview.chapter.love"], ["✚", "preview.chapter.health"], ["❀", "preview.chapter.children"], ["⊹", "preview.chapter.family"]]
     : [];
-  const related = allStars.filter((item) => item.id !== id && groupOf(item.role) === groupOf(star.role)).slice(0, 4);
+  // 同组合内链:放宽到 8 人(大组合如 SEVENTEEN 多人可互链),卡片带英文名+日主副行
+  const related = allStars.filter((item) => item.id !== id && groupOf(item.role) === groupOf(star.role)).slice(0, 8);
   const hasReport = Boolean(consult);
+
+  // ── SEO 结构化数据 ──
+  // 组合判定:role 前缀(如「BTS 成员-闵玧其」)去掉「成员」后缀得到裸组名,若出现在 categories
+  // 里才算真组合(「英国演员-艾玛·沃特森」这类身份前缀不是组织),避免 memberOf 挂到职业类别上。
+  const groupLabel = groupOf(star.role).replace(/\s*成员$/u, "").trim();
+  const isRealGroup = Boolean(groupLabel && star.categories?.includes(groupLabel));
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: star.name,
+    ...(star.nameEn ? { alternateName: star.nameEn } : {}),
+    ...(star.birthDate ? { birthDate: star.birthDate } : {}),
+    ...(star.gender ? { gender: star.gender } : {}),
+    url: `${SITE_URL}/home/relationship-test/${id}`,
+    image: `${SITE_URL}${portraitOgImage(star.portraitSrc)}`,
+    description: (star.tagline || star.description).slice(0, 110),
+    ...(isRealGroup ? { memberOf: { "@type": "Organization", name: groupLabel } } : {}),
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "首页", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "明星八字·生辰画像合集", item: `${SITE_URL}/home/relationship-test` },
+      { "@type": "ListItem", position: 3, name: star.name },
+    ],
+  };
 
   return (
     <div className="mf-workspace-content">
     <div className="mf-preview">
       <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} backLabel="" showShare shareTitle={`${star.name}${star.nameEn ? ` ${star.nameEn}` : ""} 的生辰画像`} />
       <StarVisitTracker starId={id} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <header className="mf-preview-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={portraitImage(star.portraitSrc, 360)} alt={`${star.name}的人物肖像`} />
+        <img src={portraitImage(star.portraitSrc, 360)} alt={`${star.name}的肖像`} />
         <div className="mf-preview-head-copy">
-          <h1 className={(personOf(star.role) || star.name).length > 8 ? "is-long-name" : undefined}>{personOf(star.role) || star.name}</h1>
+          <h1 className={(personOf(star.role) || star.name).length > 8 ? "is-long-name" : undefined}><TradText text={personOf(star.role) || star.name} /></h1>
           {star.nameEn ? <p className="mf-preview-en">{star.nameEn}</p> : null}
-          <p className="mf-preview-group">{groupOf(star.role)}</p>
-          <p className="mf-preview-birth">出生 · {star.birthDate.replaceAll("-", ".")}{birth?.birthPlace ? ` · ${birth.birthPlace}` : ""}</p>
+          <p className="mf-preview-group"><TradText text={groupOf(star.role)} /></p>
+          <p className="mf-preview-birth"><TradText text={`出生 · ${star.birthDate.replaceAll("-", ".")}${birth?.birthPlace ? ` · ${birth.birthPlace}` : ""}`} /></p>
           {/* 标签固定两枚:资料完整度 + 日主(底色取五行色);人物画像类 traits 标签不展示 */}
           <div className="mf-preview-tags">
-            <Tag tone={complete ? "good" : "warn"}>{complete ? "资料完整" : "资料待补充"}</Tag>
+            <Tag tone={complete ? "good" : "warn"}>{complete ? <Trans k="discover.tag.complete" /> : <Trans k="discover.tag.incomplete" />}</Tag>
             {dayMasterOf(star.threePillars) ? (
               <span className="mf-ui-tag is-default" style={wuxingTagStyle(dayMasterOf(star.threePillars))}>{dayMasterOf(star.threePillars)}</span>
             ) : null}
@@ -114,34 +151,30 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
 
       {digest.length ? (
         <section className="mf-preview-section" aria-label="报告摘要">
-          <h2>报告摘要</h2>
-          {digest.map((item) => (
-            <blockquote key={item.title}>
-              <b>{item.title}</b>
-              <p>{item.text}…</p>
-            </blockquote>
-          ))}
-          {!hasReport ? <p className="mf-preview-note">完整报告正在准备中,可先浏览人物简介。</p> : null}
+          <h2><Trans k="preview.digest" /></h2>
+          <TradDigest items={digest} />
+          {!hasReport ? <p className="mf-preview-note"><Trans k="preview.preparing" /></p> : null}
         </section>
       ) : null}
 
       {chapters.length ? (
         <section className="mf-preview-section" aria-label="报告章节">
-          <h2>完整报告章节</h2>
+          <h2><Trans k="preview.chapters" /></h2>
           <ul className="mf-preview-chapters">
-            {chapters.map(([icon, label]) => <li key={label}><i aria-hidden="true">{icon}</i>{label}</li>)}
+            {chapters.map(([icon, labelKey]) => <li key={labelKey}><i aria-hidden="true">{icon}</i><Trans k={labelKey} /></li>)}
           </ul>
         </section>
       ) : null}
 
       {related.length ? (
         <section className="mf-preview-section" aria-label="相关人物">
-          <h2>相关人物</h2>
+          <h2>{isRealGroup ? <TradText text={`${groupLabel}成员的生辰画像`} /> : <Trans k="preview.related" />}</h2>
           <div className="mf-preview-related">
             {related.map((item) => (
-              <Link href={`/home/relationship-test/${item.id}`} key={item.id}>
+              <Link href={`/home/relationship-test/${item.id}`} key={item.id} title={`${item.name}的八字命盘与生辰画像`}>
                 <span style={{ backgroundImage: `url("${portraitImage(item.portraitSrc, 120)}")` }} role="img" aria-label={item.name} />
-                <b>{item.name}</b>
+                <b><TradText text={item.name} /></b>
+                <small>{[item.nameEn, dayMasterOf(item.threePillars)].filter(Boolean).join(" · ")}</small>
               </Link>
             ))}
           </div>

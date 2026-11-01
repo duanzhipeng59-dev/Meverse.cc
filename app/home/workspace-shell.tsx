@@ -5,18 +5,20 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "../auth-context";
 import LoginModal from "../components/login-modal";
+import { useLanguage } from "../language-context";
 
 // 一级导航两页:发现/解读(桌面侧栏与移动底部导航同源);根路径直接进发现
+// 文案走 i18n key(labelKey/descKey),支持简繁切换
 const menuItems = [
-  { icon: "heart", label: "发现", description: "浏览与搜索人物画像", href: "/home/relationship-test" },
-  { icon: "dual", label: "解读", description: "单人与双人八字解读排盘", href: "/home/dual-star-match" },
+  { icon: "heart", labelKey: "shell.menu.discover", descKey: "shell.menu.discover.desc", href: "/home/relationship-test" },
+  { icon: "dual", labelKey: "shell.menu.reading", descKey: "shell.menu.reading.desc", href: "/home/dual-star-match" },
 ];
 
 // 底部 Tab 三项:发现/解读/我的(我的=个人中心入口,未登录点它弹登录)
 const tabItems = [
-  { icon: "heart", label: "发现", href: "/home/relationship-test" },
-  { icon: "dual", label: "解读", href: "/home/dual-star-match" },
-  { icon: "user", label: "我的", href: "/home/profile" },
+  { icon: "heart", labelKey: "shell.tab.discover", href: "/home/relationship-test" },
+  { icon: "dual", labelKey: "shell.tab.reading", href: "/home/dual-star-match" },
+  { icon: "user", labelKey: "shell.tab.profile", href: "/home/profile" },
 ];
 
 function HeartIcon() {
@@ -74,6 +76,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { status, markSignedOut } = useAuth();
+  const { t } = useLanguage();
   const isDetail = pathname.split("/").filter(Boolean).length > 2;
 
   // All workspace routes share document scrolling. Normal navigation starts at
@@ -110,18 +113,18 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
   return (
     <div className={isDetail ? "mf-workspace-shell is-detail" : "mf-workspace-shell"}>
       <header className="mf-workspace-mobile-bar">
-        <Link className="mf-workspace-brand" href="/" aria-label="返回 MeVerse 首页">
+        <Link className="mf-workspace-brand" href="/" aria-label={t("shell.brand.aria")}>
           <span className="mf-meverse-logo" role="img" aria-label="MeVerse" />
         </Link>
       </header>
 
       <aside className="mf-workspace-sidebar">
-        <Link className="mf-workspace-brand" href="/" aria-label="返回 MeVerse 首页">
+        <Link className="mf-workspace-brand" href="/" aria-label={t("shell.brand.aria")}>
           <span className="mf-meverse-logo" role="img" aria-label="MeVerse" />
         </Link>
 
-        <div className="mf-workspace-label">探索</div>
-        <nav className="mf-workspace-nav" aria-label="工作台主菜单">
+        <div className="mf-workspace-label">{t("shell.menu.label")}</div>
+        <nav className="mf-workspace-nav" aria-label={t("shell.menu.aria")}>
           {menuItems.map((item) => (
             <Link
               className={isActive(item.href) ? "mf-workspace-nav-item active" : "mf-workspace-nav-item"}
@@ -131,14 +134,14 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
             >
               <span className="mf-workspace-nav-icon"><MenuIcon icon={item.icon} /></span>
               <span>
-                <strong>{item.label}</strong>
-                <small>{item.description}</small>
+                <strong>{t(item.labelKey)}</strong>
+                <small>{t(item.descKey)}</small>
               </span>
             </Link>
           ))}
         </nav>
 
-        <div className="mf-workspace-account" aria-label="账户选项">
+        <div className="mf-workspace-account" aria-label={t("shell.account.aria")}>
         {status === "authenticated" ? (
           <Link
             className={pathname === "/home/profile" ? "active" : undefined}
@@ -146,12 +149,12 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
             aria-current={pathname === "/home/profile" ? "page" : undefined}
           >
             <span className="mf-workspace-nav-icon"><UserIcon /></span>
-            <span>个人中心</span>
+            <span>{t("shell.account.center")}</span>
           </Link>
         ) : (
           <LoginModal className="mf-workspace-account-login">
             <span className="mf-workspace-nav-icon"><UserIcon /></span>
-            <span>个人中心</span>
+            <span>{t("shell.account.center")}</span>
           </LoginModal>
         )}
           {status === "authenticated" ? (
@@ -163,12 +166,12 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
               }}
             >
               <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
-              <span>退出登录</span>
+              <span>{t("shell.account.signout")}</span>
             </button>
           ) : (
             <LoginModal>
               <span className="mf-workspace-nav-icon"><LogoutIcon /></span>
-              <span>登录</span>
+              <span>{t("shell.account.login")}</span>
             </LoginModal>
           )}
         </div>
@@ -178,11 +181,11 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <nav className="mf-mobile-tabbar" aria-label="底部导航">
+      <nav className="mf-mobile-tabbar" aria-label={t("shell.tab.aria")}>
         {tabItems.map((item) => item.href === "/home/profile" && status !== "authenticated" ? (
           <LoginModal className="mf-mobile-tab" key={item.href}>
             <span className="mf-mobile-tab-icon"><MenuIcon icon={item.icon} /></span>
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
           </LoginModal>
         ) : (
           <Link
@@ -192,7 +195,7 @@ export default function WorkspaceShell({ children }: { children: ReactNode }) {
             key={item.href}
           >
             <span className="mf-mobile-tab-icon"><MenuIcon icon={item.icon} /></span>
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
           </Link>
         ))}
       </nav>

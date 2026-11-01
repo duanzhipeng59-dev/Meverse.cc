@@ -10,6 +10,7 @@ import { SkeletonBlock } from "../../skeletons";
 import PurchasePanel from "../../../components/purchase-panel";
 import { readLocalSession } from "../../../local-auth";
 import { gaEvent } from "../../../ga";
+import { useLanguage } from "../../../language-context";
 import { vedicCities } from "../../../myfate-cities";
 import { buildDualChart } from "../../../myfate-dual-engine";
 import { CONFIRM_STORAGE_KEY, readConfirmPayload, type ConfirmPayload, type ConfirmSubject } from "../confirm-storage";
@@ -20,6 +21,7 @@ import { CONFIRM_STORAGE_KEY, readConfirmPayload, type ConfirmPayload, type Conf
 // 点「开始解读/开始分析」把该记录推进为 generating 并后台生成(reading_reports 体系)。
 export default function ReadingConfirmPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   // 入口跳转前已将资料写入 sessionStorage；在客户端首帧直接读取，避免确认页先空白再补内容。
   const [payload, setPayload] = useState<ConfirmPayload | null>(() => (
     typeof window === "undefined" ? null : readConfirmPayload()
@@ -158,7 +160,7 @@ export default function ReadingConfirmPage() {
           setCreating(false);
           return;
         }
-        setError(data.detail || "生成请求失败，请重试。");
+        setError(data.detail || t("confirm.err.fail"));
         setCreating(false);
         return;
       }
@@ -167,7 +169,7 @@ export default function ReadingConfirmPage() {
       gaEvent("generate_report", { method: payload.mode, is_retry: Boolean(payload.retry) });
       router.push(`/home/reading/${data.reportId}`);
     } catch {
-      setError("网络异常，请重试。");
+      setError(t("confirm.err.network"));
       setCreating(false);
     }
   }
@@ -182,10 +184,10 @@ export default function ReadingConfirmPage() {
     // 直开链接/数据已被消费:送回解读页重新选择
     return (
       <div className="mf-zr">
-        <ReportTopbar backHref="/home/dual-star-match" backLabel="" title="解读确认" />
+        <ReportTopbar backHref="/home/dual-star-match" backLabel="" title={t("confirm.expired.title")} />
         <div className="mf-dual-status mf-dual-confirm">
-          <p className="mf-dual-status-note">解读信息已失效，正在返回解读页…</p>
-          <button className="mf-primary-button mf-dual-generate" type="button" onClick={() => { router.push("/home/dual-star-match"); }}>返回解读页</button>
+          <p className="mf-dual-status-note">{t("confirm.expired.note")}</p>
+          <button className="mf-primary-button mf-dual-generate" type="button" onClick={() => { router.push("/home/dual-star-match"); }}>{t("confirm.expired.back")}</button>
         </div>
       </div>
     );
@@ -201,24 +203,24 @@ export default function ReadingConfirmPage() {
         <DualProfileCards people={people} />
         {needBuy ? (
           <div className="mf-confirm-unlock">
-            <h2>解锁完整解读</h2>
-            <p>购买报告次数后可查看完整内容：性格、事业、财富、感情全维度深度报告，以及 AI 追问。</p>
-            <button className="mf-primary-button mf-dual-generate" type="button" onClick={() => router.push("/home/profile/upgrade")}>查看套餐 · 立即解锁</button>
-            <Link className="mf-confirm-unlock-demo" href="/home/relationship-test">查看生辰画像示例报告 <span aria-hidden="true">↗</span></Link>
+            <h2>{t("confirm.unlock.title")}</h2>
+            <p>{t("confirm.unlock.desc")}</p>
+            <button className="mf-primary-button mf-dual-generate" type="button" onClick={() => router.push("/home/profile/upgrade?from=confirm")}>{t("confirm.unlock.cta")}</button>
+            <Link className="mf-confirm-unlock-demo" href="/home/relationship-test">{t("confirm.unlock.demo")} <span aria-hidden="true">↗</span></Link>
             {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
           </div>
         ) : (
           <>
-            <p className="mf-dual-status-note mf-dual-confirm-hint">{single ? "点击下方按钮，看见你的八字解读。" : "点击下方按钮，看见你们的合盘。"}</p>
+            <p className="mf-dual-status-note mf-dual-confirm-hint">{single ? t("confirm.hint.single") : t("confirm.hint.dual")}</p>
             <div className="mf-dual-confirm-cta">
               {creditsLoading ? (
                 <SkeletonBlock className="mf-confirm-skeleton-button" />
               ) : (
                 <button className="mf-primary-button mf-dual-generate" type="button" disabled={creating} onClick={() => void begin()}>
-                  {creating ? "正在创建…" : payload.retry ? "重新分析" : "开始分析"}
+                  {creating ? t("confirm.cta.creating") : payload.retry ? t("confirm.cta.retry") : t("confirm.cta.start")}
                 </button>
               )}
-              {payload.retry ? <p className="mf-confirm-retry-note">命盘信息已保留，次数已退还，可以重新生成一份报告</p> : null}
+              {payload.retry ? <p className="mf-confirm-retry-note">{t("confirm.retry.note")}</p> : null}
               {error ? <p className="mf-dual-error" role="alert">{error}</p> : null}
             </div>
           </>

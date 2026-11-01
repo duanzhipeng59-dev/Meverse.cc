@@ -1,28 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../../language-context";
 
 // 套餐购买页:「套餐购买 / 按次购买」分栏,五个真实商品(双额度:报告次数+追问次数)。
 // 套餐框 id 即支付系统的 packageId(服务端价格簿定价),点「立即购买」走易支付。
 type PendingOrder = { planId: string; orderNo: string; token: string; checkoutUrl: string };
 
-// 套餐框数据:perks 支持普通勾选项(字符串)或带叉的排除项({ text, denied })
-type BoxPerk = string | { text: string; denied?: boolean };
-type TrialBox = { id: string; title: string; desc?: string; price: string; perks: readonly BoxPerk[]; best?: boolean };
+// 套餐框骨架:title/desc/perks 为 i18n key(perks 支持带参/排除项),渲染时经 t() 取文案
+type BoxPerk = string | { key: string; params?: Record<string, string | number>; denied?: boolean };
+type TrialBox = { id: string; titleKey: string; paramsTitle?: Record<string, string | number>; descKey?: string; price: string; perks: readonly BoxPerk[]; best?: boolean };
 
 const TRIAL_BOXES: readonly TrialBox[] = [
-  { id: "bundle_trial", title: "生辰画像 体验版", desc: "顶级AI加持，严谨推演，先花几分钟看看准不准", perks: ["生辰报告3次", "追问10条"], price: "89" },
-  { id: "bundle_adv", title: "生辰画像 高级版", desc: "一顿饭的价钱，请一位随叫随到的命理师", perks: ["生辰报告10次", "追问50条"], price: "239", best: true },
-  { id: "bundle_full", title: "生辰画像 完整版", desc: "像做一次基因检测，把自己完全看清楚", perks: ["生辰报告30次", "追问300条"], price: "599" },
+  { id: "bundle_trial", titleKey: "upgrade.box.trial.title", descKey: "upgrade.box.trial.desc", price: "89", perks: [{ key: "upgrade.perk.report", params: { n: 3 } }, { key: "upgrade.perk.ask", params: { n: 10 } }] },
+  { id: "bundle_adv", titleKey: "upgrade.box.adv.title", descKey: "upgrade.box.adv.desc", price: "239", best: true, perks: [{ key: "upgrade.perk.report", params: { n: 10 } }, { key: "upgrade.perk.ask", params: { n: 50 } }] },
+  { id: "bundle_full", titleKey: "upgrade.box.full.title", descKey: "upgrade.box.full.desc", price: "599", perks: [{ key: "upgrade.perk.report", params: { n: 30 } }, { key: "upgrade.perk.ask", params: { n: 300 } }] },
 ];
 
 // 按次购买页签单独的套餐框
 const PACK_BOXES: readonly TrialBox[] = [
-  { id: "report_1", title: "生辰报告·1次", desc: "", price: "50", perks: [{ text: "不含追问次数", denied: true }, "生辰报告1次"] },
-  { id: "ask_30", title: "30次追问", desc: "", price: "39", perks: [{ text: "不含报告生成", denied: true }, { text: "单独购买无法使用", denied: true }, "仅追问30条"] },
+  { id: "report_1", titleKey: "upgrade.box.report.title", paramsTitle: { n: 1 }, price: "50", perks: [{ key: "upgrade.perk.noAsk", denied: true }, { key: "upgrade.perk.report", params: { n: 1 } }] },
+  { id: "ask_30", titleKey: "upgrade.box.ask.title", paramsTitle: { n: 30 }, price: "39", perks: [{ key: "upgrade.perk.noReport", denied: true }, { key: "upgrade.perk.askStandalone", denied: true }, { key: "upgrade.perk.askOnly", params: { n: 30 } }] },
 ];
 
 export default function UpgradeShelf() {
+  const { t } = useLanguage();
   const [tab, setTab] = useState<"sub" | "pack">("sub");
   const boxes: readonly TrialBox[] = tab === "pack" ? PACK_BOXES : TRIAL_BOXES;
   const [pending, setPending] = useState<PendingOrder | null>(null);
@@ -45,14 +47,14 @@ export default function UpgradeShelf() {
           setPending(null);
         } else if (data.status === "cancelled") {
           setPending(null);
-          setBuyError("订单已超时取消，请重新下单");
+          setBuyError(t("upgrade.err.timeout"));
         }
       } catch { /* 网络抖动继续轮询 */ }
     };
     void tick();
     const timer = window.setInterval(tick, 3000);
     return () => window.clearInterval(timer);
-  }, [pending]);
+  }, [pending, t]);
 
   // 下单:packageId 即套餐框 id(与服务端价格簿一致),新开收银台后轮询到账
   async function buyBox(packageId: string) {
@@ -67,7 +69,7 @@ export default function UpgradeShelf() {
       });
       const data = await res.json() as { checkoutUrl?: string; orderNo?: string; accessToken?: string; error?: string };
       if (!res.ok || !data.checkoutUrl || !data.orderNo || !data.accessToken) {
-        setBuyError(data.error === "login_required" ? "请先登录后再购买" : "下单失败，请稍后重试");
+        setBuyError(data.error === "login_required" ? t("upgrade.err.login") : t("upgrade.err.fail"));
         setSubmittingId(null);
         return;
       }
@@ -76,26 +78,26 @@ export default function UpgradeShelf() {
       setPending({ planId: packageId, orderNo: data.orderNo, token: data.accessToken, checkoutUrl: data.checkoutUrl });
       setSubmittingId(null);
     } catch {
-      setBuyError("网络异常，请重试");
+      setBuyError(t("upgrade.err.network"));
       setSubmittingId(null);
     }
   }
 
   return (
     <>
-      <div className="mf-start-seg mf-upgrade-seg" role="tablist" aria-label="购买方式">
-        <button type="button" role="tab" aria-selected={tab === "sub"} className={tab === "sub" ? "is-on" : ""} onClick={() => setTab("sub")}>套餐购买</button>
-        <button type="button" role="tab" aria-selected={tab === "pack"} className={tab === "pack" ? "is-on" : ""} onClick={() => setTab("pack")}>按次购买</button>
+      <div className="mf-start-seg mf-upgrade-seg" role="tablist" aria-label={t("upgrade.tabs.aria")}>
+        <button type="button" role="tab" aria-selected={tab === "sub"} className={tab === "sub" ? "is-on" : ""} onClick={() => setTab("sub")}>{t("upgrade.tab.sub")}</button>
+        <button type="button" role="tab" aria-selected={tab === "pack"} className={tab === "pack" ? "is-on" : ""} onClick={() => setTab("pack")}>{t("upgrade.tab.pack")}</button>
       </div>
 
       {boxes.map((box) => (
         <div className={`mf-upgrade-box${box.best ? " is-best" : ""}`} key={box.id}>
           <div className="mf-upgrade-box-body">
-            <b>{box.title}</b>
-            {box.desc ? <p className="mf-upgrade-box-desc">{box.desc}</p> : null}
+            <b>{t(box.titleKey, box.paramsTitle)}</b>
+            {box.descKey ? <p className="mf-upgrade-box-desc">{t(box.descKey)}</p> : null}
             <ul>
               {box.perks.map((perk) => {
-                const text = typeof perk === "string" ? perk : perk.text;
+                const text = typeof perk === "string" ? t(perk) : t(perk.key, perk.params);
                 const denied = typeof perk !== "string" && perk.denied;
                 return (
                   <li key={text} className={denied ? "is-denied" : undefined}>
@@ -113,17 +115,17 @@ export default function UpgradeShelf() {
               disabled={Boolean(pending) || Boolean(submittingId) || paidId === box.id}
               onClick={() => void buyBox(box.id)}
             >
-              {submittingId === box.id ? "跳转中..." : pending?.planId === box.id ? "等待支付…" : paidId === box.id ? "已到账 ✓" : "立即购买"}
+              {submittingId === box.id ? t("upgrade.buy.jumping") : pending?.planId === box.id ? t("upgrade.buy.waiting") : paidId === box.id ? t("upgrade.buy.paid") : t("upgrade.buy.now")}
             </button>
           </div>
-          {paidId === box.id ? <p className="mf-upgrade-paid">✓ 支付成功，次数已到账，可直接去生成解读。</p> : null}
+          {paidId === box.id ? <p className="mf-upgrade-paid">{t("upgrade.paid.note")}</p> : null}
         </div>
       ))}
 
       {pending ? (
         <div className="mf-upgrade-pay-wait">
-          <p>已打开支付宝收银台，完成支付后这里会自动确认到账。</p>
-          <a href={pending.checkoutUrl} target="_blank" rel="noopener noreferrer">打不开？点这里去支付</a>
+          <p>{t("upgrade.wait.note")}</p>
+          <a href={pending.checkoutUrl} target="_blank" rel="noopener noreferrer">{t("upgrade.wait.link")}</a>
         </div>
       ) : null}
       {buyError ? <p className="mf-reading-dialog-error" role="alert">{buyError}</p> : null}

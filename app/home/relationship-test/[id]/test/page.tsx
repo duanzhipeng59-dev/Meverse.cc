@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import ReportTopbar from "../../../../report-topbar";
-import StarReadingReport, { extractFortuneData } from "../../../../star-reading-report";
-import FortuneCurveCard from "../../../../fortune-curve";
+import { extractFortuneData } from "../../../../star-fortune-extract";
 import PillarsCard from "../../../../pillars-card";
+import TradReportBody from "./trad-report-body";
 import { getConsultOverride, parseStaticReadingContent, type ConsultOverrideContent } from "../../../../myfate-consult-override-store";
 import { getCelebrityVedicBirth, getPublishedStar, getPublishedStarList, recordStarReportView } from "../../../../myfate-stars-server";
 import { requirePageUser } from "../../../../require-page-user";
@@ -72,14 +72,12 @@ export default async function StarReportPage({ params, searchParams }: { params:
     <div className="mf-zr mf-zr-narrow">
       <ReportTopbar fromReports={from === "reports" && !prevStarId} backHref={backHref} title={personName || star.name} subtitle={staticPillars.join(" ")} showShare shareTitle={`${personName || star.name} 的生辰画像`} />
       <ReadingProgress starId={id} />
-      <PillarsCard pillars={staticPillars} hourEstimated={staticPillars.length > 3} />
-      {(() => {
-        const fortune = extractFortuneData(staticReport, Number((birth?.birthDate ?? star.birthDate).slice(0, 4)));
-        return fortune ? (
-          <FortuneCurveCard careerLifetime={fortune.careerLifetime} wealthLifetime={fortune.wealthLifetime} loveMarriage={fortune.loveMarriage} currentAge={fortune.currentAge} />
-        ) : null;
-      })()}
-      <StarReadingReport content={staticReport} />
+      <TradReportBody
+        pillars={staticPillars}
+        hourEstimated={staticPillars.length > 3}
+        fortune={extractFortuneData(staticReport, Number((birth?.birthDate ?? star.birthDate).slice(0, 4)))}
+        content={staticReport}
+      />
       <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、刑冲合害)对静态命局做文化解读，不构成科学预测</p>
     </div>
   );

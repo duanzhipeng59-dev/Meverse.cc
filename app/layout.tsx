@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { SITE_URL } from "./site-url";
+import { LanguageProvider } from "./language-context";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -30,8 +31,9 @@ export const metadata: Metadata = {
   },
 };
 
-// 根布局保持纯服务端:认证/语言 Provider 只挂到真正需要的子布局,
-// 公开首页因此不再请求 /api/auth/session,也不加载 i18n 翻译数据。
+// 根布局保持纯服务端:认证 Provider 只挂到真正需要的子布局,
+// 公开首页因此不再请求 /api/auth/session。语言 Provider 是纯客户端 localStorage
+// 上下文(无请求开销),挂根布局让简繁切换覆盖全站。
 // GA4 只在配置了 NEXT_PUBLIC_GA_ID 时加载(本地不配即静默);增强型衡量自动追踪
 // SPA 路由切换的 page_view,业务事件见 app/ga.ts 与 app/ga-measurement.ts。
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -49,7 +51,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/favicon-180.png?v=9" sizes="180x180" />
       </head>
       <body>
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
         {GA_ID ? (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />

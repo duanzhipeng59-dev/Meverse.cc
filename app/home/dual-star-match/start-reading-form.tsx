@@ -9,6 +9,7 @@
 // 契约时间到分钟、引擎校正到毫秒,存在 ≤1 分钟取整残差(时辰粒度排盘不受影响),公式只引用不修改。
 import { useMemo, useState, type FormEvent } from "react";
 import { Solar, Lunar } from "lunar-javascript";
+import { useLanguage } from "../../language-context";
 import { vedicCities } from "../../myfate-cities";
 import { regionProvinces } from "../../myfate-china-regions";
 import { equationOfTimeMinutes } from "../../myfate-bazi-engine";
@@ -74,22 +75,23 @@ function lunarMonthDays(y: number, m: number): number {
 
 // 校验+折算:通过返回 subject,失败返回字段级错误(不 throw,供单人/双人同一逻辑)。
 // 未填姓名时以出生年月日(公历折算后,与 birthDate 同源)作为姓名,替代旧「本人/对方」占位。
+// errors 里放的是 i18n key,由展示端(BirthInfoFields)经 t() 渲染成当前语言。
 export function buildBirthSubject(state: BirthState): { subject: StartSubject | null; errors: BirthFieldErrors } {
   let solar: { y: number; m: number; d: number };
   if (state.calendar === "solar") {
     const probe = new Date(state.parts.y, state.parts.m - 1, state.parts.d);
     if (probe.getFullYear() !== state.parts.y || probe.getMonth() !== state.parts.m - 1 || probe.getDate() !== state.parts.d) {
-      return { subject: null, errors: { date: "出生日期不存在，请重新选择" } };
+      return { subject: null, errors: { date: "form.err.date" } };
     }
     solar = { y: state.parts.y, m: state.parts.m, d: state.parts.d };
   } else if (!isValidLunar(state.parts.y, state.parts.m, state.parts.d)) {
-    return { subject: null, errors: { date: "农历日期不存在，请重新选择" } };
+    return { subject: null, errors: { date: "form.err.lunar" } };
   } else {
     const converted = Lunar.fromYmd(state.parts.y, state.parts.m, state.parts.d).getSolar();
     solar = { y: converted.getYear(), m: converted.getMonth(), d: converted.getDay() };
   }
   if (state.solarOn && (!state.province || !state.cityId || !state.district)) {
-    return { subject: null, errors: { region: "开启真太阳时校准需要选择出生地（省/市/区/县）" } };
+    return { subject: null, errors: { region: "form.err.region" } };
   }
   // 未选出生地(仅关闭校准时允许)默认北京;关闭时按引擎同一公式预扣除校正量
   const effective = vedicCities.find((item) => item.id === state.cityId) ?? vedicCities.find((item) => item.id === "beijing")!;
@@ -124,6 +126,7 @@ export function BirthInfoFields({ state, onChange, errors = {} }: {
   errors?: BirthFieldErrors;
 }) {
   const { parts } = state;
+  const { t } = useLanguage();
 
   const years = useMemo(() => {
     const list: number[] = [];
@@ -178,7 +181,8 @@ export function BirthInfoFields({ state, onChange, errors = {} }: {
     onChange({ ...state, parts: { ...parts, d } });
   }
 
-  const monthLabel = (m: number) => (m < 0 ? `闰${-m}月` : `${m}月`);
+  // 闰月「闰」简繁不同形走字典;普通月「X月」同形直接拼
+  const monthLabel = (m: number) => (m < 0 ? t("match.person.leapMonth", { n: -m }) : `${m}月`);
 
 // 农历日名:初一~初十、十一~十九、二十、廿一~廿九、三十(值仍是数字日,仅展示名变化)
 const LUNAR_DAY_ONES = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
@@ -190,77 +194,77 @@ function lunarDayLabel(day: number) {
   return "三十";
 }
   const regionHint = !state.solarOn
-    ? "已关闭校准，将按标准时间排盘"
+    ? t("form.hint.solarOff")
     : city
-      ? `经度 ${city.lon.toFixed(2)}°，将校正真太阳时`
-      : "选择出生地后，按当地经度校正真太阳时";
+      ? t("form.hint.solarOn", { lon: city.lon.toFixed(2) })
+      : t("form.hint.pick");
 
   return (
     <div className="mf-start-form">
       <label className="mf-start-field">
-        <span className="mf-start-label">姓名（可选）</span>
-        <input className="mf-start-input" value={state.name} maxLength={20} placeholder="如：张三" onChange={(e) => onChange({ ...state, name: e.target.value })} />
+        <span className="mf-start-label">{t("form.name")}</span>
+        <input className="mf-start-input" value={state.name} maxLength={20} placeholder={t("form.name.placeholder")} onChange={(e) => onChange({ ...state, name: e.target.value })} />
       </label>
 
       <div className="mf-start-field">
-        <span className="mf-start-label">历法</span>
+        <span className="mf-start-label">{t("form.calendar")}</span>
         <div className="mf-start-seg">
-          <button type="button" className={state.calendar === "solar" ? "is-on" : ""} onClick={() => switchCalendar("solar")}>公历</button>
-          <button type="button" className={state.calendar === "lunar" ? "is-on" : ""} onClick={() => switchCalendar("lunar")}>农历</button>
+          <button type="button" className={state.calendar === "solar" ? "is-on" : ""} onClick={() => switchCalendar("solar")}>{t("form.calendar.solar")}</button>
+          <button type="button" className={state.calendar === "lunar" ? "is-on" : ""} onClick={() => switchCalendar("lunar")}>{t("form.calendar.lunar")}</button>
         </div>
       </div>
 
       <div className="mf-start-field">
-        <span className="mf-start-label">出生日期</span>
+        <span className="mf-start-label">{t("form.birthDate")}</span>
         <div className="mf-start-row">
-          <select className="mf-start-select" value={parts.y} onChange={(e) => setYear(Number(e.target.value))} aria-label="出生年份">
-            {years.map((y) => (<option key={y} value={y}>{y}年</option>))}
+          <select className="mf-start-select" value={parts.y} onChange={(e) => setYear(Number(e.target.value))} aria-label={t("form.aria.year")}>
+            {years.map((y) => (<option key={y} value={y}>{t("form.unit.year", { n: y })}</option>))}
           </select>
-          <select className="mf-start-select" value={parts.m} onChange={(e) => setMonth(Number(e.target.value))} aria-label="出生月份">
+          <select className="mf-start-select" value={parts.m} onChange={(e) => setMonth(Number(e.target.value))} aria-label={t("form.aria.month")}>
             {months.map((m) => (<option key={m} value={m}>{monthLabel(m)}</option>))}
           </select>
-          <select className="mf-start-select" value={parts.d} onChange={(e) => setDay(Number(e.target.value))} aria-label="出生日期">
-            {Array.from({ length: dayCount }, (_, index) => index + 1).map((d) => (<option key={d} value={d}>{state.calendar === "lunar" ? lunarDayLabel(d) : `${d}日`}</option>))}
+          <select className="mf-start-select" value={parts.d} onChange={(e) => setDay(Number(e.target.value))} aria-label={t("form.aria.day")}>
+            {Array.from({ length: dayCount }, (_, index) => index + 1).map((d) => (<option key={d} value={d}>{state.calendar === "lunar" ? lunarDayLabel(d) : t("form.unit.day", { n: d })}</option>))}
           </select>
         </div>
-        {errors.date ? <small className="mf-start-error">{errors.date}</small> : null}
+        {errors.date ? <small className="mf-start-error">{t(errors.date)}</small> : null}
       </div>
 
       <div className="mf-start-field">
-        <span className="mf-start-label">出生时间</span>
+        <span className="mf-start-label">{t("form.birthTime")}</span>
         <div className="mf-start-row is-two">
-          <select className="mf-start-select" value={state.hour} onChange={(e) => onChange({ ...state, hour: Number(e.target.value) })} aria-label="出生小时">
-            {Array.from({ length: 24 }, (_, index) => index).map((h) => (<option key={h} value={h}>{h}点</option>))}
+          <select className="mf-start-select" value={state.hour} onChange={(e) => onChange({ ...state, hour: Number(e.target.value) })} aria-label={t("form.aria.hour")}>
+            {Array.from({ length: 24 }, (_, index) => index).map((h) => (<option key={h} value={h}>{t("form.unit.hour", { n: h })}</option>))}
           </select>
-          <select className="mf-start-select" value={state.minute} onChange={(e) => onChange({ ...state, minute: Number(e.target.value) })} aria-label="出生分钟">
-            {Array.from({ length: 60 }, (_, index) => index).map((mi) => (<option key={mi} value={mi}>{mi}分</option>))}
+          <select className="mf-start-select" value={state.minute} onChange={(e) => onChange({ ...state, minute: Number(e.target.value) })} aria-label={t("form.aria.minute")}>
+            {Array.from({ length: 60 }, (_, index) => index).map((mi) => (<option key={mi} value={mi}>{t("form.unit.minute", { n: mi })}</option>))}
           </select>
         </div>
       </div>
 
       <div className="mf-start-field">
-        <span className="mf-start-label">性别</span>
+        <span className="mf-start-label">{t("form.gender")}</span>
         <div className="mf-start-seg">
-          <button type="button" className={state.gender === "female" ? "is-on" : ""} onClick={() => onChange({ ...state, gender: "female" })}>女</button>
-          <button type="button" className={state.gender === "male" ? "is-on" : ""} onClick={() => onChange({ ...state, gender: "male" })}>男</button>
+          <button type="button" className={state.gender === "female" ? "is-on" : ""} onClick={() => onChange({ ...state, gender: "female" })}>{t("form.gender.female")}</button>
+          <button type="button" className={state.gender === "male" ? "is-on" : ""} onClick={() => onChange({ ...state, gender: "male" })}>{t("form.gender.male")}</button>
         </div>
       </div>
 
       <div className="mf-start-solar-card">
         <div className="mf-start-solar-copy">
-          <b>真太阳时校准</b>
-          <small>为了准确性，强烈建议开启此开关。</small>
+          <b>{t("form.solar.title")}</b>
+          <small>{t("form.solar.desc")}</small>
         </div>
-        <button type="button" role="switch" aria-checked={state.solarOn} aria-label="真太阳时校准" className={`mf-start-toggle${state.solarOn ? " is-on" : ""}`} onClick={() => onChange({ ...state, solarOn: !state.solarOn })}>
+        <button type="button" role="switch" aria-checked={state.solarOn} aria-label={t("form.solar.title")} className={`mf-start-toggle${state.solarOn ? " is-on" : ""}`} onClick={() => onChange({ ...state, solarOn: !state.solarOn })}>
           <i aria-hidden="true" />
         </button>
       </div>
 
       <div className="mf-start-field">
-        <span className="mf-start-label">出生地（精确到区/县，用于真太阳时校正）</span>
+        <span className="mf-start-label">{t("form.birthPlace")}</span>
         <div className="mf-start-row">
-          <select className="mf-start-select" value={state.province} onChange={(e) => onChange({ ...state, province: e.target.value, cityId: "", cityName: "", district: "" })} aria-label="省份">
-            <option value="">省</option>
+          <select className="mf-start-select" value={state.province} onChange={(e) => onChange({ ...state, province: e.target.value, cityId: "", cityName: "", district: "" })} aria-label={t("form.aria.province")}>
+            <option value="">{t("form.province")}</option>
             {regionProvinces.map((item) => (<option key={item.name} value={item.name}>{item.name}</option>))}
           </select>
           <select className="mf-start-select" value={state.cityId ? `${state.cityId}|${state.cityName}` : ""} disabled={!state.province} onChange={(e) => {
@@ -268,16 +272,16 @@ function lunarDayLabel(day: number) {
             // 否则选了地级市后 select 会回显到第一个同 value 的省会城市
             const [anchorId, cityName] = e.target.value.split("|");
             onChange({ ...state, cityId: anchorId, cityName: cityName ?? "", district: "" });
-          }} aria-label="城市">
-            <option value="">市</option>
+          }} aria-label={t("form.aria.city")}>
+            <option value="">{t("form.city")}</option>
             {provinceCities.map((item) => (<option key={`${item.cityId}-${item.name}`} value={`${item.cityId}|${item.name}`}>{item.name}</option>))}
           </select>
-          <select className="mf-start-select" value={state.district} disabled={!state.cityId} onChange={(e) => onChange({ ...state, district: e.target.value })} aria-label="区县">
-            <option value="">区/县</option>
+          <select className="mf-start-select" value={state.district} disabled={!state.cityId} onChange={(e) => onChange({ ...state, district: e.target.value })} aria-label={t("form.aria.district")}>
+            <option value="">{t("form.district")}</option>
             {districts.map((item) => (<option key={item} value={item}>{item}</option>))}
           </select>
         </div>
-        {errors.region ? <small className="mf-start-error">{errors.region}</small> : <small className="mf-start-hint">{regionHint}</small>}
+        {errors.region ? <small className="mf-start-error">{t(errors.region)}</small> : <small className="mf-start-hint">{regionHint}</small>}
       </div>
     </div>
   );
@@ -289,6 +293,7 @@ export default function StartReadingForm({ creating, apiError, onSubmit }: {
   apiError: string;
   onSubmit: (subject: StartSubject) => void;
 }) {
+  const { t } = useLanguage();
   const [state, setState] = useState<BirthState>(emptyBirthState);
   const [errors, setErrors] = useState<BirthFieldErrors>({});
 
@@ -309,7 +314,7 @@ export default function StartReadingForm({ creating, apiError, onSubmit }: {
       <BirthInfoFields state={state} onChange={setState} errors={errors} />
       {apiError ? <p className="mf-reading-dialog-error" role="alert">{apiError}</p> : null}
       <button className="mf-login-submit mf-start-submit" type="submit" disabled={creating}>
-        {creating ? "正在排盘…" : "开始排盘"}
+        {creating ? t("form.submit.starting") : t("form.submit.start")}
       </button>
     </form>
   );

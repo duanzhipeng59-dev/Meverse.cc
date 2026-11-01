@@ -2677,14 +2677,24 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-preview-chapters { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .mf-preview-chapters li { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border: 1px solid var(--bz-line); border-radius: 12px; color: var(--bz-ink); font-size: 13px; font-weight: 600; }
 .mf-preview-chapters li i { font-style: normal; color: var(--bz-red-bright); }
-.mf-preview-related { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.mf-preview-related a { display: grid; gap: 6px; text-decoration: none; }
-.mf-preview-related span { aspect-ratio: 3 / 3.8; border-radius: 12px; background-size: cover; background-position: var(--portrait-position, center); border: 1px solid var(--bz-line); }
-.mf-preview-related b { color: var(--bz-ink); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 同组合内链卡:与发现页 mf-bz-star-card 同款设计语言的缩小版——描边卡+顶满头像+hover 描红,
+   列数随宽度自适应(窄屏 3 列/宽屏 5-6 列),不再固定 4 列挤成窄条 */
+.mf-preview-related { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.mf-preview-related a {
+  display: grid; min-width: 0; align-content: start;
+  padding: 0 0 10px; border: 1px solid var(--bz-line); border-radius: 12px; background: var(--bz-card);
+  text-decoration: none;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.mf-preview-related a:hover { border-color: var(--bz-red); transform: translateY(-2px); box-shadow: 0 10px 24px rgb(198 75 115 / 14%); }
+.mf-preview-related span { aspect-ratio: 3 / 3.8; border-radius: 11px 11px 0 0; background-size: cover; background-position: var(--portrait-position, center); }
+.mf-preview-related b { margin: 8px 8px 0; color: var(--bz-ink); font-size: 13px; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 同组合内链卡副行:英文名 · 日主,弱化显示 */
+.mf-preview-related small { margin: 2px 8px 0; color: var(--bz-faint); font-size: 10.5px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mf-preview-note { margin: 10px 0 0; color: var(--bz-faint); font-size: 12px; }
 @media (max-width: 800px) {
   .mf-preview-chapters { grid-template-columns: repeat(2, 1fr); }
-  .mf-preview-related { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .mf-preview-related { gap: 8px; }
   .mf-preview-hero img { width: 108px; height: 140px; }
 }
 
@@ -3589,6 +3599,15 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-me-upgrade-bar-copy small { color: var(--bz-faint); font-size: 11.5px; }
 .mf-me-upgrade-bar-arrow { color: var(--bz-red-bright); font-size: 20px; line-height: 1; }
 
+/* 「我的」语言切换横条:「我的额度」栏目下方的独立横条(右侧为简/繁分段选择);
+   作为 .mf-me 网格的直接子项,纵向间距由网格 gap 提供 */
+.mf-me-lang-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 14px 18px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: var(--bz-card); }
+.mf-me-lang-seg { display: flex; gap: 6px; flex-shrink: 0; }
+.mf-me-lang-seg button { padding: 7px 12px; border-radius: 9px; border: 1px solid rgb(176 157 240 / 34%); background: transparent; color: var(--bz-faint); font-family: inherit; font-size: 12.5px; cursor: pointer; transition: all .18s ease; }
+.mf-me-lang-seg button:hover { border-color: rgb(195 160 244 / 55%); color: var(--bz-ink); }
+.mf-me-lang-seg button.is-on { background: linear-gradient(135deg, rgb(92 72 144 / 55%), rgb(60 44 96 / 45%)); border-color: rgb(195 160 244 / 62%); color: var(--bz-ink); font-weight: 650; }
+@media (max-width: 480px) { .mf-me-lang-bar { flex-direction: column; align-items: stretch; } .mf-me-lang-seg { justify-content: stretch; } .mf-me-lang-seg button { flex: 1; } }
+
 /* 订阅升级货架卡片:竖版渐变紫卡(名称印卡上) + 推荐卡更高凸出 + 右上角「推荐」角标 */
 .mf-upgrade-seg {
   position: sticky;
@@ -3717,7 +3736,9 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-upgrade-box-body li.is-denied i { background: rgb(224 109 124 / 14%); color: #ff4d5e; }
 
 /* 我的页:额度卡 + 订阅升级入口 共用一个矩形底板 */
-.mf-me-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--bz-line-strong); border-radius: 16px; background: var(--bz-card); }
+.mf-me-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: var(--bz-card); }
+/* 标题做进面板内:间距交给网格 gap,不吃外层 h2 的 12px 下边距;字号 15 */
+.mf-me-panel h2 { margin: 0; font-size: 15px; }
 .mf-me-panel .mf-me-upgrade-bar { margin-top: 0; width: 100%; box-sizing: border-box; }
 
 /* 额度卡与订阅升级横条等高(77px),内部元素同比缩小 */

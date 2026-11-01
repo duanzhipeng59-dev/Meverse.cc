@@ -6,10 +6,12 @@ import { Button } from "../../../components/ui";
 import LoginModal from "../../../components/login-modal";
 import RouteSkeleton from "../../../route-skeleton";
 import { readLocalSession } from "../../../local-auth";
+import { useLanguage } from "../../../language-context";
 
 // 预览页操作条:查看画像;分享在页面顶栏
 export default function PreviewActions({ starId }: { starId: string }) {
   const router = useRouter();
+  const { t } = useLanguage();
   // 登录门:未登录点主操作弹登录弹窗(与工作台其它入口统一),登录成功后续跳原目标;
   // 服务端 requirePageUser 仍是最终权限依据
   const [authed, setAuthed] = useState(true);
@@ -34,7 +36,7 @@ export default function PreviewActions({ starId }: { starId: string }) {
   return (
     <div className="mf-preview-actions">
       <RouteSkeleton active={entering} variant="star-report" />
-      <Button variant="primary" onClick={openReport}>查看完整画像</Button>
+      <Button variant="primary" onClick={openReport}>{t("preview.viewFull")}</Button>
       <LoginModal
         open={pending}
         onOpenChange={(open) => { if (!open) setPending(false); }}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useLanguage } from "../../language-context";
 
 // 历史记录横条(自填解读):主体是跳转链接,右端删除按钮与链接平级(不嵌套)。
 // 删除用系统确认弹窗,成功由父组件回调本地移除(入口页静态化后 router.refresh 不会更新客户端数据)。
@@ -18,11 +19,12 @@ export default function DualHistoryRow({ id, title, sub, time, statusLabel, stat
   // 提供时拦截点击(如待生成/失败记录客户端直跳排盘页,省一次服务端往返不闪 loading)
   onNavigate?: () => void;
 }) {
+  const { t } = useLanguage();
   const [deleting, setDeleting] = useState(false);
 
   const doDelete = async () => {
     if (deleting) return;
-    if (!window.confirm(`删除「${title}」的记录？删除后不可恢复。`)) return;
+    if (!window.confirm(t("history.delete.confirm", { title }))) return;
     setDeleting(true);
     try {
       const res = await fetch(deleteEndpoint, {
@@ -34,7 +36,7 @@ export default function DualHistoryRow({ id, title, sub, time, statusLabel, stat
       onDeleted?.(id);
     } catch {
       setDeleting(false);
-      window.alert("删除失败，请重试");
+      window.alert(t("history.delete.failed"));
     }
   };
 
@@ -59,7 +61,7 @@ export default function DualHistoryRow({ id, title, sub, time, statusLabel, stat
         className="mf-dual-history-del"
         onClick={() => void doDelete()}
         disabled={deleting}
-        aria-label={`删除 ${title} 的记录`}
+        aria-label={t("history.delete.aria", { title })}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M4 7h16" />

@@ -3,6 +3,7 @@ import { getHomepageStarList } from "./myfate-stars-server";
 import AuthEntryLink from "./auth-entry-link";
 import PortraitImg from "./portrait-img";
 import { portraitImage } from "./myfate-image";
+import Trans from "./trans";
 
 // 首页数据只依赖"首页精选"名单,变化频率低;ISR 每 5 分钟后台刷新,访客直接拿缓存 HTML。
 export const revalidate = 300;
@@ -27,21 +28,21 @@ export default async function MyfateHome() {
           <img src="/myfate-logo.png?v=2" alt="MeVerse" />
         </Link>
         <nav className="mf-nav" aria-label="主导航">
-          <Link href="/#stars">解读对象</Link>
-          <a href="#how-it-works">解读说明</a>
+          <Link href="/#stars"><Trans k="home.nav.stars" /></Link>
+          <a href="#how-it-works"><Trans k="home.nav.how" /></a>
         </nav>
-        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/profile" anonymousChildren="登录">个人中心</AuthEntryLink>
+        <AuthEntryLink className="mf-header-cta mf-home-header-cta" href="/home/profile" anonymousChildren={<Trans k="home.header.login" />}><Trans k="home.header.cta" /></AuthEntryLink>
       </header>
 
       <main>
         <section className="mf-hero mf-home-hero">
           <div className="mf-hero-copy">
-            <div className="mf-home-eyebrow"><span>✦</span> AI 生辰画像</div>
-            <h1><span>每一位生灵，</span><em>都有一份 AI 生辰画像</em></h1>
+            <div className="mf-home-eyebrow"><span>✦</span> <Trans k="home.hero.eyebrow" /></div>
+            <h1><span><Trans k="home.hero.title.a" /></span><em><Trans k="home.hero.title.b" /></em></h1>
             <p>
-              输入生辰即可排盘，一页读懂性格天赋、事业财富、感情家庭、身心节律与未来运势，还能继续向 AI 命理师追问。
+              <Trans k="home.hero.desc" />
             </p>
-            <Link className="mf-bz-btn mf-home-cta" href="/home/dual-star-match">立即探索 <span aria-hidden="true">→</span></Link>
+            <Link className="mf-bz-btn mf-home-cta" href="/home/dual-star-match"><Trans k="home.hero.cta" /> <span aria-hidden="true">→</span></Link>
           </div>
 
           <div className="mf-hero-visual">
@@ -110,18 +111,18 @@ export default async function MyfateHome() {
 
         <section className="mf-how" id="how-it-works">
           <div className="mf-how-grid">
-            <article><span>01</span><h3>填写生辰</h3><p>输入出生日期、时间与出生地，支持公历/农历与真太阳时校准，单人解读或双人合盘都从这里开始。</p></article>
-            <article><span>02</span><h3>生成 AI 解读</h3><p>系统按出生资料排出四柱命盘，呈现性格天赋、事业财富、感情家庭、身心节律与大运流年。</p></article>
-            <article><span>03</span><h3>继续追问</h3><p>报告下方可以直接提问，解读会基于盘面继续展开，越问越细。</p></article>
+            <article><span>01</span><h3><Trans k="home.how1.title" /></h3><p><Trans k="home.how1.desc" /></p></article>
+            <article><span>02</span><h3><Trans k="home.how2.title" /></h3><p><Trans k="home.how2.desc" /></p></article>
+            <article><span>03</span><h3><Trans k="home.how3.title" /></h3><p><Trans k="home.how3.desc" /></p></article>
           </div>
         </section>
       </main>
 
       <footer className="mf-footer">
         <Link className="mf-brand" href="/"><span>MeVerse</span></Link>
-        <p>以全新视角，探索性格、正缘与人生节律。</p>
+        <p><Trans k="home.footer.tagline" /></p>
         <p>
-          联系我们：
+          <Trans k="home.footer.contact" />
           <a className="mf-footer-mail" href="mailto:support@meverse.cc">support@meverse.cc</a>
         </p>
       </footer>

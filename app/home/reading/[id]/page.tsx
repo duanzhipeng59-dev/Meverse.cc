@@ -13,7 +13,7 @@ import { dualReadingSchema } from "../../../myfate-dual-reading";
 import DualReadingReport from "./dual-reading-report";
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import StaticReadingReport from "./static-reading-report";
-import { extractFortuneData } from "../../../star-reading-report";
+import { extractFortuneData } from "../../../star-fortune-extract";
 import FortuneCurveCard from "../../../fortune-curve";
 import PillarsCard from "../../../pillars-card";
 import StarAskPanel from "../../relationship-test/[id]/test/ask-panel";

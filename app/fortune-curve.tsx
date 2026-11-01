@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { buildFortuneCurveControls } from "./myfate-portrait-consult";
+import { useLanguage } from "./language-context";
 
 const W = 800;
 const H = 260;
@@ -18,6 +19,7 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
   loveMarriage: Array<{ age: string; tag: string }>;
   currentAge: number | null;
 }) {
+  const { t } = useLanguage();
   const controls = useMemo(() => buildFortuneCurveControls({ careerLifetime, wealthLifetime, loveMarriage }), [careerLifetime, wealthLifetime, loveMarriage]);
 
   // ── 单调三次插值(Fritsch–Carlson,同 d3.curveMonotoneX):曲线精确过每个控制点、
@@ -87,10 +89,10 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
   const current = currentAge !== null ? samples.reduce<Sample>((best, p) => (Math.abs(p.age - currentAge) < Math.abs(best.age - currentAge) ? p : best), samples[0]) : null;
 
   return (
-    <section className="mf-zr-card mf-fortune" aria-label="人生运势">
+    <section className="mf-zr-card mf-fortune" aria-label={t("report.fortune.aria")}>
       <div className="mf-zr-section-head mf-sr-head">
-        <div><h2><i aria-hidden="true">✦</i>人生运势</h2></div>
-        <p className="mf-fortune-sub">7—80岁大运走势 · 综合事业 / 财富</p>
+        <div><h2><i aria-hidden="true">✦</i>{t("report.fortune.aria")}</h2></div>
+        <p className="mf-fortune-sub">{t("report.fortune.sub")}</p>
       </div>
 
       <div className="mf-fortune-stage">
@@ -108,14 +110,14 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
             <>
               <circle cx={peak.x} cy={peak.y} r="9" fill="#E8A9D8" opacity="0.35" vectorEffect="non-scaling-stroke" />
               <circle cx={peak.x} cy={peak.y} r="6" fill="#E8A9D8" stroke="#F7F0F2" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-              <text x={peak.x} y={peak.y - 16} textAnchor="middle" className="mf-fortune-label">最高 {peak.age}岁</text>
+              <text x={peak.x} y={peak.y - 16} textAnchor="middle" className="mf-fortune-label">{t("report.fortune.peak", { age: peak.age })}</text>
             </>
           ) : null}
           {low.age !== peak.age && low.age !== current?.age ? (
             <>
               <circle cx={low.x} cy={low.y} r="9" fill="#E8A9D8" opacity="0.35" vectorEffect="non-scaling-stroke" />
               <circle cx={low.x} cy={low.y} r="6" fill="#E8A9D8" stroke="#F7F0F2" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-              <text x={low.x} y={low.y + 48} textAnchor="middle" className="mf-fortune-label">最低 {low.age}岁</text>
+              <text x={low.x} y={low.y + 48} textAnchor="middle" className="mf-fortune-label">{t("report.fortune.low", { age: low.age })}</text>
             </>
           ) : null}
           {current ? <circle cx={current.x} cy={current.y} r="4.5" fill="#F7F0F2" stroke="#A99CFF" strokeWidth="2" vectorEffect="non-scaling-stroke" /> : null}

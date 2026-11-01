@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../auth-context";
 import LoginModal from "../../components/login-modal";
+import { useLanguage } from "../../language-context";
 import { vedicCities } from "../../myfate-cities";
 import { buildDualChart } from "../../myfate-dual-engine";
 import DualHistoryRow from "./dual-history-row";
@@ -13,7 +14,8 @@ import { precheckCredits, writeConfirmPayload } from "./confirm-storage";
 
 // 解读页枢纽:两张入口卡(单人解读/双人合盘,点击弹窗填写信息) + 自填生成记录。
 // pending = 进了排盘页但没点「开始解读」就退出,点记录行可回去续走。
-const STATUS_LABELS: Record<string, string> = { ready: "已完成", generating: "生成中", failed: "生成失败", pending: "待生成" };
+// 文案走 i18n(简繁切换),STATUS_LABELS 存的是 key
+const STATUS_LABELS: Record<string, string> = { ready: "match.status.ready", generating: "match.status.generating", failed: "match.status.failed", pending: "match.status.pending" };
 
 type SubjectInfo = { name: string; gender: "male" | "female"; birthDate: string; birthTime: string; cityId: string; cityName: string };
 type ReadingRow = { id: string; mode: "single" | "dual"; dualType?: "love" | "career"; status: string; subjectA: SubjectInfo; subjectB: SubjectInfo | null; createdAt: string };
@@ -38,33 +40,35 @@ function DualPersonCard({ label, records, status, source, setSource, pick, setPi
   errors: PersonErrors;
   onRetry: () => void;
 }) {
+  const { t } = useLanguage();
   const hasError = Boolean(errors.card || errors.date || errors.region);
+  const dateText = `${draft.parts.y}年${draft.parts.m < 0 ? t("match.person.leapMonth", { n: -draft.parts.m }) : draft.parts.m}月${draft.parts.d}日`;
   const summary = visited
-    ? `${draft.parts.y}年${draft.parts.m < 0 ? `闰${-draft.parts.m}` : draft.parts.m}月${draft.parts.d}日${draft.calendar === "lunar" ? "（农历）" : ""}`
-    : "点击填写出生信息";
+    ? (draft.calendar === "lunar" ? t("match.person.dateLunar", { date: dateText }) : dateText)
+    : t("match.person.clickFill");
   return (
     <section className={`mf-reading-person${hasError ? " has-error" : ""}`}>
       <h3>{label}</h3>
       <div className="mf-reading-source">
-        <button type="button" className={source === "manual" ? "is-on" : ""} onClick={() => setSource("manual")}>手动填写</button>
-        <button type="button" className={source === "record" ? "is-on" : ""} disabled={status === "ready" && !records.length} onClick={() => setSource("record")}>从记录选</button>
+        <button type="button" className={source === "manual" ? "is-on" : ""} onClick={() => setSource("manual")}>{t("match.person.manual")}</button>
+        <button type="button" className={source === "record" ? "is-on" : ""} disabled={status === "ready" && !records.length} onClick={() => setSource("record")}>{t("match.person.fromRecord")}</button>
       </div>
       {source === "record" ? (
         status === "loading" ? (
-          <div className="mf-reading-record-state">正在加载命盘记录…</div>
+          <div className="mf-reading-record-state">{t("match.person.loading")}</div>
         ) : status === "error" ? (
-          <div className="mf-reading-record-state">命盘记录加载失败，<button type="button" onClick={onRetry}>重试</button></div>
+          <div className="mf-reading-record-state">{t("match.person.loadFailed")}<button type="button" onClick={onRetry}>{t("common.retry")}</button></div>
         ) : records.length === 0 ? (
-          <div className="mf-reading-record-state">暂无命盘记录，<button type="button" onClick={() => { setSource("manual"); onEdit(); }}>去手动填写</button></div>
+          <div className="mf-reading-record-state">{t("match.person.empty")}<button type="button" onClick={() => { setSource("manual"); onEdit(); }}>{t("match.person.goManual")}</button></div>
         ) : (
-          <select className="mf-reading-record" value={pick} onChange={(e) => setPick(e.target.value)} aria-label={`选择${label}的记录`}>
+          <select className="mf-reading-record" value={pick} onChange={(e) => setPick(e.target.value)} aria-label={t("match.person.selectAria", { label })}>
             {records.map((record) => (<option key={record.key} value={record.key}>{record.label}</option>))}
           </select>
         )
       ) : (
         <button type="button" className="mf-reading-fill-slot" onClick={onEdit}>
           <span>{summary}</span>
-          <b aria-hidden="true">{visited ? "修改 →" : "填写 →"}</b>
+          <b aria-hidden="true">{visited ? t("match.person.edit") : t("match.person.fill")}</b>
         </button>
       )}
       {errors.card ? <small className="mf-reading-card-error" role="alert">{errors.card}</small> : null}
@@ -75,6 +79,7 @@ function DualPersonCard({ label, records, status, source, setSource, pick, setPi
 export default function ReadingHub() {
   const router = useRouter();
   const { status: authStatus, email } = useAuth();
+  const { t } = useLanguage();
   const loggedIn = authStatus === "authenticated" && Boolean(email);
   const [readings, setReadings] = useState<ReadingRow[]>([]);
   const [dialog, setDialog] = useState<"single" | "dual" | null>(null);
@@ -195,6 +200,7 @@ export default function ReadingHub() {
     const displaySubjectName = (subject: SubjectInfo): string => {
       const name = subject.name.trim();
       if (name && name !== "本人") return name;
+      // 年/月/日 简繁同形,无需翻译
       const [year, month, day] = subject.birthDate.split("-");
       return `${year}年${month}月${day}日`;
     };
@@ -228,7 +234,7 @@ export default function ReadingHub() {
             title={title}
             sub={isDual ? undefined : baziOf(row.subjectA)}
             time={fmt(row.createdAt)}
-            statusLabel={STATUS_LABELS[row.status] ?? row.status}
+            statusLabel={t(STATUS_LABELS[row.status] ?? row.status)}
             status={row.status}
             href={`/home/reading/${row.id}`}
             onNavigate={row.status === "pending" || row.status === "failed" ? () => resumeRow(row) : undefined}
@@ -239,7 +245,7 @@ export default function ReadingHub() {
       });
     }
     return items.sort((a, b) => b.ts - a.ts).map((item) => item.node);
-  }, [readings, resumeRow]);
+  }, [readings, resumeRow, t]);
 
   // 未登录点击入口:弹登录,成功后自动进入对应填写弹窗
   function openOrLogin(mode: "single" | "dual") {
@@ -302,12 +308,13 @@ export default function ReadingHub() {
         const record = personRecords.find((item) => item.key === pick);
         return record
           ? { subject: record.subject, errors: {} }
-          : { subject: null, errors: { card: personRecords.length ? "请选择命盘记录" : "暂无命盘记录，请切换为手动填写" } };
+          : { subject: null, errors: { card: personRecords.length ? t("match.err.selectRecord") : t("match.err.noRecord") } };
       }
       const built = buildBirthSubject(draft);
       if (built.subject) return { subject: built.subject, errors: {} };
       // 尚未进入过填写页时引导点击「填写」;缺的只是出生地时点名地址
-      return { subject: null, errors: { ...built.errors, card: !visited ? "请点击「填写」补全出生信息" : built.errors.region ? "请把地址填写完整" : "请把信息填写完整" } };
+      // built.errors.date/region 是 i18n key,由展示端经 t() 渲染
+      return { subject: null, errors: { ...built.errors, card: !visited ? t("match.err.clickFill") : built.errors.region ? t("match.err.region") : t("match.err.complete") } };
     };
     const a = resolve(sourceA, pickA, manualA, visitA);
     const b = resolve(sourceB, pickB, manualB, visitB);
@@ -321,7 +328,7 @@ export default function ReadingHub() {
     }
     // 记录模式下两边必须是不同的人，避免生成没有比较意义的自合盘。
     if (sourceA === "record" && sourceB === "record" && pickA === pickB) {
-      const duplicateMessage = "本人和对方不能选择同一条命盘记录";
+      const duplicateMessage = t("match.err.sameRecord");
       setPersonErrors({ a: { card: duplicateMessage }, b: { card: duplicateMessage } });
       requestAnimationFrame(() => {
         document.querySelector(".mf-reading-person.has-error")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -348,22 +355,22 @@ export default function ReadingHub() {
 
   return (
     <>
-      {paidNotice ? <div className="mf-reading-paid-banner" role="status">✓ 支付成功，次数已到账</div> : null}
+      {paidNotice ? <div className="mf-reading-paid-banner" role="status">{t("match.paid.banner")}</div> : null}
       <div className="mf-reading-cards">
         <button type="button" className="mf-reading-card is-single" onClick={() => openOrLogin("single")}>
           <i className="mf-reading-card-mark" aria-hidden="true">✦</i>
-          <span className="mf-reading-card-copy"><b>单人解读</b><small>看一个人的性格、事业、财运、感情</small></span>
+          <span className="mf-reading-card-copy"><b>{t("match.card.single.title")}</b><small>{t("match.card.single.desc")}</small></span>
           <span className="mf-reading-card-arrow" aria-hidden="true">›</span>
         </button>
         <button type="button" className="mf-reading-card is-dual" onClick={() => openOrLogin("dual")}>
           <i className="mf-reading-card-mark" aria-hidden="true">✦✦</i>
-          <span className="mf-reading-card-copy"><b>双人合盘</b><small>看两个人合不合 · 感情 / 事业</small></span>
+          <span className="mf-reading-card-copy"><b>{t("match.card.dual.title")}</b><small>{t("match.card.dual.desc")}</small></span>
           <span className="mf-reading-card-arrow" aria-hidden="true">›</span>
         </button>
       </div>
 
-      <section className="mf-reading-records" aria-label="生成记录">
-        <h2>生成记录</h2>
+      <section className="mf-reading-records" aria-label={t("match.records.aria")}>
+        <h2>{t("match.records.title")}</h2>
         {recordsLoading ? (
           <div className="mf-reading-record-skel" aria-hidden="true">
             {[0, 1, 2].map((index) => (
@@ -379,44 +386,44 @@ export default function ReadingHub() {
               </div>
             ))}
           </div>
-        ) : records.length ? <div className="mf-reading-record-list">{records}</div> : <p className="mf-reading-empty">还没有解读记录，从上方开始第一次排盘。</p>}
+        ) : records.length ? <div className="mf-reading-record-list">{records}</div> : <p className="mf-reading-empty">{t("match.records.empty")}</p>}
       </section>
 
       {dialog ? (
-        <div className="mf-login-modal-overlay" role="dialog" aria-modal="true" aria-label={dialog === "dual" ? "双人合盘信息" : "开始解读"}>
+        <div className="mf-login-modal-overlay" role="dialog" aria-modal="true" aria-label={dialog === "dual" ? t("match.dialog.dual.aria") : t("match.dialog.single.aria")}>
           <div className="mf-login-modal-mask" aria-hidden="true" onClick={() => setDialog(null)} />
           <section className="mf-login-card mf-login-modal-card mf-reading-dialog">
             {dialog === "dual" ? (
               personEditing ? (
                 <>
                   <div className="mf-reading-dialog-head is-edit">
-                    <button type="button" className="mf-reading-back" aria-label="返回合盘" onClick={() => setPersonEditing(null)}><span aria-hidden="true">←</span></button>
-                    <h1>{personEditing === "a" ? "本人信息" : "对方信息"}</h1>
+                    <button type="button" className="mf-reading-back" aria-label={t("match.edit.back")} onClick={() => setPersonEditing(null)}><span aria-hidden="true">←</span></button>
+                    <h1>{personEditing === "a" ? t("match.edit.titleA") : t("match.edit.titleB")}</h1>
                   </div>
                   <BirthInfoFields
                     state={personEditing === "a" ? manualA : manualB}
                     onChange={(next) => updateManualPerson(personEditing === "a" ? "a" : "b", next)}
                     errors={personEditing === "a" ? personErrors.a : personErrors.b}
                   />
-                  <button className="mf-login-submit mf-start-submit" type="button" onClick={() => setPersonEditing(null)}>完成</button>
+                  <button className="mf-login-submit mf-start-submit" type="button" onClick={() => setPersonEditing(null)}>{t("match.edit.done")}</button>
                 </>
               ) : (
                 <>
                   <div className="mf-reading-dialog-head">
-                    <h1>新建合盘</h1>
-                    <button type="button" className="mf-reading-close" aria-label="关闭" onClick={() => setDialog(null)}>×</button>
+                    <h1>{t("match.dual.title")}</h1>
+                    <button type="button" className="mf-reading-close" aria-label={t("match.close")} onClick={() => setDialog(null)}>×</button>
                   </div>
-                  <DualPersonCard label="本人" records={personRecords} status={recordsStatus} source={sourceA} setSource={(next) => { setSourceA(next); setLastGenderSide("a"); }} pick={pickA} setPick={(next) => { setPickA(next); setLastGenderSide("a"); }} draft={manualA} visited={visitA} onEdit={() => { setVisitA(true); setPersonEditing("a"); }} errors={showGenderHint && lastGenderSide === "a" ? { ...personErrors.a, card: "双方性别相同，请选择其他性别" } : personErrors.a} onRetry={loadRecords} />
-                  <DualPersonCard label="对方" records={personRecords} status={recordsStatus} source={sourceB} setSource={(next) => { setSourceB(next); setLastGenderSide("b"); }} pick={pickB} setPick={(next) => { setPickB(next); setLastGenderSide("b"); }} draft={manualB} visited={visitB} onEdit={() => { setVisitB(true); setPersonEditing("b"); }} errors={showGenderHint && lastGenderSide === "b" ? { ...personErrors.b, card: "双方性别相同，请选择其他性别" } : personErrors.b} onRetry={loadRecords} />
+                  <DualPersonCard label={t("match.person.a")} records={personRecords} status={recordsStatus} source={sourceA} setSource={(next) => { setSourceA(next); setLastGenderSide("a"); }} pick={pickA} setPick={(next) => { setPickA(next); setLastGenderSide("a"); }} draft={manualA} visited={visitA} onEdit={() => { setVisitA(true); setPersonEditing("a"); }} errors={showGenderHint && lastGenderSide === "a" ? { ...personErrors.a, card: t("match.err.sameGender") } : personErrors.a} onRetry={loadRecords} />
+                  <DualPersonCard label={t("match.person.b")} records={personRecords} status={recordsStatus} source={sourceB} setSource={(next) => { setSourceB(next); setLastGenderSide("b"); }} pick={pickB} setPick={(next) => { setPickB(next); setLastGenderSide("b"); }} draft={manualB} visited={visitB} onEdit={() => { setVisitB(true); setPersonEditing("b"); }} errors={showGenderHint && lastGenderSide === "b" ? { ...personErrors.b, card: t("match.err.sameGender") } : personErrors.b} onRetry={loadRecords} />
                   {error ? <p className="mf-reading-dialog-error" role="alert">{error}</p> : null}
-                  <button className="mf-login-submit mf-start-submit" type="button" disabled={starting} onClick={() => void start()}>{starting ? "正在合盘…" : "开始合盘"}</button>
+                  <button className="mf-login-submit mf-start-submit" type="button" disabled={starting} onClick={() => void start()}>{starting ? t("match.starting.dual") : t("match.start.dual")}</button>
                 </>
               )
             ) : (
               <>
                 <div className="mf-reading-dialog-head">
-                  <h1>开始解读</h1>
-                  <button type="button" className="mf-reading-close" aria-label="关闭" onClick={() => setDialog(null)}>×</button>
+                  <h1>{t("match.single.title")}</h1>
+                  <button type="button" className="mf-reading-close" aria-label={t("match.close")} onClick={() => setDialog(null)}>×</button>
                 </div>
                 <StartReadingForm creating={starting} apiError={error} onSubmit={submitSingle} />
               </>

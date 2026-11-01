@@ -25,9 +25,11 @@ const LANGUAGE_CHANGE_EVENT = "myfate-language-change";
 
 function getLanguageSnapshot(): Lang {
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "en" || stored === "zh") return stored;
+  if (stored === "zh-TW" || stored === "zh") return stored;
+  // en 为休眠语言(字典未跟全),英语浏览器也回退简中;
+  // 繁中浏览器(zh-TW/zh-HK)自动给繁中介面
   const nav = window.navigator.language ?? "";
-  if (nav.startsWith("en")) return "en";
+  if (nav === "zh-TW" || nav === "zh-HK" || nav.startsWith("zh-Hant")) return "zh-TW";
   return "zh";
 }
 
@@ -48,7 +50,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+    document.documentElement.lang = lang === "zh-TW" ? "zh-TW" : "zh-CN";
   }, [lang]);
 
   const setLang = useCallback((next: Lang) => {
@@ -56,8 +58,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     window.dispatchEvent(new Event(LANGUAGE_CHANGE_EVENT));
   }, []);
 
+  // 简繁互切(en 无界面入口,不会路过)
   const toggleLang = useCallback(() => {
-    setLang(lang === "zh" ? "en" : "zh");
+    setLang(lang === "zh" ? "zh-TW" : "zh");
   }, [lang, setLang]);
 
   const translate = useCallback(
