@@ -3591,13 +3591,17 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* 订阅升级货架卡片:竖版渐变紫卡(名称印卡上) + 推荐卡更高凸出 + 右上角「推荐」角标 */
 .mf-upgrade-seg {
-  position: relative;
+  position: sticky;
+  top: 49px;
+  z-index: 19;
   grid-template-columns: repeat(2, max-content);
   justify-content: center;
   gap: clamp(26px, 8vw, 102px);
   width: 100%;
   margin: 0 0 16px;
+  background: var(--bz-paper);
   border-bottom: 1px solid rgb(195 160 244 / 12%);
+  box-shadow: 0 10px 18px -18px rgb(0 0 0 / 90%);
 }
 
 .mf-start-seg.mf-upgrade-seg button {
@@ -3689,7 +3693,7 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* 订阅升级独立页(/home/profile/upgrade):货架列宽收窄,避免桌面端三卡过宽 */
 .mf-upgrade-page { display: block; }
-.mf-upgrade-body { width: min(640px, 100%); margin: 20px auto 0; padding: 0 4px; }
+.mf-upgrade-body { width: min(640px, 100%); margin: 0 auto; padding: 0 4px; }
 
 
 /* 套餐购买页:分栏下的矩形占位框(内容后续填入) */
@@ -3764,10 +3768,6 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* 普通套餐卡:去掉内容与底部价格横条之间的分隔线(高亮的高级版保留) */
 .mf-upgrade-box:not(.is-best) .mf-upgrade-box-bar { border-top: 0; padding-top: 0; }
-
-/* 高级版卡片右上角「推荐」胶囊角标 */
-.mf-upgrade-box { position: relative; }
-.mf-upgrade-box-badge { position: absolute; top: 24px; right: 22px; padding: 5px 13px; border-radius: 999px; background: rgb(255 255 255 / 10%); color: var(--bz-red-bright); font-size: 11px; font-style: normal; font-weight: 700; letter-spacing: .1em; }
 
 /* 到账提示显示在对应卡片内部(价格横条下方),不再页面级统一展示 */
 .mf-upgrade-box .mf-upgrade-paid { margin: 0; padding: 0 22px 14px; text-align: left; }

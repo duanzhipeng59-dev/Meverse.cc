@@ -90,7 +90,6 @@ export default function UpgradeShelf() {
 
       {boxes.map((box) => (
         <div className={`mf-upgrade-box${box.best ? " is-best" : ""}`} key={box.id}>
-          {box.best ? <em className="mf-upgrade-box-badge" aria-label="推荐">推荐</em> : null}
           <div className="mf-upgrade-box-body">
             <b>{box.title}</b>
             {box.desc ? <p className="mf-upgrade-box-desc">{box.desc}</p> : null}
