@@ -137,10 +137,11 @@ export default function ReadingConfirmPage() {
     setCreating(true);
     setError("");
     try {
-      // 界面语言随生成请求传给服务端:繁中用户走繁体生成链路(报告正文原生繁体)
+      // 界面语言随生成请求传给服务端:繁中用户走繁体生成链路(报告正文原生繁体)。
+      // 注意语言偏好在 localStorage(language-context),sessionStorage 里没有
       let genLang: "zh" | "zh-TW" = "zh";
       try {
-        genLang = sessionStorage.getItem("myfate-lang") === "zh-TW" ? "zh-TW" : "zh";
+        genLang = window.localStorage.getItem("myfate-lang") === "zh-TW" ? "zh-TW" : "zh";
       } catch { /* 隐私模式按简体 */ }
       // 优先推进进页时落的「待生成」记录(在途则等它);没有则退回完整创建
       const pendingId = payload.reportId ?? (await pendingCreate.current);
