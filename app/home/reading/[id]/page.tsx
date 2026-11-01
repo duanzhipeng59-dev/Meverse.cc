@@ -11,6 +11,7 @@ import { getReadingReport, importSharedReadingReport, type ReadingSubject } from
 import { dualReportSchema, withPersonNames, type DualReportContent } from "../../../myfate-dual-legacy";
 import { dualReadingSchema } from "../../../myfate-dual-reading";
 import DualReadingReport from "./dual-reading-report";
+import { TradSingleReport, TradDualReport, TradRawReport } from "./trad-views";
 import { staticReadingSchema } from "../../../myfate-static-reading";
 import StaticReadingReport from "./static-reading-report";
 import { extractFortuneData } from "../../../star-fortune-extract";
@@ -91,24 +92,21 @@ export default async function ReadingReportPage({ params }: { params: Promise<{ 
         return (
           <>
             {singleChart ? <PillarsCard pillars={singleChart.pillars.map((pillar) => pillar.ganzhi)} /> : null}
-            {fortune ? (
-              <FortuneCurveCard careerLifetime={fortune.careerLifetime} wealthLifetime={fortune.wealthLifetime} loveMarriage={fortune.loveMarriage} currentAge={fortune.currentAge} />
-            ) : null}
-            <StaticReadingReport content={parsed.data} showAdvice={false} />
+            <TradSingleReport content={parsed.data} fortune={fortune} />
             <div id="ask"><StarAskPanel starId={report.id} starName={singleDisplayName} reportType="reading-single" /></div>
             <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读，量化评分与财富区间为结构信号的估算表达，仅供娱乐与自我观察参考，不构成医疗、法律或投资建议。</p>
           </>
         );
       })() : (() => {
         if (typeof report.content === "string") {
-          return <article className="mf-zr-card mf-rr-card mf-raw-report"><RawReportMarkdown content={report.content} /></article>;
+          return <TradRawReport content={report.content} />;
         }
         // 新契约:蒸馏管线产出的九章合盘报告(dual-reading-v1)
         const dualReading = dualReadingSchema.safeParse(report.content);
         if (dualReading.success) {
           return (
             <>
-              <DualReadingReport content={dualReading.data} />
+              <TradDualReport content={dualReading.data} />
               <div id="ask"><StarAskPanel starId={report.id} starName={`${subjectA.name} × ${subjectB?.name ?? ""}`} reportType="reading-dual" /></div>
               <p className="mf-zr-note">本报告基于子平八字体系(四柱、十神、格局、神煞、大运流年)做文化解读,量化评分与财富区间为结构信号的估算表达,仅供娱乐与自我观察参考,不构成医疗、法律或投资建议。</p>
             </>
