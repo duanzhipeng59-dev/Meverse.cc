@@ -2720,7 +2720,7 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-workspace-content > .mf-hist { width: auto; padding: 0; background: transparent; border-radius: 0; }
 
 /* 我的页:20px 边距/28px 区块距/20px 卡片内距/88×112 人物图/48 登录钮/64 入口行 */
-.mf-me { display: grid; gap: 28px; max-width: 720px; margin: 0 auto; min-width: 0; }
+.mf-me { display: grid; gap: 18px; max-width: 720px; margin: 0 auto; min-width: 0; }
 .mf-me > * { min-width: 0; max-width: 100%; }
 .mf-me-account { display: flex; align-items: center; gap: 14px; padding: 20px; border: 1px solid var(--bz-line); border-radius: 16px; background: var(--bz-card); box-sizing: border-box; }
 .mf-me-account-copy { flex: 1; min-width: 0; display: grid; gap: 4px; }
@@ -3591,13 +3591,13 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-me-credit-copy small { color: #b4aec4; font-size: 12px; letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mf-me-credit-copy b { color: #fff; font-size: 26px; font-weight: 700; line-height: 1.15; }
 
-/* 「我的」订阅升级入口横条(我的额度下方) */
-.mf-me-upgrade-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-top: 28px; padding: 16px 18px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease; }
+/* 「我的」订阅升级入口横条(我的额度下方):高 64、内部元素同比缩小;配色为常规紫卡 */
+.mf-me-upgrade-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 64px; box-sizing: border-box; margin-top: 28px; padding: 13px 15px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease; }
 .mf-me-upgrade-bar:hover { border-color: rgb(195 160 244 / 62%); }
-.mf-me-upgrade-bar-copy { display: grid; gap: 3px; }
-.mf-me-upgrade-bar-copy b { color: var(--bz-ink); font-size: 15px; font-weight: 700; }
-.mf-me-upgrade-bar-copy small { color: var(--bz-faint); font-size: 11.5px; }
-.mf-me-upgrade-bar-arrow { color: var(--bz-red-bright); font-size: 20px; line-height: 1; }
+.mf-me-upgrade-bar-copy { display: grid; gap: 2px; }
+.mf-me-upgrade-bar-copy b { color: var(--bz-ink); font-size: 12.5px; font-weight: 700; }
+.mf-me-upgrade-bar-copy small { color: var(--bz-faint); font-size: 9.5px; }
+.mf-me-upgrade-bar-arrow { color: var(--bz-red-bright); font-size: 16px; line-height: 1; }
 
 /* 「我的」语言切换横条:「我的额度」栏目下方的独立横条(右侧为简/繁分段选择);
    作为 .mf-me 网格的直接子项,纵向间距由网格 gap 提供 */
@@ -3737,15 +3737,15 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 
 /* 我的页:额度卡 + 订阅升级入口 共用一个矩形底板 */
 .mf-me-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: var(--bz-card); }
-/* 标题做进面板内:间距交给网格 gap,不吃外层 h2 的 12px 下边距;字号 15 */
-.mf-me-panel h2 { margin: 0; font-size: 15px; }
+/* 标题做进面板内:间距交给网格 gap,不吃外层 h2 的 12px 下边距;字号 12.5 */
+.mf-me-panel h2 { margin: 0; font-size: 12.5px; }
 .mf-me-panel .mf-me-upgrade-bar { margin-top: 0; width: 100%; box-sizing: border-box; }
 
-/* 额度卡与订阅升级横条等高(77px),内部元素同比缩小 */
-.mf-me-panel .mf-me-credit-card { height: 77px; box-sizing: border-box; padding: 10px 13px; gap: 11px; }
-.mf-me-panel .mf-me-credit-icon { width: 36px; height: 36px; font-size: 14px; }
-.mf-me-panel .mf-me-credit-copy small { font-size: 11px; }
-.mf-me-panel .mf-me-credit-copy b { font-size: 21px; }
+/* 额度卡与订阅升级横条等高(64px),内部元素同比缩小(×0.83) */
+.mf-me-panel .mf-me-credit-card { height: 64px; box-sizing: border-box; padding: 8px 11px; gap: 9px; }
+.mf-me-panel .mf-me-credit-icon { width: 30px; height: 30px; font-size: 12px; }
+.mf-me-panel .mf-me-credit-copy small { font-size: 9px; }
+.mf-me-panel .mf-me-credit-copy b { font-size: 17px; }
 
 /* 「开始排盘/开始合盘」弹窗提交按钮:与「单人解读」入口卡同款配色 */
 .mf-login-modal-card .mf-start-submit { border: 1px solid rgb(239 167 212 / 14%); background: linear-gradient(125deg, rgb(239 167 212 / 24%), rgb(157 156 255 / 13%)), var(--bz-card-raised); color: var(--bz-ink); }
