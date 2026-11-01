@@ -161,7 +161,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
         const guestProfile = readBasicProfile(null);
         writeBasicProfile(user.email, guestProfile);
       }
-      markAuthenticated(user.email);
+      markAuthenticated(user.email, result.user?.id ?? null);
       // GA4 漏斗:新邮箱记 sign_up、老用户记 login(ensureLocalUser 的 created 标记是否首建)
       gaEvent(user.created ? "sign_up" : "login", { method: "email" });
       clearSentCodeState();

@@ -6,12 +6,13 @@ import CelebrityBrowser from "../celebrity-match/celebrity-browser";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "明星生辰画像合集",
-  description: "浏览全部公开人物档案：出生资料、八字日主与 AI 生辰画像解读，支持继续向 AI 命理师追问。",
+  // 栏目页锚「明星八字」搜索词;正文路径 /home/relationship-test 不变,纯文案调整
+  title: "明星八字·生辰画像合集",
+  description: "全部明星的八字命盘与生辰画像合集：出生资料、八字日主、性格天赋与感情运势解读，可测两人合盘，支持向 AI 命理师追问。",
   alternates: { canonical: "/home/relationship-test" },
   openGraph: {
-    title: "明星生辰画像合集 · MeVerse",
-    description: "浏览全部公开人物档案：出生资料、八字日主与 AI 生辰画像解读。",
+    title: "明星八字·生辰画像合集 · MeVerse",
+    description: "全部明星的八字命盘与生辰画像合集：出生资料、八字日主、性格与感情解读，可测合盘。",
     url: "/home/relationship-test",
   },
 };

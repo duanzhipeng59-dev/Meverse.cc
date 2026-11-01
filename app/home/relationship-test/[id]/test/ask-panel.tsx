@@ -253,7 +253,7 @@ export default function StarAskPanel({
       {needRecharge ? (
         <div className="mf-zr-ask-recharge">
           <span>追问余额不足，充值后可继续向 AI 命理师提问。</span>
-          <Link className="mf-zr-ask-recharge-btn" href="/home/profile/upgrade">去充值</Link>
+          <Link className="mf-zr-ask-recharge-btn" href="/home/profile/upgrade?from=ask">去充值</Link>
         </div>
       ) : null}
 

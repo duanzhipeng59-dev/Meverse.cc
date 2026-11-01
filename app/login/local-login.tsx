@@ -170,7 +170,7 @@ export default function LocalLogin() {
         const guestProfile = readBasicProfile(null);
         writeBasicProfile(user.email, guestProfile);
       }
-      markAuthenticated(user.email);
+      markAuthenticated(user.email, result.user?.id ?? null);
       // GA4 漏斗:与工作台登录弹窗同款,新邮箱记 sign_up、老用户记 login
       gaEvent(user.created ? "sign_up" : "login", { method: "email" });
       clearSentCodeState();
