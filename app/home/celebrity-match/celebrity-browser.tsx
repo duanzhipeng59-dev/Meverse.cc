@@ -22,6 +22,24 @@ type SortKey = (typeof SORTS)[number]["key"];
 // 热门 tab 的高知名度组合池(角色前缀命中即入池;新团不入,保证置顶的都是大牌)
 const POPULAR_GROUPS = ["BTS", "SEVENTEEN", "TOMORROW X TOGETHER", "Stray Kids", "2PM", "H.O.T.", "BIGBANG", "WINNER", "iKON", "BLACKPINK"];
 
+// 发现页主推 BTS：七人完整置顶，组内按官方常用顺序排列；其余人物仍保留原始相对顺序。
+const BTS_ORDER = ["rm", "jin", "suga", "j-hope", "jimin", "v", "jungkook"] as const;
+const BTS_RANK = new Map<string, number>(BTS_ORDER.map((id, index) => [id, index]));
+function isBts(star: StarListItem) {
+  return BTS_RANK.has(star.id) || star.categories?.some((item) => item.toUpperCase() === "BTS") || star.role.toUpperCase().includes("BTS");
+}
+
+function btsFirst(items: StarListItem[]) {
+  return [...items].sort((a, b) => {
+    const aIsBts = isBts(a);
+    const bIsBts = isBts(b);
+    if (aIsBts && bIsBts) return (BTS_RANK.get(a.id) ?? 99) - (BTS_RANK.get(b.id) ?? 99);
+    if (aIsBts) return -1;
+    if (bIsBts) return 1;
+    return 0;
+  });
+}
+
 // 保持浏览器组件只依赖纯前端代码，避免把 Supabase/Node async_hooks 打进客户端。
 const GAN_ELEMENT: Record<string, string> = { 甲: "木", 乙: "木", 丙: "火", 丁: "火", 戊: "土", 己: "土", 庚: "金", 辛: "金", 壬: "水", 癸: "水" };
 function dayMasterOf(threePillars?: string): string {
@@ -109,11 +127,13 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
     setPages(restored.pages);
   }, [urlQuery]);
 
-  // 热门置顶池:高知名度偶像固定散列排序取前 8 个，确保 SSR 与客户端首屏完全一致。
+  // 热门置顶池:BTS 七人完整排在前面，再补其他高知名度偶像，确保 SSR 与客户端首屏完全一致。
   const popularTop = useMemo(() => {
     const pool = stars.filter((star) => star.homepageFeatured
       || POPULAR_GROUPS.some((group) => star.role.toLowerCase().includes(group.toLowerCase())));
-    return [...pool].sort((a, b) => stableRank(a.id) - stableRank(b.id)).slice(0, 8);
+    const bts = btsFirst(pool.filter(isBts));
+    const others = pool.filter((star) => !isBts(star)).sort((a, b) => stableRank(a.id) - stableRank(b.id));
+    return [...bts, ...others].slice(0, Math.max(8, bts.length));
   }, [stars]);
 
   const filtered = useMemo(() => {
@@ -127,6 +147,7 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
         || groupOf(star.role).toLowerCase().includes(keyword)
         || (star.categories ?? []).some((item) => item.toLowerCase().includes(keyword)));
     }
+    if (sort === "default") result = btsFirst(result);
     if (sort === "hot") {
       const rank = new Map(popularTop.map((star, index) => [star.id, index]));
       result = [...result].sort((a, b) => {

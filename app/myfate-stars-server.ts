@@ -48,6 +48,15 @@ export type CelebrityVedicBirth = {
 const profileSelection = "id,name,name_en,role,tagline,description,relationship_style,focus,mbti,birth_date,three_pillars,traits,categories,match_count,portrait_url,ideal,gender,created_at";
 const reportSelection = `${profileSelection},report_prompt`;
 
+// 项目内精选肖像覆盖：列表、预览和报告统一使用同一资源，不依赖数据库旧图的缓存刷新。
+const PORTRAIT_OVERRIDES: Record<string, string> = {
+  rm: "/celebrity-portraits/rm-card.webp",
+};
+
+function portraitFor(id: string, fallback: string) {
+  return PORTRAIT_OVERRIDES[id] ?? fallback;
+}
+
 function hasCloudConfig() {
   return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY);
 }
@@ -70,7 +79,7 @@ function mapCelebrity(row: CelebrityRow): StarProfile {
     gender: row.gender ?? "unknown",
     createdAt: row.created_at ?? undefined,
     matchCount: String(row.match_count),
-    portraitSrc: row.portrait_url,
+    portraitSrc: portraitFor(row.id, row.portrait_url),
     ideal: {
       security: row.ideal.security,
       expression: row.ideal.expression,
@@ -139,7 +148,7 @@ const LIST_FAILURE_TTL_MS = 15_000;
 function seedStarList(): StarListItem[] {
   // 查询超时/网关限流时退回全量快照(76 人,scripts/gen-star-snapshot.mjs 导出),
   // 用户看到完整列表(最多旧几分钟)而不是残缺名单;failureTtl 短保真,恢复后即回源。
-  return STAR_SNAPSHOT.map((item) => ({ ...item }));
+  return STAR_SNAPSHOT.map((item) => ({ ...item, portraitSrc: portraitFor(item.id, item.portraitSrc) }));
 }
 
 // 公开人物列表:同实例缓存 + 并发去重 + 5s 查询超时;失败时优先返回最近一次成功数据,
@@ -169,7 +178,7 @@ const starListCache = createServerCache<StarListItem[]>({
       mbti: row.mbti,
       threePillars: row.three_pillars ?? undefined,
       categories: row.categories ?? [],
-      portraitSrc: row.portrait_url,
+      portraitSrc: portraitFor(row.id, row.portrait_url),
       createdAt: row.created_at,
       homepageFeatured: Boolean(row.homepage_featured),
     })));
