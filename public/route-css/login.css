@@ -220,3 +220,6 @@
 .mf-login-mark { background: linear-gradient(145deg, #9d9cff, #efa7d4); box-shadow: 0 13px 30px rgb(157 156 255 / 24%); }
 .mf-login-form input:focus { border-color: #a99cff; background: #17131d; box-shadow: 0 0 0 4px rgb(169 156 255 / 16%); }
 .mf-login-submit { color: #16101a !important; background: linear-gradient(110deg, #9d9cff, #c3a0f4 48%, #efa7d4) !important; box-shadow: 0 14px 30px rgb(157 156 255 / 22%); }
+
+/* Turnstile 人机验证组件(配置了 site key 才渲染):居中,左右留白自适应 */
+.mf-turnstile { display: flex; justify-content: center; margin: 10px 0 2px; }

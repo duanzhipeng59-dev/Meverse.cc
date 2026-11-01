@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { createSupabaseAdminClient } from "../server";
 import { clientIpFrom, tryAcquireEmailCodeLock } from "./rate-limit";
+import { verifyTurnstile } from "../turnstile";
 import {
   apiError,
   buildVerificationEmail,
@@ -14,10 +15,17 @@ import {
 
 export async function POST(request: Request) {
   try {
-    const payload = (await request.json()) as { email?: string };
+    const payload = (await request.json()) as { email?: string; turnstileToken?: string };
     const email = normalizeEmail(payload.email ?? "");
     if (!isValidEmail(email)) return apiError("invalid_email", 400);
     const emailId = emailLogId(email);
+
+    // Turnstile 人机验证最先执行(配置了 TURNSTILE_SECRET_KEY 才启用):
+    // 挡在数据库锁与发信之前,机器人到不了消耗配额的那一步
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    if (turnstileSecret && !(await verifyTurnstile(turnstileSecret, payload.turnstileToken, clientIpFrom(request)))) {
+      return apiError("turnstile_failed", 403);
+    }
 
     // 全局原子抢锁(数据库条件 upsert,跨实例):60 秒内同 邮箱+IP 只有第一个请求能通过。
     // 抢不到说明验证码刚已发出——直接告知剩余秒数,不触发生成与发信,防止第二封覆盖第一封。
