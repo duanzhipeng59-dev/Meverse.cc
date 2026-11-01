@@ -106,19 +106,26 @@ export default function FortuneCurveCard({ careerLifetime, wealthLifetime, loveM
           {current ? <line x1={current.x} y1={PAD_TOP - 14} x2={current.x} y2={H - PAD_BOTTOM + 8} stroke="#E8A9D8" strokeWidth="1.5" strokeDasharray="5 7" opacity="0.3" /> : null}
           <path d={area} fill="url(#mf-fortune-fill)" stroke="none" />
           <path d={line} fill="none" stroke="#E8A9D8" strokeWidth="3" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          {/* 峰/谷标注恒显示;与「当前」位置重合时省去装饰圈(当前圆点已在),只画标签,避免标注凭空消失 */}
           {peak.age !== current?.age ? (
             <>
               <circle cx={peak.x} cy={peak.y} r="9" fill="#E8A9D8" opacity="0.35" vectorEffect="non-scaling-stroke" />
               <circle cx={peak.x} cy={peak.y} r="6" fill="#E8A9D8" stroke="#F7F0F2" strokeWidth="2" vectorEffect="non-scaling-stroke" />
               <text x={peak.x} y={peak.y - 16} textAnchor="middle" className="mf-fortune-label">{t("report.fortune.peak", { age: peak.age })}</text>
             </>
-          ) : null}
-          {low.age !== peak.age && low.age !== current?.age ? (
-            <>
-              <circle cx={low.x} cy={low.y} r="9" fill="#E8A9D8" opacity="0.35" vectorEffect="non-scaling-stroke" />
-              <circle cx={low.x} cy={low.y} r="6" fill="#E8A9D8" stroke="#F7F0F2" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+          ) : (
+            <text x={peak.x} y={peak.y - 16} textAnchor="middle" className="mf-fortune-label">{t("report.fortune.peak", { age: peak.age })}</text>
+          )}
+          {low.age !== peak.age ? (
+            low.age !== current?.age ? (
+              <>
+                <circle cx={low.x} cy={low.y} r="9" fill="#E8A9D8" opacity="0.35" vectorEffect="non-scaling-stroke" />
+                <circle cx={low.x} cy={low.y} r="6" fill="#E8A9D8" stroke="#F7F0F2" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                <text x={low.x} y={low.y + 48} textAnchor="middle" className="mf-fortune-label">{t("report.fortune.low", { age: low.age })}</text>
+              </>
+            ) : (
               <text x={low.x} y={low.y + 48} textAnchor="middle" className="mf-fortune-label">{t("report.fortune.low", { age: low.age })}</text>
-            </>
+            )
           ) : null}
           {current ? <circle cx={current.x} cy={current.y} r="4.5" fill="#F7F0F2" stroke="#A99CFF" strokeWidth="2" vectorEffect="non-scaling-stroke" /> : null}
         </svg>

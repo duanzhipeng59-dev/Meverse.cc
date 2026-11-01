@@ -797,6 +797,10 @@
 
 .mf-zr-ask-form input::placeholder { color: var(--bz-faint); }
 
+/* 「停止」按钮(生成中出现的 ghost 变体):加淡紫底与描边,不再是透明空壳 */
+.mf-zr-ask-form .mf-ui-btn.is-ghost { background: rgb(157 156 255 / 14%); border-color: rgb(195 160 244 / 45%); }
+.mf-zr-ask-form .mf-ui-btn.is-ghost:hover { background: rgb(157 156 255 / 22%); }
+
 .mf-zr-ask-form button { height: 44px; padding: 0 22px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--bz-red), var(--bz-red-bright)); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
 
 .mf-zr-ask-form button:disabled { opacity: 0.45; cursor: default; }
@@ -3609,21 +3613,28 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-me-credit-copy b { color: #fff; font-size: 26px; font-weight: 700; line-height: 1.15; }
 
 /* 「我的」订阅升级入口横条(我的额度下方):高 64、内部元素同比缩小;配色为常规紫卡 */
-.mf-me-upgrade-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 64px; box-sizing: border-box; margin-top: 28px; padding: 13px 15px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease; }
+.mf-me-upgrade-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 64px; box-sizing: border-box; padding: 13px 15px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: linear-gradient(135deg, rgb(92 72 144 / 32%), rgb(30 22 40 / 24%)), var(--bz-card); cursor: pointer; font-family: inherit; text-align: left; transition: border-color .18s ease; }
 .mf-me-upgrade-bar:hover { border-color: rgb(195 160 244 / 62%); }
 .mf-me-upgrade-bar-copy { display: grid; gap: 2px; }
 .mf-me-upgrade-bar-copy b { color: var(--bz-ink); font-size: 15px; font-weight: 700; }
 .mf-me-upgrade-bar-copy small { color: var(--bz-faint); font-size: 9.5px; }
 .mf-me-upgrade-bar-arrow { color: var(--bz-red-bright); font-size: 16px; line-height: 1; }
 
-/* 「我的」语言切换横条:「我的额度」栏目下方的独立横条(右侧为简/繁分段选择);
-   作为 .mf-me 网格的直接子项,纵向间距由网格 gap 提供 */
-.mf-me-lang-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 14px 18px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: var(--bz-card); }
-.mf-me-lang-seg { display: flex; gap: 6px; flex-shrink: 0; }
-.mf-me-lang-seg button { padding: 7px 12px; border-radius: 9px; border: 1px solid rgb(176 157 240 / 34%); background: transparent; color: var(--bz-faint); font-family: inherit; font-size: 12.5px; cursor: pointer; transition: all .18s ease; }
-.mf-me-lang-seg button:hover { border-color: rgb(195 160 244 / 55%); color: var(--bz-ink); }
-.mf-me-lang-seg button.is-on { background: linear-gradient(135deg, rgb(92 72 144 / 55%), rgb(60 44 96 / 45%)); border-color: rgb(195 160 244 / 62%); color: var(--bz-ink); font-weight: 650; }
-@media (max-width: 480px) { .mf-me-lang-bar { flex-direction: column; align-items: stretch; } .mf-me-lang-seg { justify-content: stretch; } .mf-me-lang-seg button { flex: 1; } }
+/* 「我的」语言切换横条:「我的额度」栏目下方的独立横条,右端为语言下拉选择;
+   顶部对齐 + 触发钮上提,使下拉与「語言」标题行水平对齐(副标题自然垂在标题下方) */
+.mf-me-lang-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 65px; box-sizing: border-box; padding: 14px 18px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: var(--bz-card); }
+.mf-me-lang-select { position: relative; flex-shrink: 0; margin-left: auto; }
+/* 触发钮:无色底 + 淡描边,右侧小箭头随展开旋转;负 margin 把中心提到标题行中线上 */
+.mf-me-lang-trigger { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 9px; border: 1px solid rgb(176 157 240 / 34%); background: transparent; color: var(--bz-ink); font-family: inherit; font-size: 12.5px; cursor: pointer; transition: border-color .18s ease; }
+.mf-me-lang-trigger > span { color: var(--bz-faint); font-size: 11px; line-height: 1; transition: transform .18s ease; }
+.mf-me-lang-trigger[aria-expanded="true"] > span { transform: rotate(180deg); }
+.mf-me-lang-trigger:hover { border-color: rgb(195 160 244 / 55%); }
+/* 下拉菜单:浮层卡片,选项无色底、hover 淡紫,当前项加 ✓ */
+.mf-me-lang-menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; margin: 0; padding: 5px; list-style: none; min-width: 132px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 11px; background: var(--bz-card-raised); box-shadow: 0 14px 34px rgb(10 7 18 / 40%); }
+.mf-me-lang-menu li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; border-radius: 8px; color: var(--bz-muted); font-size: 12.5px; cursor: pointer; transition: background-color .15s ease, color .15s ease; }
+.mf-me-lang-menu li:hover { background: rgb(157 156 255 / 12%); color: var(--bz-ink); }
+.mf-me-lang-menu li.is-active { color: var(--bz-ink); font-weight: 650; }
+.mf-me-lang-menu li i { font-style: normal; color: var(--bz-red-bright); }
 
 /* 订阅升级货架卡片:竖版渐变紫卡(名称印卡上) + 推荐卡更高凸出 + 右上角「推荐」角标 */
 .mf-upgrade-seg {
@@ -3756,7 +3767,6 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-me-panel { display: grid; gap: 12px; padding: 14px; border: 1px solid rgb(176 157 240 / 42%); border-radius: 13px; background: var(--bz-card); }
 /* 标题做进面板内:间距交给网格 gap,不吃外层 h2 的 12px 下边距;字号 12.5 */
 .mf-me-panel h2 { margin: 0; font-size: 15px; }
-.mf-me-panel .mf-me-upgrade-bar { margin-top: 0; width: 100%; box-sizing: border-box; }
 
 /* 额度卡与订阅升级横条等高(64px),内部元素同比缩小(×0.83) */
 .mf-me-panel .mf-me-credit-card { height: 64px; box-sizing: border-box; padding: 8px 11px; gap: 9px; }
@@ -3830,3 +3840,6 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-login-back-email span { color: var(--bz-red); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .mf-login-back-email:hover { color: var(--bz-red-bright); }
 .mf-login-back-email:hover span { color: var(--bz-red-bright); }
+
+/* Turnstile 人机验证组件(配置了 site key 才渲染):居中,左右留白自适应 */
+.mf-turnstile { display: flex; justify-content: center; margin: 10px 0 2px; }

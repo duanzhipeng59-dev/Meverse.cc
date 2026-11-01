@@ -134,11 +134,12 @@ export default function StarAskPanel({
       setEntries((prev) => prev.map((entry) => (entry.id === retryOf ? { ...entry, status: "sending" } : entry)));
     } else {
       setEntries((prev) => [...prev, optimistic]);
+      // 发送瞬间即清空输入框(问题已进对话流);失败路径会把原文还回输入框便于重发
+      setInput("");
     }
     setLoading(true);
     const controller = new AbortController();
     abortRef.current = controller;
-    let succeeded = false;
     try {
       const response = await fetch("/api/myfate/star-report-ask", {
         method: "POST",
@@ -183,18 +184,17 @@ export default function StarAskPanel({
         return [...marked, { id: answerId, role: "assistant", content: cleanText(body.answer as string), status: "completed", createdAt: answerAt }];
       });
       startTyping(answerId, cleanText(body.answer as string));
-      succeeded = true;
+
     } catch {
       if (controller.signal.aborted) {
-        // 手动停止:不标失败、不提示,问题保留在输入框里可直接重发
+        // 手动停止:不标失败、不提示,输入框保持清空(问题已在对话流里)
         setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "completed" } : entry)));
       } else {
         setEntries((prev) => prev.map((entry) => (entry.id === optimisticId ? { ...entry, status: "failed" } : entry)));
         setError("网络异常,输入已保留,请重试。");
+        if (!retryOf) setInput(text);
       }
     } finally {
-      // 成功才清空输入;失败/停止都保留,便于直接重发
-      if (succeeded) setInput("");
       setLoading(false);
       abortRef.current = null;
     }
@@ -212,7 +212,7 @@ export default function StarAskPanel({
   return (
     <section className="mf-zr-card mf-zr-ask">
       <div className="mf-zr-ask-head">
-        <h2 className="mf-zr-card-title">✦ AI追问</h2>
+        <h2 className="mf-zr-card-title">✦ 追问</h2>
         {hasHistory ? (
           <button type="button" className="mf-zr-ask-clear" onClick={() => setConfirmClear(true)}>清空对话</button>
         ) : null}

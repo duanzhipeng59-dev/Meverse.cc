@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../auth-context";
 import LoginModal from "../../components/login-modal";
 import { useLanguage } from "../../language-context";
@@ -15,6 +15,23 @@ export default function WorkspaceProfile() {
   const router = useRouter();
   const [credits, setCredits] = useState<number | null>(null);
   const [askBank, setAskBank] = useState<number | null>(null);
+  // 语言下拉:点击展开,选中即切换;外点/Esc 收起
+  const [langOpen, setLangOpen] = useState(false);
+  const langSelectRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!langOpen) return;
+    const onPointer = (event: PointerEvent) => {
+      if (!langSelectRef.current?.contains(event.target as Node)) setLangOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setLangOpen(false); };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [langOpen]);
 
   useEffect(() => {
     // 未登录不展示额度区块,无需清状态;登录态变化时重新拉取
@@ -66,18 +83,37 @@ export default function WorkspaceProfile() {
           ) : (
             <div className="mf-me-empty"><i aria-hidden="true">◌</i><p>{t("profile.credits.loginHint")}</p></div>
           )}
-          <Link className="mf-me-upgrade-bar" href="/home/profile/upgrade?from=profile">
-            <span className="mf-me-upgrade-bar-copy"><b>{t("profile.upgrade.title")}</b><small>{t("profile.upgrade.desc")}</small></span>
-            <span className="mf-me-upgrade-bar-arrow" aria-hidden="true">›</span>
-          </Link>
         </div>
       </section>
 
+      <Link className="mf-me-upgrade-bar" href="/home/profile/upgrade?from=profile">
+        <span className="mf-me-upgrade-bar-copy"><b>{t("profile.upgrade.title")}</b><small>{t("profile.upgrade.desc")}</small></span>
+        <span className="mf-me-upgrade-bar-arrow" aria-hidden="true">›</span>
+      </Link>
+
       <div className="mf-me-lang-bar">
         <span className="mf-me-upgrade-bar-copy"><b>{t("profile.lang.title")}</b><small>{t("profile.lang.desc")}</small></span>
-        <div className="mf-me-lang-seg" role="group" aria-label={t("profile.lang.title")}>
-          <button type="button" className={lang === "zh" ? "is-on" : ""} aria-pressed={lang === "zh"} onClick={() => setLang("zh")}>{t("profile.lang.zh")}</button>
-          <button type="button" className={lang === "zh-TW" ? "is-on" : ""} aria-pressed={lang === "zh-TW"} onClick={() => setLang("zh-TW")}>{t("profile.lang.zhtw")}</button>
+        <div className="mf-me-lang-select" ref={langSelectRef}>
+          <button
+            type="button"
+            className="mf-me-lang-trigger"
+            aria-haspopup="listbox"
+            aria-expanded={langOpen}
+            onClick={() => setLangOpen((open) => !open)}
+          >
+            {lang === "zh-TW" ? t("profile.lang.zhtw") : t("profile.lang.zh")}
+            <span aria-hidden="true">⌄</span>
+          </button>
+          {langOpen ? (
+            <ul className="mf-me-lang-menu" role="listbox" aria-label={t("profile.lang.title")}>
+              <li role="option" aria-selected={lang === "zh"} className={lang === "zh" ? "is-active" : undefined} onClick={() => { setLang("zh"); setLangOpen(false); }}>
+                {t("profile.lang.zh")}{lang === "zh" ? <i aria-hidden="true">✓</i> : null}
+              </li>
+              <li role="option" aria-selected={lang === "zh-TW"} className={lang === "zh-TW" ? "is-active" : undefined} onClick={() => { setLang("zh-TW"); setLangOpen(false); }}>
+                {t("profile.lang.zhtw")}{lang === "zh-TW" ? <i aria-hidden="true">✓</i> : null}
+              </li>
+            </ul>
+          ) : null}
         </div>
       </div>
     </div>
