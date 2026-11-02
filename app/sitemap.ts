@@ -22,6 +22,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    {
+      url: `${SITE_URL}/home/profile/upgrade`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
     ...stars.map((star) => ({
       url: `${SITE_URL}/home/relationship-test/${star.id}`,
       lastModified: star.createdAt ? new Date(star.createdAt) : new Date(),

@@ -38,14 +38,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!star) notFound();
 
   const dayMaster = dayMasterOf(star.threePillars);
-  const title = `${star.name}${star.nameEn ? ` ${star.nameEn}` : ""}的生辰画像`;
-  const description = `${star.name}（${star.birthDate.replaceAll("-", ".")} 出生${dayMaster ? `，${dayMaster}日主` : ""}）的生辰画像：性格天赋、事业财富与感情运势解读。${star.description.slice(0, 50)}`;
+  const role = star.role.includes("-") ? star.role.split("-").slice(1).join("-").trim() : star.role;
+  const displayName = `${star.name}${star.nameEn ? ` ${star.nameEn}` : ""}`;
+  const title = `${star.name}的八字命理${dayMaster ? `｜${dayMaster}日主` : ""} · AI 生辰画像`;
+  const description = `${star.name}（${role}）出生于 ${star.birthDate.replaceAll("-", ".")}${dayMaster ? `，八字日主${dayMaster}` : ""}。AI 深度解读${star.name}的性格天赋、事业财富、感情婚姻与大运流年，支持向 AI 命理师追问。`;
   return {
     title,
     description,
+    keywords: [`${star.name}八字`, `${star.name}星座`, `${star.name}命理`, `${star.name}生辰`, `${star.name}AI解读`, "生辰画像", "八字解读"],
     alternates: { canonical: `/home/relationship-test/${id}` },
     openGraph: {
-      title,
+      title: `${displayName}的生辰画像 · MeVerse`,
       description,
       url: `/home/relationship-test/${id}`,
       images: [{ url: portraitOgImage(star.portraitSrc), alt: `${star.name}的人物肖像` }],
@@ -87,8 +90,18 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   const related = allStars.filter((item) => item.id !== id && groupOf(item.role) === groupOf(star.role)).slice(0, 4);
   const hasReport = Boolean(consult);
 
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: star.name,
+    alternateName: star.nameEn || undefined,
+    jobTitle: star.role.includes("-") ? star.role.split("-").slice(1).join("-").trim() : star.role,
+    birthDate: star.birthDate,
+  };
+
   return (
     <div className="mf-workspace-content">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
     <div className="mf-preview">
       <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} backLabel="" showShare shareTitle={`${star.name}${star.nameEn ? ` ${star.nameEn}` : ""} 的生辰画像`} />
       <StarVisitTracker starId={id} />

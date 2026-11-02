@@ -5,16 +5,17 @@ import { SITE_URL } from "./site-url";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "MeVerse · 读懂你的生辰画像",
+    default: "MeVerse - AI 生辰画像｜八字解读 · 明星命理 · 合盘分析",
     template: "%s · MeVerse",
   },
-  description: "基于八字命理生成完整 AI 生辰画像：性格天赋、事业财富、关系家庭、身心节律与大运流年。",
+  description: "输入生辰即可排盘，AI 生成完整八字解读报告：性格天赋、事业财富、感情婚姻、大运流年。支持明星生辰画像与双人合盘，还能向 AI 命理师追问。",
+  keywords: ["AI算命", "八字解读", "生辰画像", "八字排盘", "命理分析", "明星八字", "双人合盘", "AI命理师", "八字命理", "运势分析"],
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "MeVerse · 读懂你的生辰画像",
-    description: "偶像 AI 生辰画像，基于八字命理引擎生成。",
+    title: "MeVerse - AI 生辰画像｜八字解读 · 明星命理 · 合盘分析",
+    description: "输入生辰即可排盘，AI 生成完整八字解读报告。支持明星生辰画像与双人合盘，还能向 AI 命理师追问。",
     type: "website",
     locale: "zh_CN",
     url: "/",
@@ -23,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MeVerse · 读懂你的生辰画像",
-    description: "偶像 AI 生辰画像，基于八字命理引擎生成。",
+    title: "MeVerse - AI 生辰画像",
+    description: "输入生辰即可排盘，AI 生成完整八字解读报告。",
     images: ["/og-meverse.jpg"],
   },
 };

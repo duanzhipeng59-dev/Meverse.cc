@@ -6,12 +6,13 @@ import CelebrityBrowser from "../celebrity-match/celebrity-browser";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "明星生辰画像合集",
-  description: "浏览全部公开人物档案：出生资料、八字日主与 AI 生辰画像解读，支持继续向 AI 命理师追问。",
+  title: "明星生辰画像合集｜AI 八字命理解读",
+  description: "浏览全部明星的 AI 生辰画像：八字日主、格局分析、事业财富、感情运势，支持向 AI 命理师继续追问。BTS、SEVENTEEN、Taylor Swift 等全球偶像的命理解读。",
+  keywords: ["明星八字", "偶像八字", "明星星座", "明星命理", "生辰画像", "八字解读", "AI算命", "偶像命盘"],
   alternates: { canonical: "/home/relationship-test" },
   openGraph: {
-    title: "明星生辰画像合集 · MeVerse",
-    description: "浏览全部公开人物档案：出生资料、八字日主与 AI 生辰画像解读。",
+    title: "明星生辰画像合集｜AI 八字命理解读 · MeVerse",
+    description: "浏览全部明星的 AI 生辰画像：八字日主、格局分析、事业财富、感情运势。",
     url: "/home/relationship-test",
   },
 };
