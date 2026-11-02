@@ -282,7 +282,8 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                 </div>
               ) : null}
 
-              <Turnstile key={turnstileKey} onToken={setTurnstileToken} />
+              {/* 人机验证只跟「发送验证码」动作:第一步常驻;验证码步骤仅当重发可点(倒计时结束)时出现 */}
+              {(!sentEmail || codeCooldown === 0) && <Turnstile key={turnstileKey} onToken={setTurnstileToken} />}
             </form>
           </section>
         </div>

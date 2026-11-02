@@ -147,13 +147,13 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
           <p className="mf-preview-group"><TradText text={groupOf(star.role)} /></p>
           <p className="mf-preview-birth"><TradText text={`出生 · ${star.birthDate.replaceAll("-", ".")}${birth?.birthPlace ? ` · ${birth.birthPlace}` : ""}`} /></p>
           {/* 标签固定两枚:资料完整度 + 日主(底色取五行色);人物画像类 traits 标签不展示。
-              「加入合盘」超链同行居右,与标签水平对齐 */}
+              「加入合盘」超链已隐藏(改为 hidden,保留组件待后续启用) */}
           <div className="mf-preview-tags">
             <Tag tone={complete ? "good" : "warn"}>{complete ? <Trans k="discover.tag.complete" /> : <Trans k="discover.tag.incomplete" />}</Tag>
             {dayMasterOf(star.threePillars) ? (
               <span className="mf-ui-tag is-default" style={wuxingTagStyle(dayMasterOf(star.threePillars))}>{dayMasterOf(star.threePillars)}</span>
             ) : null}
-            <PreviewActions starId={id} starKey={`star:${id}`} />
+            <PreviewActions starId={id} starKey={`star:${id}`} hidden />
           </div>
         </div>
       </header>

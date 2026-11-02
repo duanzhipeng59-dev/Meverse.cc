@@ -19,7 +19,7 @@ const SECTION_TITLE: Record<string, string> = {
   education: "学业",
   career: "事业",
   wealth: "财富",
-  relationship: "感情婚姻",
+  relationship: "感情",
   wellbeing: "健康",
   children: "子女",
   family: "六亲",

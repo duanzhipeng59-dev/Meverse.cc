@@ -24,15 +24,28 @@ type SortKey = (typeof SORTS)[number]["key"];
 // 热门 tab 的高知名度组合池(角色前缀命中即入池;新团不入,保证置顶的都是大牌)
 const POPULAR_GROUPS = ["BTS", "SEVENTEEN", "TOMORROW X TOGETHER", "Stray Kids", "2PM", "H.O.T.", "BIGBANG", "WINNER", "iKON", "BLACKPINK"];
 
+// 运营置顶位:排在一切之前(包括 BTS 置顶组),按数组顺序;空则无置顶
+const PINNED_FIRST: string[] = ["greg-hsu"];
+
 // 发现页主推 BTS：七人完整置顶，组内按官方常用顺序排列；其余人物仍保留原始相对顺序。
 const BTS_ORDER = ["rm", "jin", "suga", "j-hope", "jimin", "v", "jungkook"] as const;
 const BTS_RANK = new Map<string, number>(BTS_ORDER.map((id, index) => [id, index]));
 function isBts(star: StarListItem) {
   return BTS_RANK.has(star.id) || star.categories?.some((item) => item.toUpperCase() === "BTS") || star.role.toUpperCase().includes("BTS");
 }
+function pinRank(id: string) {
+  const index = PINNED_FIRST.indexOf(id);
+  return index >= 0 ? index : PINNED_FIRST.length;
+}
 
 function btsFirst(items: StarListItem[]) {
   return [...items].sort((a, b) => {
+    const aPin = PINNED_FIRST.includes(a.id);
+    const bPin = PINNED_FIRST.includes(b.id);
+    if (aPin || bPin) {
+      if (aPin && bPin) return pinRank(a.id) - pinRank(b.id);
+      return aPin ? -1 : 1;
+    }
     const aIsBts = isBts(a);
     const bIsBts = isBts(b);
     if (aIsBts && bIsBts) return (BTS_RANK.get(a.id) ?? 99) - (BTS_RANK.get(b.id) ?? 99);
@@ -134,9 +147,11 @@ export default function CelebrityBrowser({ stars, basePath = "/home/relationship
   const popularTop = useMemo(() => {
     const pool = stars.filter((star) => star.homepageFeatured
       || POPULAR_GROUPS.some((group) => star.role.toLowerCase().includes(group.toLowerCase())));
+    // 置顶位最前(置顶人物通常 homepage_featured,不命中则从全量补入),其后 BTS 组,再其他按稳定序
+    const pinned = stars.filter((star) => PINNED_FIRST.includes(star.id));
     const bts = btsFirst(pool.filter(isBts));
-    const others = pool.filter((star) => !isBts(star)).sort((a, b) => stableRank(a.id) - stableRank(b.id));
-    return [...bts, ...others].slice(0, Math.max(8, bts.length));
+    const others = pool.filter((star) => !isBts(star) && !PINNED_FIRST.includes(star.id)).sort((a, b) => stableRank(a.id) - stableRank(b.id));
+    return [...pinned, ...bts, ...others].slice(0, Math.max(8, pinned.length + bts.length));
   }, [stars]);
 
   const filtered = useMemo(() => {

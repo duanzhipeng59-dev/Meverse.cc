@@ -10,8 +10,9 @@ import { useLanguage } from "../../../language-context";
 // 预选合盘的跨页交接 key:解读页挂载时一次性消费并 removeItem(同 relationship-profile 模式)
 export const PENDING_DUAL_KEY = "myfate-pending-dual";
 
-// 预览页「加入合盘」入口:人物卡右下角的超链,点击跳解读页并自动弹双人弹窗、对方预选本明星
-export default function PreviewActions({ starId, starKey }: { starId: string; starKey: string }) {
+// 预览页「加入合盘」入口:人物卡右下角的超链,点击跳解读页并自动弹双人弹窗、对方预选本明星。
+// hidden=true 时整体隐藏(运营下线开关),登录门与跳转逻辑保留随时可再启用
+export default function PreviewActions({ starId, starKey, hidden = false }: { starId: string; starKey: string; hidden?: boolean }) {
   const router = useRouter();
   const { t } = useLanguage();
   // 登录门:未登录点链接弹登录弹窗(与工作台其它入口统一),登录成功后续跳原目标
@@ -41,6 +42,9 @@ export default function PreviewActions({ starId, starKey }: { starId: string; st
     if (authed) joinDual();
     else setPending(true);
   }
+
+  // 运营下线:整体不渲染(登录门/跳转逻辑保留在组件内,hidden 改回 false 即恢复)
+  if (hidden) return null;
 
   return (
     <div className="mf-preview-actions is-hero-link">

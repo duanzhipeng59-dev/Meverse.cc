@@ -269,7 +269,8 @@ export default function LocalLogin() {
             {verifyingCode ? "正在验证…" : "登录"}
           </button>
 
-          <Turnstile key={turnstileKey} onToken={setTurnstileToken} />
+          {/* 人机验证只跟「发送/重新获取验证码」:倒计时期间隐藏,可发送时才出现 */}
+          {codeCooldown === 0 && <Turnstile key={turnstileKey} onToken={setTurnstileToken} />}
         </form>
 
         <small>验证码仅用于本次登录，10 分钟内有效，请勿转发给他人。</small>
