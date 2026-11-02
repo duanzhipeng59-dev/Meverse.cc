@@ -23,7 +23,7 @@ import { vedicCities } from "../../../myfate-cities";
 import PendingReading from "./pending-reading";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "解读报告 · MeVerse" };
+export const metadata: Metadata = { title: "解读报告", robots: { index: false, follow: false } };
 
 const DUAL_SECTIONS: Array<{ key: keyof DualReportContent["sections"]; no: string; title: string }> = [
   { key: "attraction", no: "02", title: "核心吸引来源" },

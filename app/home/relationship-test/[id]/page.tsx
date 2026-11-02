@@ -42,15 +42,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!star) notFound();
 
   const dayMaster = dayMasterOf(star.threePillars);
-  // SEO:title 锚「八字命盘/生辰画像」双关键词(用户搜的是「XX 八字」「XX 生辰」),nameEn 入括号不占前缀
+  const role = star.role.includes("-") ? star.role.split("-").slice(1).join("-").trim() : star.role;
   const title = `${star.name}${star.nameEn ? `（${star.nameEn}）` : ""}的八字命盘与生辰画像`;
-  const description = `${star.name}（${star.birthDate.replaceAll("-", ".")} 出生${dayMaster ? `，${dayMaster}日主` : ""}）的八字命盘与生辰画像解读：性格天赋、事业财富与感情运势。${star.description.slice(0, 50)}`;
+  const description = `${star.name}（${role}）出生于 ${star.birthDate.replaceAll("-", ".")}${dayMaster ? `，八字日主${dayMaster}` : ""}。AI 深度解读${star.name}的性格天赋、事业财富、感情婚姻与大运流年，支持向 AI 命理师追问。`;
   return {
     title,
     description,
+    keywords: [`${star.name}八字`, `${star.name}星座`, `${star.name}命理`, `${star.name}生辰`, `${star.name}AI解读`, "生辰画像", "八字解读"],
     alternates: { canonical: `/home/relationship-test/${id}` },
     openGraph: {
-      title,
+      title: `${star.name}${star.nameEn ? ` ${star.nameEn}` : ""}的生辰画像 · MeVerse`,
       description,
       url: `/home/relationship-test/${id}`,
       images: [{ url: portraitOgImage(star.portraitSrc), alt: `${star.name}的人物肖像` }],
@@ -105,8 +106,6 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
   const hasReport = Boolean(consult);
 
   // ── SEO 结构化数据 ──
-  // 组合判定:role 前缀(如「BTS 成员-闵玧其」)去掉「成员」后缀得到裸组名,若出现在 categories
-  // 里才算真组合(「英国演员-艾玛·沃特森」这类身份前缀不是组织),避免 memberOf 挂到职业类别上。
   const groupLabel = groupOf(star.role).replace(/\s*成员$/u, "").trim();
   const isRealGroup = Boolean(groupLabel && star.categories?.includes(groupLabel));
   const personJsonLd = {
@@ -133,6 +132,7 @@ export default async function RelationshipTargetPage({ params, searchParams }: {
 
   return (
     <div className="mf-workspace-content">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
     <div className="mf-preview">
       <ReportTopbar fromReports={from === "reports"} backHref={from === "profile" ? "/home/profile" : undefined} backLabel="" showShare shareTitle={`${star.name}${star.nameEn ? ` ${star.nameEn}` : ""} 的生辰画像`} />
       <StarVisitTracker starId={id} />

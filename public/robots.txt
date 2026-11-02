@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /home/dual-star-match
+Disallow: /home/reading/
+Disallow: /home/profile
+Disallow: /home/relationship-test/*/test
+Disallow: /login
+Disallow: /api/
+
+Sitemap: https://meverse.cc/sitemap.xml

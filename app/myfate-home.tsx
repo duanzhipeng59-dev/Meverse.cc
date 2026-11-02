@@ -20,8 +20,24 @@ export default async function MyfateHome() {
     { radius: "47%", angle: "210deg", counterAngle: "-210deg", duration: "48s", size: "40px", mobileSize: "38px" },
   ];
 
+  const siteUrl = process.env.PUBLIC_APP_URL ?? "https://meverse.cc";
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MeVerse",
+    url: siteUrl,
+    description: "AI 生辰画像：输入生辰排盘，生成八字解读报告。支持明星命理与双人合盘。",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/home/relationship-test?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
-    <div className="mf-page">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <div className="mf-page">
       <header className="mf-header mf-home-header">
         <Link className="mf-brand" href="/" aria-label="MeVerse 首页">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -127,5 +143,6 @@ export default async function MyfateHome() {
         </p>
       </footer>
     </div>
+    </>
   );
 }

@@ -6,6 +6,7 @@ import { AuthProvider } from "../auth-context";
 
 export const metadata: Metadata = {
   title: "登录",
+  robots: { index: false, follow: false },
   description: "使用邮箱验证码登录 MeVerse。",
 };
 
