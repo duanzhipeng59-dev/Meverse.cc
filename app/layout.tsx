@@ -46,9 +46,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <head>
-        <link rel="icon" href="/favicon.png?v=9" type="image/png" sizes="64x64" />
-        <link rel="shortcut icon" href="/favicon-180.png?v=9" type="image/png" sizes="64x64" />
-        <link rel="apple-touch-icon" href="/favicon-180.png?v=9" sizes="180x180" />
+        <link rel="icon" href="/favicon.png?v=20" type="image/png" sizes="64x64" />
+        <link rel="shortcut icon" href="/favicon-180.png?v=20" type="image/png" sizes="64x64" />
+        <link rel="apple-touch-icon" href="/favicon-180.png?v=20" sizes="180x180" />
       </head>
       <body>
         <LanguageProvider>{children}</LanguageProvider>

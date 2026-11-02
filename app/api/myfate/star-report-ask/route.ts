@@ -24,7 +24,7 @@ import {
 import { generateChatText } from "../personalize/model-provider";
 import { requireReportUser } from "../reports/server";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 // 追问计费:无免费额度,每问 1 条扣 1 次追问余额(套餐/追问包充值)
 
@@ -200,12 +200,18 @@ export async function POST(request: Request) {
     const history = await contextMessages(conversation);
     const messages: Array<{ role: AskRole; content: string }> = [...history, { role: "user", content: finalQuestion }];
 
-    // 追问固定用 Gemini,与个人解读报告的生成管线同源
-    const generation = await generateChatText(systemPrompt(name, digest, conversation.summary), messages, {
+    // 追问固定用 Gemini,与个人解读报告的生成管线同源;偶发超时/500 自动重试一次
+    const callModel = () => generateChatText(systemPrompt(name, digest, conversation.summary), messages, {
       provider: "gemini",
       temperature: 0.8,
       maxTokens: 1200,
     });
+    let generation;
+    try {
+      generation = await callModel();
+    } catch {
+      generation = await callModel();
+    }
     // 模型偶发输出 markdown 星号(加粗/斜体/列表),统一清洗后再落库与返回
     const answer = generation.content.replaceAll("*", "");
 

@@ -184,6 +184,19 @@ export default function ReadingHub() {
     loadRecords();
   }, [loggedIn]);
 
+  // 有 generating 状态的记录时轮询列表(5 秒),全部完成/失败后自动停止
+  const hasGenerating = readings.some((row) => row.status === "generating");
+  useEffect(() => {
+    if (!loggedIn || !hasGenerating) return;
+    const timer = window.setInterval(() => {
+      fetch("/api/reading/list")
+        .then((res) => (res.ok ? res.json() as Promise<{ reports?: ReadingRow[] }> : null))
+        .then((data) => { if (data?.reports) setReadings(data.reports); })
+        .catch(() => undefined);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [loggedIn, hasGenerating]);
+
   // 登录态解析中或已登录但列表未拉到:一律骨架,不闪空文案
   const recordsLoading = authStatus === "loading" || (loggedIn && !readingsLoaded);
 
