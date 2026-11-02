@@ -265,11 +265,11 @@ export default function LocalLogin() {
             {error ? <span className="error">{error}</span> : message ? <span>{message}</span> : null}
           </div>
 
-          <Turnstile key={turnstileKey} onToken={setTurnstileToken} />
-
           <button className="mf-login-submit" type="submit" disabled={verifyingCode}>
             {verifyingCode ? "正在验证…" : "登录"}
           </button>
+
+          <Turnstile key={turnstileKey} onToken={setTurnstileToken} />
         </form>
 
         <small>验证码仅用于本次登录，10 分钟内有效，请勿转发给他人。</small>
