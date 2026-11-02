@@ -257,8 +257,6 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                   : sendingCode ? "发送中…" : "发送验证码"}
               </button>
 
-              <Turnstile key={turnstileKey} onToken={setTurnstileToken} />
-
               {sentEmail ? (
                 <div className="mf-login-resend-row">
                   <div className="mf-login-resend">
@@ -283,6 +281,8 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                   </button>
                 </div>
               ) : null}
+
+              <Turnstile key={turnstileKey} onToken={setTurnstileToken} />
             </form>
           </section>
         </div>
