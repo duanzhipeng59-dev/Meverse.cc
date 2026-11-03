@@ -7,7 +7,7 @@
 // 修复最多 2 轮。双人合盘不经过本管线(generateDualReading 不变)。
 
 import {
-  BANNED_STYLE_WORDS, DEFAULT_FIELD_CHAR_LIMIT, FIELD_CHAR_LIMITS,
+  BANNED_STYLE_WORDS, DEFAULT_FIELD_CHAR_LIMIT,
   extractJson, parseModelJson, sectionKeys, sectionSchema, staticReadingSchema,
   type StaticReading,
 } from "./myfate-static-reading";

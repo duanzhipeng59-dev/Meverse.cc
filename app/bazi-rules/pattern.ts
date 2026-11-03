@@ -37,7 +37,6 @@ export function judgePattern(chart: BaziChart, strength: StrengthResult): Patter
   const dayMaster = chart.dayMaster;
   const monthPillar = chart.pillars[1];
   const monthBranch = monthPillar.ganzhi[1];
-  const monthDiShi = monthPillar.diShi;
 
   // 月令逢冲:年/日/时支冲月支
   const otherBranches = chart.pillars.filter((p) => p.label !== "月柱").map((p) => p.ganzhi[1]);

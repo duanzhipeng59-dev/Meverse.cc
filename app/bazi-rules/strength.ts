@@ -7,7 +7,7 @@
 
 import type { BaziChart } from "../myfate-bazi-engine";
 import {
-  GAN_WUXING, ZHI_HIDDEN, ZHI_WUXING, elementOfCategory, tenGodCategory, tenGodOf,
+  ZHI_HIDDEN, ZHI_WUXING, elementOfCategory, tenGodCategory, tenGodOf,
   type Element, type TenGodCategory,
 } from "./constants";
 

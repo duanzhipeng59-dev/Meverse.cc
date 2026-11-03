@@ -10,7 +10,6 @@ import { buildBaziLifeProfile } from "../app/myfate-bazi-profile";
 import { ZHI_HIDDEN } from "../app/bazi-rules/constants";
 import { judgeStrength, fuYongOf } from "../app/bazi-rules/strength";
 import { judgePattern } from "../app/bazi-rules/pattern";
-import { judgeTiaoHou } from "../app/bazi-rules/tiaohou";
 import { scanPillarRelations } from "../app/bazi-rules/relations";
 import { buildBaziJudgment } from "../app/bazi-rules/judgment";
 import { FIELD_SPECS, FIELD_COUNT, SECTION_TITLES } from "../app/bazi-rules/field-specs";

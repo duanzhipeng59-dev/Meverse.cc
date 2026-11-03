@@ -211,15 +211,23 @@ test("unified MeVerse branding and bucket-only portraits", async () => {
   assert.deepEqual(leftoverPortraits, [], `public/ 不应再有本地头像: ${leftoverPortraits.join(", ")}`);
 });
 
-test("single reading hands the model chart + template in one call and renders nine sections", async () => {
-  const [pipeline, contract, page, renderer, provider] = await Promise.all([
+test("single reading runs the V3 section pipeline and renders nine sections", async () => {
+  const [pipeline, contract, page, renderer, provider, sectionPipeline, judgment] = await Promise.all([
     readFile(new URL("../app/myfate-reading-generator.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/myfate-static-reading.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/home/reading/[id]/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/home/reading/[id]/static-reading-report.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/myfate/personalize/model-provider.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/myfate-section-pipeline.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/bazi-rules/judgment.ts", import.meta.url), "utf8"),
   ]);
-  assert.match(pipeline, /buildStaticReadingFacts\(chart, profile\)/u);
+  // V3 架构:引擎排盘 → 命理规则层统一判断 → 按章并行生成 → 一致性校验定向修复;
+  // 双人合盘仍走 generateDualReading 旧管线,行为不变
+  assert.match(pipeline, /buildBaziJudgment\(chart, profile\)/u);
+  assert.match(pipeline, /generateStaticReadingV3/u);
+  assert.match(sectionPipeline, /SECTION_SYSTEM_PROMPT/u);
+  assert.match(sectionPipeline, /checkConsistency/u);
+  assert.match(judgment, /export function buildBaziJudgment/u);
   assert.doesNotMatch(pipeline, /wealthRangeOf|buildStarFacts|mergeStarAiContent/u);
   // 架构:模型只收三样东西——排盘数据、按模版解读的指令、模版;无两段式论证计划
   assert.match(contract, /single-full-v3/u);
