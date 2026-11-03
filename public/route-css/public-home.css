@@ -717,8 +717,12 @@
 .mf-home-cta { font-family: Inter, ui-sans-serif, -apple-system, "system-ui", "PingFang SC", sans-serif; font-weight: 650; }
 .mf-how-grid span { font: 700 20px/1 var(--font-serif-display); font-style: normal; }
 
-/* 首页「立即探索」与站内四大主按钮同款:紫灰渐变 + 白字 */
-.mf-home-cta {
+/* 首页「立即探索」:紫灰渐变 + 白字。
+   选择器写成 .mf-bz-btn.mf-home-cta(0,2,0)是有意的:home.css 的内部页主按钮
+   规则同样命中通用类 .mf-bz-btn(0,1,0),SPA 从内部页返回首页后 home.css 不会
+   卸载且加载靠后,同特异级会被它覆盖——按钮"变色"即由此而来,提级后无论
+   加载顺序如何首页样式必胜 */
+.mf-bz-btn.mf-home-cta {
   background: linear-gradient(105deg, #645797, #8d6f9e);
   color: #fff;
   box-shadow: 0 10px 28px rgb(157 156 255 / 25%);
