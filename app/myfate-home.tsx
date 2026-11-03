@@ -41,7 +41,7 @@ export default async function MyfateHome() {
       <header className="mf-header mf-home-header">
         <Link className="mf-brand" href="/" aria-label="MeVerse 首页">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/myfate-logo.png?v=2" alt="MeVerse" />
+          <img src="/myfate-logo.webp?v=3" alt="MeVerse" />
         </Link>
         <nav className="mf-nav" aria-label="主导航">
           <Link href="/#stars"><Trans k="home.nav.stars" /></Link>
@@ -59,7 +59,7 @@ export default async function MyfateHome() {
               <Trans k="home.hero.desc" />
             </p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="mf-home-hero-art-img" src="/hero-scroll.png" alt="古籍卷轴插画" />
+            <img className="mf-home-hero-art-img" src="/hero-scroll.webp?v=1" alt="古籍卷轴插画" width={720} height={462} loading="lazy" decoding="async" />
             <Link className="mf-bz-btn mf-home-cta" href="/home/dual-star-match"><Trans k="home.hero.cta" /> <span aria-hidden="true">→</span></Link>
           </div>
 
@@ -70,7 +70,7 @@ export default async function MyfateHome() {
                 <i className="mf-home-map-ring middle" aria-hidden="true" />
                 <i className="mf-home-map-ring far" aria-hidden="true" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="mf-home-map-icon" src="/meverse-logo-round.png" alt="" aria-hidden="true" />
+                <img className="mf-home-map-icon" src="/meverse-logo-round.webp?v=1" alt="" aria-hidden="true" />
                 {stars.slice(0, 6).map((star, index) => (
                   <div
                     className={`mf-home-map-star-orbit ${index < 3 ? "is-near" : "is-far"}`}
