@@ -733,14 +733,21 @@
   
 }
 
-/* Hero 古籍插画:描述与按钮之间,上下 72px */
+/* Hero 古籍插画:描述与按钮之间,上下 72px;
+   加载完成后淡入(hero-art-img.tsx 标记 data-loaded),避免晚到突兀闪现,
+   3s 兜底动画(复用 globals.css 的 mf-cover-reveal)保证 JS 失效也能显示 */
 .mf-home-hero-art-img {
   display: block;
   width: min(100%, 360px);
   height: auto;
   margin: 72px auto;
   object-fit: contain;
+  opacity: 0;
+  transition: opacity .5s ease;
+  animation: mf-cover-reveal 0s 3s forwards;
 }
+
+.mf-home-hero-art-img[data-loaded="1"] { opacity: 1; }
 
 @media (min-width: 801px) {
   .mf-home-hero-art-img { display: none !important; width: 0; height: 0; margin: 0; }

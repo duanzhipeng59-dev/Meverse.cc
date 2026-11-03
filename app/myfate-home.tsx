@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getHomepageStarList } from "./myfate-stars-server";
 import AuthEntryLink from "./auth-entry-link";
 import PortraitImg from "./portrait-img";
+import HeroArtImg from "./hero-art-img";
 import { portraitImage } from "./myfate-image";
 import Trans from "./trans";
 
@@ -58,8 +59,9 @@ export default async function MyfateHome() {
             <p>
               <Trans k="home.hero.desc" />
             </p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="mf-home-hero-art-img" src="/hero-scroll.webp?v=1" alt="古籍卷轴插画" width={720} height={462} loading="lazy" decoding="async" />
+            {/* 该图仅在 ≤800px 显示(见 public-home.css),preload 同样按宽度过滤,桌面端不浪费请求 */}
+            <link rel="preload" as="image" href="/hero-scroll.webp?v=1" media="(max-width: 800px)" fetchPriority="high" />
+            <HeroArtImg src="/hero-scroll.webp?v=1" alt="古籍卷轴插画" width={720} height={462} />
             <Link className="mf-bz-btn mf-home-cta" href="/home/dual-star-match"><Trans k="home.hero.cta" /> <span aria-hidden="true">→</span></Link>
           </div>
 
