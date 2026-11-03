@@ -3168,13 +3168,17 @@ select.mf-reading-record:focus { outline: none; border-color: var(--bz-red); }
 .mf-brand img { display: block; height: 17px; width: auto; }
 .mf-login-mark img { display: block; width: 22px; height: 22px; }
 
-/* 工作台导航品牌：使用原始 MeVerse 图并在容器内裁掉大面积黑色留白。 */
+/* 工作台导航品牌：meverse-logo-nav.webp 是原图可见区(中央 67.6%×35%)的无损预裁切,
+   17KB 替代整图 1.16MB——CSS 背景图在样式解析+布局后才发起请求,大图必然晚于
+   内容出现("卡一下");小图配合 layout 里的 preload 赶在首屏内容前就绪。
+   必须无损:screen 混合模式靠纯黑当透明,有损压缩会让边缘黑像素偏离纯黑显出矩形。
+   替换 logo 时换新文件名并同步 layout 的 preload。 */
 .mf-meverse-logo {
   display: block;
   width: 80px;
   aspect-ratio: 4.85 / 1;
   flex: none;
-  background: url("/meverse-logo.png") center / 148% 286% no-repeat;
+  background: url("/meverse-logo-nav.webp") center / 100% 100% no-repeat;
   mix-blend-mode: screen;
 }
 

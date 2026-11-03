@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
         source: "/portraits/:path*",
         headers: [{ key: "Cache-Control", value: IMMUTABLE }],
       },
+      // 工作台导航 logo(原图可见区的无损预裁切):替换时换新文件名并同步
+      // home.css 背景与 home/layout.tsx 的 preload(URL 必须逐字一致)
+      {
+        source: "/meverse-logo-nav.webp",
+        headers: [{ key: "Cache-Control", value: IMMUTABLE }],
+      },
       // 首页版本化图片:替换文件时更新引用里的 ?v=
       {
         source: "/hero-scroll.webp",

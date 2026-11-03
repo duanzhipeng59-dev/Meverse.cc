@@ -41,8 +41,10 @@ export default async function MyfateHome() {
       <div className="mf-page">
       <header className="mf-header mf-home-header">
         <Link className="mf-brand" href="/" aria-label="MeVerse 首页">
+          {/* fetchPriority=high:React 会为高优先级图自动发 preload,Logo 在 HTML 解析期
+              即高优先级拉取,不再排在 CSS/JS 之后——否则首访时正文先出、Logo 晚到"卡一下" */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/myfate-logo.webp?v=3" alt="MeVerse" />
+          <img src="/myfate-logo.webp?v=3" alt="MeVerse" width={326} height={68} fetchPriority="high" decoding="sync" />
         </Link>
         <nav className="mf-nav" aria-label="主导航">
           <Link href="/#stars"><Trans k="home.nav.stars" /></Link>
