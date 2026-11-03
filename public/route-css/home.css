@@ -1247,6 +1247,16 @@ html.mf-topbar-collapsed .mf-zr-toc-wrap { top: 4px; }
 .mf-me-skel .mf-me-skel-person { width: 88px; height: auto; display: grid; gap: 8px; }
 .mf-me-skel-face { width: 88px; height: 112px; border-radius: 12px; }
 
+/* 订阅升级页骨架(upgrade/loading.tsx):尺寸对照 mf-upgrade-* 真实元素,加载完成零跳变 */
+.mf-upg-skel-label { width: 88px; height: 13px; border-radius: 5px; }
+.mf-upg-skel-tab { width: 56px; height: 13px; border-radius: 5px; align-self: center; justify-self: center; }
+.mf-upg-skel-title { width: 128px; height: 17px; border-radius: 5px; }
+.mf-upg-skel-desc { width: 190px; height: 12px; border-radius: 4px; }
+.mf-upg-skel-perk { width: 168px; height: 12px; border-radius: 4px; }
+.mf-upg-skel-perk.is-short { width: 132px; }
+.mf-upg-skel-price { width: 64px; height: 22px; border-radius: 5px; }
+.mf-upg-skel-buy { width: 132px; height: 37px; border-radius: 999px; }
+
 /* 报告库骨架:头部(小标/大标/说明) + 分类胶囊行 + 搜索框/筛选胶囊 + 报告卡 */
 .mf-hist-skel-kicker { width: 64px; height: 11px; border-radius: 4px; }
 .mf-hist-skel-h1 { width: 96px; height: 30px; border-radius: 8px; margin: 8px 0 6px; }
