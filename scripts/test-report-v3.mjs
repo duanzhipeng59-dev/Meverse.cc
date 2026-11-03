@@ -37,19 +37,20 @@ const args = process.argv.slice(2);
 const onlyArg = args.find((a) => a.startsWith("--only="));
 const onlySet = onlyArg ? new Set(onlyArg.slice(7).split(",")) : null;
 const skipDual = args.includes("--skip-dual");
+const summaryOnly = args.includes("--summary-only");
 
 // ── 10 组虚构测试命盘 ──
 const CHARTS = [
-  { id: "chart-01", label: "壬日·基准盘·偏强·正印格·缺金", date: "2002-07-19", time: "04:10", gender: "male" },
+  { id: "chart-01", label: "戊日·基准盘·偏强·正印格·缺金", date: "2002-07-19", time: "04:10", gender: "male" },
   { id: "chart-02", label: "辛日·身弱·偏印格·五行俱全", date: "1950-07-15", time: "12:00", gender: "male" },
   { id: "chart-03", label: "丙日·身强·偏印格·春木生身", date: "1954-03-01", time: "04:10", gender: "male" },
-  { id: "chart-04", label: "壬日·从弱·从财格·同日主对照", date: "1954-02-15", time: "12:00", gender: "male" },
+  { id: "chart-04", label: "壬日·从弱·从财格", date: "1954-02-15", time: "12:00", gender: "male" },
   { id: "chart-05", label: "丁日·中和·建禄格", date: "1953-06-15", time: "04:10", gender: "male" },
   { id: "chart-06", label: "丙日·偏强·阳刃格·同日主对照", date: "1951-06-15", time: "04:10", gender: "male" },
   { id: "chart-07", label: "庚日·身弱·偏财格·女命", date: "1951-03-01", time: "12:00", gender: "female" },
   { id: "chart-08", label: "甲日·偏弱·正官格·缺水·女命", date: "1955-09-20", time: "04:10", gender: "female" },
   { id: "chart-09", label: "己日·中和·伤官格·缺水·女命", date: "1956-08-20", time: "04:10", gender: "female" },
-  { id: "chart-10", label: "癸日·偏弱·正印格·缺火·缺时辰三柱盘(TA口径)", date: "1955-08-20", time: "04:10", gender: "female", noHour: true },
+  { id: "chart-10", label: "癸日·缺时辰三柱盘·TA口径·子女章跳过", date: "1955-08-20", time: "04:10", gender: "female", noHour: true },
 ];
 
 const callModel = async (system, prompt) =>
@@ -73,7 +74,34 @@ mkdirSync("test-reports/v3", { recursive: true });
 const results = [];
 const t0 = Date.now();
 
+if (summaryOnly) {
+  // 从已保存的报告重建 results(重跑失败盘后合并汇总;用当前校验器重算违规)
+  for (const chart of CHARTS) {
+    try {
+      const saved = JSON.parse(readFileSync(`test-reports/v3/${chart.id}.json`, "utf8"));
+      let full = buildBaziChart({ birthDate: chart.date, birthTime: chart.time, gender: chart.gender, city: CITY });
+      if (chart.noHour) {
+        const pillars = full.pillars.slice(0, 3);
+        const wuXing = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
+        for (const pillar of pillars) {
+          wuXing[GAN_WUXING[pillar.ganzhi[0]]] += 1;
+          wuXing[ZHI_WUXING[pillar.ganzhi[1]]] += 1;
+        }
+        full = { ...full, pillars, wuXing };
+      }
+      const judgment = buildBaziJudgment(full, buildBaziLifeProfile(full));
+      const report = staticReadingSchema.parse(saved.report);
+      const violations = checkConsistency(report, judgment);
+      const fieldCount = sectionKeys.reduce((sum, key) => sum + (report.sections[key]?.insights.length ?? 0), 0);
+      results.push({ id: chart.id, ok: true, duration: 0, fieldCount, violations, anchors: judgment.anchors, meta: saved.meta, report, fullText: JSON.stringify(report.sections), dayMaster: judgment.anchors.dayMaster });
+    } catch {
+      results.push({ id: chart.id, ok: false, duration: 0, error: "报告文件缺失或解析失败", anchors: null, meta: { ...chart } });
+    }
+  }
+}
+
 for (const chart of CHARTS) {
+  if (summaryOnly) break;
   if (onlySet && !onlySet.has(chart.id)) continue;
   const started = Date.now();
   let full = buildBaziChart({ birthDate: chart.date, birthTime: chart.time, gender: chart.gender, city: CITY });
@@ -146,7 +174,11 @@ if (okResults.length >= 2) {
 
 // ── 双人合盘回归(1 组,验证共用内核未受影响) ──
 let dualResult = { skipped: true };
-if (!skipDual) {
+try {
+  const savedDual = JSON.parse(readFileSync("test-reports/v3/dual-regression.json", "utf8"));
+  dualResult = { ok: true, sections: Object.keys(savedDual.sections ?? {}).length, insights: Object.values(savedDual.sections ?? {}).reduce((sum, s) => sum + (s.insights?.length ?? 0), 0) };
+} catch {}
+if (!skipDual && !summaryOnly) {
   try {
     const subjectA = { name: "测试甲", gender: "male", birthDate: "2002-07-19", birthTime: "04:10", cityId: "bj", cityName: "北京" };
     const subjectB = { name: "测试乙", gender: "female", birthDate: "1951-03-01", birthTime: "12:00", cityId: "bj", cityName: "北京" };

@@ -32,6 +32,17 @@ const STRENGTH_TERMS: Array<{ term: RegExp; family: "强" | "弱" | "从" | "中
 
 const ELEMENT_CHARS = ["木", "火", "土", "金", "水"] as const;
 
+/** 格局名家族:同族表述(如从财格 anchor 文中写「从势格」)不算冲突,跨族才算 */
+const PATTERN_FAMILIES: Array<{ family: string; names: string[] }> = [
+  { family: "从", names: ["从旺格", "从财格", "从杀格", "从儿格", "从势格", "从格", "专旺格"] },
+  { family: "禄刃", names: ["建禄格", "阳刃格", "羊刃格", "月刃格"] },
+  { family: "十神", names: ["正官格", "七杀格", "偏官格", "正财格", "偏财格", "正印格", "偏印格", "枭神格", "食神格", "伤官格", "劫财格"] },
+];
+function patternFamilyOf(name: string): string | null {
+  for (const group of PATTERN_FAMILIES) if (group.names.includes(name)) return group.family;
+  return null;
+}
+
 // 绝对化断言(全报告生效;"不一定会"经负向断言排除)
 const ABSOLUTE_ASSERTIONS: Array<{ pattern: RegExp; label: string }> = [
   { pattern: /(?<!不)(一定会|注定|必然|肯定会|绝对会|百分之百)/u, label: "绝对化措辞" },
@@ -86,6 +97,12 @@ export function checkConsistency(report: StaticReading, judgment: BaziJudgment):
   const validYears = new Set(judgment.facts.annual.map((year) => year.year));
   const validDayun = new Set(judgment.facts.dayun.map((step) => step.ganzhi));
   const validEvidenceIds = new Set(judgment.evidence.map((item) => item.id));
+  // 命盘干支单字集(用于"引用具体干支"的宽松认定:如"庚金劫财"算干支依据)
+  const chartChars = new Set<string>();
+  for (const pillar of judgment.facts.pillars) {
+    chartChars.add(pillar.ganzhi[0]);
+    chartChars.add(pillar.ganzhi[1]);
+  }
 
   const anchorStrength = judgment.anchors.strength;
   const anchorPattern = judgment.anchors.pattern.name;
@@ -121,18 +138,35 @@ export function checkConsistency(report: StaticReading, judgment: BaziJudgment):
           break;
         }
       }
-      // ── 4. 旺衰档位家族一致 ──
+      // ── 4. 旺衰档位家族一致(条件句中的假设性表述放行,断言性表述必须同族) ──
+      // 财富 T 档字段豁免:引擎推导链固定文案含三档简化用语(身强担财/身弱财难任/从势顺势),
+      // 该链被字段规则要求原样引用,属引擎内部口径而非旺衰断言
+      if (spec?.validation.quantifiedFormat === "wealth-tier") {
+        // skip
+      } else
       for (const { term, family } of STRENGTH_TERMS) {
         if (family === anchorStrength.family) continue;
-        const found = term.exec(content);
-        if (found) {
-          push({ section: key, field: insight.label, rule: "旺衰口径冲突", detail: `锚点为「${anchorStrength.level}」(${anchorStrength.family}族),文中出现「${found[0]}」` });
+        const globalTerm = new RegExp(term.source, "gu");
+        let found: RegExpExecArray | null;
+        let conflict = false;
+        while ((found = globalTerm.exec(content))) {
+          const before = content.slice(Math.max(0, found.index - 8), found.index);
+          const after = content.slice(found.index + found[0].length, found.index + found[0].length + 4);
+          const hypothetical = /(若|如果|假设|除非|假令|一旦)[^。;；]{0,6}$/u.test(before) || /^[^。;；]{0,3}(则|时|的话)/u.test(after);
+          if (!hypothetical) { conflict = true; break; }
+        }
+        if (conflict) {
+          push({ section: key, field: insight.label, rule: "旺衰口径冲突", detail: `锚点为「${anchorStrength.level}」(${anchorStrength.family}族),文中出现非假设语境的「${found?.[0]}」` });
           break;
         }
       }
-      // ── 5. 格局名一致(「」内标签严格校验) ──
+      // ── 5. 格局名一致:月令格局字段严格等于锚点;其余字段允许同族表述,跨族才算冲突 ──
       for (const match of content.matchAll(QUOTED_PATTERN_RE)) {
-        if (match[1] !== anchorPattern) {
+        if (match[1] === anchorPattern) continue;
+        const anchorFamily = patternFamilyOf(anchorPattern);
+        const quotedFamily = patternFamilyOf(match[1]);
+        const strict = insight.label === "月令格局";
+        if (strict || quotedFamily === null || anchorFamily !== quotedFamily) {
           push({ section: key, field: insight.label, rule: "格局名冲突", detail: `「${match[1]}」与引擎判定「${anchorPattern}」不一致` });
           break;
         }
@@ -175,11 +209,15 @@ export function checkConsistency(report: StaticReading, judgment: BaziJudgment):
       if (spec?.validation.requireQuoteMark && !content.includes("「")) {
         push({ section: key, field: insight.label, rule: "缺少「」结论词", detail: "该字段必须含至少一处「」括注的核心结论" });
       }
-      // ── 11. 必引干支 ──
-      if (spec?.validation.mustCiteGanzhi && !GAN_ZHI_RE.test(content)) {
-        push({ section: key, field: insight.label, rule: "缺少干支依据", detail: "该字段必须引用具体干支" });
-      }
+      // ── 11. 必引干支:干支对(须在事实集内)或 ≥2 个命盘干支单字 ──
       GAN_ZHI_RE.lastIndex = 0;
+      if (spec?.validation.mustCiteGanzhi) {
+        const pairOk = [...content.matchAll(GAN_ZHI_RE)].some((match) => validGanZhi.has(match[0]));
+        const distinctChars = new Set([...content].filter((ch) => chartChars.has(ch)));
+        if (!pairOk && distinctChars.size < 2) {
+          push({ section: key, field: insight.label, rule: "缺少干支依据", detail: "该字段必须引用具体干支(干支对或至少两个命盘干支字)" });
+        }
+      }
       // ── 12. 量化格式 ──
       if (spec?.validation.quantifiedFormat === "wealth-tier") {
         const range = judgment.anchors.wealthTier.range;
