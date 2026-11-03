@@ -23,6 +23,12 @@ const nextConfig: NextConfig = {
         source: "/route-css/:path*",
         headers: [{ key: "Cache-Control", value: IMMUTABLE }],
       },
+      // 预生成肖像变体(scripts/gen-portrait-variants.mjs):文件名带尺寸,
+      // 内容不变的静态资源,可永久缓存;更换头像时重跑脚本生成新文件名
+      {
+        source: "/portraits/:path*",
+        headers: [{ key: "Cache-Control", value: IMMUTABLE }],
+      },
       // 首页版本化图片:替换文件时更新引用里的 ?v=
       {
         source: "/hero-scroll.webp",

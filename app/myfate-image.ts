@@ -1,8 +1,12 @@
-// 肖像图片地址:统一走本站 /portrait/ 同源代理(Cloudflare 边缘缓存),
-// 代理再取 Supabase 的 WebP 缩放版,替代直连 supabase.co 原图(对部分访客 2.4~3s/张)。
+// 肖像图片地址:优先用预生成的静态变体(public/portraits/,scripts/gen-portrait-variants.mjs),
+// 走 Vercel 全局静态 CDN——无函数回源、无 Supabase 依赖,冷 POP 也不再有秒级尾延迟。
+// 未命中清单(新加明星还没跑脚本)回退 /portrait/ 同源代理(边缘缓存 + Supabase render)。
 // 原图 875KB → 360w WebP 约 12KB;仅处理自家 storage 公开地址,本地/外链原样返回。
 
+import { STATIC_PORTRAITS } from "./portrait-static-manifest";
+
 const OBJECT_PREFIX = "/storage/v1/object/public/";
+const STATIC_WIDTHS = new Set([120, 240, 360, 520]);
 
 // 卡片固定比例 3/3.9(10:13),与 .mf-bz-star-cover 的 aspect-ratio 一致。
 export const PORTRAIT_WIDTHS = [240, 360, 520] as const;
@@ -18,6 +22,12 @@ function renderUrl(objectUrl: string, params: Record<string, string | number>) {
   const marker = url.pathname.indexOf(OBJECT_PREFIX);
   if (marker < 0) return objectUrl;
   const objectPath = url.pathname.slice(marker + OBJECT_PREFIX.length);
+  // 静态变体优先:仅 WebP 卡片尺寸(og 图保持代理回源格式)
+  const stem = (objectPath.split("/").pop() ?? "").replace(/\.[a-z0-9]+$/i, "");
+  const width = Number(params.width);
+  if (params.format === "webp" && STATIC_WIDTHS.has(width) && STATIC_PORTRAITS.has(stem)) {
+    return `/portraits/${stem}.w${width}.webp`;
+  }
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) query.set(key, String(value));
   return `/portrait/${objectPath}?${query.toString()}`;
