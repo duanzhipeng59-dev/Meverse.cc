@@ -58,6 +58,8 @@ export default async function MyfateHome() {
             <p>
               <Trans k="home.hero.desc" />
             </p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="mf-home-hero-art-img" src="/hero-scroll.png" alt="古籍卷轴插画" />
             <Link className="mf-bz-btn mf-home-cta" href="/home/dual-star-match"><Trans k="home.hero.cta" /> <span aria-hidden="true">→</span></Link>
           </div>
 

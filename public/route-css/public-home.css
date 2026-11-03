@@ -201,20 +201,20 @@
 
 .mf-home-eyebrow {
   width: fit-content;
-  padding: 8px 12px;
+  padding: 6px 8px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   border: 1px solid rgba(122, 41, 78, .1);
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--mf-plum);
   background: rgba(255, 255, 255, .52);
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 750;
-  letter-spacing: .12em;
+  letter-spacing: .08em;
 }
 
-.mf-home-eyebrow span { font-size: 10px; }
+.mf-home-eyebrow span { font-size: 7px; }
 
 .mf-home-hero h1 {
   margin: 26px 0 25px;
@@ -222,6 +222,7 @@
   line-height: 1.035;
   letter-spacing: -.055em;
   font-optical-sizing: auto;
+  transform: translateY(24px);
 }
 
 .mf-home-hero h1 > span,
@@ -229,7 +230,7 @@
 
 .mf-home-hero h1 > em { margin-top: 8px; color: #a43f66; }
 
-.mf-home-hero .mf-hero-copy > p { max-width: 570px; font-size: 16px; line-height: 1.8; }
+.mf-home-hero .mf-hero-copy > p { max-width: 570px; font-size: 16px; line-height: 1.8; transform: translateY(24px); }
 
 
 .mf-home-hero .mf-hero-visual { min-height: 520px; }
@@ -721,4 +722,26 @@
   background: linear-gradient(105deg, #645797, #8d6f9e);
   color: #fff;
   box-shadow: 0 10px 28px rgb(157 156 255 / 25%);
+}
+
+
+/* 手机端 hero:标题居中 30px,描述居中 8px,插画间距 72px */
+@media (max-width: 800px) {
+  .mf-home-hero .mf-home-eyebrow { display: flex; margin-left: 0; margin-right: auto; }
+  .mf-home-hero .mf-hero-copy > p { font-size: 8px; text-align: center; }
+  .mf-home-hero h1 { font-size: 30px; text-align: center; letter-spacing: 0; }
+  
+}
+
+/* Hero 古籍插画:描述与按钮之间,上下 72px */
+.mf-home-hero-art-img {
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  margin: 72px auto;
+  object-fit: contain;
+}
+
+@media (min-width: 801px) {
+  .mf-home-hero-art-img { display: none !important; width: 0; height: 0; margin: 0; }
 }
