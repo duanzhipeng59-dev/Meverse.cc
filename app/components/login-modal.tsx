@@ -11,11 +11,9 @@ import { EMAIL_CODE_LENGTH } from "../auth-code-config";
 import { ensureLocalUser, normalizeEmail } from "../local-auth";
 import { readBasicProfile, writeBasicProfile } from "../myfate-progressive-profile";
 import { gaEvent } from "../ga";
-import Turnstile, { turnstileConfigured } from "./turnstile";
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_email: "请输入有效的邮箱地址",
-  turnstile_failed: "人机验证未通过，请重试",
   code_too_frequent: "发送过于频繁，请稍后再试",
   email_send_failed: "验证码邮件发送失败，请稍后重试",
   email_service_unavailable: "邮箱验证服务暂时不可用",
@@ -49,9 +47,6 @@ export default function LoginModal({ className, children, open: openProp, onOpen
   const [codeCooldown, setCodeCooldown] = useState(0);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  // Turnstile(配置后才启用):token 一次性,每次发送后换 key 重挂载取新 token
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [turnstileKey, setTurnstileKey] = useState(0);
 
   useEffect(() => {
     if (codeCooldown <= 0) return;
@@ -95,10 +90,6 @@ export default function LoginModal({ className, children, open: openProp, onOpen
       return;
     }
     if (sendingCode || codeCooldown > 0) return;
-    if (turnstileConfigured() && !turnstileToken) {
-      setError("请稍候，人机验证完成后可发送");
-      return;
-    }
     // 点击瞬间即锁定(禁用+倒计时+持久化),不等接口返回;失败再回滚
     setSendingCode(true);
     setCodeCooldown(60);
@@ -109,7 +100,7 @@ export default function LoginModal({ className, children, open: openProp, onOpen
       const response = await fetch("/api/auth/email-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: normalized, turnstileToken }),
+        body: JSON.stringify({ email: normalized }),
       });
       const result = (await response.json()) as AuthApiResult & { alreadySent?: boolean; retryAfter?: number };
       if (!response.ok) {
@@ -137,9 +128,6 @@ export default function LoginModal({ className, children, open: openProp, onOpen
       setError(AUTH_ERROR_MESSAGES.email_service_unavailable);
     } finally {
       setSendingCode(false);
-      // token 已被服务端消费(或校验失败),重挂载取新 token 供重发使用
-      setTurnstileToken(null);
-      setTurnstileKey((key) => key + 1);
     }
   }
 
@@ -282,8 +270,6 @@ export default function LoginModal({ className, children, open: openProp, onOpen
                 </div>
               ) : null}
 
-              {/* 人机验证只跟「发送验证码」动作:第一步常驻;验证码步骤仅当重发可点(倒计时结束)时出现 */}
-              {(!sentEmail || codeCooldown === 0) && <Turnstile key={turnstileKey} onToken={setTurnstileToken} />}
             </form>
           </section>
         </div>

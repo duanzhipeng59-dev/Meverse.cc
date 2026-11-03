@@ -9,11 +9,9 @@ import { ensureLocalUser, normalizeEmail } from "../local-auth";
 import { readBasicProfile, writeBasicProfile } from "../myfate-progressive-profile";
 import { gaEvent } from "../ga";
 import { clearSentCodeState, getSentCodeState, markCodeSent } from "../components/login-code-store";
-import Turnstile, { turnstileConfigured } from "../components/turnstile";
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   invalid_email: "请输入有效的邮箱地址",
-  turnstile_failed: "人机验证未通过，请重试",
   code_too_frequent: "发送过于频繁，请稍后再试",
   email_send_failed: "验证码邮件发送失败，请稍后重试",
   email_service_unavailable: "邮箱验证服务暂时不可用",
@@ -62,9 +60,6 @@ export default function LocalLogin() {
   }, []);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  // Turnstile(配置后才启用):token 一次性,每次发送后换 key 重挂载取新 token
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [turnstileKey, setTurnstileKey] = useState(0);
   const [returnHref, setReturnHref] = useState("/");
 
   useEffect(() => {
@@ -102,10 +97,6 @@ export default function LocalLogin() {
       return;
     }
     if (sendingCode || codeCooldown > 0) return;
-    if (turnstileConfigured() && !turnstileToken) {
-      setError("请稍候，人机验证完成后可发送");
-      return;
-    }
     // 点击瞬间即锁定(与登录弹窗共用同一份持久化状态),失败再回滚
     setSendingCode(true);
     setCodeCooldown(60);
@@ -116,7 +107,7 @@ export default function LocalLogin() {
       const response = await fetch("/api/auth/email-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: normalized, turnstileToken }),
+        body: JSON.stringify({ email: normalized }),
       });
       const result = (await response.json()) as AuthApiResult & { alreadySent?: boolean; retryAfter?: number };
       if (!response.ok) {
@@ -143,9 +134,6 @@ export default function LocalLogin() {
       setError(AUTH_ERROR_MESSAGES.email_service_unavailable);
     } finally {
       setSendingCode(false);
-      // token 已被服务端消费(或校验失败),重挂载取新 token 供重发使用
-      setTurnstileToken(null);
-      setTurnstileKey((key) => key + 1);
     }
   }
 
@@ -268,9 +256,6 @@ export default function LocalLogin() {
           <button className="mf-login-submit" type="submit" disabled={verifyingCode}>
             {verifyingCode ? "正在验证…" : "登录"}
           </button>
-
-          {/* 人机验证只跟「发送/重新获取验证码」:倒计时期间隐藏,可发送时才出现 */}
-          {codeCooldown === 0 && <Turnstile key={turnstileKey} onToken={setTurnstileToken} />}
         </form>
 
         <small>验证码仅用于本次登录，10 分钟内有效，请勿转发给他人。</small>
