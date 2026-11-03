@@ -22,6 +22,8 @@ const sectionSchema = z.object({
   insights: z.array(insightSchema),
   advice: z.array(z.string()),
 }).strict();
+// V3 按章生成管线复用的结构常量(纯导出,不改变既有行为)
+export { sectionKeys, insightSchema, sectionSchema, evidenceId };
 
 const rhythmItemSchema = z.object({
   ganzhi: z.string().length(2),
@@ -182,7 +184,7 @@ const TEMPLATE_SECTIONS = `【报告模版】九章固定为 portrait、pattern�
 // 字数上限按本地合格产出(DeepSeek)实测最大值 × ~1.25 余量标定;违规信息经重试通道喂回模型自行压缩改写。
 // 禁词表只收纯营销腔词;「天花板」「碾压」等在财富/忌神语境里是规范用词,不列入避免误伤
 export const BANNED_STYLE_WORDS = ["破圈", "出圈", "魅力四射", "聚光灯", "王炸", "暴击", "拿捏", "封神", "杀疯了", "绝绝子", "yyds"];
-const FIELD_CHAR_LIMITS: Record<string, number> = {
+export const FIELD_CHAR_LIMITS: Record<string, number> = {
   喜神: 60, 忌神: 60, 闲神: 90, 子女性别倾向: 140,
   母亲: 155, 父亲: 160, 子女发展: 160, 兄弟姐妹: 165, 适合专业: 170, 考运关键节点: 180,
   结构清浊: 190, 道法与喜忌: 200, "对方家庭/配偶父母": 210, 神煞底色: 220, 子女缘分: 220,
@@ -191,7 +193,7 @@ const FIELD_CHAR_LIMITS: Record<string, number> = {
   一生财富高度: 340, 性格与行为模式: 370, 配偶特征: 380, 一生婚恋大运: 460, 命盘结构特征: 530,
   一生财富大运: 600, 近期财富流年: 650, 近期感情流年: 700, 近期流年事业: 800, 一生事业轨迹: 750,
 };
-const DEFAULT_FIELD_CHAR_LIMIT = 400;
+export const DEFAULT_FIELD_CHAR_LIMIT = 400;
 
 const TEMPLATE_STYLE_RULES = `【表达层硬约束】写作风格与篇幅,违反会被系统打回重写:
 - 语气:命理师断语感——克制、具体、有判断力;不堆形容词、不写营销文案腔。

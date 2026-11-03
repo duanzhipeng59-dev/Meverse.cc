@@ -1,11 +1,12 @@
 // 解读报告生成管线(自填人物):
-// 单人复用 star-ai-generator(引擎事实+AI 文案+合并骨架),双人复用 dual 引擎的
-// generateContent(输入 birth 由自填 subject 转换,不经 celebrity 数据)。
+// 单人走 V3 按章并行管线(引擎排盘 → 命理规则层 → 9 章并行 AI → 一致性校验
+// → 违规章节定向重生成);双人合盘沿用 dual 引擎的单次直出管线,行为不变。
 import { vedicCities } from "./myfate-cities";
 import { buildBaziChart } from "./myfate-bazi-engine";
 import { buildBaziLifeProfile } from "./myfate-bazi-profile";
 import { generateChatText } from "./api/myfate/personalize/model-provider";
-import { buildStaticReadingFacts, generateStaticReading } from "./myfate-static-reading";
+import { buildBaziJudgment } from "./bazi-rules/judgment";
+import { generateStaticReadingV3 } from "./myfate-section-pipeline";
 import { getReadingReport, refundReadingCredit, updateReadingReport, type ReadingSubject } from "./myfate-reading-server";
 import type { CelebrityVedicBirth } from "./myfate-stars-server";
 import { generateDualReading } from "./myfate-dual-reading";
@@ -37,13 +38,12 @@ export async function runReadingGeneration(reportId: string): Promise<void> {
     if (report.mode === "single") {
       const chart = buildBaziChart({ birthDate: birthA.birthDate, birthTime: birthA.birthTime, gender: birthA.gender === "female" ? "female" : "male", city: { id: birthA.starId, name: birthA.birthPlace, lat: birthA.lat, lon: birthA.lon, tz: birthA.tz } });
       const profile = buildBaziLifeProfile(chart);
-      const facts = buildStaticReadingFacts(chart, profile);
-      // 个人解读固定用 Gemini(双人合盘与其余 AI 功能仍走 MYFATE_AI_PROVIDER,默认 DeepSeek);
-      // 单次调用直出模版化九章节大报告,30k tokens 防截断
-      const content = await generateStaticReading(
-        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 30000, json: true })).content,
-        facts,
-        profile,
+      // V3:命理规则层统一判断对象 → 9 章并行生成 → 一致性校验定向修复。
+      // 每章独立调用(单章输出远小于整篇 30k),总预算 240s 由管线内部守卫。
+      const judgment = buildBaziJudgment(chart, profile);
+      const content = await generateStaticReadingV3(
+        async (system, prompt) => (await generateChatText(system, [{ role: "user", content: prompt }], { provider: "gemini", temperature: 0.35, maxTokens: 12000, json: true })).content,
+        judgment,
       );
       await updateReadingReport(reportId, { status: "ready", content, error: null });
       return;

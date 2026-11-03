@@ -1,4 +1,5 @@
 // AI 生辰画像解释层：只消费八字引擎的确定性排盘结果，不重复排盘。
+import { Solar } from "lunar-javascript";
 import type { BaziChart, BaziDaYunStep } from "./myfate-bazi-engine";
 
 type Element = "木" | "火" | "土" | "金" | "水";
@@ -122,6 +123,17 @@ function yearGanZhi(year: number): string {
   return GAN[index % 10] + "子丑寅卯辰巳午未申酉戌亥"[index % 12];
 }
 
+// 某公历年的立春日期(节气表查得,立春恒在 2 月 3-5 日);查不到返回 null。
+// 流年干支以立春为界切换:公历年初(立春前)仍属前一干支年。
+function liChunDayOf(year: number): number | null {
+  for (let day = 3; day <= 5; day += 1) {
+    // lunar-javascript 运行时提供 getJieQi(),社区类型声明未同步(engine 同款 cast 处理)
+    const lunar = Solar.fromYmdHms(year, 2, day, 12, 0, 0).getLunar() as unknown as { getJieQi(): string };
+    if (lunar.getJieQi() === "立春") return day;
+  }
+  return null;
+}
+
 function level(value: number, max: number) {
   if (value === max) return "主导";
   if (value >= 2) return "明显";
@@ -176,7 +188,8 @@ function buildRelations(chart: BaziChart): BaziLifeProfile["relations"] {
       if (CHONG[branches[i]] === branches[j]) result.push({ title: "地支相冲", text: labels[i] + branches[i] + "与" + labels[j] + branches[j] + "相冲，变化和拉扯感较强，也常成为推动转折的力量。", tone: "caution" });
       if (HAI[branches[i]] === branches[j]) result.push({ title: "地支相害", text: labels[i] + branches[i] + "与" + labels[j] + branches[j] + "相害，容易出现隐性消耗，沟通宜具体而直接。", tone: "caution" });
       if (PO[branches[i]] === branches[j]) result.push({ title: "地支相破", text: labels[i] + branches[i] + "与" + labels[j] + branches[j] + "相破，计划执行时容易被细节打断，适合预留弹性。", tone: "neutral" });
-      if (ZHI_XING.has(branches[i] + branches[j])) result.push({ title: "地支相刑", text: labels[i] + branches[i] + "与" + labels[j] + branches[j] + "成刑，内在要求较高，压力需要有稳定出口。", tone: "caution" });
+      // 刑表按成对收录但顺序不全,正反序都查,与流年打分的双向口径一致
+      if (ZHI_XING.has(branches[i] + branches[j]) || ZHI_XING.has(branches[j] + branches[i])) result.push({ title: "地支相刑", text: labels[i] + branches[i] + "与" + labels[j] + branches[j] + "成刑，内在要求较高，压力需要有稳定出口。", tone: "caution" });
     }
   }
   return result.length ? result : [{ title: "结构平稳", text: "四柱之间没有明显的合冲刑害，命局内部拉扯较少，更多课题来自运势阶段而非先天结构。", tone: "neutral" }];
@@ -311,6 +324,10 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
 
   const branches = chart.pillars.map((pillar) => pillar.ganzhi[1]);
   const dayunSteps = chart.daYun.steps;
+  // 生成时刻是否尚未过当年立春(公历年初):是则首个流年需注明干支年交界
+  const now = new Date();
+  const firstYearLiChun = liChunDayOf(currentYear);
+  const beforeFirstLiChun = firstYearLiChun !== null && (now.getMonth() < 1 || (now.getMonth() === 1 && now.getDate() < firstYearLiChun));
   const annual = Array.from({ length: 10 }, (_, index) => {
     const year = currentYear + index;
     const ganzhi = yearGanZhi(year);
@@ -365,6 +382,10 @@ export function buildBaziLifeProfile(chart: BaziChart, currentYear = new Date().
       else if (note) basis.push(`${note}，细节消耗需要预留弹性。`);
     }
     if (!signals.length) basis.push(`与原局四支柱支没有形成明显合冲，${year}年整体延续当前大运主题，以${DAYUN_KEYWORD[category][0]}的既有节奏展开。`);
+    // 立春交界标注:首个流年尚未过立春时,写明公历年初仍属前一干支年
+    if (index === 0 && beforeFirstLiChun) {
+      basis.push(`${year}年立春（2月${firstYearLiChun}日）前仍属${yearGanZhi(year - 1)}年，本年流年断语以立春后的${ganzhi}年计。`);
+    }
 
     // 与上一年比较:同类同信号 → 明确写"延续"
     const prev = rows[index - 1];
