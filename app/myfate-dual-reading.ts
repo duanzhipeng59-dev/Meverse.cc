@@ -11,8 +11,8 @@ import { generateValidatedReport, buildShenShaFacts, BANNED_STYLE_WORDS } from "
 
 // ── 输出契约:九章 23 字段,sections/insights 形状与个人报告同构(渲染/追问/分享全兼容) ──
 const dualInsightSchema = z.object({ label: z.string(), content: z.string() }).strict();
-const dualSectionSchema = z.object({ title: z.string(), insights: z.array(dualInsightSchema).min(1) }).strict();
-const dualSectionKeys = ["overview", "profiles", "attraction", "dynamics", "friction", "intimacy", "collaboration", "family", "rhythm"] as const;
+export const dualSectionSchema = z.object({ title: z.string(), insights: z.array(dualInsightSchema).min(1) }).strict();
+export const dualSectionKeys = ["overview", "profiles", "attraction", "dynamics", "friction", "intimacy", "collaboration", "family", "rhythm"] as const;
 export const dualReadingSchema = z.object({
   schemaVersion: z.literal("dual-reading-v1"),
   sections: z.object(Object.fromEntries(dualSectionKeys.map((key) => [key, dualSectionSchema])) as Record<(typeof dualSectionKeys)[number], typeof dualSectionSchema>).strict(),
@@ -48,13 +48,13 @@ const DUAL_TEMPLATE_SECTIONS = `【报告模版】九章固定为 overview、pro
 ${JSON.stringify({ schemaVersion: "dual-reading-v1", sections: Object.fromEntries(dualSectionKeys.map((key) => [key, { title: "章节标题", insights: [{ label: "字段名", content: "完整解读段落" }] }])) }, null, 1)}`;
 
 // ── 表达层:禁词表与个人版共用;字数上限按双人字段初标(样本校准后调整) ──
-const DUAL_FIELD_CHAR_LIMITS: Record<string, number> = {
+export const DUAL_FIELD_CHAR_LIMITS: Record<string, number> = {
   关系关键词: 60, 匹配定调: 160, 养护提醒: 160, 事务分工: 180, 触发雷区: 180, 初识磁场: 180,
   合作雷区: 200, 资源互补: 200, 家庭接纳: 220, 五行吸引: 220, 十神互见: 220, 日常相处: 220,
   沟通风格: 220, 付出与回应: 220, 化解处方: 240, 搭伙做事: 220, 亲密与责任: 260, 夫妻宫互看: 260,
   互补与消耗: 260, 主要摩擦点: 300, 关系关键年: 700,
 };
-const DUAL_DEFAULT_CHAR_LIMIT = 400;
+export const DUAL_DEFAULT_CHAR_LIMIT = 400;
 
 export function checkDualReadingStyle(report: DualReading): string[] {
   const violations: [] | string[] = [];

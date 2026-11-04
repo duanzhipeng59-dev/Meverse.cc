@@ -3,26 +3,20 @@
 // AI 生成(9 章各自注入同一份锚点与本章字段规则) → 组装 + Schema 校验 →
 // 跨章一致性校验 → 违规章节定向重生成(不重写整篇)。
 // 输出仍是 staticReadingSchema(single-full-v3)——前端/历史报告/追问全兼容。
-// 预算:总守卫 ~240s(Vercel 300s 函数上限内留 failed+退款余量),单章超时 150s,
-// 修复最多 2 轮。双人合盘不经过本管线(generateDualReading 不变)。
+// 编排内核(并行/定向重试/预算)在 section-pipeline-core.ts,双人管线共用。
 
 import {
   BANNED_STYLE_WORDS, DEFAULT_FIELD_CHAR_LIMIT,
   extractJson, parseModelJson, sectionKeys, sectionSchema, staticReadingSchema,
   type StaticReading,
 } from "./myfate-static-reading";
-import { checkConsistency, violationsBySection } from "./bazi-rules/consistency";
+import { checkConsistency } from "./bazi-rules/consistency";
+import { runSectionPipeline, withSectionTimeout } from "./section-pipeline-core";
 import { SECTION_TITLES, fieldSpecsOfSection, type FieldSpec, type SectionKey } from "./bazi-rules/field-specs";
 import type { BaziJudgment } from "./bazi-rules/judgment";
 
 type CallModel = (system: string, prompt: string) => Promise<string>;
 type SectionDraft = { title: string; summary?: string; insights: Array<{ label: string; content: string; evidenceIds?: string[] }>; advice: string[] };
-
-/** 单章超时(毫秒)与总预算(毫秒) */
-const SECTION_CALL_TIMEOUT_MS = 150_000;
-const TOTAL_BUDGET_MS = 240_000;
-/** 修复轮数(初始生成后,最多再修 2 轮) */
-const MAX_REPAIR_ROUNDS = 2;
 
 // ── 系统提示词(V3):引擎负责算准,规则层负责判断,AI 只做翻译 ──────────
 export const SECTION_SYSTEM_PROMPT = `你是精通传统八字命理、擅长现代人物画像的资深命理分析师。排盘引擎与命理规则层已经完成确定性计算,你的任务是把给定的命理结构与判断结论翻译成用户读得懂、有个人针对性的文字——像经验丰富的命理师当面解读,而不是解释命理知识。
@@ -170,17 +164,7 @@ async function generateSection(
   retryNote?: string,
 ): Promise<SectionDraft> {
   const prompt = buildSectionPrompt(judgment, key, retryNote);
-  // 单章超时守卫:成功后必须清定时器,否则进程要等满 150s 才能退出
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error(`章节 ${key} 生成超时`)), SECTION_CALL_TIMEOUT_MS);
-  });
-  let raw: string;
-  try {
-    raw = await Promise.race([callModel(system, prompt), timeout]);
-  } finally {
-    clearTimeout(timer);
-  }
+  const raw = await withSectionTimeout(`章节 ${key}`, 150_000, () => callModel(system, prompt));
   const parsed = parseModelJson(extractJson(raw));
   const draft = sectionSchema.parse(parsed);
   const expected = fieldSpecsOfSection(key).map((spec) => spec.id);
@@ -191,12 +175,11 @@ async function generateSection(
   return draft as SectionDraft;
 }
 
-// ── 组装完整报告 ────────────────────────────────────────────────────────
-function assemble(judgment: BaziJudgment, sections: Partial<Record<SectionKey, SectionDraft>>): StaticReading {
+function assemble(judgment: BaziJudgment, sections: Partial<Record<SectionKey, unknown>>): StaticReading {
   const full = {
     schemaVersion: "single-full-v3" as const,
     scope: "full-reading" as const,
-    sections: Object.fromEntries(sectionKeys.map((key) => [key, sections[key]])),
+    sections: Object.fromEntries(sectionKeys.map((key) => [key, sections[key] as SectionDraft | undefined])),
     evidence: judgment.evidence,
     timelines: judgment.timelines,
     disclaimer: "本报告基于传统命理文化,由确定性排盘引擎与命理规则层计算、AI 负责文案翻译协作生成;命理判断属于传统文化解释体系,仅供自我观察参考,不构成科学预测或医疗、投资、婚姻等重大决策依据。",
@@ -219,71 +202,13 @@ export async function generateStaticReadingV3(
   judgment: BaziJudgment,
   options?: { systemPrompt?: string; promptSuffix?: string },
 ): Promise<StaticReading> {
-  const startedAt = Date.now();
   const system = options?.systemPrompt ?? SECTION_SYSTEM_PROMPT;
-  const withinBudget = () => Date.now() - startedAt < TOTAL_BUDGET_MS;
-  const targets = () => sectionKeys.filter((key) => judgment.meta.hasHourPillar || key !== "children");
-  // notes 非空 = 待(重新)生成;INITIAL 哨兵表示首轮待生成(不作为重试提示注入 prompt)
-  const INITIAL = "pending";
-  const retryNoteOf = (key: SectionKey) => {
-    if (!notes[key] || notes[key] === INITIAL) return options?.promptSuffix || undefined;
-    return [notes[key], options?.promptSuffix].filter(Boolean).join("\n");
-  };
-
-  const sections: Partial<Record<SectionKey, SectionDraft>> = {};
-  const notes: Partial<Record<SectionKey, string>> = {};
-  targets().forEach((key) => { notes[key] = INITIAL; });
-
-  const callBatch = async (keys: SectionKey[]) =>
-    Promise.allSettled(keys.map((key) => generateSection(callModel, system, judgment, key, retryNoteOf(key))));
-
-  for (let round = 0; round <= MAX_REPAIR_ROUNDS; round += 1) {
-    // 1. 生成本轮需要处理的章节(notes 非空的 = 失败章或违规章)
-    const pending = targets().filter((key) => Boolean(notes[key]));
-    if (pending.length) {
-      const settled = await callBatch(pending);
-      pending.forEach((key, index) => {
-        const result = settled[index];
-        if (result.status === "fulfilled" && result.value) {
-          sections[key] = result.value;
-          notes[key] = "";
-        } else {
-          const reason = result.status === "rejected"
-            ? (result.reason instanceof Error ? result.reason.message : String(result.reason))
-            : "模型返回空结果";
-          notes[key] = `上次输出未通过校验:${reason}`;
-        }
-      });
-    }
-
-    // 2. 仍有缺失章:最后一轮或超预算即失败,否则下轮重试
-    const missing = targets().filter((key) => !sections[key]);
-    if (missing.length) {
-      if (round === MAX_REPAIR_ROUNDS || !withinBudget()) {
-        throw new Error(`章节生成失败:${missing.map((key) => `${key}(${notes[key] || "未生成"})`).join(";").slice(0, 200)}`);
-      }
-      continue;
-    }
-
-    // 3. 组装 + 跨章一致性校验
-    const report = assemble(judgment, sections);
-    const violations = checkConsistency(report, judgment);
-    if (!violations.length) return report;
-
-    const isLastChance = round === MAX_REPAIR_ROUNDS || !withinBudget();
-    if (isLastChance) {
-      const fatal = violations.filter((violation) => FATAL_RULES.has(violation.rule));
-      if (fatal.length) {
-        throw new Error(`一致性校验未通过:${fatal.slice(0, 3).map((v) => `[${v.section ?? ""}${v.field ? ":" + v.field : ""}]${v.rule}`).join(";").slice(0, 200)}`);
-      }
-      return report; // 表达类违规已修复 2 轮,容忍放行(禁词/字数已尽力)
-    }
-
-    // 4. 违规章节排入下轮定向重生成
-    for (const [key, list] of violationsBySection(violations)) {
-      notes[key] = list.slice(0, 6).map((line) => `- ${line}`).join("\n");
-      delete sections[key];
-    }
-  }
-  throw new Error("REPORT_V3_GENERATION_EXHAUSTED");
+  return runSectionPipeline<SectionKey, StaticReading>({
+    sectionKeys,
+    generate: (key, retryNote) =>
+      generateSection(callModel, system, judgment, key, [retryNote, options?.promptSuffix].filter(Boolean).join("\n") || undefined),
+    assemble: (sections) => assemble(judgment, sections),
+    check: (report) => checkConsistency(report, judgment),
+    fatalRules: FATAL_RULES,
+  });
 }
